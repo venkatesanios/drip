@@ -48,12 +48,12 @@ class NodeList extends StatelessWidget {
 
     final isNova = [...AppConstants.ecoGemModelList].contains(masterData.modelId);
 
-
     return Consumer2<NodeListViewModel, MqttPayloadProvider>(
       builder: (context, vm, mqttProvider, _) {
         final nodeLiveMessage = mqttProvider.nodeLiveMessage;
         final outputOnOffPayload = mqttProvider.outputOnOffPayload;
 
+        // Add a condition to update only when data changes
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (vm.shouldUpdate(nodeLiveMessage, outputOnOffPayload)) {
             vm.onLivePayloadReceived(
@@ -408,12 +408,25 @@ class NodeList extends StatelessWidget {
           ),
           itemBuilder: (BuildContext context, int indexGv) {
             final rly = rlyStatus[indexGv];
+            print(rly.objType);
             return Column(
               children: [
-                RelayStatusAvatar(
-                  status: rly.status,
-                  rlyNo: rly.rlyNo,
-                  objType: rly.objType,
+                Selector<MqttPayloadProvider, String?>(
+                  selector: (_, provider) => provider.getSensorUpdatedValve(rly.sNo!.toString()),
+                  builder: (_, status, __) {
+                    final statusParts = status?.split(',') ?? [];
+
+                    if (statusParts.isNotEmpty) {
+                      rly.status = int.parse(statusParts[1]);
+                    }
+
+                    return RelayStatusAvatar(
+                      status: rly.status,
+                      rlyNo: rly.rlyNo,
+                      objType: rly.objType,
+                    );
+
+                  },
                 ),
                 Text(
                   (rly.swName?.isNotEmpty ?? false ? rly.swName : rly.name).toString(),

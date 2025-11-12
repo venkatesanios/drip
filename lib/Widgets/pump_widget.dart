@@ -20,10 +20,11 @@ class PumpWidget extends StatelessWidget {
   final String deviceId;
   final int customerId, controllerId, modelId;
   final bool isMobile;
+  final String pumpPosition;
 
   PumpWidget({super.key, required this.pump, required this.isSourcePump,
     required this.deviceId, required this.customerId, required this.controllerId,
-    required this.isMobile, required this.modelId});
+    required this.isMobile, required this.modelId, required this.pumpPosition});
 
   final ValueNotifier<int> popoverUpdateNotifier = ValueNotifier<int>(0);
 
@@ -34,6 +35,7 @@ class PumpWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return Selector<MqttPayloadProvider, Tuple2<String?, String?>>(
       selector: (_, provider) => Tuple2(
         provider.getPumpOnOffStatus(pump.sNo.toString()),
@@ -78,64 +80,117 @@ class PumpWidget extends StatelessWidget {
 
         return Stack(
           children: [
-            SizedBox(
-              width: 70,
-              height: 100,
-              child: Column(
-                children: [
-                  Builder(
-                    builder: (buttonContext) => Tooltip(
-                      message: 'View more details',
-                      child: TextButton(
-                        onPressed: () {
-                          showPopover(
-                            context: buttonContext,
-                            bodyBuilder: (context) {
-                              return ValueListenableBuilder<int>(
-                                valueListenable: popoverUpdateNotifier,
-                                builder: (context, _, __) {
-                                  return Material(
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        hasVoltage?
-                                        _buildVoltagePopoverContent(context, voltages, columns) :
-                                        Container(),
-                                        if (isSourcePump) _buildBottomControlButtons(context),
-                                      ],
-                                    ),
-                                  );
-                                },
-                              );
-                            },
-                            onPop: () => print('Popover was popped!'),
-                            direction: PopoverDirection.bottom,
-                            width: 325,
-                            arrowHeight: 15,
-                            arrowWidth: 30,
-                          );
-                        },
-                        style: ButtonStyle(
-                          padding: WidgetStateProperty.all(EdgeInsets.zero),
-                          minimumSize: WidgetStateProperty.all(Size.zero),
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          backgroundColor: WidgetStateProperty.all(Colors.transparent),
-                        ),
-                        child: SizedBox(
-                          height : 70,
-                          child: AppConstants.getAsset('pump', pump.status, ''),
-                        ),
+            if(isMobile)...[
+              SizedBox(
+                width: 70,
+                height: 70,
+                child: Builder(
+                  builder: (buttonContext) => Tooltip(
+                    message: 'View more details',
+                    child: TextButton(
+                      onPressed: () {
+                        showPopover(
+                          context: buttonContext,
+                          bodyBuilder: (context) {
+                            return ValueListenableBuilder<int>(
+                              valueListenable: popoverUpdateNotifier,
+                              builder: (context, _, __) {
+                                return Material(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      hasVoltage?
+                                      _buildVoltagePopoverContent(context, voltages, columns) :
+                                      Container(),
+                                      if (isSourcePump) _buildBottomControlButtons(context),
+                                    ],
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                          onPop: () => print('Popover was popped!'),
+                          direction: PopoverDirection.bottom,
+                          width: 325,
+                          arrowHeight: 15,
+                          arrowWidth: 30,
+                        );
+                      },
+                      style: ButtonStyle(
+                        padding: WidgetStateProperty.all(EdgeInsets.zero),
+                        minimumSize: WidgetStateProperty.all(Size.zero),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        backgroundColor: WidgetStateProperty.all(Colors.transparent),
+                      ),
+                      child: SizedBox(
+                        height : 70,
+                        child: AppConstants.getAsset('mobile pump', pump.status, pumpPosition),
                       ),
                     ),
                   ),
-                  Text(
-                    pump.name,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 10, color: Colors.black54),
-                  ),
-                ],
+                ),
               ),
-            ),
+            ]else...[
+              SizedBox(
+                width: 70,
+                height: 100,
+                child: Column(
+                  children: [
+                    Builder(
+                      builder: (buttonContext) => Tooltip(
+                        message: 'View more details',
+                        child: TextButton(
+                          onPressed: () {
+                            showPopover(
+                              context: buttonContext,
+                              bodyBuilder: (context) {
+                                return ValueListenableBuilder<int>(
+                                  valueListenable: popoverUpdateNotifier,
+                                  builder: (context, _, __) {
+                                    return Material(
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          hasVoltage?
+                                          _buildVoltagePopoverContent(context, voltages, columns) :
+                                          Container(),
+                                          if (isSourcePump) _buildBottomControlButtons(context),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                              onPop: () => print('Popover was popped!'),
+                              direction: PopoverDirection.bottom,
+                              width: 325,
+                              arrowHeight: 15,
+                              arrowWidth: 30,
+                            );
+                          },
+                          style: ButtonStyle(
+                            padding: WidgetStateProperty.all(EdgeInsets.zero),
+                            minimumSize: WidgetStateProperty.all(Size.zero),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            backgroundColor: WidgetStateProperty.all(Colors.transparent),
+                          ),
+                          child: SizedBox(
+                            height : 70,
+                            child: AppConstants.getAsset('pump', pump.status, ''),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Text(
+                      pump.name,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 10, color: Colors.black54),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+
 
             if (pump.onDelayLeft != '00:00:00' && Formatters().isValidTimeFormat(pump.onDelayLeft))
               Positioned(
@@ -256,14 +311,14 @@ class PumpWidget extends StatelessWidget {
         _buildPhaseInfo(),
         const SizedBox(height: 7),
         if (voltages.length == 6) ...[
-          _buildVoltageCurrentInfo('Voltage', voltages.sublist(0, 3), ['RY', 'YB', 'BR']),
+          _buildVoltageCurrentInfo('V ->', voltages.sublist(0, 3), ['RY', 'YB', 'BR']),
           const SizedBox(height: 7),
           _buildVoltageCurrentInfo('', voltages.sublist(3, 6), ['RN', 'YN', 'BN']),
         ] else ...[
-          _buildVoltageCurrentInfo('Voltage', voltages.sublist(0, 3), ['RY', 'YB', 'BR']),
+          _buildVoltageCurrentInfo('V ->', voltages.sublist(0, 3), ['RY', 'YB', 'BR']),
         ],
         const SizedBox(height: 7),
-        _buildVoltageCurrentInfo('Current', columns, ['RC', 'YC', 'BC']),
+        _buildVoltageCurrentInfo('C ->', columns, ['RC', 'YC', 'BC']),
         const SizedBox(height: 7),
       ],
     );
@@ -333,7 +388,7 @@ class PumpWidget extends StatelessWidget {
       color: Colors.transparent,
       child: Row(
         children: [
-          const SizedBox(width: 100, child: Text('Phase', style: TextStyle(color: Colors.black54))),
+          const SizedBox(width: 100, child: Text('P ->', style: TextStyle(color: Colors.black54))),
           const Spacer(),
           for (int i = 0; i < 3; i++)
             Row(
@@ -358,7 +413,7 @@ class PumpWidget extends StatelessWidget {
       child: Row(
         children: [
           SizedBox(
-              width: 85,
+              width: 35,
               child: Text(label, style: const TextStyle(color: Colors.black54))),
           ...List.generate(3, (index) {
             Color bgColor, borderColor;
@@ -387,7 +442,7 @@ class PumpWidget extends StatelessWidget {
                   border: Border.all(color: borderColor, width: 0.7),
                   borderRadius: BorderRadius.circular(3.0),
                 ),
-                width: 65,
+                width: 84,
                 height: 40,
                 child: Center(
                   child: Text(
@@ -423,7 +478,6 @@ class PumpWidget extends StatelessWidget {
               }
 
               final payLoadFinal = jsonEncode({"6200": {"6201": payload}});
-              print(payLoadFinal);
               MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
               sentUserOperationToServer('${pump.name} Start Manually', payLoadFinal);
               GlobalSnackBar.show(context, 'Pump start comment sent successfully', 200);

@@ -34,25 +34,46 @@ class AppConstants {
   static const nameValidationError = 'Name must not contain numbers or special characters';
 
   static const String pngPath = "assets/png/";
+  static const String pngPathMobile = "assets/png/mobile/";
   static const String gifPath = "assets/gif/";
   static const String svgObjectPath = 'assets/Images/Svg/';
 
   static const String boreWellFirst = "dp_bore_well_first.png";
   static const String boreWellCenter = "dp_bore_well_center.png";
 
+  static const String mobileBoreWellFirst = "m_bore_well_first.png";
+
   static const String wellFirst = "dp_well_first.png";
   static const String wellCenter = "dp_well_center.png";
   static const String wellLast = "dp_well_last.png";
+
+  static const String mobileWellFirst = "m_well_first.png";
+  static const String mobileWellCenter = "m_well_center.png";
+  static const String mobileWellLast = "m_well_last.png";
 
   static const String sumpFirst = "dp_sump_first.png";
   static const String sumpCenter = "dp_sump_center.png";
   static const String sumpLast = "dp_sump_last.png";
   static const String sumpFirstCWS = "dp_sump_first_cws.png";
 
+  static const String mobileSumpFirst = "m_sump_first.png";
+  static const String mobileSumpCenter = "m_sump_center.png";
+  static const String mobileSumpLast = "m_sump_last.png";
+
   static const String pumpOFF = "dp_irr_pump.png";
   static const String pumpON = "dp_irr_pump_g.gif";
   static const String pumpNotON = "dp_irr_pump_y.png";
   static const String pumpNotOFF = "dp_irr_pump_r.png";
+
+  static const String mblPumpOFF = "m_pump_first_g.png";
+  static const String mblPumpON = "m_pump_first.gif";
+  static const String mblPumpNotON = "m_pump_first_y.png";
+  static const String mblPumpNotOFF = "m_pump_first_r.png";
+
+  static const String mblPumpLastOFF = "m_pump_last_g.png";
+  static const String mblPumpLastON = "m_pump_last_g.gif";
+  static const String mblPumpLastNotON = "m_pump_last_y.png";
+  static const String mblPumpLastNotOFF = "m_pump_last_r.png";
 
   static const String filterOFF = "dp_filter.png";
   static const String filterON = "dp_filter_g.png";
@@ -194,9 +215,14 @@ class AppConstants {
     switch (keyOne) {
       case 'source':
         imagePathFinal = _getSourceImagePath(keyTwo, keyThree);
+      case 'mobile source':
+        imagePathFinal = _getMobileSourceImagePath(keyTwo, keyThree);
         break;
       case 'pump':
-        imagePathFinal = _getIrrigationPumpImagePath(keyTwo);
+        imagePathFinal = _getPumpImagePath(keyTwo);
+        break;
+      case 'mobile pump':
+        imagePathFinal = _getMobilePumpImagePath(keyTwo, keyThree);
         break;
       case 'filter':
         imagePathFinal = _getFilterImagePath(keyTwo);
@@ -244,7 +270,8 @@ class AppConstants {
     }
 
     return Image.asset(
-      '$pngPath$imagePathFinal',
+      '${(keyOne == 'mobile pump' || keyOne == 'mobile source') ?
+      pngPathMobile : pngPath}$imagePathFinal',
       width: double.infinity,
       height: double.infinity,
       fit: BoxFit.fill,
@@ -266,7 +293,22 @@ class AppConstants {
     }
   }
 
-  static String _getIrrigationPumpImagePath(int status) {
+  static String _getMobileSourceImagePath(int type, String position) {
+    switch (position) {
+      case 'First':
+        return type==4 ? mobileBoreWellFirst : type==3 ? mobileWellFirst : mobileSumpFirst;
+      case 'Center':
+        return type==4 ? mobileBoreWellFirst : type==3 ? mobileWellFirst : mobileSumpFirst;
+      case 'Last':
+        return type==3 ? mobileWellLast : mobileSumpLast;
+      case 'After Valve':
+        return sumpFirstCWS;
+      default:
+        return '';
+    }
+  }
+
+  static String _getPumpImagePath(int status) {
     switch (status) {
       case 0:
         return pumpOFF;
@@ -279,6 +321,22 @@ class AppConstants {
       default:
         return '';
     }
+  }
+
+  static String _getMobilePumpImagePath(int status, String position) {
+    switch (status) {
+      case 0:
+        return position == "First" ? mblPumpOFF : mblPumpLastOFF;
+      case 1:
+        return position == "First" ? mblPumpON : mblPumpLastON;
+      case 2:
+        return position == "First" ? mblPumpNotON : mblPumpLastNotON;
+      case 3:
+        return position == "First" ? mblPumpNotOFF : mblPumpLastNotOFF;
+      default:
+        return '';
+    }
+
   }
 
   static String _getFilterImagePath(int status) {

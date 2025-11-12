@@ -1,4 +1,6 @@
 
+import 'dart:convert';
+
 import '../../modules/PumpController/model/pump_controller_data_model.dart';
 
 abstract class FertilizerItem {
@@ -38,6 +40,11 @@ class Group {
     required this.groupName, required this.master});
 
   factory Group.fromJson(Map<String, dynamic> json, String userType) {
+
+    String jsonString = jsonEncode(json);
+
+    print('all my site:$jsonString');
+
     return Group(
       customerId: json['customerId'],
       customerName:  json['customerName'],
