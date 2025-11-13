@@ -163,7 +163,7 @@ class PumpWidget extends StatelessWidget {
                               },
                               onPop: () => print('Popover was popped!'),
                               direction: PopoverDirection.bottom,
-                              width: MediaQuery.sizeOf(context).width-50,
+                              width: 325,
                               arrowHeight: 15,
                               arrowWidth: 30,
                             );
