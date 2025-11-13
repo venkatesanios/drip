@@ -163,7 +163,7 @@ class PumpWidget extends StatelessWidget {
                               },
                               onPop: () => print('Popover was popped!'),
                               direction: PopoverDirection.bottom,
-                              width: 325,
+                              width: MediaQuery.sizeOf(context).width-50,
                               arrowHeight: 15,
                               arrowWidth: 30,
                             );
@@ -311,14 +311,14 @@ class PumpWidget extends StatelessWidget {
         _buildPhaseInfo(),
         const SizedBox(height: 7),
         if (voltages.length == 6) ...[
-          _buildVoltageCurrentInfo('V ->', voltages.sublist(0, 3), ['RY', 'YB', 'BR']),
+          _buildVoltageCurrentInfo('V', voltages.sublist(0, 3), ['RY', 'YB', 'BR']),
           const SizedBox(height: 7),
           _buildVoltageCurrentInfo('', voltages.sublist(3, 6), ['RN', 'YN', 'BN']),
         ] else ...[
-          _buildVoltageCurrentInfo('V ->', voltages.sublist(0, 3), ['RY', 'YB', 'BR']),
+          _buildVoltageCurrentInfo('V', voltages.sublist(0, 3), ['RY', 'YB', 'BR']),
         ],
         const SizedBox(height: 7),
-        _buildVoltageCurrentInfo('C ->', columns, ['RC', 'YC', 'BC']),
+        _buildVoltageCurrentInfo('C', columns, ['RC', 'YC', 'BC']),
         const SizedBox(height: 7),
       ],
     );
@@ -388,7 +388,7 @@ class PumpWidget extends StatelessWidget {
       color: Colors.transparent,
       child: Row(
         children: [
-          const SizedBox(width: 100, child: Text('P ->', style: TextStyle(color: Colors.black54))),
+          const SizedBox(width: 100, child: Text('P', style: TextStyle(color: Colors.black54))),
           const Spacer(),
           for (int i = 0; i < 3; i++)
             Row(

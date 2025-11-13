@@ -55,7 +55,7 @@ class SensorWidgetMobile extends StatelessWidget {
                   border: Border.all(color: Colors.grey, width: 0.5),
                 ),
                 child: Text(
-                  statusParts[1] == "1" ? 'Normal' : 'High',
+                  statusParts[1] == "1" ? 'Low' : 'High',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,

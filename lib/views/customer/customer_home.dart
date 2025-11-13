@@ -539,7 +539,7 @@ class SensorWidget extends StatelessWidget {
                         ),
                         child: Center(
                           child: Text(
-                            statusParts[1] == "1" ? 'Normal' : 'High',
+                            statusParts[1] == "1" ? 'Low' : 'High',
                             style: const TextStyle(fontSize: 10, color: Colors.white),
                           ),
                         ),
