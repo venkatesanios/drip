@@ -4,12 +4,14 @@ class RelayStatusAvatar extends StatelessWidget {
   final int? status;
   final int? rlyNo;
   final String? objType;
+  final double sNo;
 
   const RelayStatusAvatar({
     super.key,
     required this.status,
     required this.rlyNo,
     required this.objType,
+    required this.sNo,
   });
 
   Color _getStatusColor(int status) {
@@ -29,6 +31,45 @@ class RelayStatusAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        CircleAvatar(
+          radius: 16,
+          backgroundColor: _getStatusColor(status!),
+          child: Text(
+            getLabel(objType, rlyNo),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 10,
+            ),
+          ),
+        ),
+        if(sNo.toString().startsWith('23.') || sNo.toString().startsWith('40.'))...[
+          Positioned(
+            bottom : 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              decoration: BoxDecoration(
+                color: status == 0 ? Colors.green : Colors.red,
+                borderRadius: BorderRadius.circular(3),
+              ),
+              child: Text(
+                status == 0 ? 'Low' : 'High',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 10,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ],
+
+      ],
+    );
     return CircleAvatar(
       radius: 16,
       backgroundColor: _getStatusColor(status!),
