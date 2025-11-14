@@ -42,6 +42,7 @@ class AppConstants {
   static const String boreWellCenter = "dp_bore_well_center.png";
 
   static const String mobileBoreWellFirst = "m_bore_well_first.png";
+  static const String mobileBoreWellCenter= "m_bore_well_center.png";
 
   static const String wellFirst = "dp_well_first.png";
   static const String wellCenter = "dp_well_center.png";
@@ -49,7 +50,6 @@ class AppConstants {
 
   static const String mobileWellFirst = "m_well_first.png";
   static const String mobileWellCenter = "m_well_center.png";
-  static const String mobileWellLast = "m_well_last.png";
 
   static const String sumpFirst = "dp_sump_first.png";
   static const String sumpCenter = "dp_sump_center.png";
@@ -58,7 +58,6 @@ class AppConstants {
 
   static const String mobileSumpFirst = "m_sump_first.png";
   static const String mobileSumpCenter = "m_sump_center.png";
-  static const String mobileSumpLast = "m_sump_last.png";
 
   static const String pumpOFF = "dp_irr_pump.png";
   static const String pumpON = "dp_irr_pump_g.gif";
@@ -70,15 +69,16 @@ class AppConstants {
   static const String mblPumpNotON = "m_pump_first_y.png";
   static const String mblPumpNotOFF = "m_pump_first_r.png";
 
-  static const String mblPumpLastOFF = "m_pump_last_g.png";
-  static const String mblPumpLastON = "m_pump_last_g.gif";
-  static const String mblPumpLastNotON = "m_pump_last_y.png";
-  static const String mblPumpLastNotOFF = "m_pump_last_r.png";
 
   static const String filterOFF = "dp_filter.png";
   static const String filterON = "dp_filter_g.png";
   static const String filterNotON = "dp_filter_y.png";
   static const String filterNotOFF = "dp_filter_r.png";
+
+  static const String mobileFilterOFF = "m_dp_filter.png";
+  static const String mobileFilterON = "m_dp_filter_g.png";
+  static const String mobileFilterNotON = "m_dp_filter_y.png";
+  static const String mobileFilterNotOFF = "m_dp_filter_r.png";
 
   static const String boosterPumpOFF = "dp_frt_booster_pump.png";
   static const String boosterPumpON = "dp_frt_booster_pump_g.gif";
@@ -227,6 +227,9 @@ class AppConstants {
       case 'filter':
         imagePathFinal = _getFilterImagePath(keyTwo);
         break;
+      case 'mobile filter':
+        imagePathFinal = _getMobileFilterImagePath(keyTwo);
+        break;
       case 'booster':
         imagePathFinal = _getBoosterImagePath(keyTwo);
         break;
@@ -270,7 +273,7 @@ class AppConstants {
     }
 
     return Image.asset(
-      '${(keyOne == 'mobile pump' || keyOne == 'mobile source') ?
+      '${(keyOne == 'mobile pump' || keyOne == 'mobile source' || keyOne == 'mobile filter') ?
       pngPathMobile : pngPath}$imagePathFinal',
       width: double.infinity,
       height: double.infinity,
@@ -281,11 +284,11 @@ class AppConstants {
   static String _getSourceImagePath(int type, String position) {
     switch (position) {
       case 'First':
-        return type==4?boreWellFirst:type==3?wellFirst:sumpFirst;
+        return type==4 ? boreWellFirst : type==3 ? wellFirst : sumpFirst;
       case 'Center':
-        return type==4?boreWellCenter:type==3?wellCenter:sumpCenter;
+        return type==4 ? boreWellCenter : type==3 ? wellCenter : sumpCenter;
       case 'Last':
-        return type==3?wellLast:sumpLast;
+        return type==3 ? wellLast : sumpLast;
       case 'After Valve':
         return sumpFirstCWS;
       default:
@@ -298,9 +301,9 @@ class AppConstants {
       case 'First':
         return type==4 ? mobileBoreWellFirst : type==3 ? mobileWellFirst : mobileSumpFirst;
       case 'Center':
-        return type==4 ? mobileBoreWellFirst : type==3 ? mobileWellFirst : mobileSumpFirst;
+        return type==4 ? mobileBoreWellCenter : type==3 ? mobileWellFirst : mobileSumpFirst;
       case 'Last':
-        return type==3 ? mobileWellLast : mobileSumpLast;
+        return type==3 ? mobileWellCenter : mobileSumpCenter;
       case 'After Valve':
         return sumpFirstCWS;
       default:
@@ -326,17 +329,16 @@ class AppConstants {
   static String _getMobilePumpImagePath(int status, String position) {
     switch (status) {
       case 0:
-        return position == "First" ? mblPumpOFF : mblPumpLastOFF;
+        return mblPumpOFF;
       case 1:
-        return position == "First" ? mblPumpON : mblPumpLastON;
+        return mblPumpON;
       case 2:
-        return position == "First" ? mblPumpNotON : mblPumpLastNotON;
+        return mblPumpNotON;
       case 3:
-        return position == "First" ? mblPumpNotOFF : mblPumpLastNotOFF;
+        return mblPumpNotOFF;
       default:
         return '';
     }
-
   }
 
   static String _getFilterImagePath(int status) {
@@ -353,6 +355,22 @@ class AppConstants {
         return '';
     }
   }
+
+  static String _getMobileFilterImagePath(int status) {
+    switch (status) {
+      case 0:
+        return mobileFilterOFF;
+      case 1:
+        return mobileFilterON;
+      case 2:
+        return mobileFilterNotON;
+      case 3:
+        return mobileFilterNotOFF;
+      default:
+        return '';
+    }
+  }
+
 
   static String getFertilizerImage(int cIndex, int status, int cheLength, List agitatorList) {
     String imageName;

@@ -37,7 +37,8 @@ class RelayStatusAvatar extends StatelessWidget {
       children: [
         CircleAvatar(
           radius: 16,
-          backgroundColor: _getStatusColor(status!),
+          backgroundColor: (sNo.toString().startsWith('23.') || sNo.toString().startsWith('40.')) ?
+          _getStatusColor(0) : _getStatusColor(status!),
           child: Text(
             getLabel(objType, rlyNo),
             style: const TextStyle(

@@ -15,6 +15,7 @@ import '../../../repository/repository.dart';
 import '../../../services/http_service.dart';
 import '../../../utils/constants.dart';
 import '../../../utils/my_function.dart';
+import 'float_switch_popover.dart';
 
 class ValveWidgetMobile extends StatefulWidget {
   final ValveModel valve;
@@ -286,7 +287,13 @@ class _ValveWidgetMobileState extends State<ValveWidgetMobile> {
   }
 
   Widget _buildWaterSource(ValveModel valve) {
+
     final source = valve.waterSources[0];
+    final bool hasLevel = source.level.isNotEmpty;
+    final bool hasFloatSwitch = source.floatSwitches.isNotEmpty;
+
+    final ValueNotifier<int> popoverUpdateNotifier = ValueNotifier<int>(0);
+
     return Stack(
       alignment: Alignment.center,
       children: [
@@ -304,10 +311,13 @@ class _ValveWidgetMobileState extends State<ValveWidgetMobile> {
             ),
           ],
         ),
-        if (source.level.isNotEmpty) ...[
+        if (hasLevel) ...[
           _buildLevelIndicator(source, 1),
           _buildLevelIndicator(source, 2),
-        ]
+        ],
+
+        if (hasFloatSwitch) FloatSwitchPopover(source: source,
+            popoverUpdateNotifier: popoverUpdateNotifier, isMobile: true),
       ],
     );
   }
@@ -325,7 +335,6 @@ class _ValveWidgetMobileState extends State<ValveWidgetMobile> {
           final sensorUpdate = provider.getSensorUpdatedValve(source.level[0].sNo.toString());
           final statusParts = sensorUpdate?.split(',') ?? [];
 
-          // keep original logic: index 1 -> use part 1, index 2 -> use part 2
           if (statusParts.length > index) {
             source.level.first.value = statusParts[index];
           }

@@ -80,121 +80,68 @@ class PumpWidget extends StatelessWidget {
 
         return Stack(
           children: [
-            if(isMobile)...[
-              SizedBox(
-                width: 70,
-                height: 70,
-                child: Builder(
-                  builder: (buttonContext) => Tooltip(
-                    message: 'View more details',
-                    child: TextButton(
-                      onPressed: () {
-                        showPopover(
-                          context: buttonContext,
-                          bodyBuilder: (context) {
-                            return ValueListenableBuilder<int>(
-                              valueListenable: popoverUpdateNotifier,
-                              builder: (context, _, __) {
-                                return Material(
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      hasVoltage?
-                                      _buildVoltagePopoverContent(context, voltages, columns) :
-                                      Container(),
-                                      if (isSourcePump) _buildBottomControlButtons(context),
-                                    ],
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                          onPop: () => print('Popover was popped!'),
-                          direction: PopoverDirection.bottom,
-                          width: 325,
-                          arrowHeight: 15,
-                          arrowWidth: 30,
-                        );
-                      },
-                      style: ButtonStyle(
-                        padding: WidgetStateProperty.all(EdgeInsets.zero),
-                        minimumSize: WidgetStateProperty.all(Size.zero),
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        backgroundColor: WidgetStateProperty.all(Colors.transparent),
-                      ),
-                      child: SizedBox(
-                        height : 70,
-                        child: AppConstants.getAsset('mobile pump', pump.status, pumpPosition),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ]else...[
-              SizedBox(
-                width: 70,
-                height: 100,
-                child: Column(
-                  children: [
-                    Builder(
-                      builder: (buttonContext) => Tooltip(
-                        message: 'View more details',
-                        child: TextButton(
-                          onPressed: () {
-                            showPopover(
-                              context: buttonContext,
-                              bodyBuilder: (context) {
-                                return ValueListenableBuilder<int>(
-                                  valueListenable: popoverUpdateNotifier,
-                                  builder: (context, _, __) {
-                                    return Material(
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          hasVoltage?
-                                          _buildVoltagePopoverContent(context, voltages, columns) :
-                                          Container(),
-                                          if (isSourcePump) _buildBottomControlButtons(context),
-                                        ],
-                                      ),
-                                    );
-                                  },
-                                );
-                              },
-                              onPop: () => print('Popover was popped!'),
-                              direction: PopoverDirection.bottom,
-                              width: 325,
-                              arrowHeight: 15,
-                              arrowWidth: 30,
-                            );
-                          },
-                          style: ButtonStyle(
-                            padding: WidgetStateProperty.all(EdgeInsets.zero),
-                            minimumSize: WidgetStateProperty.all(Size.zero),
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            backgroundColor: WidgetStateProperty.all(Colors.transparent),
-                          ),
-                          child: SizedBox(
-                            height : 70,
-                            child: AppConstants.getAsset('pump', pump.status, ''),
-                          ),
+            SizedBox(
+              width: 70,
+              height: 100,
+              child: Column(
+                children: [
+                  Builder(
+                    builder: (buttonContext) => Tooltip(
+                      message: 'View more details',
+                      child: TextButton(
+                        onPressed: () {
+                          showPopover(
+                            context: buttonContext,
+                            bodyBuilder: (context) {
+                              return ValueListenableBuilder<int>(
+                                valueListenable: popoverUpdateNotifier,
+                                builder: (context, _, __) {
+                                  return Material(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        hasVoltage?
+                                        _buildVoltagePopoverContent(context, voltages, columns) :
+                                        Container(),
+                                        if (isSourcePump) _buildBottomControlButtons(context),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                            onPop: () => print('Popover was popped!'),
+                            direction: PopoverDirection.bottom,
+                            width: 325,
+                            arrowHeight: 15,
+                            arrowWidth: 30,
+                          );
+                        },
+                        style: ButtonStyle(
+                          padding: WidgetStateProperty.all(EdgeInsets.zero),
+                          minimumSize: WidgetStateProperty.all(Size.zero),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          backgroundColor: WidgetStateProperty.all(Colors.transparent),
+                        ),
+                        child: SizedBox(
+                          height : 70,
+                          child: AppConstants.getAsset(isMobile ? 'mobile pump' : 'pump', pump.status, ''),
                         ),
                       ),
                     ),
-                    Text(
-                      pump.name,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 10, color: Colors.black54),
-                    ),
-                  ],
-                ),
+                  ),
+                  Text(
+                    pump.name,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 10, color: Colors.black54),
+                  ),
+                ],
               ),
-            ],
-
+            ),
 
             if (pump.onDelayLeft != '00:00:00' && Formatters().isValidTimeFormat(pump.onDelayLeft))
               Positioned(
-                top: 40,
+                top: isMobile? 20:40,
                 left: 7.5,
                 child: Container(
                   width: 55,
@@ -225,7 +172,7 @@ class PumpWidget extends StatelessWidget {
             if (int.tryParse(pump.reason) case final reason? when reason > 0 && reason != 31)
               Positioned(
                 top: 1,
-                left: 37.5,
+                left: isMobile? 3 : 37.5,
                 child: Tooltip(
                   message: getContentByCode(reason),
                   textStyle: const TextStyle(color: Colors.black54),
@@ -243,7 +190,7 @@ class PumpWidget extends StatelessWidget {
 
             if (pump.reason == '11' || pump.reason == '22')
               Positioned(
-                top: 40,
+                top: isMobile? 20:40,
                 left: 0,
                 child: Container(
                   width: 67,
@@ -269,7 +216,7 @@ class PumpWidget extends StatelessWidget {
 
             else if (pump.reason == '8' && isTimeFormat(pump.actualValue.split('_').last))
               Positioned(
-                top: 40,
+                top: isMobile? 20:40,
                 left: 0,
                 child: Container(
                   width: 67,
@@ -302,6 +249,7 @@ class PumpWidget extends StatelessWidget {
 
     return Column(
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (int.tryParse(pump.reason) != null &&
             int.parse(pump.reason) > 0 &&
@@ -309,72 +257,69 @@ class PumpWidget extends StatelessWidget {
           _buildReasonContainer(context),
         const SizedBox(height: 5),
         _buildPhaseInfo(),
-        const SizedBox(height: 7),
+        const SizedBox(height: 8),
         if (voltages.length == 6) ...[
-          _buildVoltageCurrentInfo('V', voltages.sublist(0, 3), ['RY', 'YB', 'BR']),
-          const SizedBox(height: 7),
-          _buildVoltageCurrentInfo('', voltages.sublist(3, 6), ['RN', 'YN', 'BN']),
+          _buildVoltageCurrentInfo(voltages.sublist(0, 3), ['RY', 'YB', 'BR']),
+          const SizedBox(height: 5),
+          _buildVoltageCurrentInfo(voltages.sublist(3, 6), ['RN', 'YN', 'BN']),
         ] else ...[
-          _buildVoltageCurrentInfo('V', voltages.sublist(0, 3), ['RY', 'YB', 'BR']),
+          _buildVoltageCurrentInfo(voltages.sublist(0, 3), ['RY', 'YB', 'BR']),
         ],
-        const SizedBox(height: 7),
-        _buildVoltageCurrentInfo('C', columns, ['RC', 'YC', 'BC']),
-        const SizedBox(height: 7),
+        const SizedBox(height: 8),
+        _buildVoltageCurrentInfo(columns, ['RC', 'YC', 'BC']),
+        const SizedBox(height: 10),
       ],
     );
   }
 
   Widget _buildReasonContainer(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(3.0),
-      child: Container(
-        width: 325,
-        height: isMobile? 40 : 35,
-        decoration: BoxDecoration(
-          color: Colors.deepOrange.shade50,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(5),
-            topRight: Radius.circular(5),
-          ),
+    return Container(
+      width: 325,
+      height: isMobile? 40 : 35,
+      decoration: BoxDecoration(
+        color: Colors.deepOrange.shade50,
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(5),
+          topRight: Radius.circular(5),
         ),
-        child: Padding(
-          padding: const EdgeInsets.only(left: 8),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  pump.reason == '8' &&
-                      isTimeFormat(pump.actualValue.split('_').last)
-                      ? '${getContentByCode(int.parse(pump.reason))}, It will be restart automatically within ${pump.actualValue.split('_').last} (hh:mm:ss)'
-                      : getContentByCode(int.parse(pump.reason)),
-                  style: const TextStyle(
-                      fontSize: 11, color: Colors.deepOrange, fontWeight: FontWeight.normal),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.only(left: 8),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                pump.reason == '8' &&
+                    isTimeFormat(pump.actualValue.split('_').last)
+                    ? '${getContentByCode(int.parse(pump.reason))}, It will be restart automatically within ${pump.actualValue.split('_').last} (hh:mm:ss)'
+                    : getContentByCode(int.parse(pump.reason)),
+                style: const TextStyle(
+                    fontSize: 11, color: Colors.deepOrange, fontWeight: FontWeight.normal),
+              ),
+            ),
+            if (!excludedReasons.contains(pump.reason))
+              SizedBox(
+                height: isMobile? 30 : 23,
+                child: TextButton(
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.redAccent.shade200,
+                  ),
+                  onPressed: () {
+                    String payload = '${pump.sNo},1';
+                    String payLoadFinal = jsonEncode({
+                      "6300": {"6301": payload}
+                    });
+                    MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
+                    sentUserOperationToServer('${pump.name} Reset Manually', payLoadFinal);
+                    GlobalSnackBar.show(context, 'Reset comment sent successfully', 200);
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Reset',
+                      style: TextStyle(fontSize: 12, color: Colors.white)),
                 ),
               ),
-              if (!excludedReasons.contains(pump.reason))
-                SizedBox(
-                  height: isMobile? 30 : 23,
-                  child: TextButton(
-                    style: TextButton.styleFrom(
-                      backgroundColor: Colors.redAccent.shade200,
-                    ),
-                    onPressed: () {
-                      String payload = '${pump.sNo},1';
-                      String payLoadFinal = jsonEncode({
-                        "6300": {"6301": payload}
-                      });
-                      MqttService().topicToPublishAndItsMessage(payLoadFinal, '${AppConstants.publishTopic}/$deviceId');
-                      sentUserOperationToServer('${pump.name} Reset Manually', payLoadFinal);
-                      GlobalSnackBar.show(context, 'Reset comment sent successfully', 200);
-                      Navigator.pop(context);
-                    },
-                    child: const Text('Reset',
-                        style: TextStyle(fontSize: 12, color: Colors.white)),
-                  ),
-                ),
-              const SizedBox(width: 5),
-            ],
-          ),
+            const SizedBox(width: 5),
+          ],
         ),
       ),
     );
@@ -388,7 +333,10 @@ class PumpWidget extends StatelessWidget {
       color: Colors.transparent,
       child: Row(
         children: [
-          const SizedBox(width: 100, child: Text('P', style: TextStyle(color: Colors.black54))),
+          const Padding(
+            padding: EdgeInsets.only(left: 9),
+            child: SizedBox(width: 100, child: Text('Phase', style: TextStyle(color: Colors.black54))),
+          ),
           const Spacer(),
           for (int i = 0; i < 3; i++)
             Row(
@@ -405,56 +353,56 @@ class PumpWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildVoltageCurrentInfo(String label, List<String> values, List<String> prefixes) {
+  Widget _buildVoltageCurrentInfo(List<String> values, List<String> prefixes) {
     return Container(
-      width: 310,
-      height: 25,
+      width: 320,
+      height: 30,
       color: Colors.transparent,
-      child: Row(
-        children: [
-          SizedBox(
-              width: 35,
-              child: Text(label, style: const TextStyle(color: Colors.black54))),
-          ...List.generate(3, (index) {
-            Color bgColor, borderColor;
-            switch (index) {
-              case 0:
-                bgColor = Colors.red.shade50;
-                borderColor = Colors.red.shade200;
-                break;
-              case 1:
-                bgColor = Colors.yellow.shade50;
-                borderColor = Colors.yellow.shade500;
-                break;
-              case 2:
-                bgColor = Colors.blue.shade50;
-                borderColor = Colors.blue.shade300;
-                break;
-              default:
-                bgColor = Colors.white;
-                borderColor = Colors.grey;
-            }
-            return Padding(
-              padding: const EdgeInsets.only(left: 7),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: bgColor,
-                  border: Border.all(color: borderColor, width: 0.7),
-                  borderRadius: BorderRadius.circular(3.0),
-                ),
-                width: 84,
-                height: 40,
-                child: Center(
-                  child: Text(
-                    '${prefixes[index]} : ${values[index]}',
-                    style: const TextStyle(fontSize: 11),
-                    textAlign: TextAlign.center,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 8),
+        child: Row(
+          children: [
+            ...List.generate(3, (index) {
+              Color bgColor, borderColor;
+              switch (index) {
+                case 0:
+                  bgColor = Colors.red.shade200;
+                  borderColor = Colors.red.shade400;
+                  break;
+                case 1:
+                  bgColor = Colors.yellow.shade200;
+                  borderColor = Colors.yellow;
+                  break;
+                case 2:
+                  bgColor = Colors.blue.shade200;
+                  borderColor = Colors.blue.shade400;
+                  break;
+                default:
+                  bgColor = Colors.white;
+                  borderColor = Colors.grey;
+              }
+              return Padding(
+                padding: const EdgeInsets.only(right: 7),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: bgColor,
+                    border: Border.all(color: borderColor, width: 0.7),
+                    borderRadius: BorderRadius.circular(3.0),
+                  ),
+                  width: 95,
+                  height: 45,
+                  child: Center(
+                    child: Text(
+                      '${prefixes[index]} : ${values[index]}',
+                      style: const TextStyle(fontSize: 11),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                 ),
-              ),
-            );
-          }),
-        ],
+              );
+            }),
+          ],
+        ),
       ),
     );
   }

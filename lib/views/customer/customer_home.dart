@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:oro_drip_irrigation/utils/helpers/mc_permission_helper.dart';
 import 'package:oro_drip_irrigation/views/customer/home_sub_classes/current_program.dart';
 import 'package:oro_drip_irrigation/views/customer/widgets/filter_builder.dart';
+import 'package:oro_drip_irrigation/views/customer/widgets/float_switch_popover.dart';
 import 'package:oro_drip_irrigation/views/customer/widgets/main_valve_widget.dart';
 import 'package:oro_drip_irrigation/views/customer/widgets/my_material_button.dart';
 import 'package:oro_drip_irrigation/views/customer/widgets/source_column_widget.dart';
@@ -313,7 +314,7 @@ class PumpStationWithLine extends StatelessWidget {
         ..._buildWaterSource(context, outletWaterSources, inletWaterSources.isNotEmpty? true : false, false,fertilizerSite.isNotEmpty?true:false),
 
       if (filterSite.isNotEmpty)
-        ...buildFilter(context, filterSite, fertilizerSite.isNotEmpty),
+        ...buildFilter(context, filterSite, fertilizerSite.isNotEmpty, false),
 
       if (fertilizerSite.isNotEmpty)
         ..._buildFertilizer(context, fertilizerSite),
@@ -380,6 +381,7 @@ class PumpStationWithLine extends StatelessWidget {
           customerId: customerId,
           controllerId: controllerId,
           modelId: modelId,
+          isMobile: false,
         ),
       ));
       gridItems.addAll(source.outletPump.map((pump) => Padding(
@@ -724,7 +726,7 @@ class _SensorPopoverContentState extends State<SensorPopoverContent> {
         final jsonData = jsonDecode(response.body);
         if (jsonData["code"] == 200) {
           sensors = (jsonData['data'] as List).map((item) {
-            final dateStr = item['date']; // 👈 You need this!
+            final dateStr = item['date'];
             final Map<String, List<SensorHourlyData>> hourlyDataMap = {};
 
             item.forEach((key, value) {
@@ -917,8 +919,9 @@ class ValveWidget extends StatelessWidget {
         }
 
         bool hasMoisture = valve.moistureSensors.isNotEmpty;
-
         bool hasWaterSource = valve.waterSources.isNotEmpty;
+        final ValueNotifier<int> popoverUpdateNotifier = ValueNotifier<int>(0);
+
 
         return hasWaterSource ? SizedBox(
           width: 140,
@@ -1209,6 +1212,9 @@ class ValveWidget extends StatelessWidget {
                         ),
                       ),
                     ],
+
+                    if (valve.waterSources.isNotEmpty) FloatSwitchPopover(source: valve.waterSources[0],
+                        popoverUpdateNotifier: popoverUpdateNotifier, isMobile: false),
                   ],
                 ),
               )

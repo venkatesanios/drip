@@ -6,6 +6,7 @@ import 'package:oro_drip_irrigation/views/customer/widgets/main_valve_widget.dar
 import 'package:popover/popover.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../Widgets/pump_widget.dart';
 import '../../../../models/customer/site_model.dart';
 import '../../../../StateManagement/mqtt_payload_provider.dart';
 import '../../../../services/communication_service.dart';
@@ -34,8 +35,6 @@ class CustomerHomeNarrow extends StatelessWidget {
     int customerId = viewModel.mySiteList.data[viewModel.sIndex].customerId;
     final cM = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex];
     bool isNova = [...AppConstants.ecoGemModelList].contains(cM.modelId);
-
-
 
     final linesToDisplay = (viewModel.myCurrentIrrLine == "All irrigation line" || viewModel.myCurrentIrrLine.isEmpty)
         ? cM.irrigationLine.where((line) => line.name != viewModel.myCurrentIrrLine).toList()
@@ -98,7 +97,7 @@ class CustomerHomeNarrow extends StatelessWidget {
                         ),
                       ),
                       Positioned(
-                        top: 170,
+                        bottom: 50,
                         left: MediaQuery.sizeOf(context).width - 35,
                         right: 3,
                         child: Container(
@@ -106,6 +105,26 @@ class CustomerHomeNarrow extends StatelessWidget {
                           color: Colors.grey.shade400,
                         ),
                       ),
+                      Positioned(
+                        top: 130,
+                        left: MediaQuery.sizeOf(context).width - 35,
+                        right: 3,
+                        child: Container(
+                          height: 4,
+                          color: Colors.grey.shade400,
+                        ),
+                      ),
+                      if(prsSwitch.isNotEmpty)...[
+                        Positioned(
+                          top: 180,
+                          left: MediaQuery.sizeOf(context).width - 35,
+                          right: 3,
+                          child: Container(
+                            height: 4,
+                            color: Colors.grey.shade400,
+                          ),
+                        ),
+                      ],
 
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -790,7 +809,7 @@ class PumpStationMobile extends StatelessWidget {
         ..._buildWaterSource(context, outletWaterSources, inletWaterSources.isNotEmpty, false),
 
       if (filterSite.isNotEmpty)
-        ...buildFilter(context, filterSite, false),
+        ...buildFilter(context, filterSite, false, true),
     ];
 
     final fertilizerItems = fertilizerSite.isNotEmpty
@@ -799,10 +818,9 @@ class PumpStationMobile extends StatelessWidget {
 
 
     if (fertilizerSite.isEmpty) {
-
       return SizedBox(
         width: double.infinity,
-        height: 140,
+        height: 100,
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           reverse: true,
@@ -822,7 +840,6 @@ class PumpStationMobile extends StatelessWidget {
           ),
         ),
       );
-
     } else {
       return Column(
         children: [
@@ -886,14 +903,10 @@ class PumpStationMobile extends StatelessWidget {
 
   List<Widget> _buildWaterSource(BuildContext context, List<WaterSourceModel> waterSources,
       bool isAvailInlet, bool isInlet) {
-
     final List<Widget> gridItems = [];
-
     for (int index = 0; index < waterSources.length; index++) {
-
       final source = waterSources[index];
-
-      gridItems.add(SourceColumnWidgetMobile(
+      gridItems.add(SourceColumnWidget(
         source: source,
         isInletSource: isInlet,
         isAvailInlet: isAvailInlet,
@@ -904,9 +917,19 @@ class PumpStationMobile extends StatelessWidget {
         customerId: customerId,
         controllerId: controllerId,
         modelId: modelId,
+        isMobile: true,
       ));
+      gridItems.addAll(source.outletPump.map((pump) => PumpWidget(
+        pump: pump,
+        isSourcePump: isInlet,
+        deviceId: deviceId,
+        customerId: customerId,
+        controllerId: controllerId,
+        isMobile: true,
+        modelId: modelId,
+        pumpPosition: 'First',
+      )));
     }
-
     return gridItems;
   }
 

@@ -410,11 +410,35 @@ class NodeList extends StatelessWidget {
             final rly = rlyStatus[indexGv];
             return Column(
               children: [
-                RelayStatusAvatar(
-                  status: rly.status,
-                  rlyNo: rly.rlyNo,
-                  objType: rly.objType,
-                  sNo: rly.sNo!,
+
+                Selector<MqttPayloadProvider, String?>(
+                  selector: (_, provider) => provider.getSensorUpdatedValve(rly.sNo!.toString()),
+                  builder: (_, status, __) {
+
+                    print(rly.name);
+                    print(rly.sNo);
+                    print(rly.status);
+
+                    final statusParts = status?.split(',') ?? [];
+
+                    print(statusParts);
+
+                    if (statusParts.isNotEmpty) {
+                      if(rly.sNo!.toString().startsWith('23.')){
+                        rly.status = (int.tryParse(statusParts[1]) ?? 0) == 1 ? 0 : 1;
+                      }else{
+                        rly.status = int.tryParse(statusParts[1]) ?? 0;
+                      }
+
+                    }
+
+                    return RelayStatusAvatar(
+                      status: rly.status,
+                      rlyNo: rly.rlyNo,
+                      objType: rly.objType,
+                      sNo: rly.sNo!,
+                    );
+                  },
                 ),
                 Text(
                   (rly.swName?.isNotEmpty ?? false ? rly.swName : rly.name).toString(),
