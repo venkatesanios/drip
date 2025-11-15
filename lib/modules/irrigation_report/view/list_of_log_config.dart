@@ -111,7 +111,7 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
     print('createUserLogConfig called...............');
     try{
       var body = {
-        'userId' : widget.userData['userId'],
+        'userId' : widget.userData['customerId'],
         'controllerId' : widget.userData['controllerId'],
         'logName': name,
         'irrigationLog': configDetails,
@@ -132,7 +132,7 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
     print('updateUserLogConfig called...............');
     try{
       var body = {
-        'userId' : widget.userData['userId'],
+        'userId' : widget.userData['customerId'],
         'controllerId' : widget.userData['controllerId'],
         'logName': logName,
         'irrigationLog': configDetails,
@@ -151,7 +151,7 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
 
   void getUserLogConfig()async{
     if (kDebugMode) {
-      // print('getUserLogConfig called...............');
+      print('getUserLogConfig called...............');
     }
     try{
       var body = {
@@ -196,7 +196,7 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
     }
     try{
       var body = {
-        'userId' : widget.userData['userId'],
+        'userId' : widget.userData['customerId'],
         'controllerId' : widget.userData['controllerId'],
         'logConfigId' : id,
       };

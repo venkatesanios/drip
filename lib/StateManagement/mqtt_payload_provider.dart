@@ -647,9 +647,9 @@ class MqttPayloadProvider with ChangeNotifier {
             String output = updated.join(";");
             updateOutputStatusPayload(output.split(";"));
 
-          }else{
-            updateOutputStatusPayload(data['cM']['2402'].split(";"));
           }
+
+          updateOutputStatusPayload(data['cM']['2402'].split(";"));
 
           updateAllPumpPayloads(data['cM']['2402'].split(";"), data['cM']['2404'].split(";"));
           updateFilterSitePayloads(data['cM']['2402'].split(";"), data['cM']['2406'].split(";"));

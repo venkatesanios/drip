@@ -244,7 +244,7 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
       if (response.statusCode == 200) {
         final jsonData = jsonDecode(response.body);
 
-        // debugPrint('My Site Data:${response.body}');
+        debugPrint('My Site Data:${response.body}');
 
         if (jsonData["code"] == 200) {
           _handleFetchedSites(jsonData, 'customer', preserveSelection);

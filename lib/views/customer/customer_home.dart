@@ -4,7 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:oro_drip_irrigation/utils/helpers/mc_permission_helper.dart';
 import 'package:oro_drip_irrigation/views/customer/home_sub_classes/current_program.dart';
+import 'package:oro_drip_irrigation/views/customer/widgets/agitator_widget.dart';
+import 'package:oro_drip_irrigation/views/customer/widgets/booster_widget.dart';
+import 'package:oro_drip_irrigation/views/customer/widgets/channel_widget.dart';
 import 'package:oro_drip_irrigation/views/customer/widgets/filter_builder.dart';
+import 'package:oro_drip_irrigation/views/customer/widgets/float_switch_popover.dart';
 import 'package:oro_drip_irrigation/views/customer/widgets/main_valve_widget.dart';
 import 'package:oro_drip_irrigation/views/customer/widgets/my_material_button.dart';
 import 'package:oro_drip_irrigation/views/customer/widgets/source_column_widget.dart';
@@ -22,7 +26,9 @@ import '../../services/http_service.dart';
 import '../../utils/constants.dart';
 import '../../utils/my_function.dart';
 import '../../view_models/customer/customer_screen_controller_view_model.dart';
-import 'home_sub_classes/fertilizer_site.dart';
+import 'widgets/gate_widget.dart';
+import 'widgets/light_widget.dart';
+import 'widgets/moisture_sensor_popover.dart';
 import 'home_sub_classes/next_schedule.dart';
 import 'scheduled_program/scheduled_program_wide.dart';
 
@@ -196,19 +202,32 @@ class CustomerHome extends StatelessWidget {
       for (var source in irrLine.outletSources) source.sNo: source
     }.values.toList();
 
-    final filterSite = {
+    final cFilterSite = {
       if (irrLine.centralFilterSite != null) irrLine.centralFilterSite!.sNo : irrLine.centralFilterSite!
     }.values.toList();
 
-    final fertilizerSite = {
+    final cFertilizerSite = {
       if (irrLine.centralFertilizerSite != null) irrLine.centralFertilizerSite!.sNo : irrLine.centralFertilizerSite!
+    }.values.toList();
+
+    final lFilterSite = {
+      if (irrLine.localFilterSite != null) irrLine.localFilterSite!.sNo : irrLine.localFilterSite!
+    }.values.toList();
+
+    final lFertilizerSite = {
+      if (irrLine.localFertilizerSite != null) irrLine.localFertilizerSite!.sNo : irrLine.localFertilizerSite!
     }.values.toList();
 
     return PumpStationWithLine(
       inletWaterSources: inletWaterSources,
       outletWaterSources: outletWaterSources,
-      filterSite: filterSite,
-      fertilizerSite: fertilizerSite,
+
+      cFilterSite: cFilterSite,
+      cFertilizerSite: cFertilizerSite,
+
+      lFilterSite: lFilterSite,
+      lFertilizerSite: lFertilizerSite,
+
       valves: irrLine.valveObjects,
       mainValves: irrLine.mainValveObjects,
       lights:irrLine.lightObjects,
@@ -224,7 +243,6 @@ class CustomerHome extends StatelessWidget {
       modelId: modelId,
     );
   }
-
 }
 
 class PumpStationWithLine extends StatelessWidget {
@@ -232,8 +250,13 @@ class PumpStationWithLine extends StatelessWidget {
   final String deviceId;
   final List<WaterSourceModel> inletWaterSources;
   final List<WaterSourceModel> outletWaterSources;
-  final List<FilterSiteModel> filterSite;
-  final List<FertilizerSiteModel> fertilizerSite;
+
+  final List<FilterSiteModel> cFilterSite;
+  final List<FertilizerSiteModel> cFertilizerSite;
+
+  final List<FilterSiteModel> lFilterSite;
+  final List<FertilizerSiteModel> lFertilizerSite;
+
   final List<ValveModel> valves;
   final List<ValveModel> mainValves;
   final List<LightModel> lights;
@@ -249,8 +272,13 @@ class PumpStationWithLine extends StatelessWidget {
     super.key,
     required this.inletWaterSources,
     required this.outletWaterSources,
-    required this.filterSite,
-    required this.fertilizerSite,
+
+    required this.cFilterSite,
+    required this.cFertilizerSite,
+
+    required this.lFilterSite,
+    required this.lFertilizerSite,
+
     required this.valves,
     required this.mainValves,
     required this.lights,
@@ -307,22 +335,29 @@ class PumpStationWithLine extends StatelessWidget {
 
     final allItems = [
       if (inletWaterSources.isNotEmpty)
-        ..._buildWaterSource(context, inletWaterSources, true, true,fertilizerSite.isNotEmpty? true:false),
+        ..._buildWaterSource(context, inletWaterSources, true, true, cFertilizerSite.isNotEmpty? true:false),
 
       if (outletWaterSources.isNotEmpty)
-        ..._buildWaterSource(context, outletWaterSources, inletWaterSources.isNotEmpty? true : false, false,fertilizerSite.isNotEmpty?true:false),
+        ..._buildWaterSource(context, outletWaterSources, inletWaterSources.isNotEmpty? true : false, false, cFertilizerSite.isNotEmpty?true:false),
 
-      if (filterSite.isNotEmpty)
-        ...buildFilter(context, filterSite, fertilizerSite.isNotEmpty),
+      if (cFilterSite.isNotEmpty)
+        ...buildFilter(context, cFilterSite, cFertilizerSite.isNotEmpty, false),
 
-      if (fertilizerSite.isNotEmpty)
-        ..._buildFertilizer(context, fertilizerSite),
+      if (lFilterSite.isNotEmpty)
+        ...buildFilter(context, lFilterSite, lFertilizerSite.isNotEmpty, false),
+
+      if (cFertilizerSite.isNotEmpty)
+        ..._buildFertilizer(context, cFertilizerSite),
+
+      if (lFertilizerSite.isNotEmpty)
+        ..._buildFertilizer(context, lFertilizerSite),
+
       ...lightWidgets,
-      ..._buildSensorItems(prsSwitch, 'Pressure Switch', 'assets/png/pressure_switch_wj.png', fertilizerSite.isNotEmpty),
-      ..._buildSensorItems(pressureIn, 'Pressure Sensor', 'assets/png/pressure_sensor_wj.png', fertilizerSite.isNotEmpty),
-      ..._buildSensorItems(waterMeter, 'Water Meter', 'assets/png/water_meter_wj.png', fertilizerSite.isNotEmpty),
+      ..._buildSensorItems(prsSwitch, 'Pressure Switch', 'assets/png/pressure_switch_wj.png', cFertilizerSite.isNotEmpty),
+      ..._buildSensorItems(pressureIn, 'Pressure Sensor', 'assets/png/pressure_sensor_wj.png', cFertilizerSite.isNotEmpty),
+      ..._buildSensorItems(waterMeter, 'Water Meter', 'assets/png/water_meter_wj.png', cFertilizerSite.isNotEmpty),
       ...allValveWidgets,
-      ..._buildSensorItems(pressureOut, 'Pressure Sensor', 'assets/png/pressure_sensor_wjl.png', fertilizerSite.isNotEmpty),
+      ..._buildSensorItems(pressureOut, 'Pressure Sensor', 'assets/png/pressure_sensor_wjl.png', cFertilizerSite.isNotEmpty),
       ...gateWidgets,
     ];
 
@@ -337,7 +372,7 @@ class PumpStationWithLine extends StatelessWidget {
           children: allItems.asMap().entries.map<Widget>((entry) {
             final index = entry.key;
             final item = entry.value;
-            if(fertilizerSite.isNotEmpty){
+            if(cFertilizerSite.isNotEmpty){
               int itemsPerRow = ((MediaQuery.sizeOf(context).width - 140) / 67).floor();
 
               if (((item is ValveWidget) || (item is BuildMainValve)
@@ -380,6 +415,7 @@ class PumpStationWithLine extends StatelessWidget {
           customerId: customerId,
           controllerId: controllerId,
           modelId: modelId,
+          isMobile: false,
         ),
       ));
       gridItems.addAll(source.outletPump.map((pump) => Padding(
@@ -392,6 +428,7 @@ class PumpStationWithLine extends StatelessWidget {
           controllerId: controllerId,
           isMobile: false,
           modelId: modelId,
+          pumpPosition: 'First',
         ),
       )));
     }
@@ -415,6 +452,7 @@ class PumpStationWithLine extends StatelessWidget {
 
   List<Widget> _buildFertilizer(BuildContext context, List<FertilizerSiteModel> fertilizerSite) {
     return List.generate(fertilizerSite.length, (siteIndex) {
+
       final site = fertilizerSite[siteIndex];
       final widgets = <Widget>[];
 
@@ -437,7 +475,8 @@ class PumpStationWithLine extends StatelessWidget {
           ),
         ));
       }
-      widgets.add(BoosterWidget(fertilizerSite: site));
+
+      widgets.add(BoosterWidget(fertilizerSite: site, isMobile: false));
 
       for (int channelIndex = 0; channelIndex < site.channel.length; channelIndex++) {
         final channel = site.channel[channelIndex];
@@ -446,17 +485,18 @@ class PumpStationWithLine extends StatelessWidget {
           cIndex: channelIndex,
           channelLength: site.channel.length,
           agitator: site.agitator,
-          siteSno: site.sNo.toString(),
+          siteSno: site.sNo.toString(), isMobile: false,
         ));
 
         final isLast = channelIndex == site.channel.length - 1;
 
         if(isLast && site.agitator.isNotEmpty){
           widgets.add(AgitatorWidget(
-            fertilizerSite: site,
+            fertilizerSite: site, isMobile: false,
           ));
         }
       }
+
       if(kIsWeb) {
         widgets.add(SizedBox(
           width: 4.5,
@@ -478,6 +518,7 @@ class PumpStationWithLine extends StatelessWidget {
       }
 
       return widgets;
+
     }).expand((item) => item).toList().cast<Widget>();
   }
 
@@ -538,7 +579,7 @@ class SensorWidget extends StatelessWidget {
                         ),
                         child: Center(
                           child: Text(
-                            statusParts[1] == "1" ? 'Normal' : 'High',
+                            statusParts[1] == "1" ? 'Low' : 'High',
                             style: const TextStyle(fontSize: 10, color: Colors.white),
                           ),
                         ),
@@ -567,8 +608,7 @@ class SensorWidget extends StatelessWidget {
           height: 65,
           child: TextButton(
             onPressed: () async {
-              final sensors = await fetchSensorData(DateTime.now(), DateTime.now());
-              final sensorDataList = getSensorDataById(sensor.sNo.toString(), sensors);
+
               showPopover(
                 context: context,
                 bodyBuilder: (context) => SensorPopoverContent(
@@ -723,7 +763,7 @@ class _SensorPopoverContentState extends State<SensorPopoverContent> {
         final jsonData = jsonDecode(response.body);
         if (jsonData["code"] == 200) {
           sensors = (jsonData['data'] as List).map((item) {
-            final dateStr = item['date']; // 👈 You need this!
+            final dateStr = item['date'];
             final Map<String, List<SensorHourlyData>> hourlyDataMap = {};
 
             item.forEach((key, value) {
@@ -801,7 +841,7 @@ class _SensorPopoverContentState extends State<SensorPopoverContent> {
                 yValueMapper: (d, _) => double.tryParse(d.value) ?? 0,
                 markerSettings: const MarkerSettings(isVisible: true),
                 color: Theme.of(context).primaryColorLight,
-                name: widget.sensor.name ?? 'Sensor',
+                name: widget.sensor.name,
               ),
             ],
           ),
@@ -916,8 +956,9 @@ class ValveWidget extends StatelessWidget {
         }
 
         bool hasMoisture = valve.moistureSensors.isNotEmpty;
-
         bool hasWaterSource = valve.waterSources.isNotEmpty;
+        final ValueNotifier<int> popoverUpdateNotifier = ValueNotifier<int>(0);
+
 
         return hasWaterSource ? SizedBox(
           width: 140,
@@ -957,133 +998,15 @@ class ValveWidget extends StatelessWidget {
                         child: TextButton(
                           onPressed: () async {
                             final sensors = await fetchSensorData();
-                            final sensorDataList = getSensorDataById(valve.moistureSensors[0].sNo.toString(), sensors);
+
                             showPopover(
                               context: context,
                               bodyBuilder: (context) {
-                                List<CartesianSeries<dynamic, String>> series = [
-                                  LineSeries<SensorHourlyData, String>(
-                                    dataSource: sensorDataList,
-                                    xValueMapper: (SensorHourlyData data, _) => data.hour,
-                                    yValueMapper: (SensorHourlyData data, _) {
-                                      try {
-                                        return double.parse(data.value);
-                                      } catch (_) {
-                                        return 0.0;
-                                      }
-                                    },
-                                    markerSettings: const MarkerSettings(isVisible: true),
-                                    dataLabelSettings: const DataLabelSettings(isVisible: false),
-                                    color: Colors.blueAccent,
-                                    name: valve.moistureSensors[0].name,
-                                  ),
-                                ];
-                                return Column(
-                                  children: [
-                                    Row(
-                                      children: [
-                                        const SizedBox(width: 16),
-                                        SizedBox(
-                                          width: 100,
-                                          height: 100,
-                                          child: SfRadialGauge(
-                                            axes: <RadialAxis>[
-                                              RadialAxis(
-                                                minimum: 0,
-                                                maximum: 200,
-                                                pointers: <GaugePointer>[
-                                                  NeedlePointer(
-                                                      value: double.parse(valve.moistureSensors[0].value),
-                                                      needleEndWidth: 3, needleColor: Colors.black54),
-                                                  const RangePointer(
-                                                    value: 200.0,
-                                                    width: 0.30,
-                                                    sizeUnit: GaugeSizeUnit.factor,
-                                                    color: Color(0xFF494CA2),
-                                                    animationDuration: 1000,
-                                                    gradient: SweepGradient(
-                                                      colors:
-                                                      <Color>[
-                                                        Colors.tealAccent,
-                                                        Colors.orangeAccent,
-                                                        Colors.redAccent,
-                                                        Colors.redAccent
-                                                      ],
-                                                      stops: <double>[0.15, 0.50, 0.70, 1.00],
-                                                    ),
-                                                    enableAnimation: true,
-                                                  ),
-                                                ],
-                                                showFirstLabel: false,
-                                                annotations: <GaugeAnnotation>[
-                                                  GaugeAnnotation(
-                                                    widget: Text(
-                                                      valve.moistureSensors[0].value,
-                                                      style: const TextStyle(
-                                                          fontSize: 10, fontWeight: FontWeight.bold),
-                                                    ),
-                                                    angle: 90,
-                                                    positionFactor: 0.8,
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.only(left: 8, right: 8),
-                                          child: Container(width: 1, height: 110, color: Colors.black12),
-                                        ),
-                                        SizedBox(
-                                          width : 415,
-                                          height : 132,
-                                          child: TableCalendar(
-                                            focusedDay: DateTime.now(),
-                                            firstDay: DateTime.utc(2020, 1, 1),
-                                            lastDay: DateTime.utc(2030, 12, 31),
-                                            calendarFormat: CalendarFormat.week,
-                                            availableCalendarFormats: const {
-                                              CalendarFormat.week: 'Week',
-                                            },
-                                            onDaySelected: (selectedDay, focusedDay) {
-                                              print("Selected: $selectedDay");
-                                            },
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                    SizedBox(
-                                      width: 550,
-                                      height: 175,
-                                      child: SfCartesianChart(
-                                        primaryXAxis: CategoryAxis(
-                                          title: AxisTitle(
-                                            text: valve.moistureSensors[0].name,
-                                            textStyle: const TextStyle(fontSize: 12),
-                                          ),
-                                          majorGridLines: const MajorGridLines(width: 0),
-                                          axisLine: const AxisLine(width: 0),
-                                          labelStyle: const TextStyle(
-                                            fontSize: 11,
-                                            color: Colors.black54,
-                                          ),
-                                        ),
-                                        primaryYAxis: const NumericAxis(
-                                          labelStyle: TextStyle(
-                                            fontSize: 11,
-                                            color: Colors.black54,
-                                          ),
-                                        ),
-                                        tooltipBehavior: TooltipBehavior(enable: true),
-                                        series: series,
-                                      ),
-                                    ),
-                                  ],
-                                );
+                                return MoistureSensorPopover(valve: valve, sensors: sensors);
                               },
                               direction: PopoverDirection.bottom,
-                              width: 550,
-                              height: 310,
+                              width: 580,
+                              height: 700,
                               arrowHeight: 15,
                               arrowWidth: 30,
                               barrierColor: Colors.black54,
@@ -1098,9 +1021,11 @@ class ValveWidget extends StatelessWidget {
                           ),
                           child: CircleAvatar(
                             radius: 15,
-                            backgroundColor: _getMoistureColor(valve.moistureSensors
-                                .map((sensor) => {'name': sensor.name, 'value': sensor.value})
-                                .toList()),
+                            backgroundColor: _getMoistureColor(
+                              valve.moistureSensors
+                                  .map((sensor) => {'name': sensor.name, 'value': sensor.value})
+                                  .toList(),
+                            ),
                             child: Image.asset(
                               'assets/png/moisture_sensor.png',
                               width: 25,
@@ -1208,6 +1133,9 @@ class ValveWidget extends StatelessWidget {
                         ),
                       ),
                     ],
+
+                    if (valve.waterSources.isNotEmpty) FloatSwitchPopover(source: valve.waterSources[0],
+                        popoverUpdateNotifier: popoverUpdateNotifier, isMobile: false),
                   ],
                 ),
               )
@@ -1245,136 +1173,16 @@ class ValveWidget extends StatelessWidget {
                   left: 33,
                   child: TextButton(
                     onPressed: () async {
-
                       final sensors = await fetchSensorData();
-                      final sensorDataList = getSensorDataById(valve.moistureSensors[0].sNo.toString(), sensors);
 
                       showPopover(
                         context: context,
                         bodyBuilder: (context) {
-                          List<CartesianSeries<dynamic, String>> series = [
-                            LineSeries<SensorHourlyData, String>(
-                              dataSource: sensorDataList,
-                              xValueMapper: (SensorHourlyData data, _) => data.hour,
-                              yValueMapper: (SensorHourlyData data, _) {
-                                try {
-                                  return double.parse(data.value);
-                                } catch (_) {
-                                  return 0.0;
-                                }
-                              },
-                              markerSettings: const MarkerSettings(isVisible: true),
-                              dataLabelSettings: const DataLabelSettings(isVisible: false),
-                              color: Colors.blueAccent,
-                              name: valve.moistureSensors[0].name ?? 'Sensor',
-                            ),
-                          ];
-                          return Column(
-                            children: [
-                              Row(
-                                children: [
-                                  const SizedBox(width: 16),
-                                  SizedBox(
-                                    width: 100,
-                                    height: 100,
-                                    child: SfRadialGauge(
-                                      axes: <RadialAxis>[
-                                        RadialAxis(
-                                          minimum: 0,
-                                          maximum: 200,
-                                          pointers: <GaugePointer>[
-                                            NeedlePointer(
-                                                value: double.parse(valve.moistureSensors[0].value),
-                                                needleEndWidth: 3, needleColor: Colors.black54),
-                                            const RangePointer(
-                                              value: 200.0,
-                                              width: 0.30,
-                                              sizeUnit: GaugeSizeUnit.factor,
-                                              color: Color(0xFF494CA2),
-                                              animationDuration: 1000,
-                                              gradient: SweepGradient(
-                                                colors:
-                                                <Color>[
-                                                  Colors.tealAccent,
-                                                  Colors.orangeAccent,
-                                                  Colors.redAccent,
-                                                  Colors.redAccent
-                                                ],
-                                                stops: <double>[0.15, 0.50, 0.70, 1.00],
-                                              ),
-                                              enableAnimation: true,
-                                            ),
-                                          ],
-                                          showFirstLabel: false,
-                                          annotations: <GaugeAnnotation>[
-                                            GaugeAnnotation(
-                                              widget: Text(
-                                                valve.moistureSensors[0].value,
-                                                style: const TextStyle(
-                                                    fontSize: 10, fontWeight: FontWeight.bold),
-                                              ),
-                                              angle: 90,
-                                              positionFactor: 0.8,
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 8, right: 8),
-                                    child: Container(width: 1, height: 110, color: Colors.black12),
-                                  ),
-                                  SizedBox(
-                                    width : 415,
-                                    height : 132,
-                                    child: TableCalendar(
-                                      focusedDay: DateTime.now(),
-                                      firstDay: DateTime.utc(2020, 1, 1),
-                                      lastDay: DateTime.utc(2030, 12, 31),
-                                      calendarFormat: CalendarFormat.week,
-                                      availableCalendarFormats: const {
-                                        CalendarFormat.week: 'Week',
-                                      },
-                                      onDaySelected: (selectedDay, focusedDay) {
-                                        print("Selected: $selectedDay");
-                                      },
-                                    ),
-                                  )
-                                ],
-                              ),
-                              SizedBox(
-                                width: 550,
-                                height: 175,
-                                child: SfCartesianChart(
-                                  primaryXAxis: CategoryAxis(
-                                    title: AxisTitle(
-                                      text: valve.moistureSensors[0].name,
-                                      textStyle: const TextStyle(fontSize: 12),
-                                    ),
-                                    majorGridLines: const MajorGridLines(width: 0),
-                                    axisLine: const AxisLine(width: 0),
-                                    labelStyle: const TextStyle(
-                                      fontSize: 11,
-                                      color: Colors.black54,
-                                    ),
-                                  ),
-                                  primaryYAxis: const NumericAxis(
-                                    labelStyle: TextStyle(
-                                      fontSize: 11,
-                                      color: Colors.black54,
-                                    ),
-                                  ),
-                                  tooltipBehavior: TooltipBehavior(enable: true),
-                                  series: series,
-                                ),
-                              ),
-                            ],
-                          );
+                          return MoistureSensorPopover(valve: valve, sensors: sensors);
                         },
                         direction: PopoverDirection.bottom,
-                        width: 550,
-                        height: 310,
+                        width: 580,
+                        height: 340,
                         arrowHeight: 15,
                         arrowWidth: 30,
                         barrierColor: Colors.black54,
@@ -1389,9 +1197,11 @@ class ValveWidget extends StatelessWidget {
                     ),
                     child: CircleAvatar(
                       radius: 15,
-                      backgroundColor: _getMoistureColor(valve.moistureSensors
-                          .map((sensor) => {'name': sensor.name, 'value': sensor.value})
-                          .toList()),
+                      backgroundColor: _getMoistureColor(
+                        valve.moistureSensors
+                            .map((sensor) => {'name': sensor.name, 'value': sensor.value})
+                            .toList(),
+                      ),
                       child: Image.asset(
                         'assets/png/moisture_sensor.png',
                         width: 25,
@@ -1441,7 +1251,6 @@ class ValveWidget extends StatelessWidget {
 
       final response = await Repository(HttpService()).fetchSensorHourlyData(body);
       if (response.statusCode == 200) {
-        print(response.body);
         final jsonData = jsonDecode(response.body);
         if (jsonData["code"] == 200) {
           sensors = (jsonData['data'] as List).map((item) {
@@ -1472,691 +1281,5 @@ class ValveWidget extends StatelessWidget {
     }
 
     return sensors;
-  }
-
-  List<SensorHourlyData> getSensorDataById(String sensorId, List<SensorHourlyDataModel> sensorData) {
-    final result = <SensorHourlyData>[];
-    for (final model in sensorData) {
-      model.data.forEach((hour, sensorList) {
-        result.addAll(sensorList.where((sensor) => sensor.sensorId == sensorId));
-      });
-    }
-    return result;
-  }
-}
-
-class LightWidget extends StatelessWidget {
-  final LightModel objLight;
-  final bool isWide;
-  const LightWidget({super.key, required this.objLight, required this.isWide});
-
-  @override
-  Widget build(BuildContext context) {
-    return Selector<MqttPayloadProvider, String?>(
-      selector: (_, provider) => provider.getLightOnOffStatus(objLight.sNo.toString()),
-      builder: (_, status, __) {
-
-        final statusParts = status?.split(',') ?? [];
-        if(statusParts.isNotEmpty){
-          objLight.status = int.parse(statusParts[1]);
-        }
-
-        return SizedBox(
-          width: 70,
-          height: isWide? 100 : 70,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SizedBox(
-                width: isWide? 70 : 40,
-                height: isWide? 70 : 40,
-                child: AppConstants.getAsset(isWide ? 'light':'light_mbl', objLight.status, ''),
-              ),
-              Text(
-                objLight.name,
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 10, color: Colors.black54),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-}
-
-class GateWidget extends StatelessWidget {
-  final GateModel objGate;
-  const GateWidget({super.key, required this.objGate});
-
-  @override
-  Widget build(BuildContext context) {
-    return Selector<MqttPayloadProvider, String?>(
-      selector: (_, provider) => provider.getGateOnOffStatus(objGate.sNo.toString()),
-      builder: (_, status, __) {
-
-        final statusParts = status?.split(',') ?? [];
-        if(statusParts.isNotEmpty){
-          objGate.status = int.parse(statusParts[1]);
-        }
-
-        return SizedBox(
-          width: 70,
-          height: 100,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SizedBox(
-                width: 70,
-                height: 70,
-                child: AppConstants.getAsset('gate', objGate.status, ''),
-              ),
-              Text(
-                objGate.name,
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 10, color: Colors.black54),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-}
-
-class ValveWidgetMobile extends StatelessWidget {
-  final ValveModel valve;
-  final int customerId, controllerId, modelId;
-  const ValveWidgetMobile({super.key, required this.valve, required this.customerId,
-    required this.controllerId, required this.modelId});
-
-  @override
-  Widget build(BuildContext context) {
-    return Selector<MqttPayloadProvider, String?>(
-      selector: (_, provider) => provider.getValveOnOffStatus([...AppConstants.ecoGemModelList].contains(modelId) ?
-      double.parse(valve.sNo.toString()).toStringAsFixed(3): valve.sNo.toString()),
-      builder: (_, status, __) {
-
-        final statusParts = status?.split(',') ?? [];
-        if(statusParts.isNotEmpty){
-          valve.status = int.parse(statusParts[1]);
-        }
-        bool hasMoisture = valve.moistureSensors.isNotEmpty;
-        bool hasWaterSource = valve.waterSources.isNotEmpty;
-
-        return hasWaterSource ? SizedBox(
-          width: 140,
-          height: 60,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SizedBox(
-                width: 70,
-                height: 60,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        SizedBox(
-                          width: 40,
-                          height: 40,
-                          child : Image.asset('assets/png/m_valve_grey.png',
-                            color: valve.status == 0 ? Colors.grey : valve.status == 1 ? Colors.green
-                                : valve.status == 1 ? Colors.orange : Colors.red,
-                          ),
-                        ),
-                        Text(
-                          valve.name,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(fontSize: 10, color: Colors.black54),
-                        ),
-                      ],
-                    ),
-                    if (hasMoisture)
-                      Positioned(
-                        top: 20,
-                        left: 33,
-                        child: TextButton(
-                          onPressed: () async {
-                            final sensors = await fetchSensorData();
-                            final sensorDataList = getSensorDataById(valve.moistureSensors[0].sNo.toString(), sensors);
-                            showPopover(
-                              context: context,
-                              bodyBuilder: (context) {
-                                List<CartesianSeries<dynamic, String>> series = [
-                                  LineSeries<SensorHourlyData, String>(
-                                    dataSource: sensorDataList,
-                                    xValueMapper: (SensorHourlyData data, _) => data.hour,
-                                    yValueMapper: (SensorHourlyData data, _) {
-                                      try {
-                                        return double.parse(data.value);
-                                      } catch (_) {
-                                        return 0.0;
-                                      }
-                                    },
-                                    markerSettings: const MarkerSettings(isVisible: true),
-                                    dataLabelSettings: const DataLabelSettings(isVisible: false),
-                                    color: Colors.blueAccent,
-                                    name: valve.moistureSensors[0].name ?? 'Sensor',
-                                  ),
-                                ];
-                                return Column(
-                                  children: [
-                                    Row(
-                                      children: [
-                                        const SizedBox(width: 16),
-                                        SizedBox(
-                                          width: 100,
-                                          height: 100,
-                                          child: SfRadialGauge(
-                                            axes: <RadialAxis>[
-                                              RadialAxis(
-                                                minimum: 0,
-                                                maximum: 200,
-                                                pointers: <GaugePointer>[
-                                                  NeedlePointer(
-                                                      value: double.parse(valve.moistureSensors[0].value),
-                                                      needleEndWidth: 3, needleColor: Colors.black54),
-                                                  const RangePointer(
-                                                    value: 200.0,
-                                                    width: 0.30,
-                                                    sizeUnit: GaugeSizeUnit.factor,
-                                                    color: Color(0xFF494CA2),
-                                                    animationDuration: 1000,
-                                                    gradient: SweepGradient(
-                                                      colors:
-                                                      <Color>[
-                                                        Colors.tealAccent,
-                                                        Colors.orangeAccent,
-                                                        Colors.redAccent,
-                                                        Colors.redAccent
-                                                      ],
-                                                      stops: <double>[0.15, 0.50, 0.70, 1.00],
-                                                    ),
-                                                    enableAnimation: true,
-                                                  ),
-                                                ],
-                                                showFirstLabel: false,
-                                                annotations: <GaugeAnnotation>[
-                                                  GaugeAnnotation(
-                                                    widget: Text(
-                                                      valve.moistureSensors[0].value,
-                                                      style: const TextStyle(
-                                                          fontSize: 10, fontWeight: FontWeight.bold),
-                                                    ),
-                                                    angle: 90,
-                                                    positionFactor: 0.8,
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.only(left: 8, right: 8),
-                                          child: Container(width: 1, height: 110, color: Colors.black12),
-                                        ),
-                                        SizedBox(
-                                          width : 415,
-                                          height : 132,
-                                          child: TableCalendar(
-                                            focusedDay: DateTime.now(),
-                                            firstDay: DateTime.utc(2020, 1, 1),
-                                            lastDay: DateTime.utc(2030, 12, 31),
-                                            calendarFormat: CalendarFormat.week,
-                                            availableCalendarFormats: const {
-                                              CalendarFormat.week: 'Week',
-                                            },
-                                            onDaySelected: (selectedDay, focusedDay) {
-                                              print("Selected: $selectedDay");
-                                            },
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                    SizedBox(
-                                      width: 550,
-                                      height: 175,
-                                      child: SfCartesianChart(
-                                        primaryXAxis: CategoryAxis(
-                                          title: AxisTitle(
-                                            text: valve.moistureSensors[0].name,
-                                            textStyle: const TextStyle(fontSize: 12),
-                                          ),
-                                          majorGridLines: const MajorGridLines(width: 0),
-                                          axisLine: const AxisLine(width: 0),
-                                          labelStyle: const TextStyle(
-                                            fontSize: 11,
-                                            color: Colors.black54,
-                                          ),
-                                        ),
-                                        primaryYAxis: const NumericAxis(
-                                          labelStyle: TextStyle(
-                                            fontSize: 11,
-                                            color: Colors.black54,
-                                          ),
-                                        ),
-                                        tooltipBehavior: TooltipBehavior(enable: true),
-                                        series: series,
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              },
-                              direction: PopoverDirection.bottom,
-                              width: 550,
-                              height: 310,
-                              arrowHeight: 15,
-                              arrowWidth: 30,
-                              barrierColor: Colors.black54,
-                              arrowDyOffset: -40,
-                            );
-                          },
-                          style: ButtonStyle(
-                            padding: WidgetStateProperty.all(EdgeInsets.zero),
-                            minimumSize: WidgetStateProperty.all(Size.zero),
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            backgroundColor: WidgetStateProperty.all(Colors.transparent),
-                          ),
-                          child: CircleAvatar(
-                            radius: 15,
-                            backgroundColor: _getMoistureColor(valve.moistureSensors
-                                .map((sensor) => {'name': sensor.name, 'value': sensor.value}).toList()),
-                            child: Image.asset('assets/png/moisture_sensor.png', width: 25, height: 25),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              SizedBox(
-                width: 70,
-                height: 60,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        SizedBox(
-                          width: 45,
-                          height: 30,
-                          child: AppConstants.getAsset('source', 0, 'After Valve'),
-                        ),
-                        Text(
-                          valve.waterSources[0].name,
-                          textAlign: TextAlign.center,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 10, color: Colors.black54),
-                        ),
-                      ],
-                    ),
-                    if (valve.waterSources[0].level.isNotEmpty) ...[
-                      Positioned(
-                        top: 1,
-                        left: 2,
-                        right: 2,
-                        child: Consumer<MqttPayloadProvider>(
-                          builder: (_, provider, __) {
-                            final sensorUpdate = provider.getSensorUpdatedValve(valve.waterSources[0].level[0].sNo.toString());
-                            final statusParts = sensorUpdate?.split(',') ?? [];
-
-                            if (statusParts.length > 1) {
-                              valve.waterSources[0].level.first.value = statusParts[1];
-                            }
-
-                            return Container(
-                              height: 17,
-                              decoration: BoxDecoration(
-                                color: Colors.yellow,
-                                borderRadius: BorderRadius.circular(2),
-                                border: Border.all(color: Colors.grey, width: 0.5),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  MyFunction().getUnitByParameter(context, 'Level Sensor', valve.waterSources[0].level.first.value.toString()) ?? '',
-                                  style: const TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      Positioned(
-                        top: 17,
-                        left: 35,
-                        right: 2.5,
-                        child: Consumer<MqttPayloadProvider>(
-                          builder: (_, provider, __) {
-                            final sensorUpdate = provider.getSensorUpdatedValve(valve.waterSources[0].level[0].sNo.toString());
-                            final statusParts = sensorUpdate?.split(',') ?? [];
-
-                            if (statusParts.length > 2) {
-                              valve.waterSources[0].level.first.value = statusParts[2];
-                            }
-
-                            return Container(
-                              height: 17,
-                              decoration: BoxDecoration(
-                                color: Colors.yellow,
-                                borderRadius: BorderRadius.circular(3),
-                                border: Border.all(color: Colors.grey, width: 0.5),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  '${valve.waterSources[0].level.first.value}%',
-                                  style: const TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            );
-
-                          },
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              )
-            ],
-          ),
-        ):
-        SizedBox(
-          width: 70,
-          height: 60,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: 40,
-                    height: 40,
-                    child : Image.asset('assets/png/m_valve_grey.png',
-                      color: valve.status == 0 ? Colors.grey : valve.status == 1 ? Colors.green
-                          : valve.status == 1 ? Colors.orange : Colors.red,
-                    ),
-                  ),
-                  Text(
-                    valve.name,
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 10, color: Colors.black54),
-                  ),
-                ],
-              ),
-              if (hasMoisture)
-                Positioned(
-                  top: 20,
-                  left: 33,
-                  child: TextButton(
-                    onPressed: () async {
-
-                      final sensors = await fetchSensorData();
-                      final sensorDataList = getSensorDataById(valve.moistureSensors[0].sNo.toString(), sensors);
-
-                      showPopover(
-                        context: context,
-                        bodyBuilder: (context) {
-                          List<CartesianSeries<dynamic, String>> series = [
-                            LineSeries<SensorHourlyData, String>(
-                              dataSource: sensorDataList,
-                              xValueMapper: (SensorHourlyData data, _) => data.hour,
-                              yValueMapper: (SensorHourlyData data, _) {
-                                try {
-                                  return double.parse(data.value);
-                                } catch (_) {
-                                  return 0.0;
-                                }
-                              },
-                              markerSettings: const MarkerSettings(isVisible: true),
-                              dataLabelSettings: const DataLabelSettings(isVisible: false),
-                              color: Colors.blueAccent,
-                              name: valve.moistureSensors[0].name ?? 'Sensor',
-                            ),
-                          ];
-                          return Column(
-                            children: [
-                              Row(
-                                children: [
-                                  const SizedBox(width: 16),
-                                  SizedBox(
-                                    width: 100,
-                                    height: 100,
-                                    child: SfRadialGauge(
-                                      axes: <RadialAxis>[
-                                        RadialAxis(
-                                          minimum: 0,
-                                          maximum: 200,
-                                          pointers: <GaugePointer>[
-                                            NeedlePointer(
-                                                value: double.parse(valve.moistureSensors[0].value),
-                                                needleEndWidth: 3, needleColor: Colors.black54),
-                                            const RangePointer(
-                                              value: 200.0,
-                                              width: 0.30,
-                                              sizeUnit: GaugeSizeUnit.factor,
-                                              color: Color(0xFF494CA2),
-                                              animationDuration: 1000,
-                                              gradient: SweepGradient(
-                                                colors:
-                                                <Color>[
-                                                  Colors.tealAccent,
-                                                  Colors.orangeAccent,
-                                                  Colors.redAccent,
-                                                  Colors.redAccent
-                                                ],
-                                                stops: <double>[0.15, 0.50, 0.70, 1.00],
-                                              ),
-                                              enableAnimation: true,
-                                            ),
-                                          ],
-                                          showFirstLabel: false,
-                                          annotations: <GaugeAnnotation>[
-                                            GaugeAnnotation(
-                                              widget: Text(
-                                                valve.moistureSensors[0].value,
-                                                style: const TextStyle(
-                                                    fontSize: 10, fontWeight: FontWeight.bold),
-                                              ),
-                                              angle: 90,
-                                              positionFactor: 0.8,
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 8, right: 8),
-                                    child: Container(width: 1, height: 110, color: Colors.black12),
-                                  ),
-                                  SizedBox(
-                                    width : 415,
-                                    height : 132,
-                                    child: TableCalendar(
-                                      focusedDay: DateTime.now(),
-                                      firstDay: DateTime.utc(2020, 1, 1),
-                                      lastDay: DateTime.utc(2030, 12, 31),
-                                      calendarFormat: CalendarFormat.week,
-                                      availableCalendarFormats: const {
-                                        CalendarFormat.week: 'Week',
-                                      },
-                                      onDaySelected: (selectedDay, focusedDay) {
-                                        print("Selected: $selectedDay");
-                                      },
-                                    ),
-                                  )
-                                ],
-                              ),
-                              SizedBox(
-                                width: 550,
-                                height: 175,
-                                child: SfCartesianChart(
-                                  primaryXAxis: CategoryAxis(
-                                    title: AxisTitle(
-                                      text: valve.moistureSensors[0].name,
-                                      textStyle: const TextStyle(fontSize: 12),
-                                    ),
-                                    majorGridLines: const MajorGridLines(width: 0),
-                                    axisLine: const AxisLine(width: 0),
-                                    labelStyle: const TextStyle(
-                                      fontSize: 11,
-                                      color: Colors.black54,
-                                    ),
-                                  ),
-                                  primaryYAxis: const NumericAxis(
-                                    labelStyle: TextStyle(
-                                      fontSize: 11,
-                                      color: Colors.black54,
-                                    ),
-                                  ),
-                                  tooltipBehavior: TooltipBehavior(enable: true),
-                                  series: series,
-                                ),
-                              ),
-                            ],
-                          );
-                        },
-                        direction: PopoverDirection.bottom,
-                        width: 550,
-                        height: 310,
-                        arrowHeight: 15,
-                        arrowWidth: 30,
-                        barrierColor: Colors.black54,
-                        arrowDyOffset: -40,
-                      );
-                    },
-                    style: ButtonStyle(
-                      padding: WidgetStateProperty.all(EdgeInsets.zero),
-                      minimumSize: WidgetStateProperty.all(Size.zero),
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      backgroundColor: WidgetStateProperty.all(Colors.transparent),
-                    ),
-                    child: CircleAvatar(
-                      radius: 15,
-                      backgroundColor: _getMoistureColor(valve.moistureSensors
-                          .map((sensor) => {'name': sensor.name, 'value': sensor.value})
-                          .toList()),
-                      child: Image.asset(
-                        'assets/png/moisture_sensor.png',
-                        width: 25,
-                        height: 25,
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Color _getMoistureColor(List<Map<String, dynamic>> sensors) {
-    if (sensors.isEmpty) return Colors.grey;
-
-    final values = sensors
-        .map((ms) => double.tryParse(ms['value'] ?? '0') ?? 0.0)
-        .toList();
-
-    final averageValue = values.reduce((a, b) => a + b) / values.length;
-
-    if (averageValue < 20) {
-      return Colors.green.shade200;
-    } else if (averageValue <= 60) {
-      return Colors.orange.shade200;
-    } else {
-      return Colors.red.shade200;
-    }
-  }
-
-  Future<List<SensorHourlyDataModel>> fetchSensorData() async {
-    List<SensorHourlyDataModel> sensors = [];
-
-    try {
-      DateTime selectedDate = DateTime.now();
-      String date = DateFormat('yyyy-MM-dd').format(selectedDate);
-
-      Map<String, Object> body = {
-        "userId": customerId,
-        "controllerId": controllerId,
-        "fromDate": date,
-        "toDate": date,
-      };
-
-      final response = await Repository(HttpService()).fetchSensorHourlyData(body);
-      if (response.statusCode == 200) {
-        print(response.body);
-        final jsonData = jsonDecode(response.body);
-        if (jsonData["code"] == 200) {
-          sensors = (jsonData['data'] as List).map((item) {
-            final dateStr = item['date']; // 👈 You need this!
-            final Map<String, List<SensorHourlyData>> hourlyDataMap = {};
-
-            item.forEach((key, value) {
-              if (key == 'date') return;
-              if (value is String && value.isNotEmpty) {
-                final entries = value.split(';');
-                hourlyDataMap[key] = entries.map((entry) {
-                  return SensorHourlyData.fromCsv(entry, key, dateStr);
-                }).toList();
-              } else {
-                hourlyDataMap[key] = [];
-              }
-            });
-
-            return SensorHourlyDataModel(
-              date: item['date'],
-              data: hourlyDataMap,
-            );
-          }).toList();
-        }
-      }
-    } catch (error) {
-      debugPrint('Error fetching sensor hourly data: $error');
-    }
-
-    return sensors;
-  }
-
-  List<SensorHourlyData> getSensorDataById(String sensorId, List<SensorHourlyDataModel> sensorData) {
-    final result = <SensorHourlyData>[];
-    for (final model in sensorData) {
-      model.data.forEach((hour, sensorList) {
-        result.addAll(sensorList.where((sensor) => sensor.sensorId == sensorId));
-      });
-    }
-    return result;
   }
 }

@@ -94,7 +94,7 @@ class _ConnectionGridListTileState extends State<ConnectionGridListTile> with Si
   Widget objectTile(DeviceObjectModel object){
     bool themeMode = Theme.of(context).brightness == Brightness.light;
     Color typeColor = widget.leadingColor ?? getObjectTypeCodeToColor(int.parse(object.type));
-  Widget myWidget = ListTile(
+    Widget myWidget = ListTile(
       contentPadding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
     title: Text(object.objectName, style: Theme.of(context).textTheme.labelLarge,overflow: TextOverflow.ellipsis),
       subtitle: Text('Not Configured : ${getNotConfiguredObjectByObjectId(object.objectId, widget.configPvd)}', style: Theme.of(context).textTheme.labelSmall,),
@@ -155,7 +155,6 @@ class _ConnectionGridListTileState extends State<ConnectionGridListTile> with Si
   }
 
 }
-
 
 
 int getNotConfiguredObjectByObjectId(int objectId, ConfigMakerProvider configPvd){
