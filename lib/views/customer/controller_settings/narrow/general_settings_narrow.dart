@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:loading_indicator/loading_indicator.dart';
@@ -10,11 +8,14 @@ import '../../../../Screens/Dealer/controllerverssionupdate.dart';
 import '../../../../providers/user_provider.dart';
 import '../../../../repository/repository.dart';
 import '../../../../services/http_service.dart';
+import '../../../../utils/validators.dart';
 import '../../../../view_models/customer/general_setting_view_model.dart';
 
 class GeneralSettingsNarrow extends StatefulWidget {
-  const GeneralSettingsNarrow({super.key, required this.controllerId, required this.customerId});
-  final int customerId, controllerId;
+  const GeneralSettingsNarrow({super.key, required this.controllerId, required this.customerId,
+    required this.userId, required this.isSubUser});
+  final int customerId, controllerId, userId;
+  final bool isSubUser;
 
   @override
   State<GeneralSettingsNarrow> createState() => _GeneralSettingsNarrowState();
@@ -29,8 +30,9 @@ class _GeneralSettingsNarrowState extends State<GeneralSettingsNarrow> {
 
     return ChangeNotifierProvider(
       create: (_) => GeneralSettingViewModel(Repository(HttpService()))
-        ..getControllerInfo(widget.customerId, widget.controllerId)
-        ..getSubUserList(widget.customerId)
+        ..initIds(customerId: widget.customerId, controllerId: widget.controllerId, userId: widget.userId, isSubUser: widget.isSubUser)
+        ..getControllerInfo()
+        ..getSubUserList()
         ..getLanguage(),
       child: Consumer<GeneralSettingViewModel>(
         builder: (context, viewModel, _) {
@@ -41,8 +43,8 @@ class _GeneralSettingsNarrowState extends State<GeneralSettingsNarrow> {
             appBar: AppBar(
               title: const Text('General'),
               actions: [
-                IconButton(onPressed: ()async{
-                  final isAuthenticated = await _askPassword(context);
+                IconButton(onPressed: () async {
+                  final isAuthenticated = await Validators().verifyPassword(context);
                    if (isAuthenticated) {
                     Navigator.push(
                       context,
@@ -55,7 +57,7 @@ class _GeneralSettingsNarrowState extends State<GeneralSettingsNarrow> {
                       ),
                     );
                   }
-                }, icon: Icon(Icons.update)),
+                }, icon: const Icon(Icons.update)),
               ],
             ),
             backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -155,8 +157,7 @@ class _GeneralSettingsNarrowState extends State<GeneralSettingsNarrow> {
           trailing: IconButton(
             onPressed: () {
               showEditControllerDialog(context, 'Farm Name', viewModel.farmName, (newName) {
-                print('Updated name: $newName');
-                viewModel.updateMasterDetails(context, customerId, controllerId, userId);
+                viewModel.updateMasterDetails(context);
               });
             },
             icon: const Icon(Icons.edit),
@@ -172,8 +173,7 @@ class _GeneralSettingsNarrowState extends State<GeneralSettingsNarrow> {
           trailing: IconButton(
             onPressed: () {
               showEditControllerDialog(context, 'Controller Name', viewModel.farmName, (newName) {
-                print('Updated name: $newName');
-                viewModel.updateMasterDetails(context, customerId, controllerId, userId);
+                viewModel.updateMasterDetails(context);
               });
             },
             icon: const Icon(Icons.edit),
@@ -184,7 +184,7 @@ class _GeneralSettingsNarrowState extends State<GeneralSettingsNarrow> {
           visualDensity: const VisualDensity(vertical: -4),
           isThreeLine: true,
           title: const Text('Device Category'),
-          subtitle: Text(viewModel.categoryName, style: TextStyle(fontWeight: FontWeight.bold)),
+          subtitle: Text(viewModel.categoryName, style: const TextStyle(fontWeight: FontWeight.bold)),
           leading: const Icon(Icons.category),
         );
       case 3:
@@ -222,8 +222,7 @@ class _GeneralSettingsNarrowState extends State<GeneralSettingsNarrow> {
                       viewModel.countryCode ?? '91',viewModel.simNumber ?? '0', (cCode, sNumber) {
                         viewModel.countryCode = cCode;
                         viewModel.simNumber = sNumber;
-                        viewModel.updateMasterDetails(context, customerId,
-                            widget.controllerId, userId);
+                        viewModel.updateMasterDetails(context);
                       });
                 },
                 icon: const Icon(Icons.edit),
@@ -292,8 +291,7 @@ class _GeneralSettingsNarrowState extends State<GeneralSettingsNarrow> {
               IconButton(
                 onPressed: () {
                   showEditControllerDialog(context, 'Location', viewModel.controllerLocation, (newName) {
-                    print('Updated location: $newName');
-                    viewModel.updateMasterDetails(context, customerId, controllerId, userId);
+                    viewModel.updateMasterDetails(context);
                   });
                 },
                 icon: const Icon(Icons.edit),
@@ -401,7 +399,6 @@ class _GeneralSettingsNarrowState extends State<GeneralSettingsNarrow> {
             controller: mobileNoController,
             onChanged: (phone) {},
             onCountryChanged: (country) {
-              print( country.dialCode);
               cCodeController.text = country.dialCode;
             },
           ),
@@ -422,72 +419,4 @@ class _GeneralSettingsNarrowState extends State<GeneralSettingsNarrow> {
       },
     );
   }
-}
-Future<bool> _askPassword(BuildContext context) async {
-  final controller = TextEditingController();
-
-  final result = await showDialog<bool>(
-    context: context,
-    builder: (ctx) {
-      return AlertDialog(
-        title: const Text('Enter Password'),
-        content: TextField(
-          controller: controller,
-          obscureText: true,
-          decoration: const InputDecoration(
-            labelText: 'Password',
-            border: OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () async {
-              final userPsw = controller.text;
-
-              try {
-                final Repository repository = Repository(HttpService());
-                var getUserDetails = await repository.checkpassword({
-                  "passkey": userPsw,
-                });
-
-                if (getUserDetails.statusCode == 200) {
-                  var jsonData = jsonDecode(getUserDetails.body);
-                  if (jsonData['code'] == 200) {
-                    if (ctx.mounted) Navigator.pop(ctx, true);
-                    return;
-                  }
-                }
-                if (ctx.mounted) Navigator.pop(ctx, false);
-              } catch (e) {
-                if (ctx.mounted) Navigator.pop(ctx, false);
-              }
-            },
-            child: const Text('Submit'),
-          ),
-        ],
-      );
-    },
-  );
-
-  if (result != true) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text("Error"),
-        content: const Text("Incorrect Password!"),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("OK"),
-          )
-        ],
-      ),
-    );
-  }
-
-  return result == true;
 }

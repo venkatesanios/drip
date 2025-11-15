@@ -11,24 +11,25 @@ import '../../view_models/customer/general_setting_view_model.dart';
 import 'user_profile/create_account.dart';
 
 
-class GeneralSetting extends StatefulWidget {
-  const GeneralSetting({super.key, required this.customerId,
+class GeneralSettingWide extends StatefulWidget {
+  const GeneralSettingWide({super.key, required this.customerId,
     required this.controllerId, required this.userId, required this.isSubUser});
   final int customerId, controllerId, userId;
   final bool isSubUser;
 
   @override
-  State<GeneralSetting> createState() => _GeneralSettingState();
+  State<GeneralSettingWide> createState() => _GeneralSettingWideState();
 }
 
-class _GeneralSettingState extends State<GeneralSetting> {
+class _GeneralSettingWideState extends State<GeneralSettingWide> {
   @override
   Widget build(BuildContext context) {
 
     return ChangeNotifierProvider(
       create: (_) => GeneralSettingViewModel(Repository(HttpService()))
-        ..getControllerInfo(widget.customerId, widget.controllerId)
-        ..getSubUserList(widget.customerId)
+        ..initIds(customerId: widget.customerId, controllerId: widget.controllerId, userId: widget.userId, isSubUser: widget.isSubUser)
+        ..getControllerInfo()
+        ..getSubUserList()
         ..getLanguage(),
       child: Consumer<GeneralSettingViewModel>(
         builder: (context, viewModel, _) {
@@ -70,9 +71,7 @@ class _GeneralSettingState extends State<GeneralSetting> {
           trailing: IconButton(
             onPressed: () {
               showEditControllerDialog(context, 'Farm Name', viewModel.farmName, (newName) {
-                print('Updated name: $newName');
-                viewModel.updateMasterDetails(context, widget.customerId,
-                    widget.controllerId, widget.userId);
+                viewModel.updateMasterDetails(context);
               });
             },
             icon: const Icon(Icons.edit),
@@ -88,9 +87,7 @@ class _GeneralSettingState extends State<GeneralSetting> {
           trailing: IconButton(
             onPressed: () {
               showEditControllerDialog(context, 'Controller Name', viewModel.farmName, (newName) {
-                print('Updated name: $newName');
-                viewModel.updateMasterDetails(context, widget.customerId,
-                    widget.controllerId, widget.userId);
+                viewModel.updateMasterDetails(context);
               });
             },
             icon: const Icon(Icons.edit),
@@ -101,7 +98,7 @@ class _GeneralSettingState extends State<GeneralSetting> {
           visualDensity: const VisualDensity(vertical: -4),
           isThreeLine: true,
           title: const Text('Device Category'),
-          subtitle: Text(viewModel.categoryName, style: TextStyle(fontWeight: FontWeight.bold)),
+          subtitle: Text(viewModel.categoryName, style: const TextStyle(fontWeight: FontWeight.bold)),
           leading: const Icon(Icons.category),
         );
       case 3:
@@ -109,7 +106,7 @@ class _GeneralSettingState extends State<GeneralSetting> {
           visualDensity: const VisualDensity(vertical: -4),
           isThreeLine: true,
           title: const Text('Device Model'),
-          subtitle: Text(viewModel.modelName, style: TextStyle(fontWeight: FontWeight.bold)),
+          subtitle: Text(viewModel.modelName, style: const TextStyle(fontWeight: FontWeight.bold)),
           leading: const Icon(Icons.model_training),
         );
       case 4:
@@ -184,9 +181,7 @@ class _GeneralSettingState extends State<GeneralSetting> {
               IconButton(
                 onPressed: () {
                   showEditControllerDialog(context, 'Location', viewModel.controllerLocation, (newName) {
-                    print('Updated location: $newName');
-                    viewModel.updateMasterDetails(context, widget.customerId,
-                        widget.controllerId, widget.userId);
+                    viewModel.updateMasterDetails(context);
                   });
                 },
                 icon: const Icon(Icons.edit),
@@ -257,10 +252,7 @@ class _GeneralSettingState extends State<GeneralSetting> {
                                 IconButton(
                                   onPressed: () {
                                     showEditControllerDialog(context, 'Farm Name', viewModel.farmName, (farmName) {
-                                      print('Updated name: $farmName');
-                                      viewModel.farmName = farmName;
-                                      viewModel.updateMasterDetails(context, widget.customerId,
-                                          widget.controllerId, widget.userId);
+                                      viewModel.updateMasterDetails(context);
                                     });
                                   },
                                   icon: const Icon(Icons.edit),
@@ -280,10 +272,8 @@ class _GeneralSettingState extends State<GeneralSetting> {
                                 IconButton(
                                   onPressed: () {
                                     showEditControllerDialog(context, 'Controller Name', viewModel.controllerCategory, (category) {
-                                      print('Updated name: $category');
                                       viewModel.controllerCategory = category;
-                                      viewModel.updateMasterDetails(context, widget.customerId,
-                                          widget.controllerId, widget.userId);
+                                      viewModel.updateMasterDetails(context);
                                     });
                                   },
                                   icon: const Icon(Icons.edit),
@@ -380,8 +370,7 @@ class _GeneralSettingState extends State<GeneralSetting> {
                                           viewModel.countryCode ?? '91',viewModel.simNumber ?? '0', (cCode, sNumber) {
                                         viewModel.countryCode = cCode;
                                         viewModel.simNumber = sNumber;
-                                        viewModel.updateMasterDetails(context, widget.customerId,
-                                            widget.controllerId, widget.userId);
+                                        viewModel.updateMasterDetails(context);
                                       });
                                     },
                                     icon: const Icon(Icons.edit),
@@ -446,10 +435,8 @@ class _GeneralSettingState extends State<GeneralSetting> {
                                 IconButton(
                                   onPressed: () {
                                     showEditControllerDialog(context, 'Location', viewModel.controllerLocation, (location) {
-                                      print('Updated location: $location');
                                       viewModel.controllerLocation = location;
-                                      viewModel.updateMasterDetails(context, widget.customerId,
-                                          widget.controllerId, widget.userId);
+                                      viewModel.updateMasterDetails(context);
                                     });
                                   },
                                   icon: const Icon(Icons.edit),
@@ -506,8 +493,7 @@ class _GeneralSettingState extends State<GeneralSetting> {
                       MaterialButton(
                         color: Colors.green,
                         textColor: Colors.white,
-                        onPressed: () => viewModel.updateMasterDetails(context, widget.customerId,
-                            widget.controllerId, widget.userId),
+                        onPressed: () => viewModel.updateMasterDetails(context),
                         child: const Text('Save Changes'),
                       ),
                     ],
@@ -601,7 +587,7 @@ class _GeneralSettingState extends State<GeneralSetting> {
         userGroups = deviceList.map((i) => UserGroup.fromJson(i)).toList();
       });
     } else {
-      print("No devices found.");
+      debugPrint("No devices found.");
     }
 
     showDialog(
@@ -718,7 +704,6 @@ class _GeneralSettingState extends State<GeneralSetting> {
             controller: mobileNoController,
             onChanged: (phone) {},
             onCountryChanged: (country) {
-              print( country.dialCode);
               cCodeController.text = country.dialCode;
             },
           ),

@@ -99,8 +99,8 @@ class _ValveWidgetMobileState extends State<ValveWidgetMobile> {
               width: 40,
               height: 40,
               child: Image.asset(
-                'assets/png/m_valve_grey.png',
-                color: valveColor,
+                valve.status ==1 ? 'assets/gif/m_valve_green.gif' : 'assets/png/m_valve_grey.png',
+                color: valve.status ==1 ? null : valveColor,
               ),
             ),
             Text(

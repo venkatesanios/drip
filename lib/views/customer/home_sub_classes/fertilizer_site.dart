@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -10,9 +12,10 @@ import '../../../utils/constants.dart';
 
 class BoosterWidget extends StatelessWidget {
   final FertilizerSiteModel fertilizerSite;
+  final bool isMobile;
   const BoosterWidget({
     super.key,
-    required this.fertilizerSite,
+    required this.fertilizerSite, required this.isMobile,
   });
 
   @override
@@ -36,7 +39,15 @@ class BoosterWidget extends StatelessWidget {
                 height: 119,
                 child : Stack(
                   children: [
-                    AppConstants.getAsset('booster', fertilizerSite.boosterPump[0].status,''),
+                    if(isMobile)...[
+                      Transform(
+                        alignment: Alignment.center,
+                        transform: Matrix4.rotationY(math.pi),
+                        child: AppConstants.getAsset('booster', fertilizerSite.boosterPump[0].status,''),
+                      ),
+                    ]else...[
+                      AppConstants.getAsset('booster', fertilizerSite.boosterPump[0].status,''),
+                    ],
                     Positioned(
                       top: 85,
                       left: 18,
@@ -59,7 +70,6 @@ class BoosterWidget extends StatelessWidget {
                       ):
                       const SizedBox(),
                     ),
-
                     Positioned(
                       top: 50,
                       left: 18,
@@ -173,8 +183,9 @@ class ChannelWidget extends StatelessWidget {
   final int cIndex, channelLength;
   final List<Agitator> agitator;
   final String siteSno;
+  final bool isMobile;
   const ChannelWidget({super.key, required this.channel, required this.cIndex,
-    required this.channelLength, required this.agitator, required this.siteSno});
+    required this.channelLength, required this.agitator, required this.siteSno, required this.isMobile});
 
   @override
   Widget build(BuildContext context) {
@@ -211,91 +222,186 @@ class ChannelWidget extends StatelessWidget {
               height: 120,
               child: Stack(
                 children: [
-                  Image.asset(AppConstants.getFertilizerImage(cIndex, channel.status, channelLength, agitator)),
-                  Positioned(
-                    top: 52,
-                    left: 6,
-                    child: CircleAvatar(
-                      radius: 8,
-                      backgroundColor: Colors.teal.shade100,
-                      child: Text('${cIndex+1}', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),),
-                    ),
-                  ),
-                  Positioned(
-                    top: 50,
-                    left: 18,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.transparent,
-                        borderRadius: BorderRadius.circular(3),
-                      ),
-                      width: 60,
-                      child: Center(
-                        child: Text(channel.duration, style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    top: 65,
-                    left: 18,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.transparent,
-                        borderRadius: BorderRadius.circular(3),
-                      ),
-                      width: 60,
-                      child: Center(
-                        child: Text('${channel.flowRateLpH}-lph', style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 9,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        ),
-                      ),
-                    ),
-                  ),
 
-                  channel.status == 1 && channel.completedDrQ !='00:00:00' ?
-                  Positioned(
-                    top: 103,
-                    left: 0,
-                    child: Container(
-                      width: 55,
-                      decoration: BoxDecoration(
-                        color:Colors.greenAccent,
-                        borderRadius: const BorderRadius.all(Radius.circular(2)),
-                        border: Border.all(color: Colors.grey, width: .50,),
+                  if(isMobile)...[
+                    Transform(
+                      alignment: Alignment.center,
+                      transform: Matrix4.rotationY(math.pi),
+                      child: Image.asset(AppConstants.getFertilizerImage(cIndex, channel.status, channelLength, agitator)),
+                    ),
+                  ]else...[
+                    Image.asset(AppConstants.getFertilizerImage(cIndex, channel.status, channelLength, agitator)),
+                  ],
+
+                  if(isMobile)...[
+                    Positioned(
+                      top: 52,
+                      right: 6,
+                      child: CircleAvatar(
+                        radius: 8,
+                        backgroundColor: Colors.teal.shade100,
+                        child: Text('${cIndex+1}', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),),
                       ),
-                      child: ChangeNotifierProvider(
-                        create: (_) => IncreaseDurationNotifier(channel.duration, channel.completedDrQ, double.parse(channel.flowRateLpH)),
-                        child: Stack(
-                          children: [
-                            Consumer<IncreaseDurationNotifier>(
-                              builder: (context, durationNotifier, _) {
-                                return Center(
-                                  child: Text(channel.frtMethod=='1' || channel.frtMethod=='3'?
-                                  durationNotifier.onCompletedDrQ :
-                                  '${durationNotifier.onCompletedDrQ} L',
-                                    style: const TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ],
+                    ),
+                    Positioned(
+                      top: 50,
+                      right: 18,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.transparent,
+                          borderRadius: BorderRadius.circular(3),
+                        ),
+                        width: 60,
+                        child: Center(
+                          child: Text(channel.duration, style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          ),
                         ),
                       ),
                     ),
-                  ):
-                  const SizedBox(),
+                    Positioned(
+                      top: 65,
+                      right: 18,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.transparent,
+                          borderRadius: BorderRadius.circular(3),
+                        ),
+                        width: 60,
+                        child: Center(
+                          child: Text('${channel.flowRateLpH}-lph', style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    channel.status == 1 && channel.completedDrQ !='00:00:00' ?
+                    Positioned(
+                      top: 103,
+                      right: 0,
+                      child: Container(
+                        width: 55,
+                        decoration: BoxDecoration(
+                          color:Colors.greenAccent,
+                          borderRadius: const BorderRadius.all(Radius.circular(2)),
+                          border: Border.all(color: Colors.grey, width: .50,),
+                        ),
+                        child: ChangeNotifierProvider(
+                          create: (_) => IncreaseDurationNotifier(channel.duration, channel.completedDrQ, double.parse(channel.flowRateLpH)),
+                          child: Stack(
+                            children: [
+                              Consumer<IncreaseDurationNotifier>(
+                                builder: (context, durationNotifier, _) {
+                                  return Center(
+                                    child: Text(channel.frtMethod=='1' || channel.frtMethod=='3'?
+                                    durationNotifier.onCompletedDrQ :
+                                    '${durationNotifier.onCompletedDrQ} L',
+                                      style: const TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ):
+                    const SizedBox(),
+                  ]else...[
+                    Positioned(
+                      top: 52,
+                      left: 6,
+                      child: CircleAvatar(
+                        radius: 8,
+                        backgroundColor: Colors.teal.shade100,
+                        child: Text('${cIndex+1}', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),),
+                      ),
+                    ),
+                    Positioned(
+                      top: 50,
+                      left: 18,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.transparent,
+                          borderRadius: BorderRadius.circular(3),
+                        ),
+                        width: 60,
+                        child: Center(
+                          child: Text(channel.duration, style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: 65,
+                      left: 18,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.transparent,
+                          borderRadius: BorderRadius.circular(3),
+                        ),
+                        width: 60,
+                        child: Center(
+                          child: Text('${channel.flowRateLpH}-lph', style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    channel.status == 1 && channel.completedDrQ !='00:00:00' ?
+                    Positioned(
+                      top: 103,
+                      left: 0,
+                      child: Container(
+                        width: 55,
+                        decoration: BoxDecoration(
+                          color:Colors.greenAccent,
+                          borderRadius: const BorderRadius.all(Radius.circular(2)),
+                          border: Border.all(color: Colors.grey, width: .50,),
+                        ),
+                        child: ChangeNotifierProvider(
+                          create: (_) => IncreaseDurationNotifier(channel.duration, channel.completedDrQ, double.parse(channel.flowRateLpH)),
+                          child: Stack(
+                            children: [
+                              Consumer<IncreaseDurationNotifier>(
+                                builder: (context, durationNotifier, _) {
+                                  return Center(
+                                    child: Text(channel.frtMethod=='1' || channel.frtMethod=='3'?
+                                    durationNotifier.onCompletedDrQ :
+                                    '${durationNotifier.onCompletedDrQ} L',
+                                      style: const TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ):
+                    const SizedBox(),
+                  ],
                 ],
               ),
             ),

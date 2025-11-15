@@ -366,16 +366,16 @@ class PumpWidget extends StatelessWidget {
               Color bgColor, borderColor;
               switch (index) {
                 case 0:
-                  bgColor = Colors.red.shade200;
-                  borderColor = Colors.red.shade400;
+                  bgColor = Colors.red.shade100;
+                  borderColor = Colors.red.shade300;
                   break;
                 case 1:
-                  bgColor = Colors.yellow.shade200;
+                  bgColor = Colors.yellow.shade100;
                   borderColor = Colors.yellow;
                   break;
                 case 2:
-                  bgColor = Colors.blue.shade200;
-                  borderColor = Colors.blue.shade400;
+                  bgColor = Colors.blue.shade100;
+                  borderColor = Colors.blue.shade300;
                   break;
                 default:
                   bgColor = Colors.white;

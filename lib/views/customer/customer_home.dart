@@ -197,19 +197,32 @@ class CustomerHome extends StatelessWidget {
       for (var source in irrLine.outletSources) source.sNo: source
     }.values.toList();
 
-    final filterSite = {
+    final cFilterSite = {
       if (irrLine.centralFilterSite != null) irrLine.centralFilterSite!.sNo : irrLine.centralFilterSite!
     }.values.toList();
 
-    final fertilizerSite = {
+    final cFertilizerSite = {
       if (irrLine.centralFertilizerSite != null) irrLine.centralFertilizerSite!.sNo : irrLine.centralFertilizerSite!
+    }.values.toList();
+
+    final lFilterSite = {
+      if (irrLine.localFilterSite != null) irrLine.localFilterSite!.sNo : irrLine.localFilterSite!
+    }.values.toList();
+
+    final lFertilizerSite = {
+      if (irrLine.localFertilizerSite != null) irrLine.localFertilizerSite!.sNo : irrLine.localFertilizerSite!
     }.values.toList();
 
     return PumpStationWithLine(
       inletWaterSources: inletWaterSources,
       outletWaterSources: outletWaterSources,
-      filterSite: filterSite,
-      fertilizerSite: fertilizerSite,
+
+      cFilterSite: cFilterSite,
+      cFertilizerSite: cFertilizerSite,
+
+      lFilterSite: lFilterSite,
+      lFertilizerSite: lFertilizerSite,
+
       valves: irrLine.valveObjects,
       mainValves: irrLine.mainValveObjects,
       lights:irrLine.lightObjects,
@@ -225,7 +238,6 @@ class CustomerHome extends StatelessWidget {
       modelId: modelId,
     );
   }
-
 }
 
 class PumpStationWithLine extends StatelessWidget {
@@ -233,8 +245,13 @@ class PumpStationWithLine extends StatelessWidget {
   final String deviceId;
   final List<WaterSourceModel> inletWaterSources;
   final List<WaterSourceModel> outletWaterSources;
-  final List<FilterSiteModel> filterSite;
-  final List<FertilizerSiteModel> fertilizerSite;
+
+  final List<FilterSiteModel> cFilterSite;
+  final List<FertilizerSiteModel> cFertilizerSite;
+
+  final List<FilterSiteModel> lFilterSite;
+  final List<FertilizerSiteModel> lFertilizerSite;
+
   final List<ValveModel> valves;
   final List<ValveModel> mainValves;
   final List<LightModel> lights;
@@ -250,8 +267,13 @@ class PumpStationWithLine extends StatelessWidget {
     super.key,
     required this.inletWaterSources,
     required this.outletWaterSources,
-    required this.filterSite,
-    required this.fertilizerSite,
+
+    required this.cFilterSite,
+    required this.cFertilizerSite,
+
+    required this.lFilterSite,
+    required this.lFertilizerSite,
+
     required this.valves,
     required this.mainValves,
     required this.lights,
@@ -308,22 +330,29 @@ class PumpStationWithLine extends StatelessWidget {
 
     final allItems = [
       if (inletWaterSources.isNotEmpty)
-        ..._buildWaterSource(context, inletWaterSources, true, true,fertilizerSite.isNotEmpty? true:false),
+        ..._buildWaterSource(context, inletWaterSources, true, true, cFertilizerSite.isNotEmpty? true:false),
 
       if (outletWaterSources.isNotEmpty)
-        ..._buildWaterSource(context, outletWaterSources, inletWaterSources.isNotEmpty? true : false, false,fertilizerSite.isNotEmpty?true:false),
+        ..._buildWaterSource(context, outletWaterSources, inletWaterSources.isNotEmpty? true : false, false, cFertilizerSite.isNotEmpty?true:false),
 
-      if (filterSite.isNotEmpty)
-        ...buildFilter(context, filterSite, fertilizerSite.isNotEmpty, false),
+      if (cFilterSite.isNotEmpty)
+        ...buildFilter(context, cFilterSite, cFertilizerSite.isNotEmpty, false),
 
-      if (fertilizerSite.isNotEmpty)
-        ..._buildFertilizer(context, fertilizerSite),
+      if (lFilterSite.isNotEmpty)
+        ...buildFilter(context, lFilterSite, lFertilizerSite.isNotEmpty, false),
+
+      if (cFertilizerSite.isNotEmpty)
+        ..._buildFertilizer(context, cFertilizerSite),
+
+      if (lFertilizerSite.isNotEmpty)
+        ..._buildFertilizer(context, lFertilizerSite),
+
       ...lightWidgets,
-      ..._buildSensorItems(prsSwitch, 'Pressure Switch', 'assets/png/pressure_switch_wj.png', fertilizerSite.isNotEmpty),
-      ..._buildSensorItems(pressureIn, 'Pressure Sensor', 'assets/png/pressure_sensor_wj.png', fertilizerSite.isNotEmpty),
-      ..._buildSensorItems(waterMeter, 'Water Meter', 'assets/png/water_meter_wj.png', fertilizerSite.isNotEmpty),
+      ..._buildSensorItems(prsSwitch, 'Pressure Switch', 'assets/png/pressure_switch_wj.png', cFertilizerSite.isNotEmpty),
+      ..._buildSensorItems(pressureIn, 'Pressure Sensor', 'assets/png/pressure_sensor_wj.png', cFertilizerSite.isNotEmpty),
+      ..._buildSensorItems(waterMeter, 'Water Meter', 'assets/png/water_meter_wj.png', cFertilizerSite.isNotEmpty),
       ...allValveWidgets,
-      ..._buildSensorItems(pressureOut, 'Pressure Sensor', 'assets/png/pressure_sensor_wjl.png', fertilizerSite.isNotEmpty),
+      ..._buildSensorItems(pressureOut, 'Pressure Sensor', 'assets/png/pressure_sensor_wjl.png', cFertilizerSite.isNotEmpty),
       ...gateWidgets,
     ];
 
@@ -338,7 +367,7 @@ class PumpStationWithLine extends StatelessWidget {
           children: allItems.asMap().entries.map<Widget>((entry) {
             final index = entry.key;
             final item = entry.value;
-            if(fertilizerSite.isNotEmpty){
+            if(cFertilizerSite.isNotEmpty){
               int itemsPerRow = ((MediaQuery.sizeOf(context).width - 140) / 67).floor();
 
               if (((item is ValveWidget) || (item is BuildMainValve)
@@ -418,6 +447,7 @@ class PumpStationWithLine extends StatelessWidget {
 
   List<Widget> _buildFertilizer(BuildContext context, List<FertilizerSiteModel> fertilizerSite) {
     return List.generate(fertilizerSite.length, (siteIndex) {
+
       final site = fertilizerSite[siteIndex];
       final widgets = <Widget>[];
 
@@ -440,7 +470,8 @@ class PumpStationWithLine extends StatelessWidget {
           ),
         ));
       }
-      widgets.add(BoosterWidget(fertilizerSite: site));
+
+      widgets.add(BoosterWidget(fertilizerSite: site, isMobile: false));
 
       for (int channelIndex = 0; channelIndex < site.channel.length; channelIndex++) {
         final channel = site.channel[channelIndex];
@@ -449,7 +480,7 @@ class PumpStationWithLine extends StatelessWidget {
           cIndex: channelIndex,
           channelLength: site.channel.length,
           agitator: site.agitator,
-          siteSno: site.sNo.toString(),
+          siteSno: site.sNo.toString(), isMobile: false,
         ));
 
         final isLast = channelIndex == site.channel.length - 1;
@@ -460,6 +491,7 @@ class PumpStationWithLine extends StatelessWidget {
           ));
         }
       }
+
       if(kIsWeb) {
         widgets.add(SizedBox(
           width: 4.5,
@@ -481,6 +513,7 @@ class PumpStationWithLine extends StatelessWidget {
       }
 
       return widgets;
+
     }).expand((item) => item).toList().cast<Widget>();
   }
 

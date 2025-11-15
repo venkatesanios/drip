@@ -17,7 +17,7 @@ import '../../../../modules/calibration/view/calibration_screen.dart';
 import '../../../../modules/constant/view/constant_base_page.dart';
 import '../../../../modules/fertilizer_set/view/fertilizer_Set_screen.dart';
 import '../../../../modules/global_limit/view/global_limit_screen.dart';
-import '../../../common/general_setting.dart';
+import '../../../common/general_setting_wide.dart';
 import '../../crop_advisory_form.dart';
 import '../wide/condition_library_wide.dart';
 import '../narrow/condition_library_narrow.dart';
@@ -36,12 +36,10 @@ class SettingsScreenFactory {
     switch (title) {
       case 'General':
         if(isNarrow){
-          return GeneralSettingsNarrow(
-              controllerId: ctx.controllerId,
-              customerId: ctx.customerId
-          );
+          return GeneralSettingsNarrow(controllerId: ctx.controllerId, customerId: ctx.customerId,
+          isSubUser: ctx.isSubUser, userId: ctx.userId);
         }else{
-          return GeneralSetting(
+          return GeneralSettingWide(
             customerId: ctx.customerId,
             controllerId: ctx.controllerId,
             userId: ctx.userId,

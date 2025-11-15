@@ -105,18 +105,10 @@ class CustomerHomeNarrow extends StatelessWidget {
                           color: Colors.grey.shade400,
                         ),
                       ),
-                      Positioned(
-                        top: 130,
-                        left: MediaQuery.sizeOf(context).width - 35,
-                        right: 3,
-                        child: Container(
-                          height: 4,
-                          color: Colors.grey.shade400,
-                        ),
-                      ),
-                      if(prsSwitch.isNotEmpty)...[
+
+                      if(fertilizerSite.isNotEmpty)...[
                         Positioned(
-                          top: 180,
+                          top: 215,
                           left: MediaQuery.sizeOf(context).width - 35,
                           right: 3,
                           child: Container(
@@ -124,6 +116,48 @@ class CustomerHomeNarrow extends StatelessWidget {
                             color: Colors.grey.shade400,
                           ),
                         ),
+                        Positioned(
+                          top: 255,
+                          left: MediaQuery.sizeOf(context).width - 35,
+                          right: 3,
+                          child: Container(
+                            height: 4,
+                            color: Colors.grey.shade400,
+                          ),
+                        ),
+                        if(prsSwitch.isNotEmpty)...[
+                          Positioned(
+                            top: 310,
+                            left: MediaQuery.sizeOf(context).width - 35,
+                            right: 3,
+                            child: Container(
+                              height: 4,
+                              color: Colors.grey.shade400,
+                            ),
+                          ),
+                        ],
+                      ]
+                      else...[
+                        Positioned(
+                          top: 130,
+                          left: MediaQuery.sizeOf(context).width - 35,
+                          right: 3,
+                          child: Container(
+                            height: 4,
+                            color: Colors.grey.shade400,
+                          ),
+                        ),
+                        if(prsSwitch.isNotEmpty)...[
+                          Positioned(
+                            top: 180,
+                            left: MediaQuery.sizeOf(context).width - 35,
+                            right: 3,
+                            child: Container(
+                              height: 4,
+                              color: Colors.grey.shade400,
+                            ),
+                          ),
+                        ],
                       ],
 
                       Row(
@@ -843,33 +877,47 @@ class PumpStationMobile extends StatelessWidget {
     } else {
       return Column(
         children: [
-          Align(
-            alignment: Alignment.topLeft,
-            child: Wrap(
-              alignment: WrapAlignment.start,
-              spacing: 0,
-              runSpacing: 0,
-              children: wsAndFilterItems,
+          SizedBox(
+            width: double.infinity,
+            height: 100,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              reverse: true,
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: IntrinsicWidth(
+                child: Align(
+                  alignment: Alignment.topRight,
+                  child: Wrap(
+                    alignment: WrapAlignment.end,
+                    spacing: 0,
+                    runSpacing: 0,
+                    children: wsAndFilterItems,
+                  ),
+                ),
+              ),
             ),
           ),
-          Align(
-            alignment: Alignment.topLeft,
-            child: Wrap(
-              alignment: WrapAlignment.start,
-              spacing: 0,
-              runSpacing: 0,
-              children: fertilizerItems,
+          SizedBox(
+            width: double.infinity,
+            height: 125,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              reverse: true,
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: IntrinsicWidth(
+                child: Align(
+                  alignment: Alignment.topRight,
+                  child: Wrap(
+                    alignment: WrapAlignment.end,
+                    spacing: 0,
+                    runSpacing: 0,
+                    children: fertilizerItems,
+                  ),
+                ),
+              ),
             ),
           ),
-          /*Align(
-            alignment: Alignment.topLeft,
-            child: Wrap(
-              alignment: WrapAlignment.start,
-              spacing: 0,
-              runSpacing: 0,
-              children: allItems,
-            ),
-          ),*/
+
         ],
       );
     }
@@ -933,28 +981,36 @@ class PumpStationMobile extends StatelessWidget {
     return gridItems;
   }
 
-
   List<Widget> _buildFertilizer(BuildContext context, List<FertilizerSiteModel> fertilizerSite) {
     return fertilizerSite.map((site) {
       final widgets = <Widget>[];
 
-      widgets.add(BoosterWidget(fertilizerSite: site));
+      // TEMP list for channels + agitator
+      final channelWidgets = <Widget>[];
 
+      // Add channels
       for (int channelIndex = 0; channelIndex < site.channel.length; channelIndex++) {
         final channel = site.channel[channelIndex];
-        widgets.add(ChannelWidget(
+
+        channelWidgets.add(ChannelWidget(
           channel: channel,
           cIndex: channelIndex,
           channelLength: site.channel.length,
           agitator: site.agitator,
-          siteSno: site.sNo.toString(),
+          siteSno: site.sNo.toString(), isMobile: true,
         ));
 
         final isLast = channelIndex == site.channel.length - 1;
         if (isLast && site.agitator.isNotEmpty) {
-          widgets.add(AgitatorWidget(fertilizerSite: site));
+          channelWidgets.add(AgitatorWidget(fertilizerSite: site));
         }
       }
+
+      // Reverse ONLY channels and agitator
+      widgets.addAll(channelWidgets.reversed);
+
+      // Booster LAST (do not reverse this)
+      widgets.add(BoosterWidget(fertilizerSite: site, isMobile: true));
 
       return SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -962,12 +1018,13 @@ class PumpStationMobile extends StatelessWidget {
           padding: const EdgeInsets.only(bottom: 5),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
-              children: widgets
+            children: widgets,
           ),
         ),
       );
     }).toList();
   }
+
 }
 
 class IrrigationLine extends StatelessWidget {

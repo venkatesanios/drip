@@ -211,9 +211,15 @@ class MasterControllerModel {
         .toList();
 
     for (var line in irrigationLines) {
-      final matchedFilterSite = filterSiteMap[line.centralFiltration];
-      final matchedFertilizerSite = fertilizerSiteMap[line.centralFertilization];
-      line.linkReferences(matchedFilterSite, matchedFertilizerSite);
+
+      final matchedCtrlFilterSite = filterSiteMap[line.centralFiltration];
+      final matchedCtrlFertilizerSite = fertilizerSiteMap[line.centralFertilization];
+
+      final matchedLocalFilterSite = filterSiteMap[line.localFiltration];
+      final matchedLocalFertilizerSite = fertilizerSiteMap[line.localFertilization];
+
+      line.linkReferences(matchedCtrlFilterSite, matchedCtrlFertilizerSite,
+          matchedLocalFilterSite, matchedLocalFertilizerSite);
     }
 
     final ecSensorRaw = (config['ecSensor'] as List?) ?? [];
@@ -411,10 +417,17 @@ class IrrigationLineModel {
   final String name;
   final List<WaterSourceModel> inletSources;
   final List<WaterSourceModel> outletSources;
+
   final double? centralFiltration;
   final double? centralFertilization;
   FilterSiteModel? centralFilterSite;
   FertilizerSiteModel? centralFertilizerSite;
+
+  final double? localFiltration;
+  final double? localFertilization;
+  FilterSiteModel? localFilterSite;
+  FertilizerSiteModel? localFertilizerSite;
+
   final List<ValveModel> valveObjects;
   final List<ValveModel> mainValveObjects;
   final List<LightModel> lightObjects;
@@ -432,6 +445,8 @@ class IrrigationLineModel {
     required this.outletSources,
     required this.centralFiltration,
     required this.centralFertilization,
+    required this.localFiltration,
+    required this.localFertilization,
     required this.valveObjects,
     required this.mainValveObjects,
     required this.lightObjects,
@@ -553,8 +568,13 @@ class IrrigationLineModel {
     return IrrigationLineModel(
       sNo: json['sNo']?.toDouble() ?? 0,
       name: json['name'] ?? '',
+
       centralFiltration: (json['centralFiltration'] as num?)?.toDouble(),
       centralFertilization: (json['centralFertilization'] as num?)?.toDouble(),
+
+      localFiltration: (json['localFiltration'] as num?)?.toDouble(),
+      localFertilization: (json['localFertilization'] as num?)?.toDouble(),
+
       inletSources: matchedInletSources,
       outletSources: matchedOutLetSources,
       valveObjects: valves,
@@ -568,10 +588,12 @@ class IrrigationLineModel {
     );
   }
 
-  void linkReferences(FilterSiteModel? cFilterSite,
-      FertilizerSiteModel? cFertilizerSite) {
+  void linkReferences(FilterSiteModel? cFilterSite, FertilizerSiteModel? cFertilizerSite,
+      FilterSiteModel? lFilterSite, FertilizerSiteModel? lFertilizerSite) {
     centralFilterSite = cFilterSite;
     centralFertilizerSite = cFertilizerSite;
+    localFilterSite = lFilterSite;
+    localFertilizerSite = lFertilizerSite;
   }
 
 }
