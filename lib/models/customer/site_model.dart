@@ -458,7 +458,8 @@ class IrrigationLineModel {
     this.linePauseFlag = 0,
   });
 
-  factory IrrigationLineModel.fromJson(Map<String, dynamic> json, List<ConfigObject> configObjects, var moistureSensorRaw, List<WaterSourceModel> waterSources) {
+  factory IrrigationLineModel.fromJson(Map<String, dynamic> json, List<ConfigObject> configObjects,
+      var moistureSensorRaw, List<WaterSourceModel> waterSources) {
 
     final sourcePumpList = (json['sourcePump'] as List?) ?? [];
     final sourcePumpSet = sourcePumpList.map((e) => (e as num).toDouble()).toSet();

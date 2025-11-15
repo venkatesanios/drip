@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:provider/provider.dart';
+import '../../StateManagement/customer_provider.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../utils/constants.dart';
@@ -26,6 +27,7 @@ class _GeneralSettingWideState extends State<GeneralSettingWide> {
   Widget build(BuildContext context) {
 
     return ChangeNotifierProvider(
+      key: ValueKey(Provider.of<CustomerProvider>(context).controllerId),
       create: (_) => GeneralSettingViewModel(Repository(HttpService()))
         ..initIds(customerId: widget.customerId, controllerId: widget.controllerId, userId: widget.userId, isSubUser: widget.isSubUser)
         ..getControllerInfo()
