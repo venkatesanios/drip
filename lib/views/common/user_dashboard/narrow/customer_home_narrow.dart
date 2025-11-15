@@ -17,8 +17,10 @@ import '../../../../utils/my_function.dart';
 import '../../../../utils/snack_bar.dart';
 import '../../../../view_models/customer/current_program_view_model.dart';
 import '../../../../view_models/customer/customer_screen_controller_view_model.dart';
-import '../../../customer/customer_home.dart';
-import '../../../customer/home_sub_classes/fertilizer_site.dart';
+import '../../../customer/widgets/agitator_widget.dart';
+import '../../../customer/widgets/booster_widget.dart';
+import '../../../customer/widgets/channel_widget.dart';
+import '../../../customer/widgets/light_widget.dart';
 import '../../../customer/widgets/filter_builder.dart';
 import '../../../customer/widgets/my_material_button.dart';
 import '../../../customer/widgets/sensor_widget_mobile.dart';
@@ -64,13 +66,22 @@ class CustomerHomeNarrow extends StatelessWidget {
                   for (var source in line.outletSources) source.sNo: source
                 }.values.toList();
 
-                final filterSite = {
+                final cFilterSite = {
                   if (line.centralFilterSite != null) line.centralFilterSite!.sNo : line.centralFilterSite!
                 }.values.toList();
 
-                final fertilizerSite = {
+                final cFertilizerSite = {
                   if (line.centralFertilizerSite != null) line.centralFertilizerSite!.sNo : line.centralFertilizerSite!
                 }.values.toList();
+
+                final lFilterSite = {
+                  if (line.localFilterSite != null) line.localFilterSite!.sNo : line.localFilterSite!
+                }.values.toList();
+
+                final lFertilizerSite = {
+                  if (line.localFertilizerSite != null) line.localFertilizerSite!.sNo : line.localFertilizerSite!
+                }.values.toList();
+
 
                 final prsSwitch = [
                   ..._buildSensorItems(line.prsSwitch, 'Pressure Switch', 'assets/png/pressure_switch_wj.png', false,
@@ -106,7 +117,7 @@ class CustomerHomeNarrow extends StatelessWidget {
                         ),
                       ),
 
-                      if(fertilizerSite.isNotEmpty)...[
+                      if(cFertilizerSite.isNotEmpty)...[
                         Positioned(
                           top: 215,
                           left: MediaQuery.sizeOf(context).width - 35,
@@ -172,8 +183,10 @@ class CustomerHomeNarrow extends StatelessWidget {
                                   child: PumpStationMobile(
                                     inletWaterSources: inletWaterSources,
                                     outletWaterSources: outletWaterSources,
-                                    filterSite: filterSite,
-                                    fertilizerSite: fertilizerSite,
+                                    cFilterSite: cFilterSite,
+                                    cFertilizerSite: cFertilizerSite,
+                                    lFilterSite: lFilterSite,
+                                    lFertilizerSite: lFertilizerSite,
                                     customerId: customerId,
                                     controllerId: cM.controllerId,
                                     deviceId: cM.deviceId,
@@ -815,15 +828,19 @@ class PumpStationMobile extends StatelessWidget {
   final String deviceId;
   final List<WaterSourceModel> inletWaterSources;
   final List<WaterSourceModel> outletWaterSources;
-  final List<FilterSiteModel> filterSite;
-  final List<FertilizerSiteModel> fertilizerSite;
+  final List<FilterSiteModel> cFilterSite;
+  final List<FertilizerSiteModel> cFertilizerSite;
+  final List<FilterSiteModel> lFilterSite;
+  final List<FertilizerSiteModel> lFertilizerSite;
 
   PumpStationMobile({
     super.key,
     required this.inletWaterSources,
     required this.outletWaterSources,
-    required this.filterSite,
-    required this.fertilizerSite,
+    required this.cFilterSite,
+    required this.cFertilizerSite,
+    required this.lFilterSite,
+    required this.lFertilizerSite,
     required this.customerId,
     required this.controllerId,
     required this.deviceId,
@@ -842,16 +859,20 @@ class PumpStationMobile extends StatelessWidget {
       if (outletWaterSources.isNotEmpty)
         ..._buildWaterSource(context, outletWaterSources, inletWaterSources.isNotEmpty, false),
 
-      if (filterSite.isNotEmpty)
-        ...buildFilter(context, filterSite, false, true),
+      if (cFilterSite.isNotEmpty)
+        ...buildFilter(context, cFilterSite, false, true),
     ];
 
-    final fertilizerItems = fertilizerSite.isNotEmpty
-        ? _buildFertilizer(context, fertilizerSite).cast<Widget>()
+    final fertilizerItemsCentral = cFertilizerSite.isNotEmpty
+        ? _buildFertilizer(context, cFertilizerSite).cast<Widget>()
+        : <Widget>[];
+
+    final fertilizerItemsLocal = lFertilizerSite.isNotEmpty
+        ? _buildFertilizer(context, lFertilizerSite).cast<Widget>()
         : <Widget>[];
 
 
-    if (fertilizerSite.isEmpty) {
+    if (cFertilizerSite.isEmpty) {
       return SizedBox(
         width: double.infinity,
         height: 100,
@@ -897,6 +918,7 @@ class PumpStationMobile extends StatelessWidget {
               ),
             ),
           ),
+
           SizedBox(
             width: double.infinity,
             height: 125,
@@ -911,42 +933,37 @@ class PumpStationMobile extends StatelessWidget {
                     alignment: WrapAlignment.end,
                     spacing: 0,
                     runSpacing: 0,
-                    children: fertilizerItems,
+                    children: fertilizerItemsCentral,
                   ),
                 ),
               ),
             ),
           ),
 
+          if (lFertilizerSite.isNotEmpty)
+            SizedBox(
+              width: double.infinity,
+              height: 125,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                reverse: true,
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: IntrinsicWidth(
+                  child: Align(
+                    alignment: Alignment.topRight,
+                    child: Wrap(
+                      alignment: WrapAlignment.end,
+                      spacing: 0,
+                      runSpacing: 0,
+                      children: fertilizerItemsLocal,
+                    ),
+                  ),
+                ),
+              ),
+            ),
         ],
       );
     }
-
-    /*return Container(
-      width: double.infinity,
-      color: Colors.white,
-      child: SizedBox(
-        height: 150,
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: IntrinsicWidth(
-            child:PumpStationMobile(
-              inletWaterSources: inletWaterSources,
-              outletWaterSources: outletWaterSources,
-              filterSite: filterSite,
-              fertilizerSite: fertilizerSite,
-              prsSwitch: line.prsSwitch,
-              customerId: viewModel.mySiteList.data[viewModel.sIndex].customerId,
-              controllerId: cM.controllerId,
-              deviceId: cM.deviceId,
-              modelId: cM.modelId,
-            ),
-          ),
-        ),
-      ),
-    );*/
-
   }
 
   List<Widget> _buildWaterSource(BuildContext context, List<WaterSourceModel> waterSources,
@@ -1002,14 +1019,12 @@ class PumpStationMobile extends StatelessWidget {
 
         final isLast = channelIndex == site.channel.length - 1;
         if (isLast && site.agitator.isNotEmpty) {
-          channelWidgets.add(AgitatorWidget(fertilizerSite: site));
+          channelWidgets.add(AgitatorWidget(fertilizerSite: site, isMobile: true));
         }
       }
 
-      // Reverse ONLY channels and agitator
       widgets.addAll(channelWidgets.reversed);
 
-      // Booster LAST (do not reverse this)
       widgets.add(BoosterWidget(fertilizerSite: site, isMobile: true));
 
       return SingleChildScrollView(

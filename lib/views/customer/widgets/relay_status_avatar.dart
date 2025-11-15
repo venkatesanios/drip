@@ -71,17 +71,6 @@ class RelayStatusAvatar extends StatelessWidget {
 
       ],
     );
-    return CircleAvatar(
-      radius: 16,
-      backgroundColor: _getStatusColor(status!),
-      child: Text(
-        getLabel(objType, rlyNo),
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 10,
-        ),
-      ),
-    );
   }
 
   String getLabel(String? objType, int? rlyNo) {

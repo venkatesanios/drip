@@ -4,9 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:popover/popover.dart';
 import 'package:provider/provider.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:syncfusion_flutter_gauges/gauges.dart';
-import 'package:table_calendar/table_calendar.dart';
 
 import '../../../StateManagement/mqtt_payload_provider.dart';
 import '../../../models/customer/sensor_hourly_data_model.dart';
@@ -16,6 +13,7 @@ import '../../../services/http_service.dart';
 import '../../../utils/constants.dart';
 import '../../../utils/my_function.dart';
 import 'float_switch_popover.dart';
+import 'moisture_sensor_popover.dart';
 
 class ValveWidgetMobile extends StatefulWidget {
   final ValveModel valve;
@@ -34,9 +32,6 @@ class ValveWidgetMobile extends StatefulWidget {
 }
 
 class _ValveWidgetMobileState extends State<ValveWidgetMobile> {
-  final Map<String, List<SensorHourlyData>> _sensorCache = {};
-
-  final Set<String> _loadingSensors = {};
 
   @override
   Widget build(BuildContext context) {
@@ -123,31 +118,29 @@ class _ValveWidgetMobileState extends State<ValveWidgetMobile> {
   }
 
   Widget _buildMoistureButton(ValveModel valve) {
-    final sensor = valve.moistureSensors.first;
-    final sensorId = sensor.sNo.toString();
 
     return Positioned(
       top: 12,
       left: 40,
       child: TextButton(
         onPressed: () async {
-          if (!_sensorCache.containsKey(sensorId) && !_loadingSensors.contains(sensorId)) {
-            _loadingSensors.add(sensorId);
-            try {
-              final all = await fetchSensorData();
-              final list = getSensorDataById(sensorId, all);
-              _sensorCache[sensorId] = list;
-            } catch (e) {
-              debugPrint('Error fetching sensor data for $sensorId: $e');
-              _sensorCache[sensorId] = []; // avoid retry flood
-            } finally {
-              _loadingSensors.remove(sensorId);
-            }
-          }
 
-          final sensorDataList = _sensorCache[sensorId] ?? [];
+          final sensors = await fetchSensorData();
 
-          _showMoisturePopover(context, valve, sensorDataList);
+          showPopover(
+            context: context,
+            bodyBuilder: (context) {
+              return MoistureSensorPopover(valve: valve, sensors: sensors);
+            },
+            direction: PopoverDirection.bottom,
+            width: 550,
+            height: 310,
+            arrowHeight: 15,
+            arrowWidth: 30,
+            barrierColor: Colors.black54,
+            arrowDyOffset: -40,
+          );
+
         },
         style: ButtonStyle(
           padding: WidgetStateProperty.all(EdgeInsets.zero),
@@ -165,126 +158,6 @@ class _ValveWidgetMobileState extends State<ValveWidgetMobile> {
     );
   }
 
-  void _showMoisturePopover(BuildContext context, ValveModel valve, List<SensorHourlyData> sensorDataList) {
-    List<CartesianSeries<dynamic, String>> series = [
-      LineSeries<SensorHourlyData, String>(
-        dataSource: sensorDataList,
-        xValueMapper: (SensorHourlyData data, _) => data.hour,
-        yValueMapper: (SensorHourlyData data, _) {
-          try {
-            return double.parse(data.value);
-          } catch (_) {
-            return 0.0;
-          }
-        },
-        markerSettings: const MarkerSettings(isVisible: true),
-        dataLabelSettings: const DataLabelSettings(isVisible: false),
-        color: Colors.blueAccent,
-        name: valve.moistureSensors[0].name,
-      ),
-    ];
-
-    showPopover(
-      context: context,
-      bodyBuilder: (context) {
-        return Column(
-          children: [
-            Row(
-              children: [
-                const SizedBox(width: 16),
-                SizedBox(width: 100, height: 100, child: _buildRadialGauge(valve)),
-                Padding(padding: const EdgeInsets.only(left: 8, right: 8), child: Container(width: 1, height: 110, color: Colors.black12)),
-                _buildCalendar(),
-              ],
-            ),
-            SizedBox(
-              width: 550,
-              height: 175,
-              child: SfCartesianChart(
-                primaryXAxis: CategoryAxis(
-                  title: AxisTitle(text: valve.moistureSensors[0].name, textStyle: const TextStyle(fontSize: 12)),
-                  majorGridLines: const MajorGridLines(width: 0),
-                  axisLine: const AxisLine(width: 0),
-                  labelStyle: const TextStyle(fontSize: 11, color: Colors.black54),
-                ),
-                primaryYAxis: const NumericAxis(
-                  labelStyle: TextStyle(fontSize: 11, color: Colors.black54),
-                ),
-                tooltipBehavior: TooltipBehavior(enable: true),
-                series: series,
-              ),
-            )
-          ],
-        );
-      },
-      direction: PopoverDirection.bottom,
-      width: 550,
-      height: 310,
-      arrowHeight: 15,
-      arrowWidth: 30,
-      barrierColor: Colors.black54,
-      arrowDyOffset: -40,
-    );
-  }
-
-  Widget _buildRadialGauge(ValveModel valve) {
-    double needleValue = 0.0;
-    try {
-      needleValue = double.parse(valve.moistureSensors[0].value.toString());
-    } catch (_) {
-      needleValue = 0.0;
-    }
-
-    return SfRadialGauge(
-      axes: <RadialAxis>[
-        RadialAxis(
-          minimum: 0,
-          maximum: 200,
-          pointers: <GaugePointer>[
-            NeedlePointer(value: needleValue, needleEndWidth: 3, needleColor: Colors.black54),
-            const RangePointer(
-              value: 200.0,
-              width: 0.30,
-              sizeUnit: GaugeSizeUnit.factor,
-              color: Color(0xFF494CA2),
-              animationDuration: 1000,
-              gradient: SweepGradient(
-                colors: <Color>[Colors.tealAccent, Colors.orangeAccent, Colors.redAccent, Colors.redAccent],
-                stops: <double>[0.15, 0.50, 0.70, 1.00],
-              ),
-              enableAnimation: true,
-            ),
-          ],
-          showFirstLabel: false,
-          annotations: <GaugeAnnotation>[
-            GaugeAnnotation(
-              widget: Text(valve.moistureSensors[0].value, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
-              angle: 90,
-              positionFactor: 0.8,
-            ),
-          ],
-        )
-      ],
-    );
-  }
-
-  Widget _buildCalendar() {
-    return SizedBox(
-      width: 415,
-      height: 132,
-      child: TableCalendar(
-        focusedDay: DateTime.now(),
-        firstDay: DateTime.utc(2020, 1, 1),
-        lastDay: DateTime.utc(2030, 12, 31),
-        calendarFormat: CalendarFormat.week,
-        availableCalendarFormats: const {CalendarFormat.week: 'Week'},
-        onDaySelected: (selectedDay, focusedDay) {
-          // keep original debug print
-          debugPrint("Selected: $selectedDay");
-        },
-      ),
-    );
-  }
 
   Widget _buildWaterSource(ValveModel valve) {
 

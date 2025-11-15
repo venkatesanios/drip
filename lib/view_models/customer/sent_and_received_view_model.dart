@@ -8,6 +8,10 @@ import '../../utils/shared_preferences_helper.dart';
 class SentAndReceivedViewModel extends ChangeNotifier {
   final Repository repository;
 
+  int? customerId;
+  int? controllerId;
+  bool? isWide;
+
   bool _disposed = false;
   bool isLoading = false;
   String errorMessage = "";
@@ -21,10 +25,20 @@ class SentAndReceivedViewModel extends ChangeNotifier {
 
   SentAndReceivedViewModel(this.repository);
 
+  void initIds({
+    required int customerId,
+    required int controllerId,
+    bool? isWide,
+  }) {
+    this.customerId = customerId;
+    this.controllerId = controllerId;
+    this.isWide = isWide;
+  }
+
   @override
   void dispose() {
     _disposed = true;
-    passwordController.dispose(); // 👈 also dispose controller
+    passwordController.dispose();
     super.dispose();
   }
 
@@ -34,11 +48,10 @@ class SentAndReceivedViewModel extends ChangeNotifier {
 
   void setLoading(bool value) {
     isLoading = value;
-    safeNotify(); // 👈 safe version only
+    safeNotify();
   }
 
-  Future<void> getSentAndReceivedData(
-      int customerId, int controllerId, String date) async {
+  Future<void> getSentAndReceivedData(String date) async {
     setLoading(true);
     String? userRole = await PreferenceHelper.getUserRole();
     if (userRole != 'customer') {
@@ -77,8 +90,6 @@ class SentAndReceivedViewModel extends ChangeNotifier {
 
   Future<void> getUserSoftwareOrHardwarePayload(
       BuildContext context,
-      int customerId,
-      int controllerId,
       int sentAndReceivedId,
       String aTitle,
       String pyTitle,
@@ -93,7 +104,7 @@ class SentAndReceivedViewModel extends ChangeNotifier {
       final response =
       await repository.fetchSentAndReceivedHardwarePayload(body);
 
-      if (_disposed) return; // 👈 prevent updates after dispose
+      if (_disposed) return;
 
       if (response.statusCode == 200) {
         final jsonData = jsonDecode(response.body);
@@ -106,7 +117,7 @@ class SentAndReceivedViewModel extends ChangeNotifier {
             displayJsonData(
                 context, jsonData['data'], aTitle, pyTitle);
           } else {
-            if (!context.mounted) return; // 👈 ensure safe UI usage
+            if (!context.mounted) return;
             showDialog(
               context: context,
               builder: (BuildContext context) {
@@ -189,11 +200,10 @@ class SentAndReceivedViewModel extends ChangeNotifier {
     return DateFormat("h:mm a").format(dateTime);
   }
 
-  void onDateChanged(
-      int customerId, int controllerId, DateTime sDate, DateTime fDate) {
+  void onDateChanged(DateTime sDate, DateTime fDate) {
     selectedDay = sDate;
     focusedDay = fDate;
     String formattedDate = DateFormat('yyyy-MM-dd').format(sDate);
-    getSentAndReceivedData(customerId, controllerId, formattedDate);
+    getSentAndReceivedData(formattedDate);
   }
 }

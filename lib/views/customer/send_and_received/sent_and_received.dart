@@ -5,6 +5,7 @@ import 'package:loading_indicator/loading_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+import '../../../StateManagement/customer_provider.dart';
 import '../../../repository/repository.dart';
 import '../../../services/http_service.dart';
 import '../../../view_models/customer/sent_and_received_view_model.dart';
@@ -23,12 +24,10 @@ class SentAndReceived extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
+      key: ValueKey(Provider.of<CustomerProvider>(context).controllerId),
       create: (_) => SentAndReceivedViewModel(Repository(HttpService()))
-        ..getSentAndReceivedData(
-          customerId,
-          controllerId,
-          DateFormat('yyyy-MM-dd').format(DateTime.now()),
-        ),
+        ..initIds(customerId: customerId, controllerId: controllerId, isWide: isWide)
+        ..getSentAndReceivedData(DateFormat('yyyy-MM-dd').format(DateTime.now())),
       child: Consumer<SentAndReceivedViewModel>(
         builder: (context, viewModel, _) {
           final calendarWidget = _buildCalendar(context, viewModel);
@@ -70,7 +69,7 @@ class SentAndReceived extends StatelessWidget {
       enabledDayPredicate: (day) =>
       day.isBefore(DateTime.now()) || isSameDay(day, DateTime.now()),
       onDaySelected: (selectedDay, focusedDay) {
-        viewModel.onDateChanged(customerId, controllerId, selectedDay, focusedDay);
+        viewModel.onDateChanged(selectedDay, focusedDay);
       },
       calendarFormat: initialFormat,
       availableCalendarFormats: const {
@@ -134,8 +133,6 @@ class SentAndReceived extends StatelessWidget {
                   if (viewModel.hasPayloadViewPermission) {
                     viewModel.getUserSoftwareOrHardwarePayload(
                       context,
-                      customerId,
-                      controllerId,
                       message.sentAndReceivedId,
                       'Hardware payload',
                       message.message,
@@ -211,8 +208,6 @@ class SentAndReceived extends StatelessWidget {
                     );
                     viewModel.getUserSoftwareOrHardwarePayload(
                       context,
-                      customerId,
-                      controllerId,
                       message.sentAndReceivedId,
                       'Hardware payload',
                       message.message,
