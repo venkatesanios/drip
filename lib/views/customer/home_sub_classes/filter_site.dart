@@ -78,20 +78,30 @@ class FilterWidget extends StatelessWidget {
         final other = data.item2;
 
         final statusParts = status?.split(',') ?? [];
+        final otherParts = other?.split(',') ?? [];
+
         if (statusParts.length > 1) {
           filter.status = int.tryParse(statusParts[1]) ?? 0;
         }
 
         int siteStatus = 0;
+
         if(filter.status==1){
-          final otherParts = other?.split(',') ?? [];
           if (otherParts.length >= 4) {
             int value = int.parse(otherParts[1]);
             siteStatus = value < 0 ? 0 : value;
             filter.onDelayLeft = otherParts[2];
           }
         }else{
-          filter.onDelayLeft = '00:00:00';
+          if (otherParts.length >= 4) {
+            if(otherParts[1]=='-1'){
+              siteStatus = 1;
+              filter.onDelayLeft = otherParts[2];
+            }else{
+              filter.onDelayLeft = '00:00:00';
+            }
+          }
+
         }
 
         return SizedBox(
@@ -101,9 +111,9 @@ class FilterWidget extends StatelessWidget {
             children: [
               Stack(
                 children: [
-                  SizedBox(width:70, height: 70,child: AppConstants.getAsset(
+                  SizedBox(width:70, height: 70, child: AppConstants.getAsset(
                       isMobile ? 'mobile filter':'filter', filter.status,'')),
-                  filter.onDelayLeft != '00:00:00' && siteStatus!=0?
+                  filter.onDelayLeft != '00:00:00' && siteStatus != 0 ?
                   Positioned(
                     top: 52,
                     left: 7.5,
@@ -137,6 +147,28 @@ class FilterWidget extends StatelessWidget {
                     ),
                   ) :
                   const SizedBox(),
+                  if(otherParts.length >= 4 && otherParts[1]=='-1')...[
+                    Positioned(
+                      top: 37,
+                      left: 7.5,
+                      child: Container(
+                        width: 55,
+                        decoration: BoxDecoration(
+                          color:Colors.greenAccent,
+                          borderRadius: const BorderRadius.all(Radius.circular(2)),
+                          border: Border.all(color: Colors.grey, width: .50,),
+                        ),
+                        child: const Text('Start in',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    )
+                  ]
                 ],
               ),
               Text(filter.name, style: const TextStyle(

@@ -48,7 +48,7 @@ class MoistureSensorPopover extends StatelessWidget {
               builder: (_, status, __) {
                 final statusParts = status?.split(',') ?? [];
                 if (statusParts.isNotEmpty) {
-                  sensor.value = statusParts[0];
+                  sensor.value = statusParts[1];
                 }
       
                 return Column(
