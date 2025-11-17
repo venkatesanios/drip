@@ -20,24 +20,6 @@ Widget appBarDropDownMenu(BuildContext context,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const SizedBox(width: 5),
-
-            SiteSelectorWidget(vm: vm, context: context),
-            if (vm.mySiteList.data.length > 1)...[
-              const VerticalDividerWhite(),
-            ],
-
-            MasterSelectorWidget(vm: vm, sIndex: vm.sIndex, mIndex: vm.mIndex),
-            if (vm.mySiteList.data[vm.sIndex].master.length > 1)...[
-              const VerticalDividerWhite(),
-            ],
-
-            IrrigationLineSelectorWidget(vm: vm),
-            if ([...AppConstants.gemModelList, ...AppConstants.ecoGemModelList]
-                .contains(master.modelId) &&
-                master.irrigationLine.length > 1)...[
-              const VerticalDividerWhite(),
-            ],
 
             Container(
               decoration: BoxDecoration(
@@ -62,6 +44,27 @@ Widget appBarDropDownMenu(BuildContext context,
                 style: const TextStyle(fontSize: 14, color: Colors.white60),
               ),
             ),
+
+            const SizedBox(width: 5),
+
+            if (vm.mySiteList.data.length > 1)...[
+              const VerticalDividerWhite(),
+            ],
+            SiteSelectorWidget(vm: vm, context: context),
+
+            if (vm.mySiteList.data[vm.sIndex].master.length > 1)...[
+              const VerticalDividerWhite(),
+            ],
+            MasterSelectorWidget(vm: vm, sIndex: vm.sIndex, mIndex: vm.mIndex),
+
+            if ([...AppConstants.gemModelList, ...AppConstants.ecoGemModelList]
+                .contains(master.modelId) &&
+                master.irrigationLine.length > 1)...[
+              const VerticalDividerWhite(),
+            ],
+
+            IrrigationLineSelectorWidget(vm: vm),
+
             const SizedBox(width: 15),
           ],
         ),
