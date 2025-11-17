@@ -37,8 +37,17 @@ class _ToggleTextFormFieldForProductLimitState extends State<ToggleTextFormField
             var integerValue = myController.text == '' ? 0 : int.parse(myController.text);
 
             if(widget.object.type == '-'){
-              /* there is no validation for places eg: source, line, site. */
-              widget.configPvd.updateObjectCount(widget.object.objectId, integerValue.toString());
+              if(AppConstants.ecoGemModelList.contains(widget.configPvd.masterData['modelId'])){
+                if([AppConstants.irrigationLineObjectId].contains(widget.object.objectId)){
+                  int maxAllowableCount = 1;
+                  validateObjectForEcoGem(integerValue: integerValue, maxAllowableCount: maxAllowableCount);
+                }else{
+                  widget.configPvd.updateObjectCount(widget.object.objectId, integerValue.toString());
+                }
+              }else{
+                widget.configPvd.updateObjectCount(widget.object.objectId, integerValue.toString());
+              }
+
             }else{
               /* do validate expect source, line, site. */
               int availableCount = widget.object.type == '1,2'

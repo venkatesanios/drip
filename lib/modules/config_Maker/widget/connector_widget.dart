@@ -33,7 +33,64 @@ class ConnectorWidget extends StatelessWidget {
     String? name = object?.name;
     bool selectedConnector = (configPvd.selectedModelControllerId == selectedDevice.controllerId && configPvd.selectedType == type && configPvd.selectedConnectionNo == connectionNo);
     bool themeMode = Theme.of(context).brightness == Brightness.light;
+    if(selectedDevice.categoryId == 6 && type == '4' && connectionNo == 5){
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              AnimatedContainer(
+                width: 20,
+                height: 20,
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(2),
+                  color: Colors.grey,
+                ),
+                duration: const Duration(milliseconds: 200),
+                child: Center(
+                  child: Container(
+                    width: double.infinity,
+                    height: double.infinity,
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(2),
+                        color: Colors.grey.shade200
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                width: 20,
+                height: 5,
+                decoration: const BoxDecoration(
+                  color: Colors.grey,
+                ),
+              ),
+              const SizedBox(width: 5,),
+              const Text('D5  - Pulse Input')
+            ],
+          ),
+          const SizedBox(height: 5,),
+          connector(
+              object: object,
+              selectedConnector: selectedConnector,
+              context: context,
+              themeMode: themeMode,
+              name: name
+          )
+        ],
+      );
+    }
+    return connector( 
+        object: object,
+        selectedConnector: selectedConnector,
+        context: context,
+        themeMode: themeMode,
+        name: name
+    );
+  }
 
+  Widget connector({required DeviceObjectModel? object, required bool selectedConnector, required BuildContext context, required bool themeMode, required String? name}){
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
@@ -53,8 +110,8 @@ class ConnectorWidget extends StatelessWidget {
                 height: selectedConnector ? 23 : 20,
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(2),
-                    color: selectedConnector ? Theme.of(context).primaryColorDark : themeMode ? Colors.black : Colors.grey.shade400,
+                  borderRadius: BorderRadius.circular(2),
+                  color: selectedConnector ? Theme.of(context).primaryColorDark : themeMode ? Colors.black : Colors.grey.shade400,
                 ),
                 duration: const Duration(milliseconds: 200),
                 child: Center(
@@ -93,8 +150,6 @@ class ConnectorWidget extends StatelessWidget {
             ],
           ),
         )
-
-
       ],
     );
   }
@@ -121,7 +176,9 @@ class ConnectorWidget extends StatelessWidget {
     if(connectionNo == 9 && selectedDevice.categoryId == 6 && type == '3'){
       editConnectionNo = '';
     }
+    if(connectionNo == 5 && selectedDevice.categoryId == 6 && type == '4'){
+      editConnectionNo = '6';
+    }
     return '$keyWord$editConnectionNo$specificSensor';
   }
-
 }

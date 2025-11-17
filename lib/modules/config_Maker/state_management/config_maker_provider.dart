@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:oro_drip_irrigation/modules/config_Maker/model/ec_model.dart';
 import 'package:oro_drip_irrigation/modules/config_Maker/repository/config_maker_repository.dart';
 import 'package:oro_drip_irrigation/utils/constants.dart';
@@ -151,11 +152,15 @@ class ConfigMakerProvider extends ChangeNotifier{
       if(object.objectId == objectId && listOfSerialNo.contains(object.sNo)){
         if(!object.assignObject.contains(sNo)){
           object.assignObject.add(sNo);
-          print('added : ${object.toJson()}');
+          if (kDebugMode) {
+            print('added : ${object.toJson()}');
+          }
         }
       }else if(object.objectId == objectId && !listOfSerialNo.contains(object.sNo)) {
         object.assignObject.remove(sNo);
-        print('remove : ${object.toJson()}');
+        if (kDebugMode) {
+          print('remove : ${object.toJson()}');
+        }
       }
     }
     notifyListeners();
@@ -268,7 +273,9 @@ class ConfigMakerProvider extends ChangeNotifier{
       else{
         print('get product list');
         var productListResponse = await ConfigMakerRepository().getProductStock({'userId' : masterDataFromSiteConfigure['customerId']});
-        print("productListResponse : ${productListResponse.body}");
+        if (kDebugMode) {
+          print("productListResponse : ${productListResponse.body}");
+        }
         Map<String, dynamic> productListJsonData = jsonDecode(productListResponse.body);
         productStock = productListJsonData['data'];
       }
@@ -282,7 +289,9 @@ class ConfigMakerProvider extends ChangeNotifier{
       };
       var response = await ConfigMakerRepository().getUserConfigMaker(body);
       Map<String, dynamic> jsonData = jsonDecode(response.body);
-      print('jsonData : $jsonData');
+      if (kDebugMode) {
+        print('jsonData : $jsonData');
+      }
       Map<String, dynamic> defaultData = jsonData['data']['default'];
       Map<String, dynamic> configMakerData = jsonData['data']['configMaker'];
       configMakerDataFromHttp = configMakerData;
@@ -324,7 +333,6 @@ class ConfigMakerProvider extends ChangeNotifier{
 
       listOfDeviceModel = (defaultData['deviceList'] as List<dynamic>).where((device) => !senseNodeNotToAddInDeviceList.contains(device['modelId']))
           .map((devices) {
-        print("devices['modelId'] : ${devices['modelId']}");
         Map<String, dynamic> deviceProperty = defaultData['productModel'].firstWhere((product) => devices['modelId'] == product['modelId']);
         var inputObjectId = deviceProperty['inputObjectId'] == '-' ? [] : deviceProperty['inputObjectId'].split(',').map((e) => int.parse(e.toString())).toList();
         var outputObjectId = deviceProperty['outputObjectId'] == '-' ? [] : deviceProperty['outputObjectId'].split(',').map((e) => int.parse(e.toString())).toList();
@@ -437,7 +445,9 @@ class ConfigMakerProvider extends ChangeNotifier{
       };
       var response = await ConfigMakerRepository().productReplace(body);
       Map<String, dynamic> jsonData = jsonDecode(response.body);
-      print("jsonData == $jsonData");
+      if (kDebugMode) {
+        print("jsonData == $jsonData");
+      }
       notifyListeners();
       if(jsonData['code'] == 200){
         if(masterOrNode == 1){
@@ -464,7 +474,6 @@ class ConfigMakerProvider extends ChangeNotifier{
   }
 
   void updateObjectCount(int objectId, String count){
-    print('objectId : $objectId count : $count');
     for(var object in listOfSampleObjectModel){
       if(object.objectId == objectId){
         int oldCount = object.count == '' ? 0 : int.parse(object.count!);
@@ -555,7 +564,6 @@ class ConfigMakerProvider extends ChangeNotifier{
           List<double> filteredList = listOfGeneratedObject
               .where((available) => (available.objectId == object.objectId))
               .map((e) => e.sNo!).toList();
-          print("filteredList :::: $filteredList");
           filteredList = filteredList.sublist(filteredList.length - howManyObjectToDelete, filteredList.length);
           listOfGeneratedObject.removeWhere((e) => filteredList.contains(e.sNo));
           filtration.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
@@ -596,7 +604,9 @@ class ConfigMakerProvider extends ChangeNotifier{
     });
 
     for(var object in listOfGeneratedObject){
-      print('generated :: ${object.toJson()}');
+      if (kDebugMode) {
+        print('generated :: ${object.toJson()}');
+      }
     }
 
   }
@@ -615,7 +625,6 @@ class ConfigMakerProvider extends ChangeNotifier{
     };
     int totalConnectionCount = connectionTypeCountMapping[selectedConnectionObject.type]!;
     List<int> selectedModelDefaultConnectionList = List<int>.generate(totalConnectionCount, (index) => index + 1);
-    print('selectedModelDefaultConnectionList first: $selectedModelDefaultConnectionList');
 
 
     // ------filtering object by objectId, configure & not configured----------------------
@@ -683,9 +692,6 @@ class ConfigMakerProvider extends ChangeNotifier{
     }else{  // removing
       int deletingCount = oldCount - newCount;
       List<DeviceObjectModel> objectToDelete = filteredByObjectIdToConfigured.sublist(filteredByObjectIdToConfigured.length - deletingCount, filteredByObjectIdToConfigured.length);
-      for(var delete in objectToDelete){
-        print('name : ${delete.name}, objectName : ${delete.objectName}');
-      }
       for(var deletingObject in objectToDelete){
         inner : for(var object in listOfGeneratedObject){
           if(deletingObject.sNo == object.sNo){
@@ -736,7 +742,6 @@ class ConfigMakerProvider extends ChangeNotifier{
             object.connectionNo = 9;
             break;
           }
-          print("object ==> ${object.toJson()}");
         }
         else{
           if(object.controllerId == selectedDevice.controllerId){
@@ -770,7 +775,6 @@ class ConfigMakerProvider extends ChangeNotifier{
           count += 1;
         }
       }
-      print('connectionObject :: ${connectionObject.objectName}  , count :: $count');
       connectionObject.count = count.toString();
     }
     notifyListeners();
@@ -793,7 +797,6 @@ class ConfigMakerProvider extends ChangeNotifier{
   }
 
   void updateSelectedConnectionNoAndItsType(int no, String type){
-    print("no : $no, type : $type");
     selectedConnectionNo = no;
     selectedType = type;
     notifyListeners();
@@ -1211,7 +1214,6 @@ class ConfigMakerProvider extends ChangeNotifier{
     for (var i = 0; i < objectListToSend.length; i++) {
       var object = objectListToSend[i];
       if(object.connectionNo != 0 && object.connectionNo != null && !weatherControllerId.contains(object.controllerId)){
-        print(object.toJson());
         var controller = listOfDeviceModel.firstWhere((e) => e.controllerId == object.controllerId);
         List<String> objectSerialNoForEcoGemSplitList = object.sNo.toString().split('.');
         if(objectSerialNoForEcoGemSplitList[1].length == 2){
@@ -1487,7 +1489,7 @@ class ConfigMakerProvider extends ChangeNotifier{
         for(var src in source){
           if((src.inletPump.contains(pumpModel.commonDetails.sNo) || src.outletPump.contains(pumpModel.commonDetails.sNo)) && listOfLevel.any((levelObject) => levelObject.sNo == src.level)){
             DeviceObjectModel levelObject = listOfLevel.firstWhere((levelObject) => levelObject.sNo == src.level);
-            levelConnectionNo = levelObject.connectionNo!;
+            levelConnectionNo = (levelObject.connectionNo == null || levelObject.connectionNo == 0) ? 0 : 1;
           }
         }
         // for(var src in source){

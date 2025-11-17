@@ -69,7 +69,6 @@ class CustomerScreenLayoutBuilder extends StatelessWidget {
             labelType: NavigationRailLabelType.all,
             elevation: 5,
             onDestinationSelected: (index) async {
-              // Determine which index needs password check based on isGemRNova\
                 if(loggedInUser.role == UserRole.customer) {
                 if (isGemRNova && index == 5) {
                   final authorized = await _askPassword(context);
@@ -86,7 +85,6 @@ class CustomerScreenLayoutBuilder extends StatelessWidget {
                 }
               }
               else{
-                print("else call UserRole---->$UserRole");
               navRail.onDestinationSelectingChange(index);
               }
             },

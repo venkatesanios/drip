@@ -285,13 +285,23 @@ class _StandAloneWideState extends State<StandAloneWide> with SingleTickerProvid
       return map;
     }).values.toList();
 
-    final filterSites = masterData.irrigationLine
+    final cFilterSites = masterData.irrigationLine
         .map((line) => line.centralFilterSite)
         .whereType<FilterSiteModel>()
         .toList();
 
-    final fertilizerSite = masterData.irrigationLine
+    final cFertilizerSite = masterData.irrigationLine
         .map((line) => line.centralFertilizerSite)
+        .whereType<FertilizerSiteModel>()
+        .toList();
+
+    final lFilterSites = masterData.irrigationLine
+        .map((line) => line.localFilterSite)
+        .whereType<FilterSiteModel>()
+        .toList();
+
+    final lFertilizerSite = masterData.irrigationLine
+        .map((line) => line.localFertilizerSite)
         .whereType<FertilizerSiteModel>()
         .toList();
 
@@ -306,12 +316,22 @@ class _StandAloneWideState extends State<StandAloneWide> with SingleTickerProvid
           pumps: allIrrigationPumps,
           onChanged: (pump, val) => setState(() => pump.selected = val),
         ),
+
         FilterSiteCard(
-          sites: filterSites,
+          sites: cFilterSites,
           onChanged: (filter, val) => setState(() => filter.selected = val),
         ),
+        FilterSiteCard(
+          sites: lFilterSites,
+          onChanged: (filter, val) => setState(() => filter.selected = val),
+        ),
+
         FertilizerSiteCard(
-          sites: fertilizerSite,
+          sites: cFertilizerSite,
+          onChanged: (item, val) => setState(() => item.selected = val),
+        ),
+        FertilizerSiteCard(
+          sites: lFertilizerSite,
           onChanged: (item, val) => setState(() => item.selected = val),
         ),
 

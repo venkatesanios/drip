@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:oro_drip_irrigation/utils/constants.dart';
@@ -225,10 +226,13 @@ class _CalibrationState extends State<Calibration> {
                             var bytes = i.codeUnitAt(0);
                             fullData.add(bytes);
                           }
-                          print('sumOfAscii : $sumOfAscii');
-                          print('crc : ${sumOfAscii % 256}');
-                          print('fullData : ${fullData}');
-                          print('payload : ${payload}');
+                          if (kDebugMode) {
+                            print('sumOfAscii : $sumOfAscii');
+                            print('crc : ${sumOfAscii % 256}');
+                            print('fullData : ${fullData}');
+                            print('payload : ${payload}');
+                          }
+
                           bleService.sendDataToHw(fullData);
                           loadingDialog('Cumulative setting sent successfully...');
                         },
@@ -333,10 +337,13 @@ class _CalibrationState extends State<Calibration> {
                             var bytes = i.codeUnitAt(0);
                             fullData.add(bytes);
                           }
-                          print('sumOfAscii : $sumOfAscii');
-                          print('crc : ${sumOfAscii % 256}');
-                          print('fullData : ${fullData}');
-                          print('payload : ${payload}');
+                          if (kDebugMode) {
+                            print('sumOfAscii : $sumOfAscii');
+                            print('crc : ${sumOfAscii % 256}');
+                            print('fullData : ${fullData}');
+                            print('payload : ${payload}');
+                          }
+
                           bleService.sendDataToHw(fullData);
                           loadingDialog('Battery calibration setting sent successfully...');
                         },
@@ -436,15 +443,18 @@ class _CalibrationState extends State<Calibration> {
                               bleService.calibrationEc1 = 'ec${sensorCount+1}';
                               bleService.calibrationEc2 = '';
                             }else{
-                              print("update ec 2");
                               bleService.calibrationEc2 = 'ec${sensorCount+1}';
                               bleService.calibrationEc1 = '';
                             }
                           });
                           if(sensorCount == 0){
-                            print("blePvd.calibrationEc1 : ${bleService.calibrationEc1}");
+                            if (kDebugMode) {
+                              print("blePvd.calibrationEc1 : ${bleService.calibrationEc1}");
+                            }
                           }else{
-                            print("blePvd.calibrationEc2 : ${bleService.calibrationEc2}");
+                            if (kDebugMode) {
+                              print("blePvd.calibrationEc2 : ${bleService.calibrationEc2}");
+                            }
 
                           }
 
@@ -498,9 +508,13 @@ class _CalibrationState extends State<Calibration> {
                             }
                           });
                           if(sensorCount == 0){
-                            print("blePvd.calibrationEc1 : ${bleService.calibrationEc1}");
+                            if (kDebugMode) {
+                              print("blePvd.calibrationEc1 : ${bleService.calibrationEc1}");
+                            }
                           }else{
-                            print("blePvd.calibrationEc2 : ${bleService.calibrationEc2}");
+                            if (kDebugMode) {
+                              print("blePvd.calibrationEc2 : ${bleService.calibrationEc2}");
+                            }
 
                           }
                         },
@@ -548,10 +562,13 @@ class _CalibrationState extends State<Calibration> {
                           var bytes = i.codeUnitAt(0);
                           fullData.add(bytes);
                         }
-                        print('sumOfAscii : $sumOfAscii');
-                        print('crc : ${sumOfAscii % 256}');
-                        print('fullData : ${fullData}');
-                        print('payload : ${payload}');
+                        if (kDebugMode) {
+                          print('sumOfAscii : $sumOfAscii');
+                          print('crc : ${sumOfAscii % 256}');
+                          print('fullData : ${fullData}');
+                          print('payload : ${payload}');
+                        }
+
                         bleService.sendDataToHw(fullData);
                       },
                       icon: const Icon(Icons.send, color: Colors.white,),
@@ -653,9 +670,13 @@ class _CalibrationState extends State<Calibration> {
                             }
                           });
                           if(sensorCount == 0){
-                            print("blePvd.calibrationPh1 : ${bleService.calibrationPh1}");
+                            if (kDebugMode) {
+                              print("blePvd.calibrationPh1 : ${bleService.calibrationPh1}");
+                            }
                           }else{
-                            print("blePvd.calibrationPh2 : ${bleService.calibrationPh2}");
+                            if (kDebugMode) {
+                              print("blePvd.calibrationPh2 : ${bleService.calibrationPh2}");
+                            }
                           }
                         },
                         icon: const Icon(Icons.refresh, color: Colors.white,),
@@ -708,9 +729,13 @@ class _CalibrationState extends State<Calibration> {
                             }
                           });
                           if(sensorCount == 0){
-                            print("blePvd.calibrationPh1 : ${bleService.calibrationPh1}");
+                            if (kDebugMode) {
+                              print("blePvd.calibrationPh1 : ${bleService.calibrationPh1}");
+                            }
                           }else{
-                            print("blePvd.calibrationPh2 : ${bleService.calibrationPh2}");
+                            if (kDebugMode) {
+                              print("blePvd.calibrationPh2 : ${bleService.calibrationPh2}");
+                            }
 
                           }
                         },
@@ -760,11 +785,14 @@ class _CalibrationState extends State<Calibration> {
                         var bytes = i.codeUnitAt(0);
                         fullData.add(bytes);
                       }
-                      print('sumOfAscii : $sumOfAscii');
-                      print('crc : ${sumOfAscii % 256}');
-                      print('fullData : ${fullData}');
-                      print('payload : ${payload}');
-                      bleService.sendDataToHw(fullData);
+                      if (kDebugMode) {
+                        print('sumOfAscii : $sumOfAscii');
+                        print('crc : ${sumOfAscii % 256}');
+                        print('fullData : ${fullData}');
+                        print('payload : ${payload}');
+                        bleService.sendDataToHw(fullData);
+                      }
+
                     },
                     icon: const Icon(Icons.send, color: Colors.white,),
                     label: const Text("Submit", style: TextStyle(color: Colors.white),),

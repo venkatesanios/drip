@@ -9,7 +9,8 @@ import '../../../utils/constants.dart';
 
 class FilterSiteView extends StatelessWidget {
   final FilterSiteModel filterSite;
-  const FilterSiteView({super.key, required this.filterSite});
+  final bool isMobile;
+  const FilterSiteView({super.key, required this.filterSite, required this.isMobile});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +22,7 @@ class FilterSiteView extends StatelessWidget {
           children: [
             filterSite.pressureIn != null?
             PressureSensorWidget(
-              sensor: filterSite.pressureIn!,
+              sensor: filterSite.pressureIn!, isMobile: isMobile,
             ):
             const SizedBox(),
             Padding(
@@ -33,14 +34,15 @@ class FilterSiteView extends StatelessWidget {
                   itemCount: filterSite.filters.length,
                   scrollDirection: Axis.horizontal,
                   itemBuilder: (BuildContext context, int flIndex) {
-                    return FilterWidget(filter: filterSite.filters[flIndex], siteSno: filterSite.sNo.toString());
+                    return FilterWidget(filter: filterSite.filters[flIndex],
+                      siteSno: filterSite.sNo.toString(), isMobile: isMobile);
                   },
                 ),
               ),
             ),
             filterSite.pressureOut != null?
             PressureSensorWidget(
-              sensor: filterSite.pressureOut!,
+              sensor: filterSite.pressureOut!, isMobile: isMobile,
             ):
             const SizedBox(),
           ],
@@ -61,7 +63,8 @@ class FilterSiteView extends StatelessWidget {
 class FilterWidget extends StatelessWidget {
   final Filters filter;
   final String siteSno;
-  const FilterWidget({super.key, required this.filter, required this.siteSno});
+  final bool isMobile;
+  const FilterWidget({super.key, required this.filter, required this.siteSno, required this.isMobile});
 
   @override
   Widget build(BuildContext context) {
@@ -75,20 +78,30 @@ class FilterWidget extends StatelessWidget {
         final other = data.item2;
 
         final statusParts = status?.split(',') ?? [];
+        final otherParts = other?.split(',') ?? [];
+
         if (statusParts.length > 1) {
           filter.status = int.tryParse(statusParts[1]) ?? 0;
         }
 
         int siteStatus = 0;
+
         if(filter.status==1){
-          final otherParts = other?.split(',') ?? [];
           if (otherParts.length >= 4) {
             int value = int.parse(otherParts[1]);
             siteStatus = value < 0 ? 0 : value;
             filter.onDelayLeft = otherParts[2];
           }
         }else{
-          filter.onDelayLeft = '00:00:00';
+          if (otherParts.length >= 4) {
+            if(otherParts[1]=='-1'){
+              siteStatus = 1;
+              filter.onDelayLeft = otherParts[2];
+            }else{
+              filter.onDelayLeft = '00:00:00';
+            }
+          }
+
         }
 
         return SizedBox(
@@ -98,8 +111,9 @@ class FilterWidget extends StatelessWidget {
             children: [
               Stack(
                 children: [
-                  SizedBox(width:70, height: 70,child: AppConstants.getAsset('filter', filter.status,'')),
-                  filter.onDelayLeft != '00:00:00' && siteStatus!=0?
+                  SizedBox(width:70, height: 70, child: AppConstants.getAsset(
+                      isMobile ? 'mobile filter':'filter', filter.status,'')),
+                  filter.onDelayLeft != '00:00:00' && siteStatus != 0 ?
                   Positioned(
                     top: 52,
                     left: 7.5,
@@ -133,6 +147,28 @@ class FilterWidget extends StatelessWidget {
                     ),
                   ) :
                   const SizedBox(),
+                  if(otherParts.length >= 4 && otherParts[1]=='-1')...[
+                    Positioned(
+                      top: 37,
+                      left: 7.5,
+                      child: Container(
+                        width: 55,
+                        decoration: BoxDecoration(
+                          color:Colors.greenAccent,
+                          borderRadius: const BorderRadius.all(Radius.circular(2)),
+                          border: Border.all(color: Colors.grey, width: .50,),
+                        ),
+                        child: const Text('Start in',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    )
+                  ]
                 ],
               ),
               Text(filter.name, style: const TextStyle(
@@ -151,9 +187,10 @@ class FilterWidget extends StatelessWidget {
 
 class PressureSensorWidget extends StatelessWidget {
   final PressureSensor sensor;
+  final bool isMobile;
   const PressureSensorWidget({
     super.key,
-    required this.sensor,
+    required this.sensor, required this.isMobile,
   });
 
   @override
@@ -177,7 +214,8 @@ class PressureSensorWidget extends StatelessWidget {
                 child : Stack(
                   children: [
                     Center(
-                      child: Image.asset('assets/png/dp_prs_sensor.png'),
+                      child: Image.asset(isMobile ? 'assets/png/mobile/m_dp_prs_sensor.png':
+                      'assets/png/dp_prs_sensor.png'),
                     ),
                     Positioned(
                       top: 42,

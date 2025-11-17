@@ -189,18 +189,20 @@ class _FertilizationConfigurationState extends State<FertilizationConfiguration>
         .toList();
     List<double> assigned = [];
     List<double> unAssigned = [];
-    for(var site in widget.configPvd.fertilization){
-      List<double> siteParameter = parameter == 1
-          ? site.channel.map((channel) => channel.sNo).toList()
-          : parameter == 2
-          ? site.boosterPump
-          : parameter == 3
-          ? site.agitator
-          : parameter == 4
-          ? site.selector
-          : parameter == 5
-          ? site.ec : site.ph;
-      assigned.addAll(siteParameter);
+    if(![AppConstants.ecObjectId, AppConstants.phObjectId].contains(objectId)){
+      for(var site in widget.configPvd.fertilization){
+        List<double> siteParameter = parameter == 1
+            ? site.channel.map((channel) => channel.sNo).toList()
+            : parameter == 2
+            ? site.boosterPump
+            : parameter == 3
+            ? site.agitator
+            : parameter == 4
+            ? site.selector
+            : parameter == 5
+            ? site.ec : site.ph;
+        assigned.addAll(siteParameter);
+      }
     }
     listOfObject = listOfObject
           .where((object) => (!assigned.contains(object.sNo!) || currentParameterList.contains(object.sNo))).toList();

@@ -43,6 +43,8 @@ class _PumpControllerHomeState extends State<PumpControllerHome> {
   @override
   void initState() {
     super.initState();
+    print("userId : ${widget.userId}");
+    print("customerId : ${widget.customerId}");
     _focusedDay = DateTime.now();
     today = DateTime.now();
     _pageController = PageController(initialPage: _selectedIndex);
@@ -337,13 +339,13 @@ class _PumpControllerHomeState extends State<PumpControllerHome> {
         }
       case 3:
         if(isPumpWithValveModel) {
-          selectedWidget =  PowerGraphScreen(userId: widget.userId, controllerId: widget.masterData.controllerId, masterData: widget.masterData);
+          selectedWidget =  PowerGraphScreen(userId: widget.customerId, controllerId: widget.masterData.controllerId, masterData: widget.masterData);
         } else {
-          selectedWidget = PumpVoltageLogScreen(userId: widget.userId, controllerId: widget.masterData.controllerId, masterData: widget.masterData);
+          selectedWidget = PumpVoltageLogScreen(userId: widget.customerId, controllerId: widget.masterData.controllerId, masterData: widget.masterData);
         }
       case 4:
         if(isPumpWithValveModel) {
-          selectedWidget = PumpVoltageLogScreen(userId: widget.userId, controllerId: widget.masterData.controllerId, masterData: widget.masterData);
+          selectedWidget = PumpVoltageLogScreen(userId: widget.customerId, controllerId: widget.masterData.controllerId, masterData: widget.masterData);
         } else {
           selectedWidget =  PreferenceMainScreen(
             userId: widget.userId,

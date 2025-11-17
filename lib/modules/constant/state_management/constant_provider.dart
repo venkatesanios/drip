@@ -102,8 +102,6 @@ class ConstantProvider extends ChangeNotifier{
 
   void updateConstant({required constantData, required configMakerData, required userDataAndMasterData}){
     try{
-      print("constantData : ${jsonEncode(constantData)}");
-      print("configMakerData : ${jsonEncode(configMakerData)}");
       constantDataFromHttp = constantData['data'];
       userData = userDataAndMasterData;
       configObjectDataFromHttp = configMakerData['data']['configObject'];
@@ -137,10 +135,6 @@ class ConstantProvider extends ChangeNotifier{
           }
         }).toList();
       }
-      for(var menu in listOfConstantMenuModel){
-        print("constant menu :::: ${menu.parameter}");
-      }
-
       //update object
       List<dynamic> listOfPumpObject = [];
       List<dynamic> listOfFilterSiteObject = [];
@@ -157,7 +151,6 @@ class ConstantProvider extends ChangeNotifier{
       List<dynamic> listOfIrrigationLineObject = [];
 
       for (var object in configObjectDataFromHttp) {
-        print("objectId : ${object['objectId']} == ${object['name']}");
         if([AppConstants.irrigationLineObjectId, AppConstants.fertilizerSiteObjectId, AppConstants.filterSiteObjectId].contains(object['objectId']) || object["controllerId"] != null){
           if(object['objectId'] == AppConstants.pumpObjectId){
             listOfPumpObject.add(object);
@@ -209,17 +202,19 @@ class ConstantProvider extends ChangeNotifier{
         }
         return ConstantSettingModel.fromJson(menu, oldValue.firstOrNull);
       }).toList();
-      if (kDebugMode) {
-        print('global Alarm updated..');
-      }
+
 
       // update normal and critical
       alarmOnStatus = generatePopUpItemModel(defaultData: defaultData, keyName: 'alarmOnStatus');
       alarmResetAfterIrrigation = generatePopUpItemModel(defaultData: defaultData, keyName: 'alarmResetAfterIrrigation');
       defaultNormalCriticalAlarmSetting = generateDefaultSetting(defaultData: defaultData, keyName: 'normalCriticalAlarm');
-      print("listOfIrrigationLineObject : $listOfIrrigationLineObject");
+      if (kDebugMode) {
+        print("listOfIrrigationLineObject : $listOfIrrigationLineObject");
+      }
       normalCriticalAlarm = listOfIrrigationLineObject.map((line){
-        print("constantOldData['normalCriticalAlarm'] : ${constantOldData}");
+        if (kDebugMode) {
+          print("constantOldData['normalCriticalAlarm'] : ${constantOldData}");
+        }
         List<dynamic> lineData = (constantOldData['normalCriticalAlarm'] as List<dynamic>).where((oldLine) => oldLine['sNo'] == line['sNo']).toList();
         return NormalCriticalAlarmModel.fromJson(
             objectData: line,
@@ -241,10 +236,6 @@ class ConstantProvider extends ChangeNotifier{
       if (kDebugMode) {
         print('level updated..');
       }
-
-
-      //update pump
-      print("listOfPumpObject : $listOfPumpObject");
       defaultPumpSetting = generateDefaultSetting(defaultData: defaultData, keyName: 'pump');
       pump = generateObjectInConstantModel(listOfObject: listOfPumpObject, defaultData: defaultData, constantOldData: constantOldData, keyName: 'pump');
       if (kDebugMode) {
