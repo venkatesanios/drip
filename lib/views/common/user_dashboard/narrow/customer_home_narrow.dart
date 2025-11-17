@@ -861,6 +861,9 @@ class PumpStationMobile extends StatelessWidget {
 
       if (cFilterSite.isNotEmpty)
         ...buildFilter(context, cFilterSite, false, true),
+
+      if (lFilterSite.isNotEmpty)
+        ...buildFilter(context, lFilterSite, false, true),
     ];
 
     final fertilizerItemsCentral = cFertilizerSite.isNotEmpty

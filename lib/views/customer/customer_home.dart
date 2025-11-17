@@ -191,7 +191,6 @@ class CustomerHome extends StatelessWidget {
   }
 
 
-
   Widget buildIrrigationLine(BuildContext context, IrrigationLineModel irrLine, int customerId, int controllerId, int modelId){
 
     final inletWaterSources = {
@@ -335,16 +334,16 @@ class PumpStationWithLine extends StatelessWidget {
 
     final allItems = [
       if (inletWaterSources.isNotEmpty)
-        ..._buildWaterSource(context, inletWaterSources, true, true, cFertilizerSite.isNotEmpty? true:false),
+        ..._buildWaterSource(context, inletWaterSources, true, true, cFertilizerSite.isNotEmpty? true : false),
 
       if (outletWaterSources.isNotEmpty)
-        ..._buildWaterSource(context, outletWaterSources, inletWaterSources.isNotEmpty? true : false, false, cFertilizerSite.isNotEmpty?true:false),
+        ..._buildWaterSource(context, outletWaterSources, inletWaterSources.isNotEmpty? true : false, false, cFertilizerSite.isNotEmpty? true : false),
 
       if (cFilterSite.isNotEmpty)
         ...buildFilter(context, cFilterSite, cFertilizerSite.isNotEmpty, false),
 
       if (lFilterSite.isNotEmpty)
-        ...buildFilter(context, lFilterSite, lFertilizerSite.isNotEmpty, false),
+        ...buildFilter(context, lFilterSite, (cFertilizerSite.isNotEmpty || lFertilizerSite.isNotEmpty), false),
 
       if (cFertilizerSite.isNotEmpty)
         ..._buildFertilizer(context, cFertilizerSite),
@@ -933,7 +932,6 @@ class _SensorPopoverContentState extends State<SensorPopoverContent> {
     );
   }
 }
-
 
 class ValveWidget extends StatelessWidget {
   final ValveModel valve;

@@ -38,6 +38,9 @@ class MyFunction {
           return '${convertedValue.toStringAsFixed(2)} kPa';
         }
       }
+      else if (unitMap['parameter'] == 'Moisture Sensor') {
+        return '$value ${unitMap['value']}';
+      }
       else if (parameter == 'Water Meter') {
         double lps = parsedValue;
         switch (unitMap['value']) {

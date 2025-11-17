@@ -501,6 +501,12 @@ class StandAloneViewModel extends ChangeNotifier {
     String strSldCtrlFrtAgitatorSrlNo = extractCFrtAgitatorSN(masterData.irrigationLine,'central');
     String strSldCtrlFrtSelectorSrlNo = extractCFrtSelectorSN(masterData.irrigationLine,'central');
 
+    String strSldLocFilterSrlNo = extractFilterRelaySrlNos(masterData.irrigationLine,'local');
+    String strSldLocFrtBoosterSrlNo = extractCFrtBoosterSNos(masterData.irrigationLine,'local');
+    String strSldLocFrtChannelSrlNo = extractCFrtChannelSNos(masterData.irrigationLine,'local');
+    String strSldLocFrtAgitatorSrlNo = extractCFrtAgitatorSN(masterData.irrigationLine,'local');
+    String strSldLocFrtSelectorSrlNo = extractCFrtSelectorSN(masterData.irrigationLine,'local');
+
 
     if(ddCurrentPosition==0 && !isNova) {
       List<String> allPumpSrlNo = [];
@@ -541,11 +547,21 @@ class StandAloneViewModel extends ChangeNotifier {
 
       allRelaySrlNo = [
         strSldValveSrlNo,
+
         strSldCtrlFilterSrlNo,
+        strSldLocFilterSrlNo,
+
         strSldCtrlFrtBoosterSrlNo,
+        strSldLocFrtBoosterSrlNo,
+
         strSldCtrlFrtChannelSrlNo,
+        strSldLocFrtChannelSrlNo,
+
         strSldCtrlFrtAgitatorSrlNo,
+        strSldLocFrtAgitatorSrlNo,
+
         strSldCtrlFrtSelectorSrlNo,
+        strSldLocFrtSelectorSrlNo,
       ];
 
       print(allRelaySrlNo);
@@ -676,6 +692,12 @@ class StandAloneViewModel extends ChangeNotifier {
           }
         }
       }else{
+        if (line.localFilterSite != null && line.localFilterSite!.filters.isNotEmpty) {
+          final filterSrlNo = getSelectedRelaySrlNo(line.localFilterSite!.filters);
+          if (filterSrlNo.isNotEmpty) {
+            result.add(filterSrlNo);
+          }
+        }
       }
     }
     return result.join('_');
@@ -692,6 +714,12 @@ class StandAloneViewModel extends ChangeNotifier {
           }
         }
       }else{
+        if (line.localFertilizerSite != null && line.localFertilizerSite!.channel.isNotEmpty) {
+          final boosterSrlNo = getSelectedRelaySrlNo(line.localFertilizerSite!.boosterPump);
+          if (boosterSrlNo.isNotEmpty) {
+            result.add(boosterSrlNo);
+          }
+        }
       }
     }
     return result.join('_');
@@ -708,6 +736,12 @@ class StandAloneViewModel extends ChangeNotifier {
           }
         }
       }else{
+        if (line.localFertilizerSite != null && line.localFertilizerSite!.channel.isNotEmpty) {
+          final channelSrlNo = getSelectedRelaySrlNo(line.localFertilizerSite!.channel);
+          if (channelSrlNo.isNotEmpty) {
+            result.add(channelSrlNo);
+          }
+        }
       }
     }
     return result.join('_');
@@ -724,6 +758,12 @@ class StandAloneViewModel extends ChangeNotifier {
           }
         }
       }else{
+        if (line.localFertilizerSite != null && line.localFertilizerSite!.channel.isNotEmpty) {
+          final agitatorSrlNo = getSelectedRelaySrlNo(line.localFertilizerSite!.agitator);
+          if (agitatorSrlNo.isNotEmpty) {
+            result.add(agitatorSrlNo);
+          }
+        }
       }
     }
     return result.join('_');
@@ -740,6 +780,12 @@ class StandAloneViewModel extends ChangeNotifier {
           }
         }
       }else{
+        if (line.localFertilizerSite != null && line.localFertilizerSite!.selector.isNotEmpty) {
+          final selectorSrlNo = getSelectedRelaySrlNo(line.localFertilizerSite!.selector);
+          if (selectorSrlNo.isNotEmpty) {
+            result.add(selectorSrlNo);
+          }
+        }
       }
     }
     return result.join('_');
