@@ -37,8 +37,7 @@ class ConditionLibraryViewModel extends ChangeNotifier {
 
         if (response.statusCode == 200) {
           final jsonData = jsonDecode(response.body);
-          print(response.body);
-
+          //print(response.body);
           if (jsonData["code"] == 200) {
             clData = ConditionLibraryModel.fromJson(jsonData['data']);
             clData.cnLibrary.condition.sort((a, b) => (a.sNo).compareTo(b.sNo));
@@ -86,7 +85,7 @@ class ConditionLibraryViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void parameterOnChange(String param, int index){
+  void parameterOnChange(String param, int index) {
     clData.cnLibrary.condition[index].parameter = param;
     updateRule(index);
     notifyListeners();
@@ -221,11 +220,18 @@ class ConditionLibraryViewModel extends ChangeNotifier {
   }
 
 
-  void updateRule(int index){
+  void updateRule(int index) {
+
+    String isValue = 'is';
+    final cSno = clData.cnLibrary.condition[index].componentSNo;
+    if(cSno.toString().startsWith('23.') || cSno.toString().startsWith('40.')){
+      isValue = '';
+    }
+
     if(clData.cnLibrary.condition[index].parameter!='--'){
       clData.cnLibrary.condition[index].rule =
       '${clData.cnLibrary.condition[index].parameter} of '
-          '${clData.cnLibrary.condition[index].component} is '
+          '${clData.cnLibrary.condition[index].component} $isValue '
           '${clData.cnLibrary.condition[index].threshold} '
           '${clData.cnLibrary.condition[index].value}';
     }else{
@@ -236,7 +242,7 @@ class ConditionLibraryViewModel extends ChangeNotifier {
 
   void createNewCondition() {
     List<int> existingSerials = clData.cnLibrary.condition
-        .map((c) => c.sNo ?? 0)
+        .map((c) => c.sNo)
         .toList()
       ..sort();
 
@@ -296,7 +302,7 @@ class ConditionLibraryViewModel extends ChangeNotifier {
         }
 
         payloadList.add({
-          'sNo': condition.sNo ?? 0,
+          'sNo': condition.sNo,
           'name': condition.name,
           'status': condition.status ? 1 : 0,
           'delayTime': formatTime(condition.delayTime),
@@ -313,7 +319,6 @@ class ConditionLibraryViewModel extends ChangeNotifier {
       }
 
       String payloadString = payloadList.map((e) => e.values.join(',')).join(';');
-      print(payloadString);
 
       String payLoadFinal = jsonEncode({
         "1000": {"1001": payloadString}

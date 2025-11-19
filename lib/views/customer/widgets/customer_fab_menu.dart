@@ -60,6 +60,7 @@ class CustomerFabMenu extends StatelessWidget {
             color: Colors.white,
             onSelected: (value) => _handleMenuSelection(value, context),
             icon: const Icon(Icons.menu, color: Colors.black),
+            surfaceTintColor: Theme.of(context).primaryColorLight,
             itemBuilder: (context) => [
               _buildPopupItem(
                   context, 'Node Status', Icons.format_list_numbered, 'Node Status'),

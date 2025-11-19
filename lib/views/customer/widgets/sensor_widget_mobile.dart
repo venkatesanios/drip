@@ -38,7 +38,7 @@ class SensorWidgetMobile extends StatelessWidget {
             sensor.name,
             textAlign: TextAlign.right,
             style: const TextStyle(
-              fontSize: 15,
+              fontSize: 14,
               fontWeight: FontWeight.bold,
               color: Colors.black54,
             ),
@@ -71,21 +71,33 @@ class SensorWidgetMobile extends StatelessWidget {
               )
             ],
           ) :
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: Colors.yellow.shade400,
-              borderRadius: BorderRadius.circular(4),
-              border: Border.all(color: Colors.grey, width: 0.5),
-            ),
-            child: Text(
-              MyFunction().getUnitByParameter(context, sensorType, sensor.value.toString(),) ?? '',
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.yellow.shade400,
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(color: Colors.grey, width: 0.5),
+                ),
+                child: Text(
+                  MyFunction().getUnitByParameter(context, sensorType, sensor.value.toString(),) ?? '',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
               ),
-            ),
+              const SizedBox(width: 5),
+              SizedBox(
+                width: 40,
+                height: 40,
+                child: Image(image: AssetImage( sensorType == 'Pressure Sensor' ?
+                'assets/png/mobile/m_pressure_sensor.png' : 'assets/png/mobile/m_water_meter.png')),
+              )
+            ],
           ),
         );
       },

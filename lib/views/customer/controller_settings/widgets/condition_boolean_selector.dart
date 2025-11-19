@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../../../../view_models/customer/condition_library_view_model.dart';
 
-class ProgramBooleanSelector extends StatelessWidget {
+class ConditionBooleanSelector extends StatelessWidget {
   final int index;
   final ConditionLibraryViewModel vm;
 
-  const ProgramBooleanSelector({super.key, required this.index, required this.vm});
+  const ConditionBooleanSelector({super.key, required this.index, required this.vm});
 
   @override
   Widget build(BuildContext context) {
@@ -25,10 +25,12 @@ class ProgramBooleanSelector extends StatelessWidget {
           },
           itemBuilder: (BuildContext context) {
             final type = vm.clData.cnLibrary.condition[index].type;
+            final cSNo = vm.clData.cnLibrary.condition[index].componentSNo;
 
             final options = type == 'Combined'
                 ? ['True']
-                : ['True', 'False'];
+                : cSNo.toString().startsWith('23.') || cSNo.toString().startsWith('40.') ?
+            ['High', 'Low'] : ['True', 'False'];
 
             return options.map((String value) {
               return PopupMenuItem<String>(

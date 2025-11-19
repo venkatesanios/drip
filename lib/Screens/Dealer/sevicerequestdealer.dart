@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:data_table_2/data_table_2.dart';
+import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/modules/Preferences/widgets/custom_segmented_control.dart';
@@ -413,7 +414,8 @@ class CriticalAlarmList extends StatelessWidget {
                             deviceID: criticalAlarmData['data'][group]['master'][master]['deviceName'],
                             customerId: userId,
                             controllerId: criticalAlarmData['data'][group]['master'][master]['controllerId'],
-                            irrigationLine: (criticalAlarmData['data'][group]['master'][master]['irrigationLine'] as List).map((item) => IrrigationLineModel.fromJson(item, [], [], [])).toList()
+                            irrigationLine: (criticalAlarmData['data'][group]['master'][master]['irrigationLine'] as List).map((item) => IrrigationLineModel.fromJson(item, [], [], [])).toList(),
+                          isNarrow: !kIsWeb,
                         ),
                       )
                       // Text('${criticalAlarmData['data'][group]['master'][master]}'),

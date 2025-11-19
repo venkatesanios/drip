@@ -10,6 +10,7 @@ import '../../../services/communication_service.dart';
 import '../../../utils/my_helper_class.dart';
 import '../../../utils/snack_bar.dart';
 import '../../../view_models/customer/customer_screen_controller_view_model.dart';
+import 'blink_text.dart';
 
 class MyMaterialButton extends StatelessWidget {
   final String buttonId;
@@ -20,6 +21,8 @@ class MyMaterialButton extends StatelessWidget {
   final Color textColor;
   final String serverMsg;
 
+  final bool blink;
+
   const MyMaterialButton({
     super.key,
     required this.buttonId,
@@ -29,19 +32,18 @@ class MyMaterialButton extends StatelessWidget {
     required this.color,
     required this.textColor,
     required this.serverMsg,
+    this.blink = false,
   });
 
   Future<void> _sendCommand(BuildContext context) async {
     final customerProvider = context.read<CustomerProvider>();
     final vm = context.read<CustomerScreenControllerViewModel>();
 
-    print(customerProvider.controllerCommMode);
-
     if (customerProvider.controllerCommMode == 2) {
       GlobalSnackBar.show(context, 'Bluetooth mode enabled. Please connect the device', 500);
       return;
     } else if (vm.isNotCommunicate) {
-      GlobalSnackBar.show(context, 'Controller communication is lost... please check and try again', 500);
+      GlobalSnackBar.show(context, 'Controller communication lost. Please check the connection and try again.', 500);
       return;
     }
 
@@ -58,10 +60,8 @@ class MyMaterialButton extends StatelessWidget {
 
       MqttAckTracker.registerPending(buttonId, payloadKey);
 
-      // Optional delay
       await Future.delayed(const Duration(milliseconds: 100));
-      print("serverMsg:$serverMsg");
-      print("payLoadFinal:$payLoadFinal");
+
       await commService.sendCommand(
         serverMsg: serverMsg,
         payload: payLoadFinal,
@@ -84,8 +84,17 @@ class MyMaterialButton extends StatelessWidget {
       onPressed: (isDisabled || isLoading) ? null : () => _sendCommand(context),
       disabledColor: Colors.black26,
       child: Center(
-        child: isLoading ? const SizedBox(height: 30, child :
-        LoadingIndicator(indicatorType: Indicator.ballPulse, colors: [Colors.white]))
+        child: isLoading
+            ? const SizedBox(
+          height: 30,
+          child: LoadingIndicator(
+            indicatorType: Indicator.ballPulse,
+            colors: [Colors.white],
+          ),
+        ) : blink ? BlinkText(
+          text: label,
+          style: TextStyle(color: textColor),
+        )
             : Text(label),
       ),
     );

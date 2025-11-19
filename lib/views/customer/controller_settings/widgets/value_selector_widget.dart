@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
-import 'package:oro_drip_irrigation/views/customer/controller_settings/widgets/program_boolean_selector.dart';
 import 'package:oro_drip_irrigation/views/customer/controller_settings/widgets/sensor_value_button.dart';
 
 import '../../../../models/customer/condition_library_model.dart';
 import '../../../../utils/my_function.dart';
 import '../../../../view_models/customer/condition_library_view_model.dart';
+import 'condition_boolean_selector.dart';
 
 class ValueSelectorWidget extends StatelessWidget {
   final int index;
@@ -15,8 +15,9 @@ class ValueSelectorWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isSensor = vm.clData.cnLibrary.condition[index].type == 'Sensor';
+    final cSNo = vm.clData.cnLibrary.condition[index].componentSNo;
 
-    return isSensor?
+    return (isSensor && !(cSNo.toString().startsWith('23.') || cSNo.toString().startsWith('40.'))) ?
     SensorValueButton(index: index, vm: vm, controller: vm.vtTEVControllers[index], onValueChanged: (newValue) {
 
       final sensor = vm.clData.defaultData.sensors.firstWhere((sensor) =>
@@ -38,6 +39,7 @@ class ValueSelectorWidget extends StatelessWidget {
         }
       }
 
-    }): ProgramBooleanSelector(index: index, vm: vm);
+    }) :
+    ConditionBooleanSelector(index: index, vm : vm);
   }
 }
