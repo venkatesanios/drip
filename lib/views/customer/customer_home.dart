@@ -451,77 +451,89 @@ class PumpStationWithLine extends StatelessWidget {
 
   List<Widget> _buildFertilizer(BuildContext context, List<FertilizerSiteModel> fertilizerSite) {
     return List.generate(fertilizerSite.length, (siteIndex) {
-
       final site = fertilizerSite[siteIndex];
       final widgets = <Widget>[];
 
       if (siteIndex != 0) {
-        widgets.add(SizedBox(
-          width: 4.5,
-          height: 120,
-          child: Row(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 42),
-                child: VerticalDivider(width: 0, color: Colors.grey.shade300,),
-              ),
-              const SizedBox(width: 4.5,),
-              Padding(
-                padding: const EdgeInsets.only(top: 45),
-                child: VerticalDivider(width: 0, color: Colors.grey.shade300,),
-              ),
-            ],
-          ),
-        ));
+        widgets.add(_buildVerticalLine(height: 120));
       }
 
       widgets.add(BoosterWidget(fertilizerSite: site, isMobile: false));
 
       for (int channelIndex = 0; channelIndex < site.channel.length; channelIndex++) {
         final channel = site.channel[channelIndex];
+
         widgets.add(ChannelWidget(
           channel: channel,
           cIndex: channelIndex,
           channelLength: site.channel.length,
           agitator: site.agitator,
-          siteSno: site.sNo.toString(), isMobile: false,
+          siteSno: site.sNo.toString(),
+          isMobile: false,
         ));
 
-        final isLast = channelIndex == site.channel.length - 1;
-
-        if(isLast && site.agitator.isNotEmpty){
+        if (channelIndex == site.channel.length - 1 && site.agitator.isNotEmpty) {
           widgets.add(AgitatorWidget(
-            fertilizerSite: site, isMobile: false,
+            fertilizerSite: site,
+            isMobile: false,
           ));
         }
       }
 
-      if(kIsWeb) {
-        widgets.add(SizedBox(
-          width: 4.5,
-          height: 130,
-          child: Row(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 42, bottom: 4.5),
-                child: VerticalDivider(width: 0, color: Colors.grey.shade300,),
-              ),
-              const SizedBox(width: 4.5,),
-              Padding(
-                padding: const EdgeInsets.only(top: 45, bottom: 1),
-                child: VerticalDivider(width: 0, color: Colors.grey.shade300,),
-              ),
-            ],
-          ),
-        ));
+      if (kIsWeb) {
+        widgets.add(_buildVerticalLine(height: 130));
       }
 
-      return widgets;
+      return SizedBox(
+        width: ((site.boosterPump.length + site.channel.length + site.agitator.length ) * 70) + 5,
+        child: Stack(
+          children: [
+            Row(children: widgets),
+            Positioned(
+              left: 5,
+              bottom: 1,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(color: Colors.grey, width: 0.5),
+                ),
+                child: Text(
+                  site.name,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
 
-    }).expand((item) => item).toList().cast<Widget>();
+    }).toList();
   }
 
-
+  Widget _buildVerticalLine({required double height}) {
+    return SizedBox(
+      width: 4.5,
+      height: height,
+      child: const Row(
+        children: [
+          Padding(
+            padding: EdgeInsets.only(top: 42),
+            child: VerticalDivider(width: 0, color: Colors.black12),
+          ),
+          SizedBox(width: 4.5),
+          Padding(
+            padding: EdgeInsets.only(top: 45),
+            child: VerticalDivider(width: 0, color: Colors.black12),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class SensorWidget extends StatelessWidget {
