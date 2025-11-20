@@ -134,7 +134,7 @@ class ProgramPump {
   factory ProgramPump.fromJson(Map<String, dynamic> json) {
     return ProgramPump(
       waterSource: DeviceObjectModel.fromJson(json),
-      level: json['level'].isNotEmpty ? DeviceObjectModel.fromJson(json['level']) : null,
+      level: json['level'] != null && json['level'].isNotEmpty ? DeviceObjectModel.fromJson(json['level']) : null,
       pressureIn: json['pressureIn'].isNotEmpty ? DeviceObjectModel.fromJson(json['pressureIn']) : null,
       pressureOut: json['pressureOut'].isNotEmpty ? DeviceObjectModel.fromJson(json['pressureOut']) : null,
       waterMeter: json['waterMeter'].isNotEmpty ? DeviceObjectModel.fromJson(json['waterMeter']) : null,

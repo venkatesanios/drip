@@ -283,6 +283,8 @@ class _GlobalAlarmInConstantState extends State<GlobalAlarmInConstant> {
     print("generalPayload : $generalPayload");
     var globalAlarmPayload = widget.constPvd.getGlobalAlarmPayload();
     print("globalAlarmPayload : $globalAlarmPayload");
+    var globalAlarmForEcoGem = widget.constPvd.getEcoGemPayloadForGlobalAlarm();
+    print("globalAlarmForEcoGem : $globalAlarmForEcoGem");
     var levelSensorPayload = widget.constPvd.getObjectInConstantPayload(widget.constPvd.level);
     print("levelSensorPayload : $levelSensorPayload");
     var pumpPayload = widget.constPvd.getObjectInConstantPayload(widget.constPvd.pump);

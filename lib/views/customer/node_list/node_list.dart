@@ -393,61 +393,47 @@ class NodeList extends StatelessWidget {
   }
 
   Widget _buildRelayGrid(List<RelayStatus> rlyStatus, NodeListViewModel vm) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 8, bottom: 8),
-      child: SizedBox(
-        width: double.infinity,
-        height: vm.calculateGridHeight(rlyStatus.length),
-        child: GridView.builder(
-          itemCount: rlyStatus.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 5,
-            crossAxisSpacing: 5.0,
-            mainAxisSpacing: 5.0,
-            childAspectRatio: 1.47,
-          ),
-          itemBuilder: (BuildContext context, int indexGv) {
-            final rly = rlyStatus[indexGv];
-            return Column(
-              children: [
-
-                Selector<MqttPayloadProvider, String?>(
-                  selector: (_, provider) => provider.getSensorUpdatedValve(rly.sNo!.toString()),
-                  builder: (_, status, __) {
-
-                    print(rly.name);
-                    print(rly.sNo);
-                    print(rly.status);
-
-                    final statusParts = status?.split(',') ?? [];
-
-                    print(statusParts);
-
-                    if (statusParts.isNotEmpty) {
-                      if(rly.sNo!.toString().startsWith('23.')){
-                        rly.status = (int.tryParse(statusParts[1]) ?? 0) == 1 ? 0 : 1;
-                      }else{
-                        rly.status = int.tryParse(statusParts[1]) ?? 0;
-                      }
-
-                    }
-
-                    return RelayStatusAvatar(
-                      status: rly.status,
-                      rlyNo: rly.rlyNo,
-                      objType: rly.objType,
-                      sNo: rly.sNo!,
-                    );
-                  },
-                ),
-                Text(
-                  (rly.swName?.isNotEmpty ?? false ? rly.swName : rly.name).toString(),
-                  style: const TextStyle(color: Colors.black, fontSize: 9),
-                ),
-              ],
-            );
-          },
+    return SizedBox(
+      width: double.infinity,
+      height: vm.calculateGridHeight(rlyStatus.length),
+      child: GridView.builder(
+        itemCount: rlyStatus.length,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 5,
+          crossAxisSpacing: 5.0,
+          mainAxisSpacing: 5.0,
+          childAspectRatio: 1.47,
         ),
+        itemBuilder: (BuildContext context, int indexGv) {
+          final rly = rlyStatus[indexGv];
+          return Column(
+            children: [
+              Selector<MqttPayloadProvider, String?>(
+                selector: (_, provider) => provider.getSensorUpdatedValve(rly.sNo!.toString()),
+                builder: (_, status, __) {
+                  final statusParts = status?.split(',') ?? [];
+                  if (statusParts.isNotEmpty) {
+                    if(rly.sNo!.toString().startsWith('23.')){
+                      rly.status = (int.tryParse(statusParts[1]) ?? 0) == 1 ? 0 : 1;
+                    }else{
+                      rly.status = int.tryParse(statusParts[1]) ?? 0;
+                    }
+                  }
+
+                  return RelayStatusAvatar(
+                    status: rly.status,
+                    rlyNo: rly.rlyNo,
+                    objType: rly.objType,
+                    sNo: rly.sNo!,
+                  );
+                },
+              ),
+              Text((rly.swName?.isNotEmpty ?? false ? rly.swName : rly.name).toString(),
+                style: const TextStyle(color: Colors.black, fontSize: 9),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

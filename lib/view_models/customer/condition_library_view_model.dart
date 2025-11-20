@@ -37,8 +37,7 @@ class ConditionLibraryViewModel extends ChangeNotifier {
 
         if (response.statusCode == 200) {
           final jsonData = jsonDecode(response.body);
-          print(response.body);
-
+          //print(response.body);
           if (jsonData["code"] == 200) {
             clData = ConditionLibraryModel.fromJson(jsonData['data']);
             clData.cnLibrary.condition.sort((a, b) => (a.sNo).compareTo(b.sNo));
@@ -86,7 +85,7 @@ class ConditionLibraryViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void parameterOnChange(String param, int index){
+  void parameterOnChange(String param, int index) {
     clData.cnLibrary.condition[index].parameter = param;
     updateRule(index);
     notifyListeners();
@@ -221,11 +220,18 @@ class ConditionLibraryViewModel extends ChangeNotifier {
   }
 
 
-  void updateRule(int index){
+  void updateRule(int index) {
+
+    String isValue = 'is';
+    final cSno = clData.cnLibrary.condition[index].componentSNo;
+    if(cSno.toString().startsWith('23.') || cSno.toString().startsWith('40.')){
+      isValue = '';
+    }
+
     if(clData.cnLibrary.condition[index].parameter!='--'){
       clData.cnLibrary.condition[index].rule =
       '${clData.cnLibrary.condition[index].parameter} of '
-          '${clData.cnLibrary.condition[index].component} is '
+          '${clData.cnLibrary.condition[index].component} $isValue '
           '${clData.cnLibrary.condition[index].threshold} '
           '${clData.cnLibrary.condition[index].value}';
     }else{
@@ -236,7 +242,7 @@ class ConditionLibraryViewModel extends ChangeNotifier {
 
   void createNewCondition() {
     List<int> existingSerials = clData.cnLibrary.condition
-        .map((c) => c.sNo ?? 0)
+        .map((c) => c.sNo)
         .toList()
       ..sort();
 
@@ -279,16 +285,21 @@ class ConditionLibraryViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> saveConditionLibrary(BuildContext context, int customerId, int controllerId, userId, deviceId) async
-  {
+  Future<void> saveConditionLibrary(
+      BuildContext context, int customerId, int controllerId, userId, deviceId) async {
     try {
-
       List<Map<String, dynamic>> payloadList = [];
 
       for (var condition in clData.cnLibrary.condition) {
+
         String input = condition.value;
         final match = RegExp(r'[\d.]+').firstMatch(input);
-        String? numberOnly = match?.group(0);
+        String numberOnly = match != null ? match.group(0)! : '0';
+
+        if (condition.componentSNo.toString().startsWith('23.') ||
+            condition.componentSNo.toString().startsWith('40.')) {
+          numberOnly = condition.value.toLowerCase().contains('high') ? '1' : '0';
+        }
 
         List<String> serialNo = [];
         if (condition.type == 'Combined') {
@@ -296,7 +307,7 @@ class ConditionLibraryViewModel extends ChangeNotifier {
         }
 
         payloadList.add({
-          'sNo': condition.sNo ?? 0,
+          'sNo': condition.sNo,
           'name': condition.name,
           'status': condition.status ? 1 : 0,
           'delayTime': formatTime(condition.delayTime),
@@ -304,16 +315,18 @@ class ConditionLibraryViewModel extends ChangeNotifier {
           'StopTime': '23:59:00',
           'notify': 1,
           'category': getConditionCategory(condition),
-          'object': condition.type == 'Combined'? serialNo[0] : condition.componentSNo,
-          'operator': condition.type == 'Sensor' ? getOperatorOfSensor(condition) :
-          condition.type == 'Program' ? getOperatorOfProgram(condition) : getOperatorOfCombined(condition),
-          'setValue': condition.type == 'Combined'? serialNo[1] : numberOnly ?? 0,
+          'object': condition.type == 'Combined' ? serialNo[0] : condition.componentSNo,
+          'operator': condition.type == 'Sensor'
+              ? getOperatorOfSensor(condition)
+              : condition.type == 'Program'
+              ? getOperatorOfProgram(condition)
+              : getOperatorOfCombined(condition),
+          'setValue': condition.type == 'Combined' ? serialNo[1] : numberOnly,
           'Bypass': 0,
         });
       }
 
       String payloadString = payloadList.map((e) => e.values.join(',')).join(';');
-      print(payloadString);
 
       String payLoadFinal = jsonEncode({
         "1000": {"1001": payloadString}
@@ -331,10 +344,12 @@ class ConditionLibraryViewModel extends ChangeNotifier {
       };
 
       var response = await repository.saveConditionLibrary(body);
+
       if (response.statusCode == 200) {
         final jsonData = jsonDecode(response.body);
         GlobalSnackBar.show(context, jsonData["message"], jsonData["code"]);
       }
+
     } catch (error) {
       debugPrint('Error fetching language list: $error');
     } finally {

@@ -415,6 +415,7 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
   }
 
   void liveSyncCall(status){
+    if (_disposed) return;
     onRefresh = status;
     notifyListeners();
   }

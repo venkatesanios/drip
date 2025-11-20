@@ -136,6 +136,8 @@ class _ConfigWebViewState extends State<ConfigWebView> {
     print("generalPayload : $generalPayload");
     var globalAlarmPayload = constPvd.getGlobalAlarmPayload();
     print("globalAlarmPayload : $globalAlarmPayload");
+    var globalAlarmForEcoGem = constPvd.getEcoGemPayloadForGlobalAlarm();
+    print("globalAlarmForEcoGem : $globalAlarmForEcoGem");
     var levelSensorPayload = constPvd.getObjectInConstantPayload(constPvd.level);
     print("levelSensorPayload : $levelSensorPayload");
     var pumpPayload = constPvd.getObjectInConstantPayload(constPvd.pump);

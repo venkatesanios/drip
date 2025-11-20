@@ -20,7 +20,7 @@ class FilterSiteView extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            filterSite.pressureIn != null?
+            filterSite.pressureIn != null ?
             PressureSensorWidget(
               sensor: filterSite.pressureIn!, isMobile: isMobile,
             ):
@@ -34,8 +34,12 @@ class FilterSiteView extends StatelessWidget {
                   itemCount: filterSite.filters.length,
                   scrollDirection: Axis.horizontal,
                   itemBuilder: (BuildContext context, int flIndex) {
+
+                    final isLast = flIndex == filterSite.filters.length - 1;
+
                     return FilterWidget(filter: filterSite.filters[flIndex],
-                      siteSno: filterSite.sNo.toString(), isMobile: isMobile);
+                      siteSno: filterSite.sNo.toString(), isMobile: isMobile,
+                      isLast: isLast, sensorAvailable: filterSite.pressureIn != null);
                   },
                 ),
               ),
@@ -64,7 +68,10 @@ class FilterWidget extends StatelessWidget {
   final Filters filter;
   final String siteSno;
   final bool isMobile;
-  const FilterWidget({super.key, required this.filter, required this.siteSno, required this.isMobile});
+  final bool isLast;
+  final bool sensorAvailable;
+  const FilterWidget({super.key, required this.filter, required this.siteSno,
+    required this.isMobile, required this.isLast, required this.sensorAvailable});
 
   @override
   Widget build(BuildContext context) {
@@ -111,8 +118,8 @@ class FilterWidget extends StatelessWidget {
             children: [
               Stack(
                 children: [
-                  SizedBox(width:70, height: 70, child: AppConstants.getAsset(
-                      isMobile ? 'mobile filter':'filter', filter.status,'')),
+                  SizedBox(width:70, height: 70, child: AppConstants.getAsset(isMobile ?
+                  'mobile filter':'filter', filter.status,'')),
                   filter.onDelayLeft != '00:00:00' && siteStatus != 0 ?
                   Positioned(
                     top: 52,
@@ -161,6 +168,29 @@ class FilterWidget extends StatelessWidget {
                         child: const Text('Start in',
                           textAlign: TextAlign.center,
                           style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+
+                  if(isLast && sensorAvailable)...[
+                    Positioned(
+                      top: 0,
+                      right: 2,
+                      child: Container(
+                        width: 35,
+                        decoration: BoxDecoration(
+                          color:Colors.yellow,
+                          borderRadius: const BorderRadius.all(Radius.circular(2)),
+                          border: Border.all(color: Colors.grey, width: .50),
+                        ),
+                        child: Text(otherParts[3],
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
                             color: Colors.black,
                             fontSize: 10,
                             fontWeight: FontWeight.bold,

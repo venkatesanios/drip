@@ -11,17 +11,85 @@ import '../../../utils/my_function.dart';
 
 class AlarmListItems extends StatelessWidget {
   const AlarmListItems({super.key, required this.alarm, required this.deviceID,
-    required this.customerId, required this.controllerId, required this.irrigationLine, this.show = true});
+    required this.customerId, required this.controllerId, required this.irrigationLine,
+    this.show = true, required this.isNarrow});
   final List<String> alarm;
   final List<IrrigationLineModel> irrigationLine;
-
   final String deviceID;
   final int customerId, controllerId;
   final bool show;
+  final bool isNarrow;
 
   @override
   Widget build(BuildContext context) {
-    return alarm[0].isNotEmpty? DataTable2(
+
+    if (alarm.isEmpty || alarm[0].isEmpty) {
+      return const Center(child: Text('Alarm not found'));
+    }
+
+    if (isNarrow) {
+      return SizedBox(
+        height: MediaQuery.of(context).size.height * 0.6,
+        child: SingleChildScrollView(
+          child: Column(
+            children: List.generate(alarm.length, (index) {
+              List<String> values = alarm[index].split(',');
+
+              final line = irrigationLine.firstWhere(
+                    (line) => line.sNo.toString() == values[1],
+              );
+
+              return ListTile(
+                leading: Icon(
+                  Icons.warning_amber,
+                  color: values[7] == '1'
+                      ? Colors.orangeAccent
+                      : Colors.redAccent,
+                ),
+                title: Text(
+                  MyFunction().getAlarmMessage(int.parse(values[2])),
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                ),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Location: ${line.name}'),
+                    Text('Time: ${Formatters().formatRelativeTime('${values[5]} ${values[6]}')}'),
+                  ],
+                ),
+                trailing: show ? ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.redAccent,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                  ),
+                  onPressed: () async {
+                    String finalPayload = values[0];
+                    String payLoadFinal = jsonEncode({
+                      "4100": {"4101": finalPayload}
+                    });
+
+                    final result = await context
+                        .read<CommunicationService>()
+                        .sendCommand(
+                      serverMsg:
+                      'Rested the ${MyFunction().getAlarmMessage(int.parse(values[2]))} alarm',
+                      payload: payLoadFinal,
+                    );
+
+                    Navigator.pop(context);
+                  },
+                  child: const Text("Reset"),
+                )
+                    : null,
+              );
+            }),
+          ),
+        ),
+      );
+    }
+
+    return DataTable2(
       columnSpacing: 12,
       horizontalMargin: 12,
       minWidth: 600,
@@ -91,7 +159,6 @@ class AlarmListItems extends StatelessWidget {
             ))),
         ]);
       }),
-    ):
-    const Center(child: Text('Alarm not found'));
+    );
   }
 }

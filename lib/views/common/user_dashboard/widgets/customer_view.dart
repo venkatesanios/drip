@@ -31,42 +31,46 @@ class CustomerView extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: _buildAppBar(viewModel),
-      body: Column(
-        children: [
-          ListTile(
-            dense: true,
-            visualDensity: const VisualDensity(vertical: -2),
-            title: Text(role.name == 'admin' ? 'My Dealers':'My Customers',
-              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black54, fontSize: 15),
+      body: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: Column(
+          children: [
+            ListTile(
+              dense: true,
+              visualDensity: const VisualDensity(vertical: -2),
+              title: Text(role.name == 'admin' ? 'My Dealers':'My Customers',
+                style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black54, fontSize: 15),
+              ),
+              trailing: Text(
+                '${viewModel.myCustomerList.length}',
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+              ),
             ),
-            trailing: Text(
-              '${viewModel.myCustomerList.length}',
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-            ),
-          ),
-          Expanded(
-            child: viewModel.filteredCustomerList.isNotEmpty ? ListView.builder(
-              padding: const EdgeInsets.only(bottom: 80),
-              itemCount: viewModel.filteredCustomerList.length,
-              itemBuilder: (context, index) {
-                final customer = viewModel.filteredCustomerList[index];
-                return _buildCustomerTile(context, customer, viewModel, stockVM);
-              },
-            ):
-            Center(
-              child: viewModel.isLoadingCustomer ?
-              const SizedBox(
-                width: 40,
-                height: 200,
-                child: LoadingIndicator(indicatorType: Indicator.ballPulse),
+            Expanded(
+              child: viewModel.filteredCustomerList.isNotEmpty ? ListView.builder(
+                padding: const EdgeInsets.only(bottom: 80),
+                itemCount: viewModel.filteredCustomerList.length,
+                itemBuilder: (context, index) {
+                  final customer = viewModel.filteredCustomerList[index];
+                  return _buildCustomerTile(context, customer, viewModel, stockVM);
+                },
               ):
-              const Text('No customer available', style: TextStyle(
-                color: Colors.black54,
-                fontSize: 15,
-              ),),
+              Center(
+                child: viewModel.isLoadingCustomer ?
+                const SizedBox(
+                  width: 40,
+                  height: 200,
+                  child: LoadingIndicator(indicatorType: Indicator.ballPulse),
+                ):
+                const Text('No customer available', style: TextStyle(
+                  color: Colors.black54,
+                  fontSize: 15,
+                ),),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         tooltip: role.name == 'admin' ? "Add new dealer" : "Add new customer",
@@ -162,11 +166,7 @@ class CustomerView extends StatelessWidget {
       ) :
       buildCustomerTrailing(context, customer, stockVM),
       contentPadding: const EdgeInsets.only(left: 10, right: 5),
-      onTap: () => openUserDashboard(
-          context,
-          customer,
-          context.read<UserProvider>()
-      ),
+      onTap: () => openUserDashboard(context, customer, context.read<UserProvider>()),
     );
   }
 

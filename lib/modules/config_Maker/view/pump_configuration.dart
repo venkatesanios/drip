@@ -122,7 +122,9 @@ class _PumpConfigurationState extends State<PumpConfiguration> {
                                   for(var mode in [1,2,3])
                                     getWaterMeterAndPressureSelection(pump, mode),
                                   for(var mode in [1,2,3,4])
-                                    getFloatSelection(pump, mode)
+                                    getFloatSelection(pump, mode),
+                                  // for(var mode in [1,2])
+                                  //   getLevelSelection(pump, mode)
                                 ],
                               ),
                             ),
@@ -146,7 +148,7 @@ class _PumpConfigurationState extends State<PumpConfiguration> {
     List<double> validateSensorFromOtherSource = [];
     for(var pump in widget.configPvd.pump){
       if(pump.commonDetails.sNo != currentPump.commonDetails.sNo){
-        validateSensorFromOtherSource.add(pump.level);
+        validateSensorFromOtherSource.add(pump.lowerLevel);
         validateSensorFromOtherSource.add(pump.waterMeter);
         validateSensorFromOtherSource.add(pump.pressureIn);
         validateSensorFromOtherSource.add(pump.pressureOut);
@@ -187,6 +189,67 @@ class _PumpConfigurationState extends State<PumpConfiguration> {
                           currentPump.pressureOut = widget.configPvd.selectedSno;
                         }else{
                           currentPump.waterMeter = widget.configPvd.selectedSno;
+                        }
+                        widget.configPvd.selectedSno = 0.0;
+                      });
+                      Navigator.pop(context);
+                    }
+                );
+              },
+              icon: Icon(Icons.touch_app, color: Theme.of(context).primaryColor, size: 20,)
+          )
+        ],
+      ),
+    );
+  }
+  
+  Widget getLevelSelection(PumpModel currentPump, int mode){
+    int objectId = AppConstants.levelObjectId;
+    String objectName = mode == 1 ? 'Lower Level' : 'Upper Level';
+    double currentSno = mode == 1 ? currentPump.lowerLevel : currentPump.upperLevel;
+    List<double> sensorToDisplay = [];
+    for(var src in widget.configPvd.source){
+      if(mode == 1){
+        if(src.outletPump.contains(currentPump.commonDetails.sNo) && ![null, 0.0].contains(src.level)){
+          sensorToDisplay.add(src.level);
+        }
+      }else{
+        if(src.inletPump.contains(currentPump.commonDetails.sNo) && ![null, 0.0].contains(src.level)){
+          sensorToDisplay.add(src.level);
+        }
+      }
+    }
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        color: Theme.of(context).primaryColorLight.withOpacity(0.1),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedImage(imagePath: '${AppConstants.svgObjectPath}objectId_$objectId.svg', color: Colors.black,),
+          const SizedBox(width: 20,),
+          Text('$objectName : ', style: AppProperties.listTileBlackBoldStyle,),
+          Center(
+            child: Text(currentSno == 0.0 ? '-' : getObjectName(currentSno, widget.configPvd).name!, style: TextStyle(color: Colors.teal, fontSize: 12, fontWeight: FontWeight.bold),),
+          ),
+          IconButton(
+              onPressed: (){
+                setState(() {
+                  widget.configPvd.selectedSno = currentSno;
+                });
+                selectionDialogBox(
+                    context: context,
+                    title: 'Select $objectName',
+                    singleSelection: true,
+                    listOfObject: widget.configPvd.listOfGeneratedObject.where((object) => (object.objectId == objectId && sensorToDisplay.contains(object.sNo))).toList(),
+                    onPressed: (){
+                      setState(() {
+                        if(mode == 1){
+                          currentPump.lowerLevel = widget.configPvd.selectedSno;
+                        }else{
+                          currentPump.upperLevel = widget.configPvd.selectedSno;
                         }
                         widget.configPvd.selectedSno = 0.0;
                       });

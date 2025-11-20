@@ -88,6 +88,14 @@ class CustomerHomeNarrow extends StatelessWidget {
                       customerId, cM.controllerId),
                 ];
 
+                final positions = calculateLinePositions(
+                  hasCFertilizer: cFertilizerSite.isNotEmpty,
+                  hasLFertilizer: lFertilizerSite.isNotEmpty,
+                  hasPressureSwitch: prsSwitch.isNotEmpty,
+                  hasPressureSensor: line.pressureIn.isNotEmpty,
+                  hasWaterMeter: line.waterMeter.isNotEmpty,
+                );
+
                 return Padding(
                   padding: const EdgeInsets.all(5),
                   child: Stack(
@@ -95,20 +103,12 @@ class CustomerHomeNarrow extends StatelessWidget {
                       Positioned(
                         top: 4,
                         right: 3,
-                        bottom: 50,
+                        bottom: line.pressureOut.isNotEmpty ? 17 : 50,
                         child: Container(width: 4, color: Colors.grey.shade400),
                       ),
+                      buildConnectionLine(context, 4),
                       Positioned(
-                        top: 4,
-                        left: MediaQuery.sizeOf(context).width - 35,
-                        right: 3,
-                        child: Container(
-                          height: 4,
-                          color: Colors.grey.shade400,
-                        ),
-                      ),
-                      Positioned(
-                        bottom: 50,
+                        bottom : line.pressureOut.isNotEmpty ? 17 : 50,
                         left: MediaQuery.sizeOf(context).width - 35,
                         right: 3,
                         child: Container(
@@ -117,58 +117,9 @@ class CustomerHomeNarrow extends StatelessWidget {
                         ),
                       ),
 
-                      if(cFertilizerSite.isNotEmpty)...[
-                        Positioned(
-                          top: 215,
-                          left: MediaQuery.sizeOf(context).width - 35,
-                          right: 3,
-                          child: Container(
-                            height: 4,
-                            color: Colors.grey.shade400,
-                          ),
-                        ),
-                        Positioned(
-                          top: 255,
-                          left: MediaQuery.sizeOf(context).width - 35,
-                          right: 3,
-                          child: Container(
-                            height: 4,
-                            color: Colors.grey.shade400,
-                          ),
-                        ),
-                        if(prsSwitch.isNotEmpty)...[
-                          Positioned(
-                            top: 310,
-                            left: MediaQuery.sizeOf(context).width - 35,
-                            right: 3,
-                            child: Container(
-                              height: 4,
-                              color: Colors.grey.shade400,
-                            ),
-                          ),
-                        ],
-                      ]
-                      else...[
-                        Positioned(
-                          top: 130,
-                          left: MediaQuery.sizeOf(context).width - 35,
-                          right: 3,
-                          child: Container(
-                            height: 4,
-                            color: Colors.grey.shade400,
-                          ),
-                        ),
-                        if(prsSwitch.isNotEmpty)...[
-                          Positioned(
-                            top: 180,
-                            left: MediaQuery.sizeOf(context).width - 35,
-                            right: 3,
-                            child: Container(
-                              height: 4,
-                              color: Colors.grey.shade400,
-                            ),
-                          ),
-                        ],
+                      if (positions.isNotEmpty) ...[
+                        for (double p in positions)
+                          buildConnectionLine(context, p),
                       ],
 
                       Row(
@@ -204,59 +155,49 @@ class CustomerHomeNarrow extends StatelessWidget {
                                     ),
                                   ),
                                 ],
-                                Card(
-                                  color: Colors.white,
-                                  surfaceTintColor: Colors.white,
-                                  elevation: 0.5,
-                                  child: Column(
-                                    children: [
-                                      Container(
-                                        width: MediaQuery.sizeOf(context).width,
-                                        height: 45,
-                                        color: Colors.white,
-                                        child: Row(
-                                          children: [
-                                            const SizedBox(width: 16),
-                                            Text(
-                                              line.name,
-                                              textAlign: TextAlign.left,
-                                              style: const TextStyle(
-                                                  color: Colors.black54,
-                                                  fontSize: 17,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                            if (!isNova) ...[
-                                              if (hasLinePP) ...[
-                                                const Spacer(),
-                                                SizedBox(
-                                                  height: 35,
-                                                  child: MyMaterialButton(
-                                                    buttonId: 'line_${line.sNo}_4900',
-                                                    label: line.linePauseFlag == 0
-                                                        ? 'Pause the line'
-                                                        : 'Resume the line',
-                                                    payloadKey: "4900",
-                                                    payloadValue:
-                                                    "${line.sNo},${line.linePauseFlag == 0 ? 1 : 0}",
-                                                    color: line.linePauseFlag == 0
-                                                        ? Colors.orangeAccent
-                                                        : Colors.green,
-                                                    textColor: Colors.white,
-                                                    serverMsg: line.linePauseFlag == 0
-                                                        ? 'Paused the ${line.name}'
-                                                        : 'Resumed the ${line.name}',
-                                                  ),
+                                Column(
+                                  children: [
+                                    SizedBox(
+                                      width: MediaQuery.sizeOf(context).width,
+                                      height: 45,
+                                      child: Row(
+                                        children: [
+                                          const SizedBox(width: 16),
+                                          Text(
+                                            line.name,
+                                            textAlign: TextAlign.left,
+                                            style: const TextStyle(
+                                                color: Colors.black54,
+                                                fontSize: 17,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          if (!isNova) ...[
+                                            if (hasLinePP) ...[
+                                              const Spacer(),
+                                              SizedBox(
+                                                height: 35,
+                                                child: MyMaterialButton(
+                                                  buttonId: 'line_${line.sNo}_4900',
+                                                  label: line.linePauseFlag == 0 ? 'Pause the line' : 'Resume the line',
+                                                  payloadKey: "4900",
+                                                  payloadValue: "${line.sNo},${line.linePauseFlag == 0 ? 1 : 0}",
+                                                  color: line.linePauseFlag == 0 ? Colors.orangeAccent : Colors.green,
+                                                  textColor: Colors.white,
+                                                  serverMsg: line.linePauseFlag == 0
+                                                      ? 'Paused the ${line.name}'
+                                                      : 'Resumed the ${line.name}',
+                                                  blink: line.linePauseFlag != 0,
                                                 ),
-                                                const SizedBox(width: 5)
-                                              ]
+                                              ),
+                                              const SizedBox(width: 5)
                                             ]
-                                          ],
-                                        ),
+                                          ]
+                                        ],
                                       ),
-                                      buildIrrigationLine(context, line, viewModel.mySiteList.data[viewModel.sIndex].customerId,
-                                          cM.controllerId, cM.modelId, cM.deviceId)
-                                    ],
-                                  ),
+                                    ),
+                                    buildIrrigationLine(context, line, viewModel.mySiteList.data[viewModel.sIndex].customerId,
+                                        cM.controllerId, cM.modelId, cM.deviceId)
+                                  ],
                                 ),
                               ],
                             ),
@@ -324,6 +265,78 @@ class CustomerHomeNarrow extends StatelessWidget {
     );
 
   }
+
+  List<double> calculateLinePositions({
+    required bool hasCFertilizer,
+    required bool hasLFertilizer,
+    required bool hasPressureSwitch,
+    required bool hasPressureSensor,
+    required bool hasWaterMeter,
+  }) {
+    final List<double> positions = [];
+
+    if(hasCFertilizer && hasLFertilizer && hasPressureSwitch
+        && hasPressureSensor && hasWaterMeter){
+      positions.add(215);
+      positions.add(340);
+      positions.add(380);
+      positions.add(470);
+      positions.add(510);
+    }
+    else if(hasCFertilizer && hasLFertilizer && !hasPressureSwitch
+        && hasPressureSensor && hasWaterMeter){
+      positions.add(215);
+      positions.add(340);
+      positions.add(420);
+      positions.add(460);
+    }
+    else if((hasCFertilizer || hasLFertilizer) &&
+        hasPressureSwitch && !hasPressureSensor && !hasWaterMeter){
+      positions.add(215);
+      positions.add(255);
+    }
+    else if((hasCFertilizer || hasLFertilizer) &&
+        !hasPressureSwitch && hasPressureSensor && !hasWaterMeter){
+      positions.add(215);
+      positions.add(255);
+    }
+    else if((hasCFertilizer || hasLFertilizer) &&
+        !hasPressureSwitch && !hasPressureSensor && !hasWaterMeter){
+      positions.add(215);
+    }
+    else if(!(hasCFertilizer && hasLFertilizer) &&
+        hasPressureSwitch && hasPressureSensor && hasWaterMeter){
+      positions.add(130);
+      positions.add(220);
+      positions.add(260);
+    }
+    else if(!(hasCFertilizer && hasLFertilizer) &&
+        hasPressureSwitch && hasPressureSensor){
+      positions.add(130);
+      positions.add(220);
+    }
+    else if(!(hasCFertilizer && hasLFertilizer) && hasPressureSensor){
+      positions.add(170);
+    }
+    else{
+      positions.add(130);
+    }
+
+    return positions;
+  }
+
+  Widget buildConnectionLine(BuildContext context, double top) {
+    return Positioned(
+      top : top,
+      left: MediaQuery.sizeOf(context).width - 35,
+      right: 3,
+      child: Container(
+        height: 4,
+        color: Colors.grey.shade400,
+      ),
+    );
+  }
+
 
   List<Widget> _buildSensorItems(List<SensorModel> sensors, String type, String imagePath, bool isAvailFertilizer,
       int customerId, int controllerId) {

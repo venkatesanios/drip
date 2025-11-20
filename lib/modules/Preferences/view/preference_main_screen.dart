@@ -760,7 +760,9 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                                       onValueChange: (newValue) => onChangeValue(categoryIndex, settingIndex, settingList, newValue),
                                       conditionToShow: getConditionToShow(type: settingList[categoryIndex].type, serialNumber: settingList[categoryIndex].setting[settingIndex].serialNumber, value: settingList[categoryIndex].setting[settingIndex].value,),
                                       subTitle: _getSubTitle(categoryIndex, settingIndex, settingList, pumpIndex),
-                                      hidden: settingList[categoryIndex].setting[settingIndex].hidden,
+                                      hidden: settingList[categoryIndex].setting[settingIndex].title == "Schedule by Days"
+                                          ? true
+                                          : settingList[categoryIndex].setting[settingIndex].hidden,
                                       enabled: true,
                                     )
                               ],

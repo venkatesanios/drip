@@ -386,6 +386,17 @@ class ConstantProvider extends ChangeNotifier{
     }).map((setting) => payloadValidate(setting.value.value)).join(',');
   }
 
+  String getEcoGemPayloadForGlobalAlarm(){
+    return [
+      for(var setting in globalAlarm)
+        if(setting.ecoGemPayload)
+          ...[
+            setting.sNo,
+            payloadValidate(setting.value.value)
+          ]
+    ].join(',');
+  }
+
   String serialNumberFormatForEcoGem(double sNo){
     List<String> sNoSplitList = sNo.toString().split('.');
     if(sNoSplitList[1].length == 2){
@@ -454,17 +465,17 @@ class ConstantProvider extends ChangeNotifier{
             line.sNo,
             line.normal[alarmIndex].sNo,
             ...line.normal[alarmIndex].setting.where((setting){
-              return ((AppConstants.gemModelList.contains(userData['modelId']) ?  setting.gemPayload : setting.ecoGemPayload) && setting.common == null);
+              return (setting.gemPayload && setting.common == null);
             }).map((setting){
               return payloadValidate(setting.value.value);
             }),
             ...line.critical[alarmIndex].setting.where((setting){
-              return ((AppConstants.gemModelList.contains(userData['modelId']) ?  setting.gemPayload : setting.ecoGemPayload) && setting.common == null);
+              return (setting.gemPayload && setting.common == null);
             }).map((setting){
               return payloadValidate(setting.value.value);
             }),
             ...line.normal[alarmIndex].setting.where((setting){
-              return ((AppConstants.gemModelList.contains(userData['modelId']) ?  setting.gemPayload : setting.ecoGemPayload) && setting.common != null);
+              return (setting.gemPayload && setting.common != null);
             }).map((setting){
               return payloadValidate(setting.value.value);
             }),
@@ -478,19 +489,20 @@ class ConstantProvider extends ChangeNotifier{
   }
 
   String getNormalCriticalAlarmForEcoGem(){
+    print('eco gem payload start');
     List<dynamic> payloadList = [];
     for(var line in normalCriticalAlarm){
       for(var alarmIndex = 0;alarmIndex < line.normal.length;alarmIndex++){
-        payloadList.add(
-          [
-            line.normal[alarmIndex].sNo,
-            ...line.normal[alarmIndex].setting.where((setting){
-              return ((AppConstants.gemModelList.contains(userData['modelId']) ?  setting.gemPayload : setting.ecoGemPayload) && setting.common == null);
-            }).map((setting){
-              return payloadValidate(setting.value.value);
-            }),
-          ].join(','),
-        );
+          payloadList.add(
+            [
+              line.normal[alarmIndex].sNo,
+              ...line.normal[alarmIndex].setting.where((setting){
+                return (setting.ecoGemPayload);
+              }).map((setting){
+                return payloadValidate(setting.value.value);
+              }),
+            ].join(','),
+          );
       }
     }
     return payloadList.join(';');

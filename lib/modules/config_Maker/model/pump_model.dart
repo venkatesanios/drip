@@ -3,7 +3,8 @@ import 'device_object_model.dart';
 
 class PumpModel{
   DeviceObjectModel commonDetails;
-  double level;
+  double lowerLevel;
+  double upperLevel;
   double pressureIn;
   double pressureOut;
   double waterMeter;
@@ -16,7 +17,8 @@ class PumpModel{
 
   PumpModel({
     required this.commonDetails,
-    this.level = 0.0,
+    this.lowerLevel = 0.0,
+    this.upperLevel = 0.0,
     this.pressureIn = 0.0,
     this.pressureOut = 0.0,
     this.waterMeter = 0.0,
@@ -29,7 +31,8 @@ class PumpModel{
   });
 
   void updateObjectIdIfDeletedInProductLimit(List<double> objectIdToBeDeleted){
-    level = objectIdToBeDeleted.contains(level) ? 0.0 : level;
+    lowerLevel = objectIdToBeDeleted.contains(lowerLevel) ? 0.0 : lowerLevel;
+    upperLevel = objectIdToBeDeleted.contains(upperLevel) ? 0.0 : upperLevel;
     waterMeter = objectIdToBeDeleted.contains(waterMeter) ? 0.0 : waterMeter;
     pressureIn = objectIdToBeDeleted.contains(pressureIn) ? 0.0 : pressureIn;
     pressureOut = objectIdToBeDeleted.contains(pressureOut) ? 0.0 : pressureOut;
@@ -43,7 +46,8 @@ class PumpModel{
     DeviceObjectModel deviceObjectModel = DeviceObjectModel.fromJson(data);
     return PumpModel(
         commonDetails: deviceObjectModel,
-        level: intOrDoubleValidate(data['level']),
+        lowerLevel: intOrDoubleValidate(data['level'] ?? data['lowerLevel']),
+        upperLevel: intOrDoubleValidate(data['upperLevel'] ?? 0.0),
         pressureIn: intOrDoubleValidate(data['pressureIn']),
         pressureOut: intOrDoubleValidate(data['pressureOut']),
         waterMeter: intOrDoubleValidate(data['waterMeter']),
@@ -59,7 +63,8 @@ class PumpModel{
   Map<String, dynamic> toJson(){
     var commonInfo = commonDetails.toJson();
     commonInfo.addAll({
-      'level' : level,
+      'lowerLevel' : lowerLevel,
+      'upperLevel' : upperLevel,
       'pressureIn' : pressureIn,
       'pressureOut' : pressureOut,
       'waterMeter' : waterMeter,

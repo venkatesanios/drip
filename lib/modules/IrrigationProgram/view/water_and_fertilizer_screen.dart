@@ -423,6 +423,33 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                           padding: const EdgeInsets.all(8),
                           child: Column(
                             children: [
+                              // ListTile(
+                              //   title: const Text('Copy Setting',style: TextStyle(color: Colors.black,fontSize: 14),),
+                              //   leading: const Icon(Icons.copy),
+                              //   trailing:  SizedBox(
+                              //     width: 150,
+                              //     height: 30,
+                              //     child: Center(
+                              //         child: Transform.scale(
+                              //           scale: 0.9,
+                              //           child: PopupMenuButton<String>(
+                              //             onSelected: (String value) {
+                              //               // Handle selection
+                              //               print('Selected: $value');
+                              //             },
+                              //             itemBuilder: (BuildContext context) {
+                              //               return programPvd.sequenceData.map((seq) {
+                              //                 return PopupMenuItem<String>(
+                              //                   value: name,
+                              //                   child: Text(name),
+                              //                 );
+                              //               }).toList();
+                              //             },
+                              //           ),
+                              //         )
+                              //     ),
+                              //   ),
+                              // ),
                               ListTile(
                                 title: const Text('Method',style: TextStyle(color: Colors.black,fontSize: 14),),
                                 leading: SizedBox(
@@ -516,6 +543,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                                   ),
                                 ),
                               ),
+
                               if(programPvd.sequenceData[programPvd.selectedGroup]['centralDosing'].isNotEmpty || programPvd.sequenceData[programPvd.selectedGroup]['localDosing'].isNotEmpty)
                                 ListTile(
                                     title: const Text('Pre - Post Method',style: TextStyle(color: Colors.black,fontSize: 14),),
