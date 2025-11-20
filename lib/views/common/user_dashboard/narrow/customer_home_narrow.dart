@@ -103,12 +103,12 @@ class CustomerHomeNarrow extends StatelessWidget {
                       Positioned(
                         top: 4,
                         right: 3,
-                        bottom: 50,
+                        bottom: line.pressureOut.isNotEmpty ? 17 : 50,
                         child: Container(width: 4, color: Colors.grey.shade400),
                       ),
                       buildConnectionLine(context, 4),
                       Positioned(
-                        bottom : 50,
+                        bottom : line.pressureOut.isNotEmpty ? 17 : 50,
                         left: MediaQuery.sizeOf(context).width - 35,
                         right: 3,
                         child: Container(
@@ -121,42 +121,6 @@ class CustomerHomeNarrow extends StatelessWidget {
                         for (double p in positions)
                           buildConnectionLine(context, p),
                       ],
-
-                      /*if(cFertilizerSite.isNotEmpty && lFertilizerSite.isNotEmpty
-                          && prsSwitch.isNotEmpty && line.pressureIn.isNotEmpty
-                          && line.waterMeter.isNotEmpty)...[
-                        buildConnectionLine(context, 215),
-                        buildConnectionLine(context, 340),
-                        buildConnectionLine(context, 380),
-                        buildConnectionLine(context, 470),
-                        buildConnectionLine(context, 510),
-                      ]else if((cFertilizerSite.isNotEmpty || lFertilizerSite.isNotEmpty)
-                          && prsSwitch.isNotEmpty)...[
-
-                      ],*/
-
-                      /*if(cFertilizerSite.isNotEmpty || lFertilizerSite.isNotEmpty)...[
-                        if(cFertilizerSite.isNotEmpty && cFertilizerSite.isNotEmpty )...[
-                          buildConnectionLine(context, 215),
-                          buildConnectionLine(context, 340),
-                          if(prsSwitch.isNotEmpty)...[
-                            buildConnectionLine(context, 380),
-                          ],
-                        ]else...[
-                          buildConnectionLine(context, 215),
-                          buildConnectionLine(context, 255),
-                          if(prsSwitch.isNotEmpty)...[
-                            buildConnectionLine(context, 310),
-                          ],
-                        ],
-                      ]
-
-                      else...[
-                        buildConnectionLine(context, 130),
-                        if(prsSwitch.isNotEmpty)...[
-                          buildConnectionLine(context, 180),
-                        ],
-                      ],*/
 
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,

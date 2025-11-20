@@ -119,12 +119,13 @@ class _CustomerDeviceListState extends State<CustomerDeviceList> with TickerProv
     );
   }
 
+
   Widget _buildActionPopup(BuildContext context) {
     return PopupMenuButton(
       tooltip: tabController.index == 0
           ? 'Add new product to ${widget.customerName}'
           : 'Create new site for ${widget.customerName}',
-      child: Container(
+      child : Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -157,6 +158,99 @@ class _CustomerDeviceListState extends State<CustomerDeviceList> with TickerProv
   }
 
   List<PopupMenuEntry> _buildProductListPopup(BuildContext context) {
+    if (widget.productStockList.isEmpty) {
+      return [const PopupMenuItem(child: Text('No stock available'))];
+    }
+
+    String searchText = "";
+    List<StockModel> filteredList = List.from(widget.productStockList);
+
+    return [
+      PopupMenuItem(
+        enabled: false,
+        child: StatefulBuilder(
+          builder: (context, setState) {
+            return SizedBox(
+              width: 200,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if(widget.productStockList.length > 15)...[
+                    TextField(
+                      decoration: const InputDecoration(
+                        prefixIcon: Icon(Icons.search),
+                        hintText: "Search...",
+                        isDense: true,
+                        border: OutlineInputBorder(),
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          searchText = value.toLowerCase();
+                          filteredList = widget.productStockList.where((item) {
+                            return item.categoryName.toLowerCase().contains(searchText) ||
+                                item.imeiNo.toLowerCase().contains(searchText);
+                          }).toList();
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                  ],
+
+                  SizedBox(
+                    height: 350,
+                    child: ListView.builder(
+                      itemCount: filteredList.length,
+                      itemBuilder: (context, index) {
+                        final item = filteredList[index];
+                        final originalIndex = widget.productStockList.indexOf(item);
+
+                        return CheckboxListTile(
+                          title: Text(item.categoryName),
+                          subtitle: Text(item.imeiNo),
+                          value: viewModel.selectedProducts[originalIndex],
+                          onChanged: (value) {
+                            setState(() {
+                              viewModel.toggleProductSelection(originalIndex);
+                            });
+                          },
+                        );
+                      },
+                    ),
+                  ),
+
+                  const SizedBox(height: 5),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      MaterialButton(
+                        color: Colors.red,
+                        textColor: Colors.white,
+                        child: const Text('CANCEL'),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                      MaterialButton(
+                        color: Colors.green,
+                        textColor: Colors.white,
+                        child: const Text('ADD'),
+                        onPressed: () {
+                          viewModel.addProductToCustomer(
+                              context, widget.productStockList);
+                        },
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+    ];
+  }
+
+  /*List<PopupMenuEntry> _buildProductListPopup(BuildContext context) {
+
     if (widget.productStockList.isEmpty) {
       return [const PopupMenuItem(child: Text('No stock available'))];
     }
@@ -201,7 +295,9 @@ class _CustomerDeviceListState extends State<CustomerDeviceList> with TickerProv
         ),
       );
     });
-  }
+  }*/
+
+
 
   List<PopupMenuEntry> _buildMasterSitePopup(BuildContext context) {
     if (viewModel.myMasterControllerList.isEmpty) {
