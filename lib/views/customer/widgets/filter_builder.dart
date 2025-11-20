@@ -10,10 +10,23 @@ List<Widget> buildFilter (BuildContext context, List<FilterSiteModel> filterSite
         padding: EdgeInsets.only(top: isFrtAvail? 38.5 : 0),
         child: PressureSensorWidget(sensor: site.pressureIn!, isMobile: isMobile),
       ),
-    ...site.filters.map((filter) => Padding(
-      padding: EdgeInsets.only(top: isFrtAvail? 38.5 : 0),
-      child: FilterWidget(filter: filter, siteSno: site.sNo.toString(), isMobile: isMobile),
-    )),
+
+    ...List.generate(site.filters.length, (index) {
+      final filter = site.filters[index];
+      final isLast = index == site.filters.length - 1;
+
+      return Padding(
+        padding: EdgeInsets.only(top: isFrtAvail? 38.5 : 0),
+        child: FilterWidget(
+          filter: filter,
+          siteSno: site.sNo.toString(),
+          isMobile: isMobile,
+          isLast: isLast,
+          sensorAvailable: site.pressureIn != null,
+        ),
+      );
+    }),
+
     if (site.pressureOut != null)
       Padding(
         padding: EdgeInsets.only(top: isFrtAvail? 38.5 : 0),
