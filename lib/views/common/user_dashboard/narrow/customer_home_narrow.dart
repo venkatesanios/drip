@@ -290,6 +290,12 @@ class CustomerHomeNarrow extends StatelessWidget {
       positions.add(420);
       positions.add(460);
     }
+    else if((hasCFertilizer || hasLFertilizer) && !hasPressureSwitch
+        && hasPressureSensor && hasWaterMeter){
+      positions.add(215);
+      positions.add(295);
+      positions.add(335);
+    }
     else if((hasCFertilizer || hasLFertilizer) &&
         hasPressureSwitch && !hasPressureSensor && !hasWaterMeter){
       positions.add(215);
@@ -299,6 +305,11 @@ class CustomerHomeNarrow extends StatelessWidget {
         !hasPressureSwitch && hasPressureSensor && !hasWaterMeter){
       positions.add(215);
       positions.add(255);
+    }
+    else if((hasCFertilizer || hasLFertilizer) &&
+        !hasPressureSwitch && !hasPressureSensor && hasWaterMeter){
+      positions.add(215);
+      positions.add(295);
     }
     else if((hasCFertilizer || hasLFertilizer) &&
         !hasPressureSwitch && !hasPressureSensor && !hasWaterMeter){
