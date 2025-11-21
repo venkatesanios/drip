@@ -98,14 +98,17 @@ class FilterWidget extends StatelessWidget {
             int value = int.parse(otherParts[1]);
             siteStatus = value < 0 ? 0 : value;
             filter.onDelayLeft = otherParts[2];
+            filter.defPrsVal = otherParts[3];
           }
         }else{
           if (otherParts.length >= 4) {
             if(otherParts[1]=='-1'){
               siteStatus = 1;
               filter.onDelayLeft = otherParts[2];
+              filter.defPrsVal = otherParts[3];
             }else{
               filter.onDelayLeft = '00:00:00';
+              filter.defPrsVal = '0.0';
             }
           }
 
@@ -188,7 +191,7 @@ class FilterWidget extends StatelessWidget {
                           borderRadius: const BorderRadius.all(Radius.circular(2)),
                           border: Border.all(color: Colors.grey, width: .50),
                         ),
-                        child: Text(otherParts[3],
+                        child: Text(filter.defPrsVal,
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             color: Colors.black,

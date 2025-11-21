@@ -926,6 +926,7 @@ class Filters {
   int status;
   bool selected;
   String onDelayLeft;
+  String defPrsVal;
 
   Filters({
     required this.sNo,
@@ -933,6 +934,7 @@ class Filters {
     this.status = 0,
     this.selected=false,
     this.onDelayLeft='00:00:00',
+    this.defPrsVal = '0.0',
   });
 
   factory Filters.fromConfigObject(ConfigObject obj) {
