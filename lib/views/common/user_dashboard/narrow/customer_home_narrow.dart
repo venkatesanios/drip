@@ -273,67 +273,47 @@ class CustomerHomeNarrow extends StatelessWidget {
     required bool hasPressureSensor,
     required bool hasWaterMeter,
   }) {
-    final List<double> positions = [];
+    List<double> p = [];
 
-    if(hasCFertilizer && hasLFertilizer && hasPressureSwitch
-        && hasPressureSensor && hasWaterMeter){
-      positions.add(215);
-      positions.add(340);
-      positions.add(380);
-      positions.add(470);
-      positions.add(510);
+    bool hasAnyFertilizer = hasCFertilizer || hasLFertilizer;
+    bool hasBothFertilizers = hasCFertilizer && hasLFertilizer;
+
+    if (hasBothFertilizers && hasPressureSwitch && hasPressureSensor && hasWaterMeter) {
+      p = [215, 340, 380, 470, 510];
     }
-    else if(hasCFertilizer && hasLFertilizer && !hasPressureSwitch
-        && hasPressureSensor && hasWaterMeter){
-      positions.add(215);
-      positions.add(340);
-      positions.add(420);
-      positions.add(460);
+    else if (hasBothFertilizers && !hasPressureSwitch && hasPressureSensor && hasWaterMeter) {
+      p = [215, 340, 420, 460];
     }
-    else if((hasCFertilizer || hasLFertilizer) && !hasPressureSwitch
-        && hasPressureSensor && hasWaterMeter){
-      positions.add(215);
-      positions.add(295);
-      positions.add(335);
+    else if (hasAnyFertilizer && !hasPressureSwitch && hasPressureSensor && hasWaterMeter) {
+      p = [215, 295, 335];
     }
-    else if((hasCFertilizer || hasLFertilizer) &&
-        hasPressureSwitch && !hasPressureSensor && !hasWaterMeter){
-      positions.add(215);
-      positions.add(255);
+    else if (hasAnyFertilizer && hasPressureSwitch && !hasPressureSensor && !hasWaterMeter) {
+      p = [215, 255];
     }
-    else if((hasCFertilizer || hasLFertilizer) &&
-        !hasPressureSwitch && hasPressureSensor && !hasWaterMeter){
-      positions.add(215);
-      positions.add(255);
+    else if (hasAnyFertilizer && !hasPressureSwitch && hasPressureSensor && !hasWaterMeter) {
+      p = [215, 255];
     }
-    else if((hasCFertilizer || hasLFertilizer) &&
-        !hasPressureSwitch && !hasPressureSensor && hasWaterMeter){
-      positions.add(215);
-      positions.add(295);
+    else if (hasAnyFertilizer && !hasPressureSwitch && !hasPressureSensor && hasWaterMeter) {
+      p = [215, 295];
     }
-    else if((hasCFertilizer || hasLFertilizer) &&
-        !hasPressureSwitch && !hasPressureSensor && !hasWaterMeter){
-      positions.add(215);
+    else if (hasAnyFertilizer) {
+      p = [215];
     }
-    else if(!(hasCFertilizer && hasLFertilizer) &&
-        hasPressureSwitch && hasPressureSensor && hasWaterMeter){
-      positions.add(130);
-      positions.add(220);
-      positions.add(260);
+    else if (!hasBothFertilizers && hasPressureSwitch && hasPressureSensor && hasWaterMeter) {
+      p = [130, 220, 260];
     }
-    else if(!(hasCFertilizer && hasLFertilizer) &&
-        hasPressureSwitch && hasPressureSensor){
-      positions.add(130);
-      positions.add(220);
+    else if (!hasBothFertilizers && hasPressureSwitch && hasPressureSensor) {
+      p = [130, 220];
     }
-    else if(!(hasCFertilizer && hasLFertilizer) && hasPressureSensor){
-      positions.add(170);
+    else if (!hasBothFertilizers && hasPressureSensor) {
+      p = [170];
     }
-    else{
-      positions.add(130);
+    else {
+      p = [130];
     }
 
-    return positions;
+    p.sort();
+    return p;
   }
 
   Widget buildConnectionLine(BuildContext context, double top) {

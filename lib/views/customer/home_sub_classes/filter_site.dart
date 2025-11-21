@@ -91,6 +91,10 @@ class FilterWidget extends StatelessWidget {
           filter.status = int.tryParse(statusParts[1]) ?? 0;
         }
 
+        if (otherParts.length >= 4) {
+          filter.defPrsVal = otherParts[3];
+        }
+
         int siteStatus = 0;
 
         if(filter.status==1){
@@ -98,17 +102,15 @@ class FilterWidget extends StatelessWidget {
             int value = int.parse(otherParts[1]);
             siteStatus = value < 0 ? 0 : value;
             filter.onDelayLeft = otherParts[2];
-            filter.defPrsVal = otherParts[3];
+
           }
         }else{
           if (otherParts.length >= 4) {
             if(otherParts[1]=='-1'){
               siteStatus = 1;
               filter.onDelayLeft = otherParts[2];
-              filter.defPrsVal = otherParts[3];
             }else{
               filter.onDelayLeft = '00:00:00';
-              filter.defPrsVal = '0.0';
             }
           }
 
