@@ -34,9 +34,6 @@ class NodeListViewModel extends ChangeNotifier {
 
   void onLivePayloadReceived(List<String> nodeLiveMeg, List<String> inputOutputStatus) {
 
-    print('nodeLiveMeg:$nodeLiveMeg');
-    print('inputOutputStatus:$inputOutputStatus');
-
     try {
       for (String group in nodeLiveMeg) {
         List<String> values = group.split(",");
@@ -48,6 +45,7 @@ class NodeListViewModel extends ChangeNotifier {
         int? status = int.tryParse(values[3]);
         String lastFeedback = values[4];
         String version = values.length > 5 ? values[5] : '0.0.0';
+        String missedCommunication = values[6];
 
         if (sNo == null || sVolt == null || batVolt == null || status == null) continue;
 
@@ -58,6 +56,7 @@ class NodeListViewModel extends ChangeNotifier {
             node.status = status;
             node.lastFeedbackReceivedTime = lastFeedback;
             node.version = version;
+            node.communicationCount = missedCommunication;
             break;
           }
         }

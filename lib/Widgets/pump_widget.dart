@@ -190,7 +190,7 @@ class PumpWidget extends StatelessWidget {
 
             if (pump.reason == '11' || pump.reason == '22')
               Positioned(
-                top: isMobile? 20:40,
+                top: pump.actualValue == '0.0' ? isMobile? 30 : 50 : isMobile? 20 : 40,
                 left: 0,
                 child: Container(
                   width: 67,
@@ -202,8 +202,10 @@ class PumpWidget extends StatelessWidget {
                   child: Center(
                     child: Column(
                       children: [
-                        Text('Max: ${pump.actualValue}', style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold)),
-                        const Divider(height: 0, color: Colors.grey, thickness: 0.5),
+                        if(pump.actualValue!='0.0')...[
+                          Text('Max: ${pump.actualValue}', style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold)),
+                          const Divider(height: 0, color: Colors.grey, thickness: 0.5),
+                        ],
                         Text(
                           pump.status == 1 ? 'cRm: ${pump.setValue}' : 'Brk: ${pump.setValue}',
                           style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold),

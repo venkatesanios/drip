@@ -539,11 +539,11 @@ class NodeList extends StatelessWidget {
                       const Text('Missed communication',
                           style: TextStyle(color: Colors.black54)),
                       const Spacer(),
-                      Text('Total : ${node.communicationCount.split(',').first}',
+                      Text('Total : ${node.communicationCount.split('_').first}',
                           style: const TextStyle(fontSize: 12)),
                       const SizedBox(width: 8),
                       Text(
-                          'Continuous : ${node.communicationCount.split(',').last}',
+                          'Continuous : ${node.communicationCount.split('_').last}',
                           style: const TextStyle(fontSize: 12)),
                     ],
                   ),
