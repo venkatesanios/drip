@@ -20,7 +20,7 @@ import '../view/connection.dart';
 
 class ConfigMakerProvider extends ChangeNotifier{
   double ratio = 1.0;
-  ConfigMakerTabs selectedTab = ConfigMakerTabs.deviceList;
+  ConfigMakerTabs selectedTab = ConfigMakerTabs.siteConfigure;
   Map<String, dynamic> configMakerDataFromHttp = {};
   Map<String, dynamic> defaultDataFromHttp = {};
   Map<int, String> configurationTab = {
@@ -33,7 +33,7 @@ class ConfigMakerProvider extends ChangeNotifier{
     6 : 'Ec Configuration',
     7 : 'Ph Configuration',
   };
-  int selectedConfigurationTab = 0;
+  int selectedConfigurationTab = 1;
   int rangeStart = -1;
   int rangeEnd = -1;
   bool rangeMode = false;
@@ -144,7 +144,7 @@ class ConfigMakerProvider extends ChangeNotifier{
     listOfSelectedSno = [];
     selectedSno = 0.0;
     serialNumber = 0;
-    notifyListeners();
+    // notifyListeners();
   }
 
   void updateAssignObject({required double sNo,required int objectId, required List<double> listOfSerialNo}){
@@ -1054,17 +1054,14 @@ class ConfigMakerProvider extends ChangeNotifier{
     for (var i = 0; i < pump.length; i++) {
       var pumpModelObject = pump[i];
       var relatedSources = source.where((e) => e.inletPump.contains(pumpModelObject.commonDetails.sNo) || e.outletPump.contains(pumpModelObject.commonDetails.sNo)).toList();
-      var sumpTankLevel = relatedSources.cast<SourceModel?>().firstWhere((source) => source!.outletPump.contains(pumpModelObject.commonDetails.sNo), orElse: ()=>null);
-      var topTankLevel = relatedSources.cast<SourceModel?>().firstWhere((source) => source!.inletPump.contains(pumpModelObject.commonDetails.sNo), orElse: ()=>null as SourceModel?);
-
       Map<String, dynamic> payload = {
         "S_No": pumpModelObject.commonDetails.sNo,
         "PumpCategory": pumpModelObject.pumpType,
         "PressureIn" : serialNoOrEmpty(pumpModelObject.pressureIn),
         "PressureOut" : serialNoOrEmpty(pumpModelObject.pressureOut),
         "WaterMeter": serialNoOrEmpty(pumpModelObject.waterMeter),
-        "SumpTankLevel" : sumpTankLevel == null ? '' : serialNoOrEmpty(sumpTankLevel.level),
-        "TopTankLevel" : topTankLevel == null ? '' : serialNoOrEmpty(topTankLevel.level),
+        "SumpTankLevel" : serialNoOrEmpty(pumpModelObject.lowerLevel),
+        "TopTankLevel" : serialNoOrEmpty(pumpModelObject.upperLevel),
         "TopTankFloatHigh" : serialNoOrEmpty(pumpModelObject.topTankFloat),
         "TopTankFloatLow" : serialNoOrEmpty(pumpModelObject.bottomTankFloat),
         "SumpTankFloatHigh" : serialNoOrEmpty(pumpModelObject.topSumpFloat),
@@ -1536,7 +1533,7 @@ class ConfigMakerProvider extends ChangeNotifier{
           "No.of tank pins" : tankPinCount,
           "Tank low pin float" : tankLowConnectionNo,
           "Tank high pin float" : tankHighConnectionNo,
-          "level sensor" : levelConnectionNo,
+          "level sensor" : (pumpModel.lowerLevel != 0.0 || pumpModel.upperLevel != 0.0) ? 1 : 0,
           "waterMeter" : availableOfWaterMeter,
           "pressureIn" : availableOfPressure
         }.entries.map((e) => e.value).join(','));

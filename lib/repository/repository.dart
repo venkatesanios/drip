@@ -13,6 +13,7 @@ class RepositoryImpl implements ApiRepository {
 
   @override
   Future<dynamic> checkLoginAuth(Map<String, dynamic> body) async {
+print(body);
     return apiService.postRequest('/auth/signIn', body);
   }
 
@@ -27,6 +28,7 @@ class Repository{
   Repository(this.apiService);
 
   Future<http.Response> checkLoginAuth(body) async {
+    print(body);
     return apiService.postRequest('/auth/signIn', body);
   }
   Future<http.Response> checkMobileNumber(body) async {

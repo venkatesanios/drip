@@ -63,7 +63,8 @@ class _PumpConfigurationState extends State<PumpConfiguration> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             IntrinsicWidth(
-                              stepWidth: 300,
+                              stepWidth: 330,
+                              stepHeight: 40,
                               child: ListTile(
                                 leading: SizedImage(imagePath: '${AppConstants.svgObjectPath}objectId_5.svg', color: Colors.black,),
                                 title: Text(pump.commonDetails.name!),
@@ -123,11 +124,12 @@ class _PumpConfigurationState extends State<PumpConfiguration> {
                                     getWaterMeterAndPressureSelection(pump, mode),
                                   for(var mode in [1,2,3,4])
                                     getFloatSelection(pump, mode),
-                                  // for(var mode in [1,2])
-                                  //   getLevelSelection(pump, mode)
+                                  for(var mode in [1,2])
+                                    getLevelSelection(pump, mode)
                                 ],
                               ),
                             ),
+                            const SizedBox(height: 40,)
                           ],
                         ),
                       )
@@ -148,7 +150,7 @@ class _PumpConfigurationState extends State<PumpConfiguration> {
     List<double> validateSensorFromOtherSource = [];
     for(var pump in widget.configPvd.pump){
       if(pump.commonDetails.sNo != currentPump.commonDetails.sNo){
-        validateSensorFromOtherSource.add(pump.level);
+        validateSensorFromOtherSource.add(pump.lowerLevel);
         validateSensorFromOtherSource.add(pump.waterMeter);
         validateSensorFromOtherSource.add(pump.pressureIn);
         validateSensorFromOtherSource.add(pump.pressureOut);
@@ -206,7 +208,7 @@ class _PumpConfigurationState extends State<PumpConfiguration> {
   Widget getLevelSelection(PumpModel currentPump, int mode){
     int objectId = AppConstants.levelObjectId;
     String objectName = mode == 1 ? 'Lower Level' : 'Upper Level';
-    double currentSno = mode == 1 ? currentPump.level : currentPump.upperLevel;
+    double currentSno = mode == 1 ? currentPump.lowerLevel : currentPump.upperLevel;
     List<double> sensorToDisplay = [];
     for(var src in widget.configPvd.source){
       if(mode == 1){
@@ -247,7 +249,7 @@ class _PumpConfigurationState extends State<PumpConfiguration> {
                     onPressed: (){
                       setState(() {
                         if(mode == 1){
-                          currentPump.level = widget.configPvd.selectedSno;
+                          currentPump.lowerLevel = widget.configPvd.selectedSno;
                         }else{
                           currentPump.upperLevel = widget.configPvd.selectedSno;
                         }

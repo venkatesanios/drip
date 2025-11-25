@@ -3,16 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:oro_drip_irrigation/Constants/notifications_service.dart';
-import 'package:oro_drip_irrigation/modules/config_Maker/view/config_base_page.dart';
-import 'package:oro_drip_irrigation/modules/irrigation_report/view/fertilizer_pump_runtime_log.dart';
-import 'package:oro_drip_irrigation/modules/irrigation_report/view/motor_cyclic_log.dart';
-import 'package:oro_drip_irrigation/modules/irrigation_report/view/zone_cyclic_log.dart';
-import '../Screens/Dealer/bLE_update.dart';
-import '../Screens/Dealer/ble_controllerlog_ftp.dart';
-import '../Screens/login_screenOTP/landing_screen.dart';
+
 import '../Screens/login_screenOTP/login_screenotp.dart';
 import '../flavors.dart';
-import '../modules/constant/view/constant_base_page.dart';
 import '../utils/Theme/smart_comm_theme.dart';
 import '../utils/Theme/oro_theme.dart';
 import '../utils/routes.dart';
@@ -20,6 +13,8 @@ import '../utils/shared_preferences_helper.dart';
 import '../views/common/login/login_screen.dart';
 import '../views/screen_controller.dart';
 import '../views/splash_screen.dart';
+import 'package:new_version_plus/new_version_plus.dart';
+
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -36,6 +31,7 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     if(!kIsWeb){
+
       NotificationServiceCall().initialize();
       NotificationServiceCall().configureFirebaseMessaging();
     }
@@ -56,8 +52,11 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
+
+
   @override
   Widget build(BuildContext context) {
+
     debugPrint('Flavor is: ${F.appFlavor}');
     bool isDarkMode = false;
     SystemChrome.setPreferredOrientations([
@@ -81,6 +80,7 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
+
 
 /// Helper function to navigate to the appropriate screen
 Widget navigateToInitialScreen(String route) {
