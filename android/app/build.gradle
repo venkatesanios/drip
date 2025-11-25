@@ -82,8 +82,8 @@ android {
         minSdkVersion 23
         //minSdkVersion = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
-        versionCode = 1560
-        versionName = "1.2.45"
+        versionCode = 1686
+        versionName = "1.2.56"
     }
 
     buildTypes {
