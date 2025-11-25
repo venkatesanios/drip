@@ -80,6 +80,8 @@ dependencies:
   firebase_auth: ^6.0.2
   otp_pin_field: ^1.4.1
   firebase_app_check: ^0.4.1
+  app_version_update: ^6.1.0
+  new_version_plus: ^0.1.0
 #  audioplayers: ^6.5.0
 #  record: ^6.0.0
 

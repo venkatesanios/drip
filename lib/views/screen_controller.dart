@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:new_version_plus/new_version_plus.dart';
 import '../layouts/layout_selector.dart';
 import '../models/user_model.dart';
 import '../providers/user_provider.dart';
@@ -9,6 +10,8 @@ import 'common/login/login_screen.dart';
 
 class ScreenController extends StatelessWidget {
   const ScreenController({super.key});
+
+  static bool _versionChecked = false; // prevent duplicate dialogs
 
   Future<bool> initializeUser(BuildContext context) async {
     final token = await PreferenceHelper.getToken();
@@ -21,6 +24,7 @@ class ScreenController extends StatelessWidget {
     final mobile = await PreferenceHelper.getMobileNumber();
     final email = await PreferenceHelper.getEmail();
     final role = getRoleFromString(roleString);
+
     final user = UserModel(
       token: token,
       id: userId ?? 0,
@@ -37,7 +41,6 @@ class ScreenController extends StatelessWidget {
 
     return true;
   }
-
 
   UserRole getRoleFromString(String? role) {
     switch (role?.toLowerCase()) {
@@ -56,6 +59,32 @@ class ScreenController extends StatelessWidget {
     }
   }
 
+  /// VERSION CHECK HERE (Safe)
+  void checkVersionDialog(BuildContext context) async {
+    if (_versionChecked) return; // avoid multiple calls
+    _versionChecked = true;
+
+    final newVersion = NewVersionPlus(
+      androidId: "com.niagaraautomations.oroDripirrigation",
+      iOSId: "com.niagaraautomations.oroDripirrigation",
+    );
+
+    final status = await newVersion.getVersionStatus();
+
+    if (status != null && status.canUpdate) {
+      newVersion.showUpdateDialog(
+        context: context,
+        versionStatus: status,
+        dialogTitle: "New Update Available",
+        // dialogText:
+        // "A new version (${status.storeVersion}) is available.\nPlease update for better performance.",
+        updateButtonText: "Update Now",
+        dismissButtonText: "Later",
+        allowDismissal: true,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<bool>(
@@ -70,6 +99,11 @@ class ScreenController extends StatelessWidget {
         if (snapshot.hasData && snapshot.data == false) {
           return const LoginScreen();
         }
+
+        /// 🔥 Call version check AFTER first frame
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          checkVersionDialog(context);
+        });
 
         final userRole = context.read<UserProvider>().loggedInUser.role;
         return UserLayoutSelector(userRole: userRole);

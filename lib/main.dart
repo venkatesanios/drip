@@ -30,6 +30,7 @@ import 'modules/config_Maker/state_management/config_maker_provider.dart';
 import 'StateManagement/mqtt_payload_provider.dart';
 import 'StateManagement/overall_use.dart';
 import 'modules/constant/state_management/constant_provider.dart';
+import 'package:new_version_plus/new_version_plus.dart';
 
 
 // Initialize local notifications plugin
