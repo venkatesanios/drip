@@ -84,8 +84,7 @@ class MyMaterialButton extends StatelessWidget {
       onPressed: (isDisabled || isLoading) ? null : () => _sendCommand(context),
       disabledColor: Colors.black26,
       child: Center(
-        child: isLoading
-            ? const SizedBox(
+        child: isLoading ? const SizedBox(
           height: 30,
           child: LoadingIndicator(
             indicatorType: Indicator.ballPulse,
@@ -94,8 +93,7 @@ class MyMaterialButton extends StatelessWidget {
         ) : blink ? BlinkText(
           text: label,
           style: TextStyle(color: textColor),
-        )
-            : Text(label),
+        ) : Text(label),
       ),
     );
   }

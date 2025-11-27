@@ -244,7 +244,8 @@ class _SetSerialScreenState extends State<SetSerialScreen> {
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    const Text('Missed communication :', style: TextStyle(fontWeight: FontWeight.normal),),
+                                    const Text('Missed communication :',
+                                        style: TextStyle(fontWeight: FontWeight.normal, fontSize: 13)),
                                     const Spacer(),
                                     Text(
                                       'Total : ${item.communicationCount.split(',').first}',

@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/utils/helpers/mc_permission_helper.dart';
-import 'package:oro_drip_irrigation/views/customer/widgets/main_valve_widget.dart';
 import 'package:popover/popover.dart';
 import 'package:provider/provider.dart';
 
@@ -11,7 +10,6 @@ import '../../../../models/customer/site_model.dart';
 import '../../../../StateManagement/mqtt_payload_provider.dart';
 import '../../../../services/communication_service.dart';
 import '../../../../utils/constants.dart';
-import '../../../../utils/enums.dart';
 import '../../../../utils/formatters.dart';
 import '../../../../utils/my_function.dart';
 import '../../../../utils/snack_bar.dart';
@@ -20,12 +18,11 @@ import '../../../../view_models/customer/customer_screen_controller_view_model.d
 import '../../../customer/widgets/agitator_widget.dart';
 import '../../../customer/widgets/booster_widget.dart';
 import '../../../customer/widgets/channel_widget.dart';
-import '../../../customer/widgets/light_widget.dart';
 import '../../../customer/widgets/filter_builder.dart';
 import '../../../customer/widgets/my_material_button.dart';
 import '../../../customer/widgets/sensor_widget_mobile.dart';
 import '../../../customer/widgets/source_column_widget.dart';
-import '../../../customer/widgets/valve_widget_mobile.dart';
+import '../widgets/irrigation_line_narrow.dart';
 
 class CustomerHomeNarrow extends StatelessWidget {
   const CustomerHomeNarrow({super.key});
@@ -36,6 +33,7 @@ class CustomerHomeNarrow extends StatelessWidget {
     final viewModel = Provider.of<CustomerScreenControllerViewModel>(context);
     int customerId = viewModel.mySiteList.data[viewModel.sIndex].customerId;
     final cM = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex];
+
     bool isNova = [...AppConstants.ecoGemModelList].contains(cM.modelId);
 
     final linesToDisplay = (viewModel.myCurrentIrrLine == "All irrigation line" || viewModel.myCurrentIrrLine.isEmpty)
@@ -195,8 +193,19 @@ class CustomerHomeNarrow extends StatelessWidget {
                                         ],
                                       ),
                                     ),
-                                    buildIrrigationLine(context, line, viewModel.mySiteList.data[viewModel.sIndex].customerId,
-                                        cM.controllerId, cM.modelId, cM.deviceId)
+                                    IrrigationLineNarrow(
+                                      valves: line.valveObjects,
+                                      mainValves: line.mainValveObjects,
+                                      lights:line.lightObjects,
+                                      gates:line.gateObjects,
+                                      pressureIn: line.pressureIn,
+                                      pressureOut: line.pressureOut,
+                                      waterMeter: line.waterMeter,
+                                      customerId: customerId,
+                                      controllerId: cM.controllerId,
+                                      deviceId: cM.deviceId,
+                                      modelId: cM.modelId,
+                                    ),
                                   ],
                                 ),
                               ],
@@ -351,7 +360,7 @@ class CustomerHomeNarrow extends StatelessWidget {
       children: List.generate(currentSchedule.length, (index) {
         List<String> values = currentSchedule[index].split(',');
 
-        final programName = getProgramNameById(int.parse(values[0]), scheduledPrograms);
+        final programName = MyFunction().getProgramNameById(int.parse(values[0]), scheduledPrograms);
         final isManual = programName == 'StandAlone - Manual';
         final timeless = (values[3] == '00:00:00' || values[3] == '0');
 
@@ -450,7 +459,7 @@ class CustomerHomeNarrow extends StatelessWidget {
                     ),
                   ),
                   Expanded(
-                    child: Text(getContentByCode(int.parse(values[17])), style: const TextStyle(fontSize: 11, color: Colors.black54),),
+                    child: Text( MyFunction().getContentByCode(int.parse(values[17])), style: const TextStyle(fontSize: 11, color: Colors.black54),),
                   )
                 ],
               ),
@@ -485,7 +494,7 @@ class CustomerHomeNarrow extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(programName == 'StandAlone - Manual' ? '--' :
-                      getSequenceName(int.parse(values[0]), values[1], scheduledPrograms) ?? '--',),
+                      MyFunction().getSequenceName(int.parse(values[0]), values[1], scheduledPrograms) ?? '--',),
                       const SizedBox(height: 3),
                     ],
                   ),
@@ -556,7 +565,7 @@ class CustomerHomeNarrow extends StatelessWidget {
                               const Spacer(),
                               if(![...AppConstants.ecoGemModelList].contains(modelId))...[
                                 buildActionButton(context, values, programName, programName == 'StandAlone - Manual' ? '--' :
-                                getSequenceName(int.parse(values[0]), values[1], scheduledPrograms) ?? '--',),
+                                MyFunction().getSequenceName(int.parse(values[0]), values[1], scheduledPrograms) ?? '--',),
                               ],
                             ],
                           ),
@@ -573,42 +582,8 @@ class CustomerHomeNarrow extends StatelessWidget {
     );
   }
 
-  String getProgramNameById(int id, List<ProgramList> scheduledPrograms) {
-    try {
-      return scheduledPrograms.firstWhere((program) => program.serialNumber == id).programName;
-    } catch (e) {
-      return "StandAlone - Manual";
-    }
-  }
-
-  ProgramList? getProgramById(int id, List<ProgramList> scheduledPrograms) {
-    try {
-      return scheduledPrograms.firstWhere((program) => program.serialNumber == id);
-    } catch (e) {
-      return null;
-    }
-  }
-
-  String? getSequenceName(int programId, String sequenceId, List<ProgramList> scheduledPrograms) {
-    ProgramList? program = getProgramById(programId, scheduledPrograms);
-    if (program != null) {
-      return getSequenceNameById(program, sequenceId);
-    }
-    return null;
-  }
-
-  String? getSequenceNameById(ProgramList program, String sequenceId) {
-    try {
-      return program.sequence.firstWhere((seq) => seq.sNo == sequenceId).name;
-    } catch (e) {
-      return null;
-    }
-  }
 
 
-  String getContentByCode(int code) {
-    return GemProgramStartStopReasonCode.fromCode(code).content;
-  }
 
   Widget buildActionButton(BuildContext context,
       List<String> values, String  programName, String  sequenceName) {
@@ -697,24 +672,6 @@ class CustomerHomeNarrow extends StatelessWidget {
     );
   }
 
-
-  Widget buildIrrigationLine(BuildContext context, IrrigationLineModel irrLine,
-      int customerId, int controllerId, int modelId, String deviceId){
-    return IrrigationLine(
-      valves: irrLine.valveObjects,
-      mainValves: irrLine.mainValveObjects,
-      lights:irrLine.lightObjects,
-      gates:irrLine.gateObjects,
-      pressureIn: irrLine.pressureIn,
-      pressureOut: irrLine.pressureOut,
-      waterMeter: irrLine.waterMeter,
-      customerId: customerId,
-      controllerId: controllerId,
-      deviceId: deviceId,
-      modelId: modelId,
-    );
-  }
-
   Widget buildNextScheduleCard(BuildContext context, List<ProgramList> scheduledPrograms) {
 
     var nextSchedule =  context.watch<MqttPayloadProvider>().nextSchedule;
@@ -724,8 +681,8 @@ class CustomerHomeNarrow extends StatelessWidget {
         children: List.generate(nextSchedule.length, (index) {
 
           List<String> values = nextSchedule[index ~/ 2].split(',');
-          final programName = getProgramNameById(int.parse(values[0]), scheduledPrograms);
-          final sqName = getSequenceName(int.parse(values[0]), values[1], scheduledPrograms) ?? '--';
+          final programName =  MyFunction().getProgramNameById(int.parse(values[0]), scheduledPrograms);
+          final sqName =  MyFunction().getSequenceName(int.parse(values[0]), values[1], scheduledPrograms) ?? '--';
 
           return Builder(
             builder: (rowContext) {
@@ -1009,10 +966,8 @@ class PumpStationMobile extends StatelessWidget {
     return fertilizerSite.map((site) {
       final widgets = <Widget>[];
 
-      // TEMP list for channels + agitator
       final channelWidgets = <Widget>[];
 
-      // Add channels
       for (int channelIndex = 0; channelIndex < site.channel.length; channelIndex++) {
         final channel = site.channel[channelIndex];
 
@@ -1047,109 +1002,4 @@ class PumpStationMobile extends StatelessWidget {
     }).toList();
   }
 
-}
-
-class IrrigationLine extends StatelessWidget {
-  final int customerId, controllerId, modelId;
-  final String deviceId;
-  final List<ValveModel> valves;
-  final List<ValveModel> mainValves;
-  final List<LightModel> lights;
-  final List<GateModel> gates;
-  final List<SensorModel> pressureIn;
-  final List<SensorModel> pressureOut;
-  final List<SensorModel> waterMeter;
-
-  const IrrigationLine({
-    super.key,
-    required this.valves,
-    required this.mainValves,
-    required this.lights,
-    required this.gates,
-    required this.pressureIn,
-    required this.pressureOut,
-    required this.waterMeter,
-    required this.customerId,
-    required this.controllerId,
-    required this.deviceId,
-    required this.modelId,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-
-    final valveWidgetEntries = valves.asMap().entries.toList();
-    final mainValveWidgetEntries = mainValves.asMap().entries.toList();
-
-    final baseSensors = [
-      ..._buildSensorItems(pressureIn, 'Pressure Sensor', 'assets/png/pressure_sensor.png'),
-      ..._buildSensorItems(waterMeter, 'Water Meter', 'assets/png/water_meter_wj.png'),
-    ];
-
-
-    final valveWidgets = valveWidgetEntries.map((entry) {
-      final valve = entry.value;
-      return ValveWidgetMobile(
-        valve: valve,
-        customerId: customerId,
-        controllerId: controllerId,
-        modelId: modelId,
-      );
-    }).toList();
-
-    final mainValveWidgets = mainValveWidgetEntries.map((entry) {
-      final valve = entry.value;
-      return BuildMainValve(
-        valve: valve,
-        customerId: customerId,
-        controllerId: controllerId,
-        modelId: modelId,
-        isNarrow: true,
-      );
-    }).toList();
-
-    final pressureOutWidgets = _buildSensorItems(
-      pressureOut, 'Pressure Sensor', 'assets/png/pressure_sensor.png',
-    );
-
-    final lightWidgets = lights.asMap().entries.map((entry) {
-      return LightWidget(objLight: entry.value, isWide: false);
-    }).toList();
-
-    final allItems = [
-      ...lightWidgets,
-      ...mainValveWidgets,
-      ...valveWidgets,
-      ...pressureOutWidgets,
-    ];
-
-    return Column(
-      children: [
-        if(baseSensors.isNotEmpty)...[
-          ...baseSensors,
-        ],
-        Align(
-          alignment: Alignment.topLeft,
-          child: Wrap(
-            alignment: WrapAlignment.start,
-            spacing: 0,
-            runSpacing: 0,
-            children: allItems,
-          ),
-        ),
-      ],
-    );
-  }
-
-  List<Widget> _buildSensorItems(List<SensorModel> sensors, String type, String imagePath) {
-    return sensors.map((sensor) {
-      return SensorWidgetMobile(
-        sensor: sensor,
-        sensorType: type,
-        imagePath: imagePath,
-        customerId: customerId,
-        controllerId: controllerId,
-      );
-    }).toList();
-  }
 }
