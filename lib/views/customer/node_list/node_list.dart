@@ -537,7 +537,7 @@ class NodeList extends StatelessWidget {
                   child: Row(
                     children: [
                       const Text('Missed communication',
-                          style: TextStyle(color: Colors.black54)),
+                          style: TextStyle(color: Colors.black54, fontSize: 13)),
                       const Spacer(),
                       Text('Total : ${node.communicationCount.split('_').first}',
                           style: const TextStyle(fontSize: 12)),

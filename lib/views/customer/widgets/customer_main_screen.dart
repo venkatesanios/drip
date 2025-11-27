@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:oro_drip_irrigation/views/customer/widgets/password_protected_site_config.dart';
 import '../../../Screens/Dealer/sevicecustomer.dart';
 import '../../../Screens/Logs/irrigation_and_pump_log.dart';
 import '../../../Screens/planning/WeatherScreen.dart';
+import '../../../layouts/layout_selector.dart';
 import '../../../modules/PumpController/view/pump_controller_home.dart';
 import '../../../utils/constants.dart';
 import '../../../utils/enums.dart';
@@ -25,12 +25,13 @@ Widget buildCustomerMainScreen({required int index, required UserRole role, requ
   switch (index) {
     case 0:
       return (isGem || isNova) ?
-      CustomerHome(
+      const DashboardLayoutSelector(userRole: UserRole.customer)
+      /*CustomerHome(
         customerId: cSite.customerId,
         controllerId: cMaster.controllerId,
         deviceId: cMaster.deviceId,
         modelId: cMaster.modelId,
-      ) :
+      )*/ :
       vm.isChanged ? PumpControllerHome(
         userId: userId,
         customerId: cSite.customerId,

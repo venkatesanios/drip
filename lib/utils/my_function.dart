@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:oro_drip_irrigation/view_models/create_account_view_model.dart';
 import 'package:provider/provider.dart';
 import '../StateManagement/mqtt_payload_provider.dart';
+import '../models/customer/site_model.dart';
 import 'enums.dart';
 
 class MyFunction {
@@ -191,27 +192,36 @@ class MyFunction {
     items.add(item); // Set automatically handles uniqueness.
   }
 
-  final Map<IrrigationParams, double> _irrigationCache = {};
-
-  double calculateIrrigationTime(IrrigationParams params) {
-    if (_irrigationCache.containsKey(params)) {
-      return _irrigationCache[params]!; // Return cached
+  String getProgramNameById(int id, List<ProgramList> scheduledPrograms) {
+    try {
+      return scheduledPrograms.firstWhere((program) => program.serialNumber == id).programName;
+    } catch (e) {
+      return "StandAlone - Manual";
     }
+  }
 
-    // Simulated complex calculation
-    double cropFactor = params.cropType == 'Rice' ? 1.5 : 1.0;
-    double soilFactor = params.soilType == 'Clay' ? 0.8 : 1.2;
-    double weatherFactor = params.weather == 'Hot' ? 1.4 : 1.0;
+  ProgramList? getProgramById(int id, List<ProgramList> scheduledPrograms) {
+    try {
+      return scheduledPrograms.firstWhere((program) => program.serialNumber == id);
+    } catch (e) {
+      return null;
+    }
+  }
 
-    double moistureFactor = (100 - 20) / 100;
+  String? getSequenceName(int programId, String sequenceId, List<ProgramList> scheduledPrograms) {
+    ProgramList? program = getProgramById(programId, scheduledPrograms);
+    if (program != null) {
+      return getSequenceNameById(program, sequenceId);
+    }
+    return null;
+  }
 
-    double time = int.parse(params.area) * cropFactor * soilFactor * weatherFactor * moistureFactor;
-    /*double moistureFactor = (100 - params.moistureLevel) / 100;
-
-    double time = params.area * cropFactor * soilFactor * weatherFactor * moistureFactor;*/
-
-    _irrigationCache[params] = time; // Store result
-    return time;
+  String? getSequenceNameById(ProgramList program, String sequenceId) {
+    try {
+      return program.sequence.firstWhere((seq) => seq.sNo == sequenceId).name;
+    } catch (e) {
+      return null;
+    }
   }
 
   String getContentByCode(int code) {

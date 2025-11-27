@@ -79,6 +79,7 @@ class ControllerSettingsViewModel extends ChangeNotifier {
               'Constant',
               'Valve Group',
               'Dealer Definition',
+              'Pump Condition',
             };
             filteredSettingList = allSettings.where((setting) {
               final title = setting['title'];

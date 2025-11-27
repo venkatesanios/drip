@@ -1,7 +1,12 @@
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/utils/snack_bar.dart';
 import 'package:provider/provider.dart';
 
+import '../app/app.dart';
+import '../providers/button_loading_provider.dart';
 import '../providers/user_provider.dart';
 import '../repository/repository.dart';
 import '../services/http_service.dart';
@@ -65,22 +70,59 @@ mixin ProgramRefreshMixin<T extends StatefulWidget> on State<T> {
   }
 }
 
+
 class MqttAckTracker {
-  static final Map<String, String> _pending = {};
+  static final Map<String, Timer> _timeoutTimers = {};
+  static final Map<String, String> _pendingButtons = {};
 
   static void registerPending(String buttonId, String payloadKey) {
-    _pending[buttonId] = payloadKey;
+    _pendingButtons[buttonId] = payloadKey;
+
+    _timeoutTimers[buttonId]?.cancel();
+
+    _timeoutTimers[buttonId] = Timer(const Duration(seconds: 10), () {
+      _onTimeout(buttonId);
+    });
+
+    debugPrint("Waiting ACK for button: $buttonId payloadKey: $payloadKey");
   }
 
-  static String? findButtonByPayload(String payloadKey) {
-    try {
-      return _pending.entries.firstWhere((entry) => entry.value == payloadKey).key;
-    } catch (_) {
-      return null;
+  static void ackReceived(String payloadKey) {
+    final String? buttonId = _pendingButtons.entries
+        .firstWhere(
+            (entry) => entry.value == payloadKey,
+        orElse: () => const MapEntry("", ""))
+        .key;
+
+    if (buttonId == null || buttonId.isEmpty) {
+      debugPrint("⚠ ACK arrived but no button matched payloadKey=$payloadKey");
+      return;
     }
+
+    debugPrint("ACK matched for button: $buttonId payloadKey: $payloadKey");
+
+    final context = navigatorKey.currentContext!;
+    final buttonProvider = Provider.of<ButtonLoadingProvider>(context, listen: false);
+
+    buttonProvider.setLoading(buttonId, false);
+
+    _timeoutTimers[buttonId]?.cancel();
+    _timeoutTimers.remove(buttonId);
+    _pendingButtons.remove(buttonId);
   }
 
-  static void remove(String buttonId) {
-    _pending.remove(buttonId);
+  static void _onTimeout(String buttonId) {
+    final context = navigatorKey.currentContext!;
+    final buttonProvider = Provider.of<ButtonLoadingProvider>(context, listen: false);
+
+    debugPrint("Timeout! No ACK for button: $buttonId");
+
+    buttonProvider.setLoading(buttonId, false);
+
+    GlobalSnackBar.show(context, "No response from device. Please try again.", 500);
+
+    _timeoutTimers[buttonId]?.cancel();
+    _timeoutTimers.remove(buttonId);
+    _pendingButtons.remove(buttonId);
   }
 }
