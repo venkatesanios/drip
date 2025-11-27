@@ -1207,12 +1207,14 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                                                     if(!AppConstants.ecoGemModelList.contains(widget.modelId) || programPvd.sequenceData[programPvd.selectedGroup]['method'] == 'Time')
                                                       ...[
                                                         'Time',
-                                                        'Pro.time',
+                                                        if(AppConstants.gemModelList.contains(widget.modelId))
+                                                          'Pro.time',
                                                       ],
                                                     if(!AppConstants.ecoGemModelList.contains(widget.modelId) || programPvd.sequenceData[programPvd.selectedGroup]['method'] != 'Time')
                                                       ...[
                                                         'Quantity',
-                                                        'Pro.quantity',
+                                                        if(AppConstants.gemModelList.contains(widget.modelId))
+                                                          'Pro.quantity',
                                                       ],
                                                     if(!AppConstants.ecoGemModelList.contains(widget.modelId))
                                                       'Pro.quant per 1000L'

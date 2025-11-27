@@ -351,7 +351,19 @@ class _SourceConfigurationState extends State<SourceConfiguration> {
                     onPressed: (){
                       setState(() {
                         if(mode == 1){
+                          double oldLevelSno = source.level;
                           source.level = widget.configPvd.selectedSno;
+                          if(widget.configPvd.selectedSno == 0.0){
+                            for(var pump in widget.configPvd.pump){
+                              if([...source.outletPump, ...source.inletPump].contains(pump.commonDetails.sNo)){
+                                if(pump.lowerLevel == oldLevelSno){
+                                  pump.lowerLevel = 0.0;
+                                }else if(pump.upperLevel == oldLevelSno){
+                                  pump.upperLevel = 0.0;
+                                }
+                              }
+                            }
+                          }
                         }else if(mode == 2){
                           source.topFloatForInletPump = widget.configPvd.selectedSno;
                         }else if(mode == 3){
