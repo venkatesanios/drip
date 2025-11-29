@@ -1,9 +1,7 @@
 import'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:oro_drip_irrigation/Constants/notifications_service.dart';
-
 import '../Screens/login_screenOTP/login_screenotp.dart';
 import '../flavors.dart';
 import '../utils/Theme/smart_comm_theme.dart';
@@ -13,8 +11,6 @@ import '../utils/shared_preferences_helper.dart';
 import '../views/common/login/login_screen.dart';
 import '../views/screen_controller.dart';
 import '../views/splash_screen.dart';
-import 'package:new_version_plus/new_version_plus.dart';
-
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -31,7 +27,6 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     if(!kIsWeb){
-
       NotificationServiceCall().initialize();
       NotificationServiceCall().configureFirebaseMessaging();
     }
@@ -52,11 +47,8 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
-
     debugPrint('Flavor is: ${F.appFlavor}');
     bool isDarkMode = false;
     SystemChrome.setPreferredOrientations([
@@ -81,15 +73,14 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-
 /// Helper function to navigate to the appropriate screen
 Widget navigateToInitialScreen(String route) {
   var isOro = F.appFlavor?.name.contains('oro') ?? false;
   switch (route) {
     case Routes.login:
-       return kIsWeb ? const LoginScreen() : LoginScreenOTP();
-     case Routes.dashboard:
-       return const ScreenController();
+      return kIsWeb ? const LoginScreen() : LoginScreenOTP();
+    case Routes.dashboard:
+      return const ScreenController();
     default:
       return const SplashScreen();
   }

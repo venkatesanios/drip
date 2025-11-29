@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:oro_drip_irrigation/modules/config_Maker/model/device_object_model.dart';
 import 'package:oro_drip_irrigation/modules/config_Maker/view/site_configure.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
 import '../../../Constants/communication_codes.dart';
@@ -334,7 +335,6 @@ class _SourceConfigurationState extends State<SourceConfiguration> {
                 setState(() {
                   widget.configPvd.selectedSno = currentSno[mode]!;
                 });
-                print("validateSensorFromOtherSource : $validateSensorFromOtherSource");
                 selectionDialogBox(
                     context: context,
                     title: 'Select ${currentObjectName[mode]}',
@@ -349,35 +349,79 @@ class _SourceConfigurationState extends State<SourceConfiguration> {
                       return true;
                     }).toList(),
                     onPressed: (){
-                      setState(() {
-                        if(mode == 1){
-                          double oldLevelSno = source.level;
-                          source.level = widget.configPvd.selectedSno;
-                          if(widget.configPvd.selectedSno == 0.0){
-                            for(var pump in widget.configPvd.pump){
-                              if([...source.outletPump, ...source.inletPump].contains(pump.commonDetails.sNo)){
-                                if(pump.lowerLevel == oldLevelSno){
-                                  pump.lowerLevel = 0.0;
-                                }else if(pump.upperLevel == oldLevelSno){
-                                  pump.upperLevel = 0.0;
-                                }
+                      bool sensorRemovedInAnyPump = false;
+                      double oldSensorSno = 0.0;
+                      late DeviceObjectModel deviceObjectModel;
+                      List<String> sensorsRemovedFromPump = [];
+
+                      if(mode == 1){
+                        oldSensorSno = source.level;
+                        source.level = widget.configPvd.selectedSno;
+                      }else if(mode == 2){
+                        oldSensorSno = source.topFloatForInletPump;
+                        source.topFloatForInletPump = widget.configPvd.selectedSno;
+                      }else if(mode == 3){
+                        oldSensorSno = source.bottomFloatForInletPump;
+                        source.bottomFloatForInletPump = widget.configPvd.selectedSno;
+                      }else if(mode == 4){
+                        oldSensorSno = source.topFloatForOutletPump;
+                        source.topFloatForOutletPump = widget.configPvd.selectedSno;
+                      }else if(mode == 5){
+                        oldSensorSno = source.bottomFloatForOutletPump;
+                        source.bottomFloatForOutletPump = widget.configPvd.selectedSno;
+                      }else{
+                        source.outletWaterMeter = widget.configPvd.selectedSno;
+                      }
+                      widget.configPvd.selectedSno = 0.0;
+                      setState(() {});
+                      Navigator.pop(context);
+                      // This is for show dialog to indicate user the remove sensor is also removed from pump configuration.
+                      if(widget.configPvd.selectedSno == 0.0){
+                        deviceObjectModel = widget.configPvd.listOfGeneratedObject.firstWhere((object) => object.sNo == oldSensorSno);
+                        for(var pump in widget.configPvd.pump){
+                          if([...source.outletPump, ...source.inletPump].contains(pump.commonDetails.sNo)){
+                            if(mode == 1){
+                              if(pump.lowerLevel == oldSensorSno){
+                                pump.lowerLevel = 0.0;
+                                sensorsRemovedFromPump.add(pump.commonDetails.name!);
+                                sensorRemovedInAnyPump = true;
+                              }else if(pump.upperLevel == oldSensorSno){
+                                pump.upperLevel = 0.0;
+                                sensorRemovedInAnyPump = true;
+                                sensorsRemovedFromPump.add(pump.commonDetails.name!);
+                              }
+                            }else if([2,3,4,5].contains(mode)){
+                              bool isFloatRemoved = false;
+                              if(pump.topTankFloat == oldSensorSno){
+                                pump.topTankFloat = 0.0;
+                                isFloatRemoved = true;
+                              }else if(pump.bottomTankFloat == oldSensorSno){
+                                pump.bottomTankFloat = 0.0;
+                                isFloatRemoved = true;
+                              }else if(pump.topSumpFloat == oldSensorSno){
+                                pump.topSumpFloat = 0.0;
+                                isFloatRemoved = true;
+                              }else if(pump.bottomSumpFloat == oldSensorSno){
+                                pump.bottomSumpFloat = 0.0;
+                                isFloatRemoved = true;
+                              }
+                              if(isFloatRemoved){
+                                print("");
+                                sensorsRemovedFromPump.add(pump.commonDetails.name!);
+                                sensorRemovedInAnyPump = true;
                               }
                             }
                           }
-                        }else if(mode == 2){
-                          source.topFloatForInletPump = widget.configPvd.selectedSno;
-                        }else if(mode == 3){
-                          source.bottomFloatForInletPump = widget.configPvd.selectedSno;
-                        }else if(mode == 4){
-                          source.topFloatForOutletPump = widget.configPvd.selectedSno;
-                        }else if(mode == 5){
-                          source.bottomFloatForOutletPump = widget.configPvd.selectedSno;
-                        }else{
-                          source.outletWaterMeter = widget.configPvd.selectedSno;
                         }
-                        widget.configPvd.selectedSno = 0.0;
-                      });
-                      Navigator.pop(context);
+                      }
+                      setState(() {});
+                      if(sensorRemovedInAnyPump){
+                        simpleDialogBox(
+                            context: context,
+                            title: 'Alert',
+                            message: 'The ${deviceObjectModel.name} is removed from ${sensorsRemovedFromPump.join(',')} in the pump configuration'
+                        );
+                      }
                     }
                 );
               },

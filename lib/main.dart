@@ -18,7 +18,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'Constants/notifi_service.dart';
-import 'Screens/Constant/ConstantPageProvider/changeNotifier_constantProvider.dart';
 import 'StateManagement/search_provider.dart';
 import 'app/app.dart';
 import 'StateManagement/customer_provider.dart';
@@ -136,7 +135,6 @@ FutureOr<void> main() async {
         ChangeNotifierProvider(create: (_) => OverAllUse()),
         ChangeNotifierProvider(create: (_) => PreferenceProvider()),
         ChangeNotifierProvider(create: (_) => SystemDefinitionProvider()),
-        ChangeNotifierProvider(create: (_) => ConstantProviderMani()),
         ChangeNotifierProvider(create: (_) => ConstantProvider()),
         ChangeNotifierProvider(create: (_) => PumpControllerProvider()),
         ChangeNotifierProvider(create: (_) => BleProvider()),

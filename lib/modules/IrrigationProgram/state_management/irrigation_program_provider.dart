@@ -2057,7 +2057,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       if(fertilizerData['quantityValue'] == '0'){
         sec = 0;
       }else{
-        sec = ((fertilizerData['quantityValue'] != '' ? double.parse(fertilizerData['quantityValue']) : 0)/fertilizerFlowRate).round();
+        sec = ((fertilizerData['quantityValue'] != '' ? double.parse(fertilizerData['quantityValue'] == '' ? '0' : fertilizerData['quantityValue']) : 0)/fertilizerFlowRate).round();
       }
     }
     return sec;

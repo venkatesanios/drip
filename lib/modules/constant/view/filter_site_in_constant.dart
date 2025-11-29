@@ -2,12 +2,6 @@ import 'dart:convert';
 
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
-import 'package:oro_drip_irrigation/Screens/Constant/main_valve_in_constant.dart';
-import 'package:oro_drip_irrigation/Screens/Constant/main_valve_in_constant.dart';
-import 'package:oro_drip_irrigation/Screens/Constant/main_valve_in_constant.dart';
-import 'package:oro_drip_irrigation/Screens/Constant/main_valve_in_constant.dart';
-import 'package:oro_drip_irrigation/Screens/Constant/main_valve_in_constant.dart';
-import 'package:oro_drip_irrigation/Screens/Constant/main_valve_in_constant.dart';
 import 'package:oro_drip_irrigation/modules/constant/model/object_in_constant_model.dart';
 
 import '../../../Constants/dialog_boxes.dart';

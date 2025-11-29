@@ -1204,19 +1204,13 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                                                   value: programPvd.sequenceData[programPvd.selectedGroup][programPvd.segmentedControlCentralLocal == 0 ? 'centralDosing' : 'localDosing'][0]['fertilizer'][index]['method'],
                                                   underline: Container(),
                                                   items: [
-                                                    if(!AppConstants.ecoGemModelList.contains(widget.modelId) || programPvd.sequenceData[programPvd.selectedGroup]['method'] == 'Time')
-                                                      ...[
-                                                        'Time',
-                                                        if(AppConstants.gemModelList.contains(widget.modelId))
-                                                          'Pro.time',
-                                                      ],
-                                                    if(!AppConstants.ecoGemModelList.contains(widget.modelId) || programPvd.sequenceData[programPvd.selectedGroup]['method'] != 'Time')
-                                                      ...[
-                                                        'Quantity',
-                                                        if(AppConstants.gemModelList.contains(widget.modelId))
-                                                          'Pro.quantity',
-                                                      ],
-                                                    if(!AppConstants.ecoGemModelList.contains(widget.modelId))
+                                                    'Time',
+                                                    if(AppConstants.gemModelList.contains(widget.modelId))
+                                                      'Pro.time',
+                                                    if(AppConstants.gemModelList.contains(widget.modelId))
+                                                      'Pro.quantity',
+                                                    'Quantity',
+                                                    if(AppConstants.gemModelList.contains(widget.modelId))
                                                       'Pro.quant per 1000L'
                                                   ].map((String items) {
                                                     return DropdownMenuItem(
