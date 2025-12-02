@@ -39,6 +39,7 @@ enum GemProgramStartStopReasonCode {
   rs31(31, 'Program Completed'),
   rs32(32, 'Waiting For Condition'),
   rs33(33, 'Started By Condition and run as per Schedule'),
+  rs34(34, 'Program running as per drip stand-alone mode'),
   unknown(0, 'Unknown content');
 
   final int code;

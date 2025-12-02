@@ -118,7 +118,7 @@ class ValveWidget extends StatelessWidget {
 
                               return CircleAvatar(
                                 radius: 15,
-                                backgroundColor: _getMoistureColor(sensorList),
+                                backgroundColor: MyFunction().getMoistureColor(sensorList),
                                 child: Image.asset(
                                   'assets/png/moisture_sensor.png',
                                   width: 25,
@@ -268,7 +268,6 @@ class ValveWidget extends StatelessWidget {
                   left: 33,
                   child: TextButton(
                     onPressed: () async {
-                      //final sensors = await fetchSensorData();
 
                       showPopover(
                         context: context,
@@ -309,7 +308,7 @@ class ValveWidget extends StatelessWidget {
 
                         return CircleAvatar(
                           radius: 15,
-                          backgroundColor: _getMoistureColor(sensorList),
+                          backgroundColor: MyFunction().getMoistureColor(sensorList),
                           child: Image.asset(
                             'assets/png/moisture_sensor.png',
                             width: 25,
@@ -326,72 +325,4 @@ class ValveWidget extends StatelessWidget {
       },
     );
   }
-
-  Color _getMoistureColor(List<Map<String, dynamic>> sensors) {
-    if (sensors.isEmpty) return Colors.grey;
-
-    final values = sensors
-        .map((ms) => double.tryParse(ms['value']?.toString() ?? '0') ?? 0.0)
-        .toList();
-
-    if (values.isEmpty) return Colors.grey;
-
-    final averageValue = values.reduce((a, b) => a + b) / values.length;
-
-    if (averageValue < 55) {
-      return Colors.green.shade200;
-    } else if (averageValue <= 120) {
-      return Colors.orange.shade200;
-    } else {
-      return Colors.red.shade200;
-    }
-  }
-
-  /*Future<List<SensorHourlyDataModel>> fetchSensorData() async {
-    List<SensorHourlyDataModel> sensors = [];
-
-    try {
-      DateTime selectedDate = DateTime.now();
-      String date = DateFormat('yyyy-MM-dd').format(selectedDate);
-
-      Map<String, Object> body = {
-        "userId": customerId,
-        "controllerId": controllerId,
-        "fromDate": date,
-        "toDate": date,
-      };
-
-      final response = await Repository(HttpService()).fetchSensorHourlyData(body);
-      if (response.statusCode == 200) {
-        final jsonData = jsonDecode(response.body);
-        if (jsonData["code"] == 200) {
-          sensors = (jsonData['data'] as List).map((item) {
-            final dateStr = item['date'];
-            final Map<String, List<SensorHourlyData>> hourlyDataMap = {};
-
-            item.forEach((key, value) {
-              if (key == 'date') return;
-              if (value is String && value.isNotEmpty) {
-                final entries = value.split(';');
-                hourlyDataMap[key] = entries.map((entry) {
-                  return SensorHourlyData.fromCsv(entry, key, dateStr);
-                }).toList();
-              } else {
-                hourlyDataMap[key] = [];
-              }
-            });
-
-            return SensorHourlyDataModel(
-              date: item['date'],
-              data: hourlyDataMap,
-            );
-          }).toList();
-        }
-      }
-    } catch (error) {
-      debugPrint('Error fetching sensor hourly data: $error');
-    }
-
-    return sensors;
-  }*/
 }

@@ -102,9 +102,13 @@ class MqttPayloadProvider with ChangeNotifier {
   List<String> currentSchedule = [];
   List<String> nextSchedule = [];
   List<String> scheduledProgramPayload = [];
-   List<String> conditionPayload = [];
+  List<String> conditionPayload = [];
   List<String> lineLiveMessage = [];
   List<String> alarmDL = [];
+
+   String? _programPreview;
+   String? _sequencePreview;
+
 
    final Map<String, String> _pumpOnOffStatusMap = {};
    final Map<String, String> _pumpOtherDetailMap = {};
@@ -118,9 +122,6 @@ class MqttPayloadProvider with ChangeNotifier {
    final Map<String, String> _sensorValueMap = {};
    final Map<String, String> _boosterPumpOnOffStatusMap = {};
    final Map<String, String> _agitatorOnOffStatusMap = {};
-
-   final Map<String, String> _programPreviewMap = {};
-
 
    //for blue repository
    CustomDevice? _connectedDevice;
@@ -685,6 +686,7 @@ class MqttPayloadProvider with ChangeNotifier {
             viewSettingsList.add(jsonEncode(data["cM"]));
           }
         }
+
         if(data['cM'] is! List<dynamic> && data['cM'] is! String) {
           if (data['mC'] != null && data['cM'].containsKey('4201')) {
             messageFromHw = data['cM']['4201'];
@@ -753,6 +755,16 @@ class MqttPayloadProvider with ChangeNotifier {
              Loara2verssion = "${parts[1]},$frequency,${parts[3]}";
            }
 
+        }
+
+        if (data["mC"] == "PRGVIEW") {
+          _programPreview = data["cM"];
+          notifyListeners();
+        }
+
+        if (data["mC"] == "SEQVIEW") {
+          _sequencePreview = data["cM"];
+          notifyListeners();
         }
 
       } catch (e, stackTrace) {
@@ -949,9 +961,11 @@ class MqttPayloadProvider with ChangeNotifier {
    String? getBoosterPumpOnOffStatus(String sNo) => _boosterPumpOnOffStatusMap[sNo];
    String? getAgitatorOnOffStatus(String sNo) => _agitatorOnOffStatusMap[sNo];
 
-   String? getProgramPreview(String sNo) => _programPreviewMap[sNo];
+   String? getProgramPreview() => _programPreview;
+   String? getSequencePreview() => _sequencePreview;
 
   String get receivedDashboardPayload => dashBoardPayload;
   String get receivedSchedulePayload => schedulePayload;
   MQTTConnectionState get getAppConnectionState => _appConnectionState;
+
 }

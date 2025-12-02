@@ -84,7 +84,7 @@ class _ScheduledProgramWideState extends State<ScheduledProgramWide> {
                       dataRowHeight: 45,
                       headingRowHeight: 40,
                       headingRowColor: WidgetStateProperty.all(Colors.yellow.shade50),
-                      columns: ProgramTableHelper.columns(ScheduledProgramWide.headerStyle,
+                      columns: ProgramTableHelper.columns(context, ScheduledProgramWide.headerStyle,
                           widget.prgOnOffPermission, isNova),
                       rows: ProgramTableHelper.rows(
                         programs: filteredScheduleProgram,

@@ -40,7 +40,7 @@ Widget appBarDropDownMenu(BuildContext context,
             Selector<CustomerScreenControllerViewModel, String>(
               selector: (_, vm) => vm.mqttProvider.liveDateAndTime,
               builder: (_, liveDateAndTime, __) => Text(
-                'Last sync @ - ${Formatters.formatDateTime(liveDateAndTime)}',
+                'Last sync - ${Formatters.formatDateTime(liveDateAndTime)}',
                 style: const TextStyle(fontSize: 14, color: Colors.white60),
               ),
             ),

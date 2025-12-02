@@ -481,7 +481,7 @@ class CustomerHomeNarrow extends StatelessWidget {
                     ),
                   ),
                   Expanded(
-                    child: Text( MyFunction().getContentByCode(int.parse(values[17])), style: const TextStyle(fontSize: 11, color: Colors.black54),),
+                    child: Text( MyFunction().getContentByCode(int.parse(values[15])), style: const TextStyle(fontSize: 11, color: Colors.black54),),
                   )
                 ],
               ),

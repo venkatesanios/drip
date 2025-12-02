@@ -126,7 +126,7 @@ class CurrentProgram extends StatelessWidget {
                             children: [
                               Text(getProgramNameById(int.parse(values[0]))),
                               Text(
-                                getContentByCode(int.parse(values[17])),
+                                getContentByCode(int.parse(values[15])),
                                 style: const TextStyle(fontSize: 10, color: Colors.black87),
                               ),
                             ],
@@ -145,8 +145,7 @@ class CurrentProgram extends StatelessWidget {
                             (values[3] == '00:00:00' || values[3] == '0') ? 'Timeless' : values[3]))),
                         //DataCell(Center(child: Text('${values[16]}-L/hr'))),
                         DataCell(Center(child: Text('${values[16]}/hr'))),
-                        DataCell(Center(child: Text(
-                          getProgramNameById(int.parse(values[0])) == 'StandAlone - Manual' &&
+                        DataCell(Center(child: Text(getProgramNameById(int.parse(values[0])) == 'StandAlone - Manual' &&
                               (values[3] == '00:00:00' || values[3] == '0')
                               ? '----'
                               : values[4],

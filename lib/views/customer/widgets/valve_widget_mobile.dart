@@ -149,8 +149,9 @@ class _ValveWidgetMobileState extends State<ValveWidgetMobile> {
         ),
         child: CircleAvatar(
           radius: 15,
-          backgroundColor: _getMoistureColor(valve.moistureSensors
+          backgroundColor: MyFunction().getMoistureColor(valve.moistureSensors
               .map((s) => {'name': s.name, 'value': s.value}).toList()),
+
           child: Image.asset('assets/png/moisture_sensor.png', width: 25, height: 25),
         ),
       ),
@@ -232,22 +233,5 @@ class _ValveWidgetMobileState extends State<ValveWidgetMobile> {
         },
       ),
     );
-  }
-
-
-  Color _getMoistureColor(List<Map<String, dynamic>> sensors) {
-    if (sensors.isEmpty) return Colors.grey;
-
-    final values = sensors.map((ms) => double.tryParse((ms['value'] ?? '0').toString()) ?? 0.0).toList();
-
-    final averageValue = values.reduce((a, b) => a + b) / values.length;
-
-    if (averageValue < 20) {
-      return Colors.green.shade200;
-    } else if (averageValue <= 60) {
-      return Colors.orange.shade200;
-    } else {
-      return Colors.red.shade200;
-    }
   }
 }

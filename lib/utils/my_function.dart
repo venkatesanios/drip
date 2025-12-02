@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:oro_drip_irrigation/view_models/create_account_view_model.dart';
 import 'package:provider/provider.dart';
@@ -183,6 +183,26 @@ class MyFunction {
         msg ='alarmType default';
     }
     return msg;
+  }
+
+  Color getMoistureColor(List<Map<String, dynamic>> sensors) {
+    if (sensors.isEmpty) return Colors.grey;
+
+    final values = sensors
+        .map((ms) => double.tryParse(ms['value']?.toString() ?? '0') ?? 0.0)
+        .toList();
+
+    if (values.isEmpty) return Colors.grey;
+
+    final averageValue = values.reduce((a, b) => a + b) / values.length;
+
+    if (averageValue < 55) {
+      return Colors.green.shade200;
+    } else if (averageValue <= 120) {
+      return Colors.orange.shade200;
+    } else {
+      return Colors.red.shade200;
+    }
   }
 
   //my spacial function--------------------------------------------------------------
