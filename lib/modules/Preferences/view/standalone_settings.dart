@@ -8,6 +8,7 @@ import 'package:oro_drip_irrigation/modules/Preferences/view/moisture_settings.d
 import 'package:oro_drip_irrigation/modules/Preferences/widgets/custom_segmented_control.dart';
 import 'package:oro_drip_irrigation/services/http_service.dart';
 import 'package:oro_drip_irrigation/services/mqtt_service.dart';
+import 'package:oro_drip_irrigation/utils/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_grid/responsive_grid.dart';
 import '../../../models/customer/site_model.dart';
@@ -200,7 +201,7 @@ class _StandAloneSettingsState extends State<StandAloneSettings> {
         return CustomNativeTimePicker(
           initialValue: setting.value!,
           is24HourMode: true,
-          onChanged: (value) => setState(() => setting.value = value), modelId: widget.masterData.modelId,
+          onChanged: (value) => setState(() => setting.value = value), modelId: AppConstants.ecoGemModelList.first,
         );
       case 2:
         return Switch(

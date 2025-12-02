@@ -861,7 +861,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                                   });
                                   // print(settingList[categoryIndex].changed);
                                 },
-                                is24HourMode: true, modelId: widget.masterData['modelId'],
+                                is24HourMode: true, modelId: 1,
                               ),
                             ),
                           ),
@@ -875,7 +875,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                                     rtcSetting.offTime = newTime;
                                   });
                                 },
-                                is24HourMode: true, modelId: widget.masterData['modelId'],
+                                is24HourMode: true, modelId: 1,
                               ),
                             ),
                           ),
@@ -1886,7 +1886,7 @@ Widget buildCustomListTileWidget({
         is24HourMode: true,
         onChanged: (newValue) {
           enabled ? onValueChange?.call(newValue) : null;
-        }, modelId: modelId,
+        }, modelId: 1,
       ) : Text(value, overflow: TextOverflow.ellipsis,
         textAlign: TextAlign.right,
         style: const TextStyle(fontSize: 14),

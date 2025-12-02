@@ -55,7 +55,6 @@ dependencies:
   flutter_dotenv: ^5.2.1
   path_provider: ^2.1.5
   url_launcher: ^6.3.1
-  package_info_plus: ^8.3.0
   dartssh2: ^2.11.0
   flutter_launcher_icons: ^0.14.3
   qr_code_scanner_plus: ^2.0.10+1
@@ -80,7 +79,6 @@ dependencies:
   firebase_auth: ^6.0.2
   otp_pin_field: ^1.4.1
   firebase_app_check: ^0.4.1
-  app_version_update: ^6.1.0
   new_version_plus: ^0.1.0
 #  audioplayers: ^6.5.0
 #  record: ^6.0.0

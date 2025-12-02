@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:new_version_plus/new_version_plus.dart';
@@ -102,7 +103,7 @@ class ScreenController extends StatelessWidget {
 
         /// 🔥 Call version check AFTER first frame
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          checkVersionDialog(context);
+          if(kIsWeb) checkVersionDialog(context);
         });
 
         final userRole = context.read<UserProvider>().loggedInUser.role;

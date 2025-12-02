@@ -237,7 +237,7 @@ class _HoursMinutesSecondsState extends State<HoursMinutesSeconds> {
                   ),
                 ),
               ),
-              if(AppConstants.gemModelList.contains(widget.modelId))
+              if(!AppConstants.ecoGemModelList.contains(widget.modelId))
                 ...[
                   const Text(':',style: TextStyle(fontSize: 20),),
                   InkWell(
