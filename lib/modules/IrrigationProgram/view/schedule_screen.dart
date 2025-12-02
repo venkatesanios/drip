@@ -381,7 +381,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
         isTimePicker: true,
         initialValue: dayCountSchedule["onTime"],
         onTimeChanged: (newValue) => irrigationProgramProvider.updateDayCountSchedule(property: "onTime", newValue: newValue),
-        icon: Icons.timer,
+        icon: Icons.timer, modelId: widget.modelId,
       );
     }
 
@@ -392,7 +392,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
         isTimePicker: true,
         initialValue: dayCountSchedule["interval"],
         onTimeChanged: (newValue) => irrigationProgramProvider.updateDayCountSchedule(property: "interval", newValue: newValue),
-        icon: Icons.timer,
+        icon: Icons.timer, modelId: widget.modelId,
       );
     }
 
@@ -403,7 +403,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
         isCheckBox: true,
         checkBoxValue: dayCountSchedule["shouldLimitCycles"],
         onCheckBoxChanged: (newValue) => irrigationProgramProvider.updateDayCountSchedule(property: "shouldLimitCycles", newValue: newValue),
-        icon: Icons.event_repeat,
+        icon: Icons.event_repeat, modelId: widget.modelId,
       );
     }
 
@@ -414,7 +414,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
         isTextForm: true,
         initialValue: dayCountSchedule["noOfCycles"],
         onChanged: (newValue) => irrigationProgramProvider.updateDayCountSchedule(property: "noOfCycles", newValue: newValue),
-        icon: Icons.repeat,
+        icon: Icons.repeat, modelId: widget.modelId,
       );
     }
     return MediaQuery.of(context).size.width > 1200
@@ -543,7 +543,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                 title: "Start date",
                 icon: Icons.calendar_month,
                 dateType: DateTime.parse(irrigationProgramProvider.startDate(serialNumber: widget.serialNumber)),
-                onDateChanged: (newDate) => irrigationProgramProvider.updateDate(newDate, "startDate"),
+                onDateChanged: (newDate) => irrigationProgramProvider.updateDate(newDate, "startDate"), modelId: widget.modelId,
               ),
             ),
             const SizedBox(width: 15,),
@@ -628,7 +628,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                     title: "Run days",
                     icon: Icons.water_drop,
                     daysType: runDays,
-                    onChanged: (newValue) => irrigationProgramProvider.updateNumberOfDays(newValue, 'runDays', irrigationProgramProvider.sampleScheduleModel!.scheduleByDays),
+                    onChanged: (newValue) => irrigationProgramProvider.updateNumberOfDays(newValue, 'runDays', irrigationProgramProvider.sampleScheduleModel!.scheduleByDays), modelId: widget.modelId,
                   ),
                 )
             ),
@@ -644,7 +644,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                       isDatePicker: true,
                       dateType: endDate,
                       firstDate: firstDate,
-                      onDateChanged: (newDate) => irrigationProgramProvider.updateDate(newDate, "endDate"),
+                      onDateChanged: (newDate) => irrigationProgramProvider.updateDate(newDate, "endDate"), modelId: widget.modelId,
                     )
                 )
                     : CustomAnimatedSwitcher(
@@ -655,7 +655,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                     icon: Icons.skip_next,
                     isTextForm: true,
                     daysType: skipDays,
-                    onChanged: (newValue) => irrigationProgramProvider.updateNumberOfDays(newValue, 'skipDays', irrigationProgramProvider.sampleScheduleModel!.scheduleByDays),
+                    onChanged: (newValue) => irrigationProgramProvider.updateNumberOfDays(newValue, 'skipDays', irrigationProgramProvider.sampleScheduleModel!.scheduleByDays), modelId: widget.modelId,
                   ),
                 )
             ),
@@ -671,7 +671,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                         isDatePicker: true,
                         dateType: endDate,
                         firstDate: firstDate,
-                        onDateChanged: (newDate) => irrigationProgramProvider.updateDate(newDate, "endDate"),
+                        onDateChanged: (newDate) => irrigationProgramProvider.updateDate(newDate, "endDate"), modelId: widget.modelId,
                       )
                   )
               )
@@ -1148,7 +1148,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                     child: CustomNativeTimePicker(
                       initialValue: data['onTime'],
                       is24HourMode: false,
-                      onChanged: (newTime) => irrigationProgramProvider.updateRtcProperty(newTime, index, 'onTime', rtcType),
+                      onChanged: (newTime) => irrigationProgramProvider.updateRtcProperty(newTime, index, 'onTime', rtcType), modelId: widget.modelId,
                     ),
                     isFixedSize: true,
                     widthRatio: !allowStopMethodCondition ? (defaultMaxTime || defaultOffTime) ? constraints.maxWidth * 0.155 : constraints.maxWidth * 0.175 : constraints.maxWidth * 0.08
@@ -1159,7 +1159,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   child: CustomNativeTimePicker(
                     initialValue: data['interval'],
                     is24HourMode: true,
-                    onChanged: (newTime) => irrigationProgramProvider.updateRtcProperty(newTime, index, 'interval', rtcType),
+                    onChanged: (newTime) => irrigationProgramProvider.updateRtcProperty(newTime, index, 'interval', rtcType), modelId: widget.modelId,
                   ),
                   isFixedSize: true,
                 ),
@@ -1196,7 +1196,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                     CustomNativeTimePicker(
                       initialValue: data['offTime'],
                       is24HourMode: false,
-                      onChanged: (newTime) => irrigationProgramProvider.updateRtcProperty(newTime, index, 'offTime', rtcType),
+                      onChanged: (newTime) => irrigationProgramProvider.updateRtcProperty(newTime, index, 'offTime', rtcType), modelId: widget.modelId,
                     ) :
                     const Text('N/A'),
                     isFixedSize: true,
@@ -1209,7 +1209,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                     CustomNativeTimePicker(
                       initialValue: data['maxTime'],
                       is24HourMode: false,
-                      onChanged: (newTime) => irrigationProgramProvider.updateRtcProperty(newTime, index, 'maxTime', rtcType),
+                      onChanged: (newTime) => irrigationProgramProvider.updateRtcProperty(newTime, index, 'maxTime', rtcType), modelId: widget.modelId,
                     ) :
                     const Text('N/A'),
                     isFixedSize: true,
@@ -1406,7 +1406,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                               //DateTime.parse(irrigationProgramProvider.startDate.toString()).isAtSameMomentAs(DateTime.now()) ? DateTime.parse(rtcType.rtc.values.toList()[index]['onTime'].toString()).isBefore(DateTime.now()) ? DateTime.now() : rtcType.rtc.values.toList()[index]['onTime'] : rtcType.rtc.values.toList()[index]['onTime']
                               initialValue: rtcType.rtc.values.toList()[index]['onTime'],
                               is24HourMode: true,
-                              onChanged: (newTime) => irrigationProgramProvider.updateRtcProperty(newTime, index, 'onTime', rtcType),
+                              onChanged: (newTime) => irrigationProgramProvider.updateRtcProperty(newTime, index, 'onTime', rtcType), modelId: widget.modelId,
                             )
                         )
                     ),
@@ -1421,7 +1421,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                             child: CustomNativeTimePicker(
                               initialValue: rtcType.rtc.values.toList()[index]['interval'],
                               is24HourMode: true,
-                              onChanged: (newTime) => irrigationProgramProvider.updateRtcProperty(newTime, index, 'interval', rtcType),
+                              onChanged: (newTime) => irrigationProgramProvider.updateRtcProperty(newTime, index, 'interval', rtcType), modelId: widget.modelId,
                             )
                         )
                     ),
@@ -1473,7 +1473,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                               child: CustomNativeTimePicker(
                                 initialValue: rtcType.rtc.values.toList()[index]['offTime'],
                                 is24HourMode: true,
-                                onChanged: (newTime) => irrigationProgramProvider.updateRtcProperty(newTime, index, 'offTime', rtcType),
+                                onChanged: (newTime) => irrigationProgramProvider.updateRtcProperty(newTime, index, 'offTime', rtcType), modelId: widget.modelId,
                               )
                           )
                       ),
@@ -1486,7 +1486,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                               child: CustomNativeTimePicker(
                                 initialValue: rtcType.rtc.values.toList()[index]['maxTime'],
                                 is24HourMode: true,
-                                onChanged: (newTime) => irrigationProgramProvider.updateRtcProperty(newTime, index, 'maxTime', rtcType),
+                                onChanged: (newTime) => irrigationProgramProvider.updateRtcProperty(newTime, index, 'maxTime', rtcType), modelId: widget.modelId,
                               )
                           )
                       ),
@@ -1623,6 +1623,7 @@ Widget buildPopUpMenuButton({required BuildContext context, selected,
 }
 
 Widget buildCustomListTile({
+  required int modelId,
   required BuildContext context,
   required String title,
   daysType,
@@ -1673,7 +1674,7 @@ Widget buildCustomListTile({
             initialValue: initialValue,
             is24HourMode: false,
             // style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: Theme.of(context).textTheme.bodyLarge!.fontSize),
-            onChanged: onTimeChanged ?? (newValue) {}
+            onChanged: onTimeChanged ?? (newValue) {}, modelId: modelId,
         )
             : isDatePicker ?
         DatePickerField(

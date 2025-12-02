@@ -160,7 +160,7 @@ class _AdditionalDataScreenState extends State<AdditionalDataScreen> {
                                   style: TextStyle(color: Theme.of(context).primaryColor, fontWeight: FontWeight.bold, fontSize: Theme.of(context).textTheme.bodyLarge!.fontSize),
                                   onChanged: (newTime){
                                     doneProvider.updateProgramName(newTime, 'delayBetweenZones');
-                                  },
+                                  }, modelId: widget.modelId,
                                 ),
                                 IntrinsicWidth(
                                   child: Row(
@@ -260,7 +260,7 @@ class _AdditionalDataScreenState extends State<AdditionalDataScreen> {
                                   style: TextStyle(color: Theme.of(context).primaryColor, fontWeight: FontWeight.bold, fontSize: Theme.of(context).textTheme.bodyLarge!.fontSize),
                                   onChanged: (newTime){
                                     doneProvider.updateProgramName(newTime, 'delayBetweenZones');
-                                  },
+                                  }, modelId: widget.modelId,
                                 ),
                                 IntrinsicWidth(
                                   child: Row(

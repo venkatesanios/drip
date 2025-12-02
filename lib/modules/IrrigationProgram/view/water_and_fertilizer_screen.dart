@@ -7,6 +7,7 @@ import 'package:oro_drip_irrigation/Constants/properties.dart';
 import 'package:oro_drip_irrigation/app.dart';
 import 'package:oro_drip_irrigation/utils/constants.dart';
 import 'package:provider/provider.dart';
+import '../../../Constants/constants.dart';
 import '../state_management/irrigation_program_provider.dart';
 import '../../../StateManagement/overall_use.dart';
 import '../../../Widgets/HoursMinutesSeconds.dart';
@@ -297,7 +298,6 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                           ],
                         ),
                       ),
-
                     ],
                   )
               ),
@@ -533,7 +533,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                                                 width: 80,
                                                 height: 40,
                                                 child: Center(
-                                                  child: Text('${programPvd.sequenceData[programPvd.selectedGroup]['timeValue']}',style: const TextStyle(color: Colors.black,fontSize: 14),),
+                                                  child: Text(Constants.showHourAndMinuteOnly('${programPvd.sequenceData[programPvd.selectedGroup]['timeValue']}', widget.modelId),style: const TextStyle(color: Colors.black,fontSize: 14),),
                                                 ),
                                               ),
                                             ),
@@ -651,7 +651,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                                                 width: 80,
                                                 height: 40,
                                                 child: Center(
-                                                  child: Text('${programPvd.sequenceData[programPvd.selectedGroup]['preValue']}',style: const TextStyle(color: Colors.black,fontSize: 16),),
+                                                  child: Text(Constants.showHourAndMinuteOnly('${programPvd.sequenceData[programPvd.selectedGroup]['preValue']}', widget.modelId),style: const TextStyle(color: Colors.black,fontSize: 16),),
                                                 ),
                                               ),
                                             ),
@@ -742,7 +742,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                                                 width: 80,
                                                 height: 40,
                                                 child: Center(
-                                                  child: Text('${programPvd.sequenceData[programPvd.selectedGroup]['postValue']}',style: const TextStyle(color: Colors.black,fontSize: 16),),
+                                                  child: Text(Constants.showHourAndMinuteOnly('${programPvd.sequenceData[programPvd.selectedGroup]['postValue']}', widget.modelId),style: const TextStyle(color: Colors.black,fontSize: 16),),
                                                 ),
                                               ),
                                             ),
@@ -1298,7 +1298,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                                                       width: 80,
                                                       height: 40,
                                                       child: Center(
-                                                        child: Text('${programPvd.sequenceData[programPvd.selectedGroup][programPvd.segmentedControlCentralLocal == 0 ? 'centralDosing' : 'localDosing'][0]['fertilizer'][index]['timeValue']}',style: const TextStyle(fontSize: 12),),
+                                                        child: Text(Constants.showHourAndMinuteOnly('${programPvd.sequenceData[programPvd.selectedGroup][programPvd.segmentedControlCentralLocal == 0 ? 'centralDosing' : 'localDosing'][0]['fertilizer'][index]['timeValue']}', widget.modelId),style: const TextStyle(fontSize: 12),),
                                                       ),
                                                     ),
                                                   ),
@@ -1376,7 +1376,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
           validation: 'water',
           fertilizerTime: {
             'list' : fertilizerList
-          },
+          }, modelId: widget.modelId,
         );
       }
       else if(validation == 'pre'){
@@ -1388,7 +1388,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
           validation: 'pre',
           fertilizerTime: {
             'list' : fertilizerList
-          },
+          }, modelId: widget.modelId,
         );
       }
       else if(validation == 'post'){
@@ -1401,7 +1401,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
           validation: 'post',
           fertilizerTime: {
             'list' : fertilizerList
-          },
+          }, modelId: widget.modelId,
         );
       }
       else if(validation == 'fertilizer'){
@@ -1414,7 +1414,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
           validation: 'fertilizer-$fertIndex',
           fertilizerTime: {
             'list' : fertilizerList
-          },
+          }, modelId: widget.modelId,
         );
       }
       else{
@@ -1523,7 +1523,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                         width: 80,
                         height: 40,
                         child: Center(
-                          child: Text('${programPvd.sequenceData[programPvd.selectedGroup]['timeValue']}',style: const TextStyle(color: Colors.black,fontSize: 14),),
+                          child: Text(Constants.showHourAndMinuteOnly('${programPvd.sequenceData[programPvd.selectedGroup]['timeValue']}', widget.modelId),style: const TextStyle(color: Colors.black,fontSize: 14),),
                         ),
                       ),
                     ),
@@ -1733,7 +1733,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                       width: 80,
                       height: 40,
                       child: Center(
-                        child: Text('${programPvd.sequenceData[programPvd.selectedGroup]['preValue']}',style: const TextStyle(color: Colors.black,fontSize: 16),),
+                        child: Text(Constants.showHourAndMinuteOnly('${programPvd.sequenceData[programPvd.selectedGroup]['preValue']}', widget.modelId),style: const TextStyle(color: Colors.black,fontSize: 16),),
                       ),
                     ),
                   ),
@@ -1826,7 +1826,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                       width: 80,
                       height: 40,
                       child: Center(
-                        child: Text('${programPvd.sequenceData[programPvd.selectedGroup]['postValue']}',style: const TextStyle(color: Colors.black,fontSize: 16),),
+                        child: Text(Constants.showHourAndMinuteOnly('${programPvd.sequenceData[programPvd.selectedGroup]['postValue']}', widget.modelId),style: const TextStyle(color: Colors.black,fontSize: 16),),
                       ),
                     ),
                   ),

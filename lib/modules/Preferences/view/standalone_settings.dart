@@ -200,7 +200,7 @@ class _StandAloneSettingsState extends State<StandAloneSettings> {
         return CustomNativeTimePicker(
           initialValue: setting.value!,
           is24HourMode: true,
-          onChanged: (value) => setState(() => setting.value = value),
+          onChanged: (value) => setState(() => setting.value = value), modelId: widget.masterData.modelId,
         );
       case 2:
         return Switch(

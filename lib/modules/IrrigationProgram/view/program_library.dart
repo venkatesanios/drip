@@ -9,6 +9,7 @@ import 'package:oro_drip_irrigation/Constants/properties.dart';
 import 'package:oro_drip_irrigation/services/mqtt_service.dart';
 
 import 'package:provider/provider.dart';
+import '../../../Constants/constants.dart';
 import '../../../Widgets/HoursMinutesSeconds.dart';
 import '../../../services/http_service.dart';
 import '../../../utils/constants.dart';
@@ -310,7 +311,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                       const SizedBox(height: 16),
                       ListTile(
                         title: const Text('RTC Time'),
-                        trailing: Text(dayCountRtcModel.dayCountRtcTime),
+                        trailing: Text(Constants.showHourAndMinuteOnly(dayCountRtcModel.dayCountRtcTime, widget.modelId)),
                         leading: Icon(Icons.access_time, color: theme.primaryColor),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -330,7 +331,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                                       '${overAllPvd.hrs.toString().padLeft(2, '0')}:${overAllPvd.min.toString().padLeft(2, '0')}:${overAllPvd.sec.toString().padLeft(2, '0')}';
                                     });
                                     Navigator.pop(context);
-                                  },
+                                  }, modelId: widget.modelId,
                                 ),
                               );
                             },
@@ -436,7 +437,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                                 if(programQueueModel.autoQueueRestart)
                                   ListTile(
                                     title: Text('Delay ${index + 1}→${index == 5 ? 1 : index + 2}'),
-                                    trailing: Text(programQueueModel.queueOrderRestartTimes[index]),
+                                    trailing: Text(Constants.showHourAndMinuteOnly(programQueueModel.queueOrderRestartTimes[index], widget.modelId)),
                                     leading: Icon(Icons.timer, color: theme.primaryColor),
                                     onTap: () async {
                                       showDialog(
@@ -452,7 +453,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                                                   '${overAllPvd.hrs.toString().padLeft(2, '0')}:${overAllPvd.min.toString().padLeft(2, '0')}:${overAllPvd.sec.toString().padLeft(2, '0')}';
                                                 });
                                                 Navigator.pop(context);
-                                              },
+                                              }, modelId: widget.modelId,
                                             ),
                                           );
                                         },

@@ -8,6 +8,7 @@ import 'package:oro_drip_irrigation/modules/fertilizer_set/model/fertilizer_site
 import 'package:oro_drip_irrigation/modules/fertilizer_set/repository/fertilizer_set_repository.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
+import '../../../Constants/constants.dart';
 import '../../../Constants/properties.dart';
 import '../../../StateManagement/overall_use.dart';
 import '../../../Widgets/HoursMinutesSeconds.dart';
@@ -217,7 +218,7 @@ class _FertilizerSetScreenState extends State<FertilizerSetScreen> {
                                                               }) ;
                                                               },
                                                             child: Center(
-                                                              child: Text(channel.timeValue),
+                                                              child: Text(Constants.showHourAndMinuteOnly(channel.timeValue, widget.userData['modelId'])),
                                                             ),
                                                           )
                                                               : getTextField(
@@ -380,6 +381,7 @@ class _FertilizerSetScreenState extends State<FertilizerSetScreen> {
             content: HoursMinutesSeconds(
               initialTime: time,
               onPressed: onPressed,
+              modelId: widget.userData['modelId'],
             ),
           );
         });

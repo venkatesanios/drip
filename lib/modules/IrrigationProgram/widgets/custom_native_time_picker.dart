@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../Constants/constants.dart';
 import '../../../StateManagement/overall_use.dart';
 import '../../../Widgets/HoursMinutesSeconds.dart';
 
 class CustomNativeTimePicker extends StatelessWidget {
   final String initialValue;
+  final int modelId;
   final bool is24HourMode;
   final Function(String) onChanged;
   final TextStyle? style;
@@ -16,7 +18,7 @@ class CustomNativeTimePicker extends StatelessWidget {
     required this.is24HourMode,
     required this.onChanged,
     this.style,
-    this.isNewTimePicker = false
+    this.isNewTimePicker = false, required this.modelId
   });
 
   @override
@@ -24,7 +26,7 @@ class CustomNativeTimePicker extends StatelessWidget {
     final overAllPvd = Provider.of<OverAllUse>(context);
     return InkWell(
       child: Text(
-        initialValue,
+        Constants.showHourAndMinuteOnly(initialValue, modelId),
         style: style ?? Theme.of(context).textTheme.bodyMedium,
       ),
       onTap: () async {
@@ -37,7 +39,7 @@ class CustomNativeTimePicker extends StatelessWidget {
                   onPressed: () {
                     onChanged('${overAllPvd.hrs.toString().padLeft(2, '0')}:${overAllPvd.min.toString().padLeft(2, '0')}:${overAllPvd.sec.toString().padLeft(2, '0')}');
                     Navigator.pop(context);
-                  },
+                  }, modelId: modelId,
                 ),
               );
             });

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/Constants/properties.dart';
+import 'package:oro_drip_irrigation/utils/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 import '../modules/IrrigationProgram/state_management/irrigation_program_provider.dart';
@@ -8,6 +9,7 @@ import '../StateManagement/overall_use.dart';
 
 class HoursMinutesSeconds extends StatefulWidget {
   final String initialTime;
+  final int modelId;
   String? validation;
   String? waterTime;
   String? preTime;
@@ -16,7 +18,7 @@ class HoursMinutesSeconds extends StatefulWidget {
   Map<String,dynamic>? fertilizerTime;
   void Function()? onPressed;
   HoursMinutesSeconds({
-    super.key, required this.initialTime,this.validation,this.waterTime,this.preTime,this.postTime,this.onPressed,this.fertilizerTime,this.index
+    super.key, required this.initialTime,this.validation,this.waterTime,this.preTime,this.postTime,this.onPressed,this.fertilizerTime,this.index, required this.modelId
   });
   @override
   State<HoursMinutesSeconds> createState() => _HoursMinutesSecondsState();
@@ -235,25 +237,29 @@ class _HoursMinutesSecondsState extends State<HoursMinutesSeconds> {
                   ),
                 ),
               ),
-              const Text(':',style: TextStyle(fontSize: 20),),
-              InkWell(
-                onTap: (){
-                  setState(() {
-                    selected = 2;
-                  });
-                },
-                child: Container(
-                  width: 70,
-                  height: 60,
-                  decoration: BoxDecoration(
-                      color: selected == 2 ?  Theme.of(context).primaryColor : Theme.of(context).primaryColor.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(10)
+              if(AppConstants.gemModelList.contains(widget.modelId))
+                ...[
+                  const Text(':',style: TextStyle(fontSize: 20),),
+                  InkWell(
+                    onTap: (){
+                      setState(() {
+                        selected = 2;
+                      });
+                    },
+                    child: Container(
+                      width: 70,
+                      height: 60,
+                      decoration: BoxDecoration(
+                          color: selected == 2 ?  Theme.of(context).primaryColor : Theme.of(context).primaryColor.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(10)
+                      ),
+                      child: Center(
+                        child: Text('${overAllPvd.sec} Sec',style: TextStyle(fontSize: 18,color: selected == 2 ? Colors.white : Colors.black)),
+                      ),
+                    ),
                   ),
-                  child: Center(
-                    child: Text('${overAllPvd.sec} Sec',style: TextStyle(fontSize: 18,color: selected == 2 ? Colors.white : Colors.black)),
-                  ),
-                ),
-              ),
+                ]
+
 
             ],
           ),

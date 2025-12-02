@@ -6,6 +6,7 @@ import 'package:oro_drip_irrigation/services/mqtt_service.dart';
 import 'package:oro_drip_irrigation/utils/environment.dart';
 import 'package:provider/provider.dart';
 
+import '../../Constants/constants.dart';
 import '../../models/back_wash_model.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../StateManagement/overall_use.dart';
@@ -20,10 +21,11 @@ class FilterBackwashUI extends StatefulWidget {
   final int userId;
   final int controllerId;
   final int customerId;
+  final int modelId;
   final String deviceId;
   final bool fromDealer;
   const FilterBackwashUI(
-      {super.key, required this.userId, required this.controllerId, required this.customerId, required this.deviceId, required this.fromDealer,});
+      {super.key, required this.userId, required this.controllerId, required this.customerId, required this.deviceId, required this.fromDealer, required this.modelId,});
 
   @override
   State<FilterBackwashUI> createState() => _FilterBackwashUIState();
@@ -237,10 +239,12 @@ class _FilterBackwashUIState extends State<FilterBackwashUI>
                                 child: Center(
                                   child: InkWell(
                                     child: Text(
-                                      '${Listofvalue[0].value![j]['value']}' !=
-                                          ''
-                                          ? '${Listofvalue[0].value![j]['value']}'
-                                          : '00:00:00',
+                                      Constants.showHourAndMinuteOnly(
+                                          '${Listofvalue[0].value![j]['value']}' !=
+                                              ''
+                                              ? '${Listofvalue[0].value![j]['value']}'
+                                              : '00:00:00', widget.modelId
+                                      ),
                                       style: const TextStyle(fontSize: 16),
                                     ),
                                     onTap: () async {
@@ -261,7 +265,7 @@ class _FilterBackwashUIState extends State<FilterBackwashUI>
                                                   '${overAllPvd.hrs.toString().padLeft(2, '0')}:${overAllPvd.min.toString().padLeft(2, '0')}:${overAllPvd.sec.toString().padLeft(2, '0')}';
                                                 });
                                                 Navigator.pop(context);
-                                              },
+                                              }, modelId: widget.modelId,
                                             ),
                                           );
                                         },
@@ -545,7 +549,7 @@ class _FilterBackwashUIState extends State<FilterBackwashUI>
                                       '${overAllPvd.hrs.toString().padLeft(2, '0')}:${overAllPvd.min.toString().padLeft(2, '0')}:${overAllPvd.sec.toString().padLeft(2, '0')}';
                                     });
                                     Navigator.pop(context);
-                                  },
+                                  }, modelId: widget.modelId,
                                 ),
                               );
                             });
@@ -859,10 +863,10 @@ class _FilterBackwashUIState extends State<FilterBackwashUI>
                               child: Container(
                                   child: Center(
                                     child: InkWell(
-                                      child: Text(
-                                        '${listOfValue?[index].value}' != ''
+                                      child: Text(Constants.showHourAndMinuteOnly(
+                                          '${listOfValue?[index].value}' != ''
                                             ? '${listOfValue?[index].value}'
-                                            : '00:00:00',
+                                            : '00:00:00', widget.modelId),
                                         style: const TextStyle(fontSize: 16),
                                       ),
                                       onTap: () async {
@@ -885,7 +889,7 @@ class _FilterBackwashUIState extends State<FilterBackwashUI>
                                                       '${overAllPvd.hrs.toString().padLeft(2, '0')}:${overAllPvd.min.toString().padLeft(2, '0')}:${overAllPvd.sec.toString().padLeft(2, '0')}';
                                                     });
                                                     Navigator.pop(context);
-                                                  },
+                                                  }, modelId: widget.modelId,
                                                 ),
                                               );
                                             });
@@ -931,11 +935,11 @@ class _FilterBackwashUIState extends State<FilterBackwashUI>
                                           child: Container(
                                               child: Center(
                                                 child: InkWell(
-                                                  child: Text(
-                                                    '${listOfValue?[index].value![flusingindex]['value']}' !=
+                                                  child: Text(Constants.showHourAndMinuteOnly
+                                                    ('${listOfValue?[index].value![flusingindex]['value']}' !=
                                                         ''
                                                         ? '${listOfValue?[index].value![flusingindex]['value']}'
-                                                        : '00:00:00',
+                                                        : '00:00:00', widget.modelId),
                                                     style: const TextStyle(
                                                         fontSize: 16),
                                                   ),
@@ -966,7 +970,7 @@ class _FilterBackwashUIState extends State<FilterBackwashUI>
                                                                 });
                                                                 Navigator.pop(
                                                                     context);
-                                                              },
+                                                              }, modelId: widget.modelId,
                                                             ),
                                                           );
                                                         });

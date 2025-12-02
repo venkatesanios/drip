@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/modules/constant/widget/custom_check_box.dart';
 import 'package:oro_drip_irrigation/modules/constant/widget/custom_pop_up_button.dart';
+import 'package:provider/provider.dart';
 
+import '../../../Constants/constants.dart';
 import '../../../Widgets/HoursMinutesSeconds.dart';
 import '../model/constant_setting_model.dart';
 import '../model/constant_setting_type_Model.dart';
+import '../state_management/constant_provider.dart';
 import 'custom_switch.dart';
 import 'custom_text_form_field.dart';
 
@@ -21,6 +24,7 @@ class FindSuitableWidget extends StatefulWidget {
 class _FindSuitableWidgetState extends State<FindSuitableWidget> {
   @override
   Widget build(BuildContext context) {
+    var constantPvd = Provider.of<ConstantProvider>(context, listen: false);
     print("widget.constantSettingModel.widgetTypeId ${widget.constantSettingModel.widgetTypeId}");
     if(widget.constantSettingModel.widgetTypeId == 1){
       return CustomTextFormField(
@@ -47,13 +51,14 @@ class _FindSuitableWidgetState extends State<FindSuitableWidget> {
                     HoursMinutesSeconds(
                       initialTime: widget.constantSettingModel.value.value,
                       onPressed: widget.onOk,
+                      modelId: constantPvd.userData['modelId'],
                     ),
                   );
                 });
           },
           child: Padding(
             padding: const EdgeInsets.all(5),
-            child: Text(widget.constantSettingModel.value.value),
+            child: Text(Constants.showHourAndMinuteOnly(widget.constantSettingModel.value.value, constantPvd.userData['modelId'])),
           ),
         ),
       );

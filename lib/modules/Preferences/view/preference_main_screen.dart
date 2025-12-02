@@ -773,7 +773,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                                           || (!isNova && settingList[categoryIndex].type == 210 && [7,8].contains(settingList[categoryIndex].setting[settingIndex].serialNumber)))
                                           ? true
                                           : settingList[categoryIndex].setting[settingIndex].hidden,
-                                      enabled: true,
+                                      enabled: true, modelId: widget.masterData['modelId'],
                                     )
                               ],
                             ),
@@ -861,7 +861,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                                   });
                                   // print(settingList[categoryIndex].changed);
                                 },
-                                is24HourMode: true,
+                                is24HourMode: true, modelId: widget.masterData['modelId'],
                               ),
                             ),
                           ),
@@ -875,7 +875,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                                     rtcSetting.offTime = newTime;
                                   });
                                 },
-                                is24HourMode: true,
+                                is24HourMode: true, modelId: widget.masterData['modelId'],
                               ),
                             ),
                           ),
@@ -1824,6 +1824,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
 }
 
 Widget buildCustomListTileWidget({
+  required int modelId,
   required BuildContext context,
   required String title,
   String? subTitle,
@@ -1885,7 +1886,7 @@ Widget buildCustomListTileWidget({
         is24HourMode: true,
         onChanged: (newValue) {
           enabled ? onValueChange?.call(newValue) : null;
-        },
+        }, modelId: modelId,
       ) : Text(value, overflow: TextOverflow.ellipsis,
         textAlign: TextAlign.right,
         style: const TextStyle(fontSize: 14),

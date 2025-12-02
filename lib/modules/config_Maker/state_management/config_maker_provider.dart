@@ -1052,23 +1052,26 @@ class ConfigMakerProvider extends ChangeNotifier{
     List<String> pumpPayload = [];
 
     for (var i = 0; i < pump.length; i++) {
+      bool pumpIsConnected = listOfGeneratedObject.any((object) => object.sNo == pump[i].commonDetails.sNo && object.connectionNo != null);
       var pumpModelObject = pump[i];
       var relatedSources = source.where((e) => e.inletPump.contains(pumpModelObject.commonDetails.sNo) || e.outletPump.contains(pumpModelObject.commonDetails.sNo)).toList();
-      Map<String, dynamic> payload = {
-        "S_No": pumpModelObject.commonDetails.sNo,
-        "PumpCategory": pumpModelObject.pumpType,
-        "PressureIn" : serialNoOrEmpty(pumpModelObject.pressureIn),
-        "PressureOut" : serialNoOrEmpty(pumpModelObject.pressureOut),
-        "WaterMeter": serialNoOrEmpty(pumpModelObject.waterMeter),
-        "SumpTankLevel" : serialNoOrEmpty(pumpModelObject.lowerLevel),
-        "TopTankLevel" : serialNoOrEmpty(pumpModelObject.upperLevel),
-        "TopTankFloatHigh" : serialNoOrEmpty(pumpModelObject.topTankFloat),
-        "TopTankFloatLow" : serialNoOrEmpty(pumpModelObject.bottomTankFloat),
-        "SumpTankFloatHigh" : serialNoOrEmpty(pumpModelObject.topSumpFloat),
-        "SumpTankFloatLow" : serialNoOrEmpty(pumpModelObject.bottomSumpFloat),
-        "IrrigationLine" : line.where((line) => (line.sourcePump.contains(pumpModelObject.commonDetails.sNo) || line.irrigationPump.contains(pumpModelObject.commonDetails.sNo))).map((line) => line.commonDetails.sNo).join('_'),
-      };
-      pumpPayload.add(payload.entries.map((e) => e.value).join(","));
+      if(pumpIsConnected){
+        Map<String, dynamic> payload = {
+          "S_No": pumpModelObject.commonDetails.sNo,
+          "PumpCategory": pumpModelObject.pumpType,
+          "PressureIn" : serialNoOrEmpty(pumpModelObject.pressureIn),
+          "PressureOut" : serialNoOrEmpty(pumpModelObject.pressureOut),
+          "WaterMeter": serialNoOrEmpty(pumpModelObject.waterMeter),
+          "SumpTankLevel" : serialNoOrEmpty(pumpModelObject.lowerLevel),
+          "TopTankLevel" : serialNoOrEmpty(pumpModelObject.upperLevel),
+          "TopTankFloatHigh" : serialNoOrEmpty(pumpModelObject.topTankFloat),
+          "TopTankFloatLow" : serialNoOrEmpty(pumpModelObject.bottomTankFloat),
+          "SumpTankFloatHigh" : serialNoOrEmpty(pumpModelObject.topSumpFloat),
+          "SumpTankFloatLow" : serialNoOrEmpty(pumpModelObject.bottomSumpFloat),
+          "IrrigationLine" : line.where((line) => (line.sourcePump.contains(pumpModelObject.commonDetails.sNo) || line.irrigationPump.contains(pumpModelObject.commonDetails.sNo))).map((line) => line.commonDetails.sNo).join('_'),
+        };
+        pumpPayload.add(payload.entries.map((e) => e.value).join(","));
+      }
     }
 
     return pumpPayload.join(";");

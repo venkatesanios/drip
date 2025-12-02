@@ -1,3 +1,5 @@
+import 'package:oro_drip_irrigation/utils/constants.dart';
+
 class Constants {
   static const String sNo = 'sNo';
   static const String objectId = 'objectId';
@@ -163,4 +165,9 @@ class Constants {
     if (input.isEmpty) return input;
     return input[0].toUpperCase() + input.substring(1).toLowerCase();
   }
+  static String showHourAndMinuteOnly(String time, int modelId){
+    List<String> list = time.split(':');
+    return '${list[0]}:${list[1]}${AppConstants.gemModelList.contains(modelId) ? ':${list[1]}' : ''}';
+  }
+
 }

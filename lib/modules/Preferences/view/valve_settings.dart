@@ -134,7 +134,7 @@ class _ValveSettingsState extends State<ValveSettings> {
             is24HourMode: true,
             onChanged: (newValue) {
               provider.updateSettingValue(settingItem.title, newValue);
-            },
+            }, modelId: widget.masterData.modelId,
           )
               : settingItem.widgetTypeId == 2
               ? Switch(
@@ -208,7 +208,7 @@ class _ValveSettingsState extends State<ValveSettings> {
             is24HourMode: true,
             onChanged: (newValue) {
               provider.updateSettingValue(settingItem.title, newValue);
-            },
+            }, modelId: widget.masterData.modelId,
           ) : Container(),
         ),
       ),

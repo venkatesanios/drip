@@ -1,15 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/modules/constant/state_management/constant_provider.dart';
-import 'package:oro_drip_irrigation/modules/constant/widget/custom_switch.dart';
-import 'package:oro_drip_irrigation/modules/constant/widget/custom_text_form_field.dart';
 import 'package:oro_drip_irrigation/modules/constant/widget/find_suitable_widget.dart';
-import 'package:oro_drip_irrigation/modules/irrigation_report/model/general_parameter_model.dart';
 import 'package:oro_drip_irrigation/utils/constants.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
 
 import '../../../StateManagement/overall_use.dart';
-import '../../../Widgets/HoursMinutesSeconds.dart';
-import '../model/constant_setting_model.dart';
 
 
 class GeneralInConstant extends StatefulWidget {

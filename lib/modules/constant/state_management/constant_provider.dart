@@ -142,7 +142,7 @@ class ConstantProvider extends ChangeNotifier{
       List<dynamic> listOfMainValveObject = [];
       List<dynamic> listOfValveObject = [];
       List<dynamic> listOfWaterMeterObject = [];
-      List<dynamic> listOfFertilizerSiteObject = [];
+      List<dynamic> listOfFertilizerSiteObject = configMakerData['data']['fertilizerSite'];
       List<dynamic> listOfChannelObject = [];
       List<dynamic> listOfEcObject = [];
       List<dynamic> listOfPhObject = [];
@@ -164,8 +164,6 @@ class ConstantProvider extends ChangeNotifier{
             listOfValveObject.add(object);
           }else if(object['objectId'] == AppConstants.waterMeterObjectId){
             listOfWaterMeterObject.add(object);
-          }else if(object['objectId'] == AppConstants.fertilizerSiteObjectId){
-            listOfFertilizerSiteObject.add(object);
           }else if(object['objectId'] == AppConstants.channelObjectId){
             listOfChannelObject.add(object);
           }else if(object['objectId'] == AppConstants.ecObjectId){
@@ -182,6 +180,7 @@ class ConstantProvider extends ChangeNotifier{
         }
       }
 
+      print("listOfFertilizerSiteObject => ${listOfFertilizerSiteObject}");
       // update general
       general = (defaultData['general'] as List<dynamic>)
           .map((menu){
@@ -307,8 +306,12 @@ class ConstantProvider extends ChangeNotifier{
         // find out and filter the fertilizer site has ec or ph
         defaultEcPhSetting = generateDefaultSetting(defaultData: defaultData, keyName: 'ecPhSensor');
         List<dynamic> fertilizerSiteWithEcPh = listOfFertilizerSiteObject.where((site){
-          bool ecAvailable = listOfEcObject.any((ecSensor) => ecSensor['location'] == site['sNo']);
-          bool phAvailable = listOfPhObject.any((phSensor) => phSensor['location'] == site['sNo']);
+          print("listOfEcObject : ${listOfEcObject}");
+          print("site : ${site}");
+          bool ecAvailable = listOfEcObject.any((ecSensor) => site['ec'].contains(ecSensor['sNo']));
+          bool phAvailable = listOfPhObject.any((phSensor) => site['ph'].contains(phSensor['sNo']));
+          print('ecAvailable : ${ecAvailable}');
+          print('phAvailable : ${phAvailable}');
           if(ecAvailable || phAvailable){
             return true;
           }else{
@@ -320,10 +323,13 @@ class ConstantProvider extends ChangeNotifier{
               objectData: site,
               defaultSetting: defaultData["ecPhSensor"],
               oldSetting: constantOldData["ecPhSensor"],
-              ec: listOfEcObject.where((ecSensor) => ecSensor['location'] == site['sNo']).toList(),
-              ph: listOfPhObject.where((phSensor) => phSensor['location'] == site['sNo']).toList()
+              ec: listOfEcObject.where((ecSensor) => site['ec'].contains(ecSensor['sNo'])).toList(),
+              ph: listOfPhObject.where((phSensor) => site['ph'].contains(phSensor['sNo'])).toList()
           );
         }).toList();
+        for(var ecPh in ecPhSensor){
+          print("ecph :::: ${ecPh.toJson()}");
+        }
       }
       if (kDebugMode) {
         print('ecPh updated..');

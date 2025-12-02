@@ -4,6 +4,7 @@ import '../../../Constants/properties.dart';
 import '../../IrrigationProgram/widgets/custom_native_time_picker.dart';
 
 class CustomTimerTile extends StatelessWidget {
+  final int modelId;
   final String subtitle;
   final bool showSubTitle;
   final String? subtitle2;
@@ -32,7 +33,7 @@ class CustomTimerTile extends StatelessWidget {
     this.isNative = false,
     this.showSubTitle = false,
     this.subtitle2,
-    this.isNewTimePicker = false
+    this.isNewTimePicker = false, required this.modelId
   });
 
   @override
@@ -60,7 +61,7 @@ class CustomTimerTile extends StatelessWidget {
                   initialValue: initialValue,
                   is24HourMode: is24HourMode,
                   onChanged: onChanged,
-                  isNewTimePicker: isNewTimePicker,
+                  isNewTimePicker: isNewTimePicker, modelId: modelId,
                 ),
               ),
             ),

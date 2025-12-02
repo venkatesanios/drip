@@ -8,6 +8,7 @@ import 'package:oro_drip_irrigation/utils/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
+import '../../../Constants/constants.dart';
 import '../model/sequence_model.dart';
 import '../../config_Maker/model/device_object_model.dart';
 import '../repository/irrigation_program_repo.dart';
@@ -324,11 +325,11 @@ class _PreviewScreenState extends State<PreviewScreen> {
                             (data, index) => buildDataCell(dataItem: data['sNo'].toString(), widthRatio: constraints.maxWidth * 0.03),
                             (data, index) => buildDataCell(dataItem: '${data['seqName']}', widthRatio: constraints.maxWidth * 0.1,),
                             (data, index) => buildDataCell(dataItem: '${data['valve'].map((e) => e['name']).toList().join(', ')}', widthRatio: constraints.maxWidth * 0.1, showToolTip: true, isFixedSize: true),
-                            (data, index) => buildDataCell(dataItem: data['method'] == "Time" ? data['timeValue'] : data['quantityValue'], widthRatio: constraints.maxWidth * 0.05),
+                            (data, index) => buildDataCell(dataItem: data['method'] == "Time" ? Constants.showHourAndMinuteOnly(data['timeValue'], widget.modelId) : data['quantityValue'], widthRatio: constraints.maxWidth * 0.05),
                         if(fertilizerCondition)
-                              (data, index) => buildDataCell(dataItem: data['preValue'], widthRatio: constraints.maxWidth * 0.05),
+                              (data, index) => buildDataCell(dataItem: data['method'] == "Time" ? Constants.showHourAndMinuteOnly(data['preValue'], widget.modelId) : data['preValue'], widthRatio: constraints.maxWidth * 0.05),
                         if(fertilizerCondition)
-                              (data, index) => buildDataCell(dataItem: data['postValue'], widthRatio: constraints.maxWidth * 0.05),
+                              (data, index) => buildDataCell(dataItem: data['method'] == "Time" ? Constants.showHourAndMinuteOnly(data['postValue'], widget.modelId) : data['postValue'], widthRatio: constraints.maxWidth * 0.05),
                             (data, index) => buildDataCell(dataItem: data['levelCondition'], widthRatio: constraints.maxWidth * 0.1),
                       ],
                     ),
@@ -595,7 +596,11 @@ class _PreviewScreenState extends State<PreviewScreen> {
     // data['localDosing'].isEmpty ? '' : (data['localDosing'][0]['fertilizer'].map((fertilizer) => fertilizer['onOff'] == true ? fertilizer['name'] : '').where((e) => e != '').toList().join(', '))
     for (var element in data) {
       if(element['onOff'] == true) {
-        resultList.add(check ? ((element[item] == "Time" || element[item] == "Pro.time") ? element['timeValue'] : element['quantityValue']) : element[item]);
+        resultList.add(
+            check
+                ? ((element[item] == "Time" || element[item] == "Pro.time") ? Constants.showHourAndMinuteOnly(element['timeValue'], widget.modelId)
+                : element['quantityValue']) : element[item]
+        );
         result = resultList.join(', ');
         // print("result ==> $result");
       }
@@ -1082,13 +1087,13 @@ class _PreviewScreenState extends State<PreviewScreen> {
           dataList: rtcList.values.toList(),
           cellBuilders: [
                 (data, index) => buildDataCell(dataItem: "RTC ${index+1}", widthRatio: screenWidth > 1200 ? constraints.maxWidth * 0.04 : null),
-                (data, index) => buildDataCell(dataItem: data["onTime"], widthRatio: screenWidth > 1200 ? constraints.maxWidth * 0.04 : null,),
-                (data, index) => buildDataCell(dataItem: data["interval"], widthRatio: screenWidth > 1200 ? constraints.maxWidth * 0.04 : null,),
+                (data, index) => buildDataCell(dataItem: Constants.showHourAndMinuteOnly(data["onTime"], widget.modelId), widthRatio: screenWidth > 1200 ? constraints.maxWidth * 0.04 : null,),
+                (data, index) => buildDataCell(dataItem: Constants.showHourAndMinuteOnly(data["interval"], widget.modelId), widthRatio: screenWidth > 1200 ? constraints.maxWidth * 0.04 : null,),
                 (data, index) => buildDataCell(dataItem: data["noOfCycles"], widthRatio: screenWidth > 1200 ? constraints.maxWidth * 0.04 : null),
             if(allowStopMethodCondition || defaultOffTime)
-                  (data, index) => buildDataCell(dataItem: data["offTime"], widthRatio: screenWidth > 1200 ? constraints.maxWidth * 0.04 : null,),
+                  (data, index) => buildDataCell(dataItem: Constants.showHourAndMinuteOnly(data["offTime"], widget.modelId), widthRatio: screenWidth > 1200 ? constraints.maxWidth * 0.04 : null,),
             if(allowStopMethodCondition || defaultMaxTime)
-                  (data, index) => buildDataCell(dataItem: data["maxTime"], widthRatio: screenWidth > 1200 ? constraints.maxWidth * 0.04 : null),
+                  (data, index) => buildDataCell(dataItem: Constants.showHourAndMinuteOnly(data["maxTime"], widget.modelId), widthRatio: screenWidth > 1200 ? constraints.maxWidth * 0.04 : null),
           ],
         )
     );
