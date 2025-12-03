@@ -300,7 +300,6 @@ class _ScheduledProgramNarrowState extends State<ScheduledProgramNarrow> {
                                             controllerId: widget.master.controllerId,
                                             serialNumber: widget.master.programList[index].serialNumber,
                                             programType: filteredScheduleProgram[index].programType,
-                                            conditionsLibraryIsNotEmpty: hasConditions,
                                             fromDealer: false,
                                             toDashboard: true,
                                             groupId: widget.groupId,
