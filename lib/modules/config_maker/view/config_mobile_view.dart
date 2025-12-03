@@ -3,13 +3,12 @@ import 'package:oro_drip_irrigation/modules/config_maker/view/product_limit.dart
 import 'package:oro_drip_irrigation/modules/config_maker/view/site_configure.dart';
 import 'package:provider/provider.dart';
 import '../../../Constants/dialog_boxes.dart';
-import '../model/device_model.dart';
-import '../model/device_object_model.dart';
-import '../state_management/config_maker_provider.dart';
+import '../../config_maker/model/device_object_model.dart';
+import '../../config_maker/model/device_model.dart';
+import '../../config_maker/state_management/config_maker_provider.dart';
 import 'config_base_page.dart';
 import 'connection.dart';
 import 'device_list.dart';
-
 
 class ConfigMobileView extends StatefulWidget {
   List<DeviceModel> listOfDevices;

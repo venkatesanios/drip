@@ -263,7 +263,7 @@ class _PumpConditionScreenState extends State<PumpConditionScreen> {
     Map<String, dynamic> pumpConditionServerData = {
       "pumpCondition": pumpConditionJson["data"]?["pumpCondition"] ?? [],
       "controllerReadStatus": "0",
-      "nova": "Alternative",
+      "novaMode": selectedMode,
     };
      var novadata = selectedMode == "Alternative" ? "1" : "0";
     // MQTT Payload format
