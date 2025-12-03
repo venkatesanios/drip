@@ -31,110 +31,188 @@ class _ProgramPreviewState extends State<ProgramPreview> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        leading: IconButton(
-          icon: const Icon(Icons.close),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: const Text("Program Preview", style: TextStyle(fontSize: 16)),
-      ),
-
-      body: Column(
-        children: [
-          Expanded(
-            child: Selector<MqttPayloadProvider, String?>(
-              selector: (_, provider) => provider.getProgramPreview(),
-              builder: (_, status, __) {
-                if (status == null) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                final List<String> items = status.split(',').map((e) => e.trim()).toList();
-
-                return ListView.builder(
-                  itemCount: items.length,
-                  itemBuilder: (_, index) {
-                    return ListTile(
-                      leading: Text("${index + 1}"),
-                      title: Text(getLabelByIndex(index)),
-                      trailing: Text(items[index]),
-                    );
-                  },
-                );
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Selector<MqttPayloadProvider, String?>(
-              selector: (_, provider) => provider.getSequencePreview(),
-              builder: (_, status, __) {
-                if (status == null) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                final List<String> items = status.split(',').map((e) => e.trim()).toList();
-
-                return ListView.builder(
-                  itemCount: items.length,
-                  itemBuilder: (_, index) {
-                    return ListTile(
-                      leading: Text("${index + 1}"),
-                      title: Text(items[index]),
-                    );
-                  },
-                );
-
-
-              },
-            ),
+        title: const Text("Program preview", style: TextStyle(fontSize: 18)),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.close),
+            onPressed: () => Navigator.of(context).pop(),
           ),
         ],
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+
+              const Text("Program",
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+
+              Selector<MqttPayloadProvider, String?>(
+                selector: (_, provider) => provider.getProgramPreview(),
+                builder: (_, status, __) {
+                  if (status == null) {
+                    return const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    );
+                  }
+
+                  final List<String> items = status.split(',').map((e) => e.trim()).toList();
+
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: List.generate(items.length, (index) {
+                        return ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(getPrgLabelByIndex(index), style: const TextStyle(color: Colors.black54)),
+                          trailing: Text(
+                            items[index],
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                        );
+                      }),
+                    ),
+                  );
+                },
+              ),
+
+              const SizedBox(height: 16),
+
+              const Text("Sequence",
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+
+              Selector<MqttPayloadProvider, String?>(
+                selector: (_, provider) => provider.getSequencePreview(),
+                builder: (_, status, __) {
+                  if (status == null) {
+                    return const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    );
+                  }
+
+                  final List<String> sequenceList =
+                  status.split(';').map((e) => e.trim()).toList();
+
+                  final List<List<String>> parsedSequence = sequenceList
+                      .map((seq) => seq.split(',').map((e) => e.trim()).toList())
+                      .toList();
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: List.generate(parsedSequence.length, (index) {
+                      final List<String> seq = parsedSequence[index];
+                      final String sequenceName = seq[0];        // First → Title
+                      final List<String> subItems = seq.sublist(1); // Others → Details
+
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 6.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+
+                            // ----------- Sequence Title ----------- //
+                            ListTile(title: Text("Sequence_$sequenceName",
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                              ),
+                            )),
+
+                            // ----------- Sub Items with Labels ----------- //
+                            ...List.generate(subItems.length, (i) {
+                              final label = getSeqLabelByIndex(i + 1);
+                              final value = subItems[i];
+
+                              return Padding(
+                                padding: const EdgeInsets.only(left: 20.0, right: 8.0),
+                                child: ListTile(
+                                  contentPadding: EdgeInsets.zero,
+                                  leading: Text("${i+1}"),
+                                  title: Text(label, style: const TextStyle(color: Colors.black54)),
+                                  trailing: Text(value,
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                  ),
+                                ),
+                              );
+                            }),
+                          ],
+                        ),
+                      );
+                    }),
+                  );
+                },
+              ),
+
+              const SizedBox(height: 20),
+            ],
+          ),
+        ),
       ),
     );
   }
 
-  String getLabelByIndex(int index) {
+  String getPrgLabelByIndex(int index) {
     switch (index) {
       case 0:
-        return "Program Name";
+        return "Name";
       case 1:
-        return "Valve Status";
+        return "Valve mode";
       case 2:
-        return "Program Mode";
+        return "Program mode";
       case 3:
-        return "Fertilizer Mode";
+        return "Fertilizer mode";
       case 4:
         return "Decide Last";
       case 5:
-        return "Decide FB Last";
+        return "Decide feedback last";
       case 6:
-        return "Valve delay (MM)";
+        return "Valve delay (MM:SS)";
       case 7:
-        return "Valve delay (SS)";
+        return "Feedback delay (MM:SS)";
       case 8:
-        return "fbk del min";
+        return "Cyc completed restart ON/OFF";
       case 9:
-        return "fbk del min";
+        return "Cyc completed com restart dly";
       case 10:
-        return "cyccomrstOnOf";
+        return "Cyc restart ON/OFF";
       case 11:
-        return "cyccomReHr";
+        return "Program selection";
       case 12:
-        return "cyccomReMin";
+        return "Start from";
       case 13:
-        return "cyccomReSec";
+        return "Day count RTC time(HH:MM:SS)";
       case 14:
-        return "cycrestartonof";
+        return "Skip days";
       case 15:
-        return "programselection";
+        return "Skip days ON/OFF";
       case 16:
-        return "startfrom";
+        return "Program percentage";
       case 17:
-        return "daycounthr";
+        return "Fertilizer ON/OFF";
+      case 18:
+        return "Venture flow rate";
       default:
-        return "Value $index";
+        return "Prg $index";
     }
   }
 
+  String getSeqLabelByIndex(int index) {
+    switch (index) {
+      case 1: return "Valve duration (HH:MM)";
+      case 2: return "Valve flow liters";
+      case 3: return "Selected valve";
+      case 4: return "Fertilizer duration (HH:MM)";
+      case 5: return "Fertilizer flow liters";
+      default: return "Item $index";
+    }
+  }
 
 }
