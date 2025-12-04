@@ -29,62 +29,83 @@ class ProductInventory extends StatelessWidget {
   }
 }
 
-class _ProductInventoryContent extends StatelessWidget {
+class _ProductInventoryContent extends StatefulWidget {
   const _ProductInventoryContent();
 
   @override
+  State<_ProductInventoryContent> createState() => _ProductInventoryContentState();
+}
+
+class _ProductInventoryContentState extends State<_ProductInventoryContent> {
+
+  late SearchProvider searchProviderListener;
+
+  @override
+  void initState() {
+    super.initState();
+    searchProviderListener = context.read<SearchProvider>();
+    searchProviderListener.addListener(_onSearchChanged);
+  }
+
+  void _onSearchChanged() {
+    final sp = searchProviderListener;
+    final vm = context.read<InventoryViewModel>();
+
+    if (!sp.isSearching) return;
+    if (!sp.pendingSearch) return;
+
+    // CASE 1: Search text
+    if (sp.searchValue.isNotEmpty) {
+      vm.fetchFilterData(null, null, sp.searchValue);
+    }
+    // CASE 2: Filter Category
+    else if (sp.categoryId != 0) {
+      vm.fetchFilterData(sp.categoryId, null, null);
+    }
+    // CASE 3: Filter Model
+    else if (sp.modelId != 0) {
+      vm.fetchFilterData(null, sp.modelId, null);
+    }
+    // CASE 4: nothing → reset
+    else {
+      vm.loadInventoryData(1);
+    }
+
+    sp.markHandled();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final searchProvider = context.watch<SearchProvider>();
     final viewedCustomer = context.watch<UserProvider>().viewedCustomer;
+    final searchProvider = context.watch<SearchProvider>();
+    debugPrint("searchProvider called");
 
     return Consumer<InventoryViewModel>(
       builder: (context, vm, _) {
-        // Handle search once per change
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (searchProvider.isSearchProduct &&
-              !searchProvider.hasHandledSearch &&
-              (searchProvider.searchValue.isNotEmpty ||
-                  searchProvider.filteredCategoryId != 0 ||
-                  searchProvider.filteredModelId != 0)) {
-
-            // Decide which fetch to run
-            if (searchProvider.searchValue.isNotEmpty) {
-              vm.fetchFilterData(null, null, searchProvider.searchValue);
-            } else if (searchProvider.filteredCategoryId != 0) {
-              vm.fetchFilterData(searchProvider.filteredCategoryId, null, null);
-            } else if (searchProvider.filteredModelId != 0) {
-              vm.fetchFilterData(null, searchProvider.filteredModelId, null);
-            }
-
-            // Mark as handled so it doesn't run again until next change
-            searchProvider.markSearchHandled();
-          }
-        });
 
         return Scaffold(
           backgroundColor: Theme.of(context).primaryColorDark.withAlpha(1),
-          body: vm.isLoading
-              ? _buildLoading(context)
-              : Column(
+          body: vm.isLoading ? _buildLoading(context) :
+          Column(
             children: [
               Expanded(
                 child: DataTable2(
-                  scrollController: vm.scrollController,
-                  columnSpacing: 12,
-                  horizontalMargin: 12,
-                  minWidth: 1050,
-                  dataRowHeight: 35.0,
-                  headingRowHeight: 30,
-                  headingRowColor: WidgetStateProperty.all<Color>(
-                    Colors.cyan.shade50,
-                  ),
-                  columns: _buildColumns(),
-                  rows: searchProvider.isSearchProduct
-                      ? _buildFilteredRows(context, vm, viewedCustomer!)
-                      : _buildAllRows(context, vm, viewedCustomer!),
+                    scrollController: vm.scrollController,
+                    columnSpacing: 12,
+                    horizontalMargin: 12,
+                    minWidth: 1050,
+                    dataRowHeight: 35.0,
+                    headingRowHeight: 30,
+                    headingRowColor: WidgetStateProperty.all<Color>(
+                      Colors.cyan.shade50,
+                    ),
+                    columns: _buildColumns(),
+                    rows: searchProvider.isSearching
+                        ? _buildFilteredRows(context, vm, viewedCustomer!)
+                        : _buildAllRows(context, vm, viewedCustomer!)
                 ),
               ),
-              if (!searchProvider.isSearchProduct && vm.isLoadingMore) _buildBottomLoader(context),
+              if (!searchProvider.isSearching && vm.isLoadingMore) _buildBottomLoader(context),
             ],
           ),
         );
@@ -136,9 +157,9 @@ class _ProductInventoryContent extends StatelessWidget {
   }
 
   List<DataRow> _buildFilteredRows(BuildContext context, InventoryViewModel vm, UserModel viewedCustomer) {
+
     return List<DataRow>.generate(
-      vm.filterProductInventoryList.length,
-          (index) => DataRow(
+      vm.filterProductInventoryList.length, (index) => DataRow(
         cells: [
           DataCell(Center(child: Text('${index + 1}'))),
           DataCell(Center(child: Text(vm.filterProductInventoryList[index].categoryName))),
@@ -217,7 +238,6 @@ class _ProductInventoryContent extends StatelessWidget {
     );
   }
 
-
   DataCell _buildActionButton(BuildContext context, InventoryViewModel vm, InventoryModel product, int customerId) {
     if (vm.userRole == UserRole.admin) {
       return DataCell(Center(
@@ -261,5 +281,11 @@ class _ProductInventoryContent extends StatelessWidget {
         ),
       ));
     }
+  }
+
+  @override
+  void dispose() {
+    searchProviderListener.removeListener(_onSearchChanged);
+    super.dispose();
   }
 }

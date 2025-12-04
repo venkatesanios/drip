@@ -89,8 +89,8 @@ class NodeListViewModel extends ChangeNotifier {
       notifyListeners();
 
     } catch (e, st) {
-      print("Error parsing payload: $e");
-      print(st);
+      debugPrint("Error parsing payload: $e");
+      debugPrint(st as String?);
     }
   }
 
@@ -235,7 +235,7 @@ class NodeListViewModel extends ChangeNotifier {
     Map<String, Object> body = {"userId": customerId, "controllerId": controllerId, "messageStatus": msg, "hardware": jsonDecode(data), "createUser": userId};
     final response = await Repository(HttpService()).sendManualOperationToServer(body);
     if (response.statusCode == 200) {
-      print(response.body);
+      debugPrint(response.body);
     } else {
       throw Exception('Failed to load data');
     }

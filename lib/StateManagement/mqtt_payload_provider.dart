@@ -170,7 +170,7 @@ class MqttPayloadProvider with ChangeNotifier {
            device.status = BlueConnectionSate.values[status];
            notifyListeners();
          } else {
-           print('Invalid status int: $status');
+           debugPrint('Invalid status int: $status');
          }
          break;
        }
@@ -590,8 +590,8 @@ class MqttPayloadProvider with ChangeNotifier {
          notifyListeners();
        }
        catch (e, stackTrace) {
-         print('Error parsing JSON: $e');
-         print('Stacktrace while parsing json : $stackTrace');
+         debugPrint('Error parsing JSON: $e');
+         debugPrint('Stacktrace while parsing json : $stackTrace');
        }
 
      }
@@ -609,7 +609,7 @@ class MqttPayloadProvider with ChangeNotifier {
 
       try {
         Map<String, dynamic> data = _receivedPayload.isNotEmpty? jsonDecode(_receivedPayload) : {};
-          print('_receivedPayload------>:$_receivedPayload');
+        debugPrint('_receivedPayload------>:$_receivedPayload');
 
         if(data['mC']=='2400'){
           liveDateAndTime = '${data['cD']} ${data['cT']}';
@@ -768,8 +768,8 @@ class MqttPayloadProvider with ChangeNotifier {
         }
 
       } catch (e, stackTrace) {
-        print('Error parsing JSON: $e');
-        print('Stacktrace while parsing json : $stackTrace');
+        debugPrint('Error parsing JSON: $e');
+        debugPrint('Stacktrace while parsing json : $stackTrace');
       }
       finally{
         notifyListeners();

@@ -179,7 +179,7 @@ class MqttService {
         }
       });
     } catch (e, stacktrace) {
-      print('MQTT subscribe error: $e\n$stacktrace');
+      debugPrint('MQTT subscribe error: $e\n$stacktrace');
     }
   }
 

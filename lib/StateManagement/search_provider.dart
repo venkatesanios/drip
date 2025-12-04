@@ -1,56 +1,67 @@
 import 'package:flutter/cupertino.dart';
 
+import '../utils/helpers/debouncer.dart';
+
 class SearchProvider extends ChangeNotifier {
-  bool _isSearchProduct = false;
-  bool get isSearchProduct => _isSearchProduct;
-
+  bool _isSearching = false;
   String _searchValue = '';
+  int _categoryId = 0;
+  int _modelId = 0;
+  bool _pendingSearch = false;
+
+  final Debouncer _debouncer = Debouncer(milliseconds: 400);
+
+  bool get isSearching => _isSearching;
   String get searchValue => _searchValue;
+  int get categoryId => _categoryId;
+  int get modelId => _modelId;
+  bool get pendingSearch => _pendingSearch;
 
-  int _filteredCatId = 0;
-  int get filteredCategoryId => _filteredCatId;
+  // --- NEW DEBOUNCED SEARCH ---
+  void updateSearchDebounced(String value) {
+    _debouncer.run(() {
+      _searchValue = value;
+      _isSearching = value.isNotEmpty;
+      _pendingSearch = true;
+      notifyListeners();
+    });
+  }
 
-  int _filteredModelId = 0;
-  int get filteredModelId => _filteredModelId;
-
-  bool _hasHandledSearch = false;
-  bool get hasHandledSearch => _hasHandledSearch;
-
-  void updateSearch(String value) {
-    _searchValue = value;
-    _hasHandledSearch = false;
+  void setCategory(int id) {
+    if (_categoryId == id) return;
+    _categoryId = id;
+    _pendingSearch = true;
+    _isSearching = true;
     notifyListeners();
   }
 
-  void updateCategoryId(int categoryId) {
-    _filteredCatId = categoryId;
-    _hasHandledSearch = false;
+  void setModel(int id) {
+    if (_modelId == id) return;
+    _modelId = id;
+    _pendingSearch = true;
+    _isSearching = true;
     notifyListeners();
   }
 
-  void updateModelId(int modelId) {
-    _filteredModelId = modelId;
-    _hasHandledSearch = false;
+  void setSearching(bool status) {
+    if (_isSearching == status) return;
+    _isSearching = status;
+    _pendingSearch = true;
     notifyListeners();
   }
 
-  void isSearchingProduct(bool status) {
-    _isSearchProduct = status;
-    _hasHandledSearch = false;
+  void markHandled() {
+    if (!_pendingSearch) return;
+    _pendingSearch = false;
     notifyListeners();
   }
 
-  void markSearchHandled() {
-    _hasHandledSearch = true;
-    notifyListeners();
-  }
-
-  void clearSearchFilters() {
+  void clear() {
     _searchValue = '';
-    _filteredCatId = 0;
-    _filteredModelId = 0;
-    _isSearchProduct = false;
-    _hasHandledSearch = false;
+    _categoryId = 0;
+    _modelId = 0;
+    _isSearching = false;
+    _pendingSearch = false;
     notifyListeners();
   }
 }
