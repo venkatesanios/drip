@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../utils/constants.dart';
@@ -22,8 +23,9 @@ class HttpService implements ApiService {
 
   @override
   Future<http.Response> postRequest(String endpoint, Map<String, dynamic> bodyData) async {
-    print('bodyData : ${bodyData}');
-    print('${AppConstants.apiUrl}$endpoint');
+
+    debugPrint('bodyData : $bodyData');
+    debugPrint('${AppConstants.apiUrl}$endpoint');
     final token = await PreferenceHelper.getToken();
 
     final headers = {

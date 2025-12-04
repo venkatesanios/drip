@@ -674,7 +674,7 @@ class AppConstants {
         }
       }
     } catch (e) {
-      print('error : $e');
+      debugPrint('error : $e');
     }
 
     if(key == 'name'){

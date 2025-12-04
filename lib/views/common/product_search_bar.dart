@@ -44,13 +44,13 @@ class ProductSearchBar extends StatelessWidget {
                 decoration: InputDecoration(
                   prefixIcon: const Icon(Icons.search, color: Colors.white54),
                   suffixIcon: (viewModel.txtFldSearch.text.isNotEmpty ||
-                      context.watch<SearchProvider>().isSearchProduct)
+                      context.watch<SearchProvider>().isSearching)
                       ? IconButton(
                     tooltip: 'Clear search',
                     icon: const Icon(Icons.clear, color: Colors.white),
                     onPressed: () {
                       viewModel.clearSearch();
-                      context.read<SearchProvider>().clearSearchFilters();
+                      context.read<SearchProvider>().clear();
                     },
                   )
                       : null,
@@ -59,24 +59,12 @@ class ProductSearchBar extends StatelessWidget {
                   border: InputBorder.none,
                 ),
                 onChanged: (value) {
-                  if (viewModel.debounce?.isActive ?? false) {
-                    viewModel.debounce?.cancel();
-                  }
-                  viewModel.debounce = Timer(const Duration(milliseconds: 100), () {
-                    if (value.isEmpty) {
-                      context.read<SearchProvider>().clearSearchFilters();
-                    } else {
-                      context.read<SearchProvider>().isSearchingProduct(true);
-                      context.read<SearchProvider>().updateSearch(value);
-                      //context.read<SearchProvider>().updateCategoryId(0);
-                      //context.read<SearchProvider>().updateModelId(0);
-                    }
-                  });
+                  context.read<SearchProvider>().updateSearchDebounced(value);
                 },
                 onSubmitted: (value) {
                   if (value.isNotEmpty) {
-                    context.read<SearchProvider>().isSearchingProduct(true);
-                    context.read<SearchProvider>().updateSearch(value);
+                    context.read<SearchProvider>().setSearching(true);
+                    context.read<SearchProvider>().updateSearchDebounced(value);
                   }
                 },
               ),
@@ -113,14 +101,9 @@ class ProductSearchBar extends StatelessWidget {
                       ? '${selectedItem['categoryName']} - ${selectedItem['modelName']}'
                       : '${selectedItem['categoryName']}';
 
-                  context.read<SearchProvider>().isSearchingProduct(true);
-                  context.read<SearchProvider>().updateSearch('');
-                  context.read<SearchProvider>().updateCategoryId(
-                    selectedItem['categoryId'] ?? 0,
-                  );
-                  context.read<SearchProvider>().updateModelId(
-                    selectedItem['modelId'] ?? 0,
-                  );
+                  context.read<SearchProvider>().setSearching(true);
+                  context.read<SearchProvider>().setCategory(selectedItem['categoryId'] ?? 0);
+                  context.read<SearchProvider>().setModel(selectedItem['modelId'] ?? 0);
                 }
               },
             ),

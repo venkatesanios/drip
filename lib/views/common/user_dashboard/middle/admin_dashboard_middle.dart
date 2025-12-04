@@ -38,8 +38,8 @@ class AdminDashboardMiddle extends StatelessWidget {
                 height: MediaQuery.sizeOf(context).height,
                 child: CustomerView(role: UserRole.admin, isNarrow: false,
                     onCustomerProductChanged: (String action, List<StockModel> updatedProducts) {
-                      print('Action: $action');
-                      print('Updated products count: ${updatedProducts.length}');
+                      debugPrint('Action: $action');
+                      debugPrint('Updated products count: ${updatedProducts.length}');
                     })
             ),
           ],

@@ -385,27 +385,6 @@ class InventoryViewModel extends ChangeNotifier {
                                   const SizedBox(width: 10,),
                                   TextButton(
                                     onPressed: () async {
-                                      /*if (imeiController.text.trim().isEmpty) {
-                                        _showSnackBar('Please enter new device id');
-                                      } else {
-                                        setState(() {
-                                        });
-                                        final body = {
-                                          "deviceId": imeiController.text,
-                                        };
-                                        final response = await HttpService().postRequest("getProductForReplace", body);
-                                        if (response.statusCode == 200) {
-                                          if (jsonDecode(response.body)["code"] == 200) {
-                                            var decodedJson = jsonDecode(response.body);
-                                            String userName = decodedJson['data'][0]['userName'];
-                                          } else {
-                                            _showSnackBar(jsonDecode(response.body)["message"]);
-                                          }
-
-                                        } else {
-                                          throw Exception('Failed to load data');
-                                        }
-                                      }*/
                                     },
                                     child: const Text('verify'),
                                   ),
@@ -413,8 +392,7 @@ class InventoryViewModel extends ChangeNotifier {
                               ),
                             ],
                           ),
-                          imeiController.text.trim().isNotEmpty
-                              ? Container(
+                          imeiController.text.trim().isNotEmpty ? const SizedBox(
                             width: 250,
                             child: Column(
                               children: [
@@ -446,42 +424,6 @@ class InventoryViewModel extends ChangeNotifier {
                     Navigator.pop(context);
                   },
                 ),
-                /*MaterialButton(
-                  color: Colors.green,
-                  textColor: Colors.white,
-                  child: const Text('Replace'),
-                  onPressed: () async {
-
-                    if(selectedOption == 'Option 1' && selectedStock != null){
-                      final body = {
-                        "userId": customerId,
-                        "oldControllerId": controllerId,
-                        "oldDeviceId": imeiNo,
-                        "newDeviceId": selectedStock?.imeiNo,
-                        "oldModelId": modelId,
-                        "newModelId": selectedStock?.modelId,
-                        'modifyUser': widget.userId,
-                      };
-                      final response = await HttpService().postRequest("replaceProduct", body);
-                      if (response.statusCode == 200) {
-                        if (jsonDecode(response.body)["code"] == 200) {
-                          loadData(currentSet);
-                          _showSnackBar(jsonDecode(response.body)["message"]);
-                        } else {
-                          _showSnackBar(jsonDecode(response.body)["message"]);
-                        }
-                        if (mounted) {
-                          selectedStock = null;
-                          Navigator.pop(context);
-                        }
-                      } else {
-                        throw Exception('Failed to load data');
-                      }
-                    }else{
-                      _showSnackBar('Please select your stock to replace');
-                    }
-                  },
-                ),*/
               ],
             );
           },
@@ -491,43 +433,60 @@ class InventoryViewModel extends ChangeNotifier {
   }
 
   Future<void> fetchFilterData(dynamic categoryId, dynamic modelId, dynamic value) async {
+    filterProductInventoryList.clear();
 
-    Map<String, dynamic> body = {};
-    bool isNameInput = false;
-
-    if(value!=null){
-      isNameInput = isName(value);
+    // Prevent empty or null search
+    if (value == null || value.toString().trim().isEmpty) {
+      notifyListeners();
+      return;
     }
 
-    int userType = userRole.name == 'admin' ? 1 : userRole.name == 'dealer' ? 2:3;
+    String searchValue = value.toString().trim();
+    bool isNameInput = RegExp(r'^[a-zA-Z\s]+$').hasMatch(searchValue);
 
-    if(isNameInput){
-      body = {"userId": userId, "userType": userType, "categoryId": categoryId, "modelId": modelId, "deviceId": null, "userName" : value};
-    }else{
-      body = {"userId": userId, "userType": userType, "categoryId": categoryId, "modelId": modelId, "deviceId": value, "userName" : null};
-    }
+    int userType = userRole.name == 'admin' ? 1
+        : userRole.name == 'dealer' ? 2
+        : 3;
+
+    // NULL when not used
+    String? sendDeviceId = !isNameInput ? searchValue : null;
+    String? sendUserName = isNameInput ? searchValue : null;
+
+    // Do not send 0 values to API
+    dynamic sendCategory = (categoryId == null || categoryId == 0) ? null : categoryId;
+    dynamic sendModel = (modelId == null || modelId == 0) ? null : modelId;
+
+    Map<String, dynamic> body = {
+      "userId": userId,
+      "userType": userType,
+      "categoryId": sendCategory,
+      "modelId": sendModel,
+      "deviceId": sendDeviceId,
+      "userName": sendUserName,
+    };
 
     try {
-
       var response = await repository.fetchFilteredProduct(body);
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
-        if (responseBody["code"] == 200) {
-          if(userType==3){
-            //filterProductInventoryListCus = (jsonDecode(response.body)["data"] as List).map((data) => CustomerProductModel.fromJson(data)).toList();
-          }else{
-            filterProductInventoryList = (jsonDecode(response.body)["data"] as List).map((data) => InventoryModel.fromJson(data)).toList();
-          }
+        final Map<String, dynamic> res = jsonDecode(response.body);
+        print("fetched filtered data's");
+
+        if (res["code"] == 200) {
+          List<dynamic> data = res["data"] ?? [];
+
+          filterProductInventoryList =
+              data.map((e) => InventoryModel.fromJson(e)).toList();
+          notifyListeners();
+          print("completed model process");
         } else {
-          debugPrint("API Error: ${responseBody['message']}");
+          debugPrint("API Error: ${res['message']}");
         }
       }
-    } catch (error) {
-      debugPrint("Error: $error");
+    } catch (err) {
+      debugPrint("Filter Error: $err");
     } finally {
-      notifyListeners();
+      //notifyListeners();
     }
-
   }
 
   bool isName(String value) {

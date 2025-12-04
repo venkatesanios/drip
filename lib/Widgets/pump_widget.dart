@@ -110,7 +110,7 @@ class PumpWidget extends StatelessWidget {
                                 },
                               );
                             },
-                            onPop: () => print('Popover was popped!'),
+                            onPop: () => debugPrint('Popover was popped!'),
                             direction: PopoverDirection.bottom,
                             width: 325,
                             arrowHeight: 15,
@@ -473,7 +473,7 @@ class PumpWidget extends StatelessWidget {
     Map<String, Object> body = {"userId": customerId, "controllerId": controllerId, "messageStatus": msg, "hardware": jsonDecode(data), "createUser": customerId};
     final response = await Repository(HttpService()).sendManualOperationToServer(body);
     if (response.statusCode == 200) {
-      print(response.body);
+      debugPrint(response.body);
     } else {
       throw Exception('Failed to load data');
     }

@@ -110,7 +110,6 @@ class StandAloneViewModel extends ChangeNotifier {
       final response = await repository.fetchUserManualOperation(body);
       if (response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
-        print(response.body);
         if (jsonResponse['data'] != null){
           try{
 
@@ -202,7 +201,6 @@ class StandAloneViewModel extends ChangeNotifier {
       var response = await repository.fetchManualOperation(body);
       if (response.statusCode == 200) {
         final jsonResponse = json.decode(response.body);
-        print(response.body);
         if (jsonResponse['data'] != null) {
           dynamic data = jsonResponse['data'];
           standAloneData = StandAloneModel.fromJson(data);
@@ -564,8 +562,6 @@ class StandAloneViewModel extends ChangeNotifier {
         strSldLocFrtSelectorSrlNo,
       ];
 
-      print(allRelaySrlNo);
-
       if (strSldIrrigationPumpSrlNo.isNotEmpty && strSldValveSrlNo.isEmpty)
       {
         showDialog<String>(
@@ -826,8 +822,6 @@ class StandAloneViewModel extends ChangeNotifier {
       payLoadFinal = jsonEncode({
         "800": {"801": payload}
       });
-
-      print(payLoadFinal);
 
       final commService = Provider.of<CommunicationService>(context, listen: false);
       commService.sendCommand(serverMsg: '', payload: payLoadFinal);

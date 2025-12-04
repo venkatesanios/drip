@@ -17,8 +17,8 @@ class AdminDashboardNarrow extends StatelessWidget {
     final pages = [const AnalyticsView(screenType: 'Narrow', userType: 1),
       CustomerView(role: UserRole.admin, isNarrow: true,
           onCustomerProductChanged: (String action, List<StockModel> updatedProducts) {
-        print('Action: $action');
-        print('Updated products count: ${updatedProducts.length}');
+            debugPrint('Action: $action');
+            debugPrint('Updated products count: ${updatedProducts.length}');
       }),
       const ProductView(isWideScreen: false)];
 

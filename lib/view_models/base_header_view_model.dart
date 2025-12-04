@@ -20,7 +20,6 @@ class BaseHeaderViewModel extends ChangeNotifier {
   final Repository repository;
   late Map<String, dynamic> jsonDataMap;
   TextEditingController txtFldSearch = TextEditingController();
-  Timer? debounce;
 
   void updateMainMenuSegmentView(MainMenuSegment newView) {
     _segmentView = newView;

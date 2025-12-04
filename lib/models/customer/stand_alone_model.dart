@@ -20,7 +20,6 @@ class StandAloneModel
   });
 
   factory StandAloneModel.fromJson(Map<String, dynamic> json) {
-    print(jsonEncode(json));
     return StandAloneModel(
       startTogether: json['startTogether'] as bool,
       time: json['duration'] as String,
