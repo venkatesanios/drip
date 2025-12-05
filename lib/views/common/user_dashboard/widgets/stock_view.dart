@@ -1,9 +1,8 @@
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
-import 'package:loading_indicator/loading_indicator.dart';
 import 'package:provider/provider.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
-import '../../../../utils/constants.dart';
 import '../../../../utils/enums.dart';
 import '../../../../view_models/product_stock_view_model.dart';
 
@@ -16,21 +15,11 @@ class StockView extends StatelessWidget {
   Widget build(BuildContext context) {
     final viewModel = context.watch<ProductStockViewModel>();
 
-    if(viewModel.isLoadingStock){
-
-      return const Center(
-        child: SizedBox(
-          width: 45,
-          height: 45,
-          child: LoadingIndicator(indicatorType: Indicator.ballPulse),
-        ),
-      );
-    }
-
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: isWide? buildProductStock(context, viewModel) :
-      buildForNarrow(viewModel),
+      body: isWide
+          ? buildProductStock(context, viewModel)
+          : buildForNarrow(viewModel),
     );
   }
 
@@ -120,6 +109,7 @@ class StockView extends StatelessWidget {
   }
 
   Widget buildProductStock(BuildContext context, ProductStockViewModel viewModel) {
+
     return Card(
       elevation: 1,
       surfaceTintColor: Colors.white,
@@ -161,45 +151,50 @@ class StockView extends StatelessWidget {
                   bottomRight: Radius.circular(10),
                 ),
               ),
-              child: viewModel.productStockList.isNotEmpty ? Padding(
+              child: Padding(
                 padding: const EdgeInsets.all(5.0),
-                child: DataTable2(
-                  columnSpacing: 12,
-                  horizontalMargin: 12,
-                  minWidth: 700,
-                  border: TableBorder.all(color: Theme.of(context).primaryColorLight.withOpacity(0.1)),
-                  headingRowColor: WidgetStateProperty.all<
-                      Color>(Theme.of(context).primaryColorLight.withOpacity(0.1)),
-                  headingRowHeight: 30,
-                  dataRowHeight: 35,
-                  columns: [
-                    DataColumn2(label: Center(child: AppConstants().txtSNo), fixedWidth: 50),
-                    DataColumn(label: AppConstants().txtCategory),
-                    DataColumn2(label: AppConstants().txtModel, size: ColumnSize.L),
-                    DataColumn2(label: Center(child: AppConstants().txtIMEI), fixedWidth: 140),
-                    DataColumn2(label: Center(child: AppConstants().txtMDate), fixedWidth: 130),
-                    DataColumn2(label: Center(child: AppConstants().txtWarranty), fixedWidth: 90),
-                  ],
-                  rows: List<DataRow>.generate(
-                    viewModel.productStockList.length, (index) => DataRow(
-                    cells: [
-                      DataCell(Center(child: Text('${index + 1}'))),
-                      DataCell(Text(viewModel.productStockList[index].categoryName)),
-                      DataCell(Text(viewModel.productStockList[index].model)),
-                      DataCell(Center(child: Text(viewModel.productStockList[index].imeiNo))),
-                      DataCell(Center(child: Text(viewModel.productStockList[index].dtOfMnf))),
-                      DataCell(Center(child: Text('${viewModel.productStockList[index].warranty}'))),
+                child: Skeletonizer(
+                  enabled: viewModel.isLoadingStock,
+                  child: viewModel.productStockList.isNotEmpty?
+                  DataTable2(
+                    horizontalMargin: 12,
+                    columnSpacing: 12,
+                    minWidth: 700,
+                    border: TableBorder.all(
+                      color: Colors.black12,
+                    ),
+                    headingRowHeight: 30,
+                    dataRowHeight: 35,
+                    columns: const [
+                      DataColumn2(label: Center(child: Text("SNo")), fixedWidth: 50),
+                      DataColumn(label: Text("Category")),
+                      DataColumn2(label: Text("Model"), size: ColumnSize.L),
+                      DataColumn2(label: Center(child: Text("IMEI")), fixedWidth: 140),
+                      DataColumn2(label: Center(child: Text("MDate")), fixedWidth: 130),
+                      DataColumn2(label: Center(child: Text("Warranty")), fixedWidth: 90),
                     ],
-                  ),
-                  ),
+                    rows: List<DataRow>.generate(viewModel.productStockList.length, (index) {
+                        final stock = viewModel.productStockList[index];
+                        return DataRow(
+                          cells: [
+                            DataCell(Center(child: Text("${index + 1}"))),
+                            DataCell(Text(stock.categoryName)),
+                            DataCell(Text(stock.model)),
+                            DataCell(Center(child: Text(stock.imeiNo))),
+                            DataCell(Center(child: Text(stock.dtOfMnf))),
+                            DataCell(Center(child: Text("${stock.warranty}"))),
+                          ],
+                        );
+                      },
+                    ),
+                  ) :
+                  const Center(child: Text('No stock available')),
                 ),
-              ) :
-              Center(child: AppConstants().txtSoldOut),
+              ),
             ),
-          ),
+          )
         ],
       ),
     );
   }
-
 }

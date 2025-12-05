@@ -23,6 +23,16 @@ class CustomerListModel
     criticalAlarmCount: json['criticalAlarmCount'],
   );
 
+  factory CustomerListModel.fake() {
+    return CustomerListModel(
+      id: 0,
+      name: 'Loading...',
+      emailId: 'loading@example.com',
+      mobileNumber: '0000000000',
+      countryCode: '00',
+    );
+  }
+
   Map<String, dynamic> toJson() => {
     'userId': id,
     'userName': name,

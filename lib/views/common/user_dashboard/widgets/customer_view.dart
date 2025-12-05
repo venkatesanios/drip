@@ -2,6 +2,7 @@ import 'package:badges/badges.dart';
 import 'package:flutter/material.dart' hide Badge;
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:provider/provider.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import '../../../../Screens/Dealer/sevicerequestdealer.dart';
 import '../../../../layouts/user_layout.dart';
 import '../../../../models/admin_dealer/customer_list_model.dart';
@@ -15,6 +16,7 @@ import '../../../../view_models/product_stock_view_model.dart';
 import '../../../admin_dealer/customer_device_list.dart';
 import '../../../admin_dealer/dealer_device_list.dart';
 import '../../user_profile/create_account.dart';
+
 
 class CustomerView extends StatelessWidget {
   const CustomerView({super.key, required this.role, required this.isNarrow, required this.onCustomerProductChanged});
@@ -43,30 +45,42 @@ class CustomerView extends StatelessWidget {
                 style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black54, fontSize: 15),
               ),
               trailing: Text(
-                '${viewModel.myCustomerList.length}',
+                viewModel.isLoadingCustomer ? '': '${viewModel.myCustomerList.length}',
                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
               ),
             ),
             Expanded(
-              child: viewModel.filteredCustomerList.isNotEmpty ? ListView.builder(
-                padding: const EdgeInsets.only(bottom: 80),
-                itemCount: viewModel.filteredCustomerList.length,
-                itemBuilder: (context, index) {
-                  final customer = viewModel.filteredCustomerList[index];
-                  return _buildCustomerTile(context, customer, viewModel, stockVM);
-                },
-              ):
-              Center(
-                child: viewModel.isLoadingCustomer ?
-                const SizedBox(
-                  width: 40,
-                  height: 200,
-                  child: LoadingIndicator(indicatorType: Indicator.ballPulse),
-                ):
-                const Text('No customer available', style: TextStyle(
-                  color: Colors.black54,
-                  fontSize: 15,
-                ),),
+              child: Skeletonizer(
+                enabled: viewModel.isLoadingCustomer,
+                child: viewModel.isLoadingCustomer ? ListView.builder(
+                  padding: const EdgeInsets.only(bottom: 80),
+                  itemCount: 10,
+                  itemBuilder: (context, index) {
+                    return _buildCustomerTile(
+                      context,
+                      CustomerListModel.fake(),
+                      viewModel,
+                      stockVM,
+                    );
+                  },
+                ) :
+                viewModel.filteredCustomerList.isNotEmpty ? ListView.builder(
+                  padding: const EdgeInsets.only(bottom: 80),
+                  itemCount: viewModel.filteredCustomerList.length,
+                  itemBuilder: (context, index) {
+                    final customer = viewModel.filteredCustomerList[index];
+                    return _buildCustomerTile(
+                      context,
+                      customer,
+                      viewModel,
+                      stockVM,
+                    );
+                  },
+                ) :
+                const Center(child: Text(
+                  'No customer available',
+                  style: TextStyle(color: Colors.black54, fontSize: 15),
+                )),
               ),
             ),
           ],
@@ -136,6 +150,7 @@ class CustomerView extends StatelessWidget {
       ),
     );
   }
+
 
   Widget _buildCustomerTile(BuildContext context, CustomerListModel customer,
       CustomerListViewModel vm, ProductStockViewModel stockVM) {

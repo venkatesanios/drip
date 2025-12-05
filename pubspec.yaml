@@ -80,6 +80,7 @@ dependencies:
   otp_pin_field: ^1.4.1
   firebase_app_check: ^0.4.1
   new_version_plus: ^0.1.0
+  skeletonizer: ^2.1.1
 #  audioplayers: ^6.5.0
 #  record: ^6.0.0
 

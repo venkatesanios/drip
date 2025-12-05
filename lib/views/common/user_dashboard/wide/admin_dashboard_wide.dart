@@ -38,14 +38,9 @@ class AdminDashboardWide extends StatelessWidget {
               onCustomerProductChanged: (String action, List<StockModel> updatedProducts) {
                 print('Action: $action');
                 print('Updated products count: ${updatedProducts.length}');
-
-                // Optional: update the stock list in viewModel
-                //final viewModel = context.read<ProductStockViewModel>();
-                //viewModel.updateStockList(updatedProducts);
               },
             ),
-          )
-
+          ),
         ],
       ),
     );

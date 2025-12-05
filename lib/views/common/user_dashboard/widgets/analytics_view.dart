@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:loading_indicator/loading_indicator.dart';
 import 'package:provider/provider.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import '../../../../Widgets/sales_chip.dart';
 import '../../../../utils/enums.dart';
 import '../../../../view_models/analytics_view_model.dart';
@@ -84,26 +84,35 @@ class AnalyticsView extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.all(3.0),
-      child: Column(
-        children: [
-          buildHeader(context, viewModel),
-          Expanded(
-            child: viewModel.isLoadingSalesData ?
-            const Center(child: SizedBox(width: 40, child: LoadingIndicator(indicatorType: Indicator.ballPulse)))
-                : MySalesBarChart(graph: viewModel.mySalesData.graph),
-          ),
-          const SizedBox(height: 6),
-          if ((viewModel.mySalesData.total ?? []).isNotEmpty)
-            Wrap(
-              spacing: 5,
-              runSpacing: 5,
-              children: List.generate(
-                viewModel.mySalesData.total!.length, (index) => SalesChip(
-                  index: index, item: viewModel.mySalesData.total![index]),
-              ),
+      child: Skeletonizer(
+        enabled: viewModel.isLoadingSalesData,
+        child: Column(
+          children: [
+            buildHeader(context, viewModel),
+            Expanded(
+              child: viewModel.isLoadingSalesData ?
+              Container(
+                margin: const EdgeInsets.all(12),
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ) : MySalesBarChart(graph: viewModel.mySalesData.graph),
             ),
-          const SizedBox(height: 8),
-        ],
+            const SizedBox(height: 6),
+            if ((viewModel.mySalesData.total ?? []).isNotEmpty)
+              Wrap(
+                spacing: 5,
+                runSpacing: 5,
+                children: List.generate(
+                  viewModel.mySalesData.total!.length, (index) => SalesChip(
+                    index: index, item: viewModel.mySalesData.total![index]),
+                ),
+              ),
+            const SizedBox(height: 8),
+          ],
+        ),
       ),
     );
   }
