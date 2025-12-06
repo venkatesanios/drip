@@ -62,6 +62,7 @@ class CustomerHomeNarrow extends StatelessWidget {
                   ) : const SizedBox();
                 },
               ),
+
               ...linesToDisplay.map((line) {
 
                 final inletWaterSources = {
@@ -149,6 +150,7 @@ class CustomerHomeNarrow extends StatelessWidget {
                                     controllerId: cM.controllerId,
                                     deviceId: cM.deviceId,
                                     modelId: cM.modelId,
+                                    isNova: isNova,
                                   ),
                                 ),
                                 if (prsSwitch.isNotEmpty) ...[
@@ -220,9 +222,7 @@ class CustomerHomeNarrow extends StatelessWidget {
                               ],
                             ),
                           ),
-                          Container(
-                            width: 10,
-                          ),
+                          Container(width: 10),
                         ],
                       ),
                     ],
@@ -358,7 +358,6 @@ class CustomerHomeNarrow extends StatelessWidget {
       ),
     );
   }
-
 
   List<Widget> _buildSensorItems(List<SensorModel> sensors, String type, String imagePath, bool isAvailFertilizer,
       int customerId, int controllerId) {
@@ -755,7 +754,6 @@ class CustomerHomeNarrow extends StatelessWidget {
     }else{
       return const SizedBox();
     }
-
   }
 
   Widget buildNextScheduleRow(BuildContext context, List<String> values,

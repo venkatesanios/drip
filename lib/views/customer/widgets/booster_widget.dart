@@ -11,9 +11,10 @@ import '../../../utils/constants.dart';
 class BoosterWidget extends StatelessWidget {
   final FertilizerSiteModel fertilizerSite;
   final bool isMobile;
+  final bool isNava;
   const BoosterWidget({
     super.key,
-    required this.fertilizerSite, required this.isMobile,
+    required this.fertilizerSite, required this.isMobile, required this.isNava,
   });
 
   @override
@@ -38,15 +39,17 @@ class BoosterWidget extends StatelessWidget {
                 child : Stack(
                   children: [
                     if(isMobile)...[
-                      Transform(
-                        alignment: Alignment.center,
-                        transform: Matrix4.rotationY(math.pi),
-                        child: AppConstants.getAsset(isMobile? 'mobile booster' : 'booster',
-                            fertilizerSite.boosterPump[0].status,''),
-                      ),
+                      if(isNava)...[
+                        AppConstants.getAsset('mobile booster', fertilizerSite.boosterPump[0].status,''),
+                      ] else...[
+                        Transform(
+                          alignment: Alignment.center,
+                          transform: Matrix4.rotationY(math.pi),
+                          child: AppConstants.getAsset('mobile booster', fertilizerSite.boosterPump[0].status,''),
+                        ),
+                      ],
                     ]else...[
-                      AppConstants.getAsset(isMobile? 'mobile booster' : 'booster',
-                          fertilizerSite.boosterPump[0].status,''),
+                      AppConstants.getAsset('booster', fertilizerSite.boosterPump[0].status,''),
                     ],
 
                     Positioned(

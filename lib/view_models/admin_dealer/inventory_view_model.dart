@@ -469,7 +469,6 @@ class InventoryViewModel extends ChangeNotifier {
       var response = await repository.fetchFilteredProduct(body);
       if (response.statusCode == 200) {
         final Map<String, dynamic> res = jsonDecode(response.body);
-        print("fetched filtered data's");
 
         if (res["code"] == 200) {
           List<dynamic> data = res["data"] ?? [];

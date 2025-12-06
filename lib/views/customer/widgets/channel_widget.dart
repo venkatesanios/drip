@@ -16,8 +16,10 @@ class ChannelWidget extends StatelessWidget {
   final List<Agitator> agitator;
   final String siteSno;
   final bool isMobile;
+  final bool isNova;
   const ChannelWidget({super.key, required this.channel, required this.cIndex,
-    required this.channelLength, required this.agitator, required this.siteSno, required this.isMobile});
+    required this.channelLength, required this.agitator, required this.siteSno,
+    required this.isMobile, required this.isNova});
 
   @override
   Widget build(BuildContext context) {
@@ -56,13 +58,18 @@ class ChannelWidget extends StatelessWidget {
                 children: [
 
                   if(isMobile)...[
-                    Transform(
-                      alignment: Alignment.center,
-                      transform: Matrix4.rotationY(math.pi),
-                      child: Image.asset(AppConstants.getFertilizerImage(cIndex, channel.status,
-                          channelLength, agitator, isMobile)),
-                    ),
-                  ]else...[
+                    if(isNova)...[
+                      Image.asset(AppConstants.getFertilizerImage(cIndex, channel.status,
+                          channelLength, agitator, isMobile))
+                    ] else...[
+                      Transform(
+                        alignment: Alignment.center,
+                        transform: Matrix4.rotationY(math.pi),
+                        child: Image.asset(AppConstants.getFertilizerImage(cIndex, channel.status,
+                            channelLength, agitator, isMobile)),
+                      ),
+                    ],
+                  ] else...[
                     Image.asset(AppConstants.getFertilizerImage(cIndex, channel.status,
                         channelLength, agitator, isMobile)),
                   ],
@@ -151,7 +158,7 @@ class ChannelWidget extends StatelessWidget {
                       ),
                     ):
                     const SizedBox(),
-                  ]else...[
+                  ] else...[
                     Positioned(
                       top: 52,
                       left: 6,

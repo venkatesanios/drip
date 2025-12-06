@@ -8,6 +8,7 @@ import '../../StateManagement/customer_provider.dart';
 import '../../models/admin_dealer/language_list.dart';
 import '../../models/customer/notification_list_model.dart';
 import '../../repository/repository.dart';
+import '../../services/communication_service.dart';
 import '../../utils/constants.dart';
 import '../../utils/snack_bar.dart';
 
@@ -197,8 +198,11 @@ class GeneralSettingViewModel extends ChangeNotifier {
         "modifyUser": userId,
       };
 
-      var response = await repository.updateMasterDetails(body);
+      final payLoadFinal = jsonEncode({"6800": {"6801": selectedTimeZone}});
+      final commService = Provider.of<CommunicationService>(context, listen: false);
+      commService.sendCommand(serverMsg: '', payload: payLoadFinal);
 
+      var response = await repository.updateMasterDetails(body);
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         GlobalSnackBar.show(context, data["message"], data["code"]);

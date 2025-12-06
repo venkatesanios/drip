@@ -215,6 +215,7 @@ class CustomerHomeWide extends StatelessWidget {
       containerWidth: MediaQuery.sizeOf(context).width,
       deviceId: deviceId,
       modelId: modelId,
+      isNava: false,
     );
   }
 

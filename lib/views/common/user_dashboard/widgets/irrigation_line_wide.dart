@@ -36,19 +36,17 @@ class IrrigationLineWide extends StatelessWidget {
   final List<SensorModel> pressureOut;
   final List<SensorModel> waterMeter;
   final double containerWidth;
+  final bool isNava;
 
 
   IrrigationLineWide({
     super.key,
     required this.inletWaterSources,
     required this.outletWaterSources,
-
     required this.cFilterSite,
     required this.cFertilizerSite,
-
     required this.lFilterSite,
     required this.lFertilizerSite,
-
     required this.valves,
     required this.mainValves,
     required this.lights,
@@ -62,6 +60,7 @@ class IrrigationLineWide extends StatelessWidget {
     required this.deviceId,
     required this.containerWidth,
     required this.modelId,
+    required this.isNava,
   });
 
   final ValueNotifier<int> popoverUpdateNotifier = ValueNotifier<int>(0);
@@ -105,16 +104,16 @@ class IrrigationLineWide extends StatelessWidget {
         ..._buildWaterSource(context, outletWaterSources, inletWaterSources.isNotEmpty, false, cFertilizerSite.isNotEmpty),
 
       if (cFilterSite.isNotEmpty)
-        ...buildFilter(context, cFilterSite, cFertilizerSite.isNotEmpty, false),
+        ...buildFilter(context, cFilterSite, cFertilizerSite.isNotEmpty, false, false),
 
       if (lFilterSite.isNotEmpty)
-        ...buildFilter(context, lFilterSite, (cFertilizerSite.isNotEmpty || lFertilizerSite.isNotEmpty), false),
+        ...buildFilter(context, lFilterSite, (cFertilizerSite.isNotEmpty || lFertilizerSite.isNotEmpty), false, false),
 
       if (cFertilizerSite.isNotEmpty)
-        ..._buildFertilizer(context, cFertilizerSite),
+        ..._buildFertilizer(context, cFertilizerSite, isNava),
 
       if (lFertilizerSite.isNotEmpty)
-        ..._buildFertilizer(context, lFertilizerSite),
+        ..._buildFertilizer(context, lFertilizerSite, isNava),
 
       ...lightWidgets,
       ..._buildSensorItems(prsSwitch, 'Pressure Switch', 'assets/png/pressure_switch_wj.png', cFertilizerSite.isNotEmpty),
@@ -193,6 +192,7 @@ class IrrigationLineWide extends StatelessWidget {
           controllerId: controllerId,
           modelId: modelId,
           isMobile: false,
+          isNova: false,
         ),
       ));
       gridItems.addAll(source.outletPump.map((pump) => Padding(
@@ -206,6 +206,7 @@ class IrrigationLineWide extends StatelessWidget {
           isMobile: false,
           modelId: modelId,
           pumpPosition: 'First',
+          isNova: false,
         ),
       )));
     }
@@ -227,7 +228,8 @@ class IrrigationLineWide extends StatelessWidget {
     }).toList();
   }
 
-  List<Widget> _buildFertilizer(BuildContext context, List<FertilizerSiteModel> fertilizerSite) {
+  List<Widget> _buildFertilizer(BuildContext context,
+      List<FertilizerSiteModel> fertilizerSite, bool isNova) {
     return List.generate(fertilizerSite.length, (siteIndex) {
       final site = fertilizerSite[siteIndex];
       final widgets = <Widget>[];
@@ -236,7 +238,7 @@ class IrrigationLineWide extends StatelessWidget {
         widgets.add(_buildVerticalLine(height: 120));
       }
 
-      widgets.add(BoosterWidget(fertilizerSite: site, isMobile: false));
+      widgets.add(BoosterWidget(fertilizerSite: site, isMobile: false, isNava: false));
 
       for (int channelIndex = 0; channelIndex < site.channel.length; channelIndex++) {
         final channel = site.channel[channelIndex];
@@ -248,6 +250,7 @@ class IrrigationLineWide extends StatelessWidget {
           agitator: site.agitator,
           siteSno: site.sNo.toString(),
           isMobile: false,
+          isNova: isNova,
         ));
 
         if (channelIndex == site.channel.length - 1 && site.agitator.isNotEmpty) {

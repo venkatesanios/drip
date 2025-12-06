@@ -77,6 +77,8 @@ class _ScheduledProgramNarrowState extends State<ScheduledProgramNarrow> {
                 tooltip: "Program Preview",
                 icon: Icon(Icons.preview, color: Theme.of(context).primaryColor),
                 onPressed: () {
+                  MqttPayloadProvider provider = Provider.of<MqttPayloadProvider>(context, listen: false);
+                  provider.clearPreview();
                   showModalBottomSheet(
                     context: context,
                     isScrollControlled: true,
@@ -89,7 +91,7 @@ class _ScheduledProgramNarrowState extends State<ScheduledProgramNarrow> {
                         statusBarColor: Theme.of(context).primaryColor,
                         statusBarIconBrightness: Brightness.light,
                       ),
-                      child: ProgramPreview(),
+                      child: const ProgramPreview(isNarrow: true),
                     ),
                   );
                 },

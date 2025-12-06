@@ -2,12 +2,15 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../../StateManagement/mqtt_payload_provider.dart';
 import '../../../services/communication_service.dart';
 
 class ProgramPreview extends StatefulWidget {
-  const ProgramPreview({super.key});
+  const ProgramPreview({super.key, required this.isNarrow});
+  final bool isNarrow;
+
   @override
   State<ProgramPreview> createState() => _ProgramPreviewState();
 }
@@ -29,6 +32,7 @@ class _ProgramPreviewState extends State<ProgramPreview> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: const Text("Program preview", style: TextStyle(fontSize: 18)),
@@ -48,16 +52,34 @@ class _ProgramPreviewState extends State<ProgramPreview> {
 
               const Text("Program",
                 style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
 
               Selector<MqttPayloadProvider, String?>(
                 selector: (_, provider) => provider.getProgramPreview(),
                 builder: (_, status, __) {
+
                   if (status == null) {
-                    return const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Skeletonizer(
+                        enabled: true,
+                        child: Column(
+                          children: List.generate(14, (index) {
+                            return ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              title: ClipRRect(
+                                borderRadius: BorderRadius.circular(6),
+                                child: Container(width: 130, height: 20,
+                                  color: Colors.grey),
+                              ),
+                              trailing: ClipRRect(
+                                borderRadius: BorderRadius.circular(6),
+                                child: Container(width: 130, height: 20,
+                                  color: Colors.grey),
+                              ),
+                            );
+                          }),
+                        ),
+                      ),
                     );
                   }
 
@@ -72,7 +94,7 @@ class _ProgramPreviewState extends State<ProgramPreview> {
                           title: Text(getPrgLabelByIndex(index), style: const TextStyle(color: Colors.black54)),
                           trailing: Text(
                             items[index],
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: widget.isNarrow ? 16 : 14),
                           ),
                         );
                       }),
@@ -85,16 +107,34 @@ class _ProgramPreviewState extends State<ProgramPreview> {
 
               const Text("Sequence",
                 style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
 
               Selector<MqttPayloadProvider, String?>(
                 selector: (_, provider) => provider.getSequencePreview(),
                 builder: (_, status, __) {
+
                   if (status == null) {
-                    return const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Skeletonizer(
+                        enabled: true,
+                        child: Column(
+                          children: List.generate(8, (index) {
+                            return ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              title: ClipRRect(
+                                borderRadius: BorderRadius.circular(6),
+                                child: Container(width: 130, height: 20,
+                                    color: Colors.grey),
+                              ),
+                              trailing: ClipRRect(
+                                borderRadius: BorderRadius.circular(6),
+                                child: Container(width: 130, height: 20,
+                                    color: Colors.grey),
+                              ),
+                            );
+                          }),
+                        ),
+                      ),
                     );
                   }
 
@@ -138,7 +178,7 @@ class _ProgramPreviewState extends State<ProgramPreview> {
                                   leading: Text("${i+1}"),
                                   title: Text(label, style: const TextStyle(color: Colors.black54)),
                                   trailing: Text(value,
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: widget.isNarrow ? 16 : 14),
                                   ),
                                 ),
                               );

@@ -4,6 +4,7 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../StateManagement/mqtt_payload_provider.dart';
 import '../../../../models/customer/site_model.dart';
 import '../../../../modules/IrrigationProgram/state_management/irrigation_program_provider.dart';
 import '../../../../modules/IrrigationProgram/view/irrigation_program_main.dart';
@@ -34,6 +35,8 @@ class ProgramTableHelper {
           tooltip: "Program Preview",
           icon: Icon(Icons.preview, color: Theme.of(context).primaryColor),
           onPressed: () {
+            MqttPayloadProvider provider = Provider.of<MqttPayloadProvider>(context, listen: false);
+            provider.clearPreview();
             showModalBottomSheet(
               context: context,
               isScrollControlled: true,
@@ -41,7 +44,7 @@ class ProgramTableHelper {
               shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.vertical(top: Radius.circular(5)),
               ),
-              builder: (_) => const ProgramPreview(),
+              builder: (_) => const ProgramPreview(isNarrow: false),
             );
           },
         ),

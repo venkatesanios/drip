@@ -947,6 +947,12 @@ class MqttPayloadProvider with ChangeNotifier {
     unitList = units;
   }
 
+   void clearPreview() {
+     _programPreview = null;
+     _sequencePreview = null;
+     notifyListeners();
+   }
+
 
    String? getPumpOnOffStatus(String sNo) => _pumpOnOffStatusMap[sNo];
    String? getPumpOtherData(String sNo) => _pumpOtherDetailMap[sNo];
