@@ -350,6 +350,7 @@ class CustomerView extends StatelessWidget {
       countryCode: customer.countryCode,
       mobileNo: customer.mobileNumber,
       email: customer.emailId,
+      configPermission: customer.configPermission,
     );
 
     userProvider.pushViewedCustomer(user);

@@ -293,6 +293,7 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
         countryCode: code,
         mobileNumber: number,
         email: userData['email'],
+        configPermission: userData['permissionDenied'],
       );
 
       // 🔹 Example: Navigate based on role

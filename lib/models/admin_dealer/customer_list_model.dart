@@ -8,10 +8,12 @@ class CustomerListModel
     this.emailId = '',
     this.serviceRequestCount = 0,
     this.criticalAlarmCount = 0,
+    this.configPermission = false,
   });
 
   int id,serviceRequestCount,criticalAlarmCount;
   String name, countryCode, mobileNumber, emailId;
+  bool configPermission;
 
   factory CustomerListModel.fromJson(Map<String, dynamic> json) => CustomerListModel(
     id: json['userId'],

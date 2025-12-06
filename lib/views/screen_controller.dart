@@ -25,6 +25,7 @@ class ScreenController extends StatelessWidget {
     final mobile = await PreferenceHelper.getMobileNumber();
     final email = await PreferenceHelper.getEmail();
     final role = getRoleFromString(roleString);
+    final configPermission = await PreferenceHelper.getConfigPermission();
 
     final user = UserModel(
       token: token,
@@ -34,6 +35,7 @@ class ScreenController extends StatelessWidget {
       countryCode: countryCode ?? '',
       mobileNo: mobile ?? '',
       email: email ?? '',
+      configPermission: configPermission ?? false,
     );
 
     final userProvider = context.read<UserProvider>();

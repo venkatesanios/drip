@@ -4,6 +4,7 @@ import 'package:oro_drip_irrigation/modules/config_maker/view/config_base_page.d
 import 'package:provider/provider.dart';
 import '../../models/admin_dealer/product_list_with_node.dart';
 import '../../models/admin_dealer/stock_model.dart';
+import '../../providers/user_provider.dart';
 import '../../repository/repository.dart';
 import '../../services/http_service.dart';
 import '../../utils/formatters.dart';
@@ -607,6 +608,9 @@ class MasterListForSite extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final loggedUser = Provider.of<UserProvider>(context, listen: false).loggedInUser;
+
     return SizedBox(
       height: MediaQuery.of(context).size.height - 160,
       child: SingleChildScrollView(
@@ -621,7 +625,8 @@ class MasterListForSite extends StatelessWidget {
                     subtitle: SelectableText(
                         site.master[mstIndex].deviceId.toString(),
                         style: const TextStyle(fontSize: 12)),
-                    trailing: SizedBox(
+                    trailing: !loggedUser.configPermission ?
+                    SizedBox(
                       width: 125,
                       child: MaterialButton(
                         onPressed: () {
@@ -666,7 +671,7 @@ class MasterListForSite extends StatelessWidget {
                           ],
                         ),
                       ),
-                    ),
+                    ) : null,
                   ),
                   if (site.master.length > 1) const Divider(),
                 ],
