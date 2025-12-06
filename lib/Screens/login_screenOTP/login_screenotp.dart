@@ -82,6 +82,7 @@ class _LoginScreenState extends State<LoginScreenOTP> {
      if (response.statusCode == 200) {
        if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
+        print("data$data");
          if (data["code"] == 200) {
 
 

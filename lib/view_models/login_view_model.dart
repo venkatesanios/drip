@@ -48,7 +48,6 @@ class LoginViewModel extends ChangeNotifier {
       return null;
     }
   }
-
   Future<void> login() async {
     if(!kIsWeb) {
       FirebaseMessaging messaging = FirebaseMessaging.instance;
@@ -62,6 +61,8 @@ class LoginViewModel extends ChangeNotifier {
     isLoading = true;
     errorMessage = "";
     notifyListeners();
+
+
 
     try {
       String mobileNumber = mobileNoController.text.trim();
@@ -95,7 +96,6 @@ class LoginViewModel extends ChangeNotifier {
       };
        final response = await repository.checkLoginAuth(body);
       final data = jsonDecode(response.body);
-      print(response.body);
       if (response.statusCode == 200 && data['code'] == 200) {
         final userData = data['data']['user'];
         await PreferenceHelper.saveUserDetails(
@@ -121,4 +121,5 @@ class LoginViewModel extends ChangeNotifier {
       notifyListeners();
     }
   }
+
 }

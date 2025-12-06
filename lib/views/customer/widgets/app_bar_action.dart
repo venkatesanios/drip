@@ -25,13 +25,15 @@ import '../send_and_received/sent_and_received.dart';
 import 'alarm_button.dart';
 
 List<Widget> appBarActions(
-    BuildContext context,
-    CustomerScreenControllerViewModel vm,
-    MasterControllerModel master,
-    bool isNarrow,
-    ) {
-  final loggedInUser = Provider.of<UserProvider>(context, listen: false).loggedInUser;
-  final viewedCustomer = Provider.of<UserProvider>(context, listen: false).viewedCustomer;
+  BuildContext context,
+  CustomerScreenControllerViewModel vm,
+  MasterControllerModel master,
+  bool isNarrow,
+) {
+  final loggedInUser =
+      Provider.of<UserProvider>(context, listen: false).loggedInUser;
+  final viewedCustomer =
+      Provider.of<UserProvider>(context, listen: false).viewedCustomer;
 
   final isGem = [...AppConstants.gemModelList, ...AppConstants.ecoGemModelList]
       .contains(master.modelId);
@@ -60,7 +62,8 @@ List<Widget> appBarActions(
 
   List<Widget> nonGemActions() {
     return [
-      _buildNonGemActions(context, master, loggedInUser, vm.mySiteList.data[vm.sIndex].customerId),
+      _buildNonGemActions(context, master, loggedInUser,
+          vm.mySiteList.data[vm.sIndex].customerId),
     ];
   }
 
@@ -121,18 +124,20 @@ Widget _buildProgramRunningIcon(CustomerScreenControllerViewModel vm) {
     builder: (context, vm, child) {
       return vm.programRunning
           ? CircleAvatar(
-        radius: 15,
-        backgroundImage: const AssetImage('assets/gif/water_drop_ani.gif'),
-        backgroundColor: Colors.blue.shade100,
-      )
+              radius: 15,
+              backgroundImage:
+                  const AssetImage('assets/gif/water_drop_ani.gif'),
+              backgroundColor: Colors.blue.shade100,
+            )
           : const SizedBox();
     },
   );
 }
 
-Widget _buildPauseResumeButton(BuildContext context, CustomerScreenControllerViewModel vm) {
-
-  bool allPaused = vm.lineLiveMessage.isNotEmpty && vm.lineLiveMessage.every((line) {
+Widget _buildPauseResumeButton(
+    BuildContext context, CustomerScreenControllerViewModel vm) {
+  bool allPaused = vm.lineLiveMessage.isNotEmpty &&
+      vm.lineLiveMessage.every((line) {
         final parts = line.split(',');
         return parts.length > 1 && parts[1] == '1';
       });
@@ -140,13 +145,16 @@ Widget _buildPauseResumeButton(BuildContext context, CustomerScreenControllerVie
   return TextButton(
     onPressed: () => vm.linePauseOrResume(vm.lineLiveMessage),
     style: ButtonStyle(
-      backgroundColor: WidgetStateProperty.all(allPaused ? Colors.green : Colors.amber),
-      shape: WidgetStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
+      backgroundColor:
+          WidgetStateProperty.all(allPaused ? Colors.green : Colors.amber),
+      shape: WidgetStateProperty.all(
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
     ),
     child: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(allPaused ? Icons.play_arrow_outlined : Icons.pause, color: Colors.black),
+        Icon(allPaused ? Icons.play_arrow_outlined : Icons.pause,
+            color: Colors.black),
         const SizedBox(width: 5),
         Text(allPaused ? 'RESUME ALL LINE' : 'PAUSE ALL LINE',
             style: const TextStyle(color: Colors.black54)),
@@ -155,8 +163,15 @@ Widget _buildPauseResumeButton(BuildContext context, CustomerScreenControllerVie
   );
 }
 
-Widget _buildHelpMenu(BuildContext context, CustomerScreenControllerViewModel vm,
-    dynamic loggedInUser, dynamic viewedCustomer, dynamic master) {
+Widget _buildHelpMenu(
+    BuildContext context,
+    CustomerScreenControllerViewModel vm,
+    dynamic loggedInUser,
+    dynamic viewedCustomer,
+    dynamic master) {
+
+  final loggedUser = Provider.of<UserProvider>(context, listen: false).loggedInUser;
+
   return IconButton(
     tooltip: 'Help & Support',
     onPressed: () => showMenu(
@@ -181,55 +196,74 @@ Widget _buildHelpMenu(BuildContext context, CustomerScreenControllerViewModel vm
                     context,
                     MaterialPageRoute(
                         builder: (_) => UserChatScreen(
-                          userId: vm.mySiteList.data[vm.sIndex].customerId,
-                          userName: vm.mySiteList.data[vm.sIndex].customerName,
-                          phoneNumber: viewedCustomer!.mobileNo,
-                        )),
+                              userId: vm.mySiteList.data[vm.sIndex].customerId,
+                              userName:
+                                  vm.mySiteList.data[vm.sIndex].customerName,
+                              phoneNumber: viewedCustomer!.mobileNo,
+                            )),
                   );
                 },
               ),
-              ListTile(
+              !loggedUser.configPermission ? ListTile(
                 leading: const Icon(Icons.info_outline),
                 title: const Text('Controller info'),
-                onTap: () {
+                onTap: () async {
+
                   Navigator.pop(context);
-                  if(loggedInUser.role == UserRole.admin){
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) =>
-                          ResetVerssion(userId: vm.mySiteList.data[vm.sIndex].customerId,
-                            controllerId: master.controllerId,
-                            deviceID: master.deviceId,)),
-                    );
-                  }
-                  else
-                  {
-                    showPasswordDialog(context,'Oro@321',vm.mySiteList.data[vm.sIndex].customerId,
-                        master.controllerId, master.deviceId,1);
+
+                    if (loggedInUser.role == UserRole.admin) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ResetVerssion(
+                                  userId:
+                                      vm.mySiteList.data[vm.sIndex].customerId,
+                                  controllerId: master.controllerId,
+                                  deviceID: master.deviceId,
+                                )),
+                      );
+                    } else {
+                      showPasswordDialog(
+                          context,
+                          'Oro@321',
+                          vm.mySiteList.data[vm.sIndex].customerId,
+                          master.controllerId,
+                          master.deviceId,
+                          1);
+
                   }
                 },
-              ),
-              ListTile(
+              ) : SizedBox(),
+              !loggedUser.configPermission ? ListTile(
                 leading: const Icon(Icons.restore),
                 title: const Text('Factory Reset'),
-                onTap: () {
+                onTap: () async {
+
                   Navigator.pop(context);
-                  if(loggedInUser.role == UserRole.admin){
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) =>
-                          ResetAccumalationScreen(userId: vm.mySiteList.data[vm.sIndex].customerId,
-                            controllerId: master.controllerId,
-                            deviceID: master.deviceId,)),
-                    );
-                  }
-                  else
-                  {
-                    showPasswordDialog(context,'Oro@321',vm.mySiteList.data[vm.sIndex].customerId,
-                        master.controllerId, master.deviceId,2);
-                  }
+
+                    if (loggedInUser.role == UserRole.admin) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ResetAccumalationScreen(
+                                  userId:
+                                      vm.mySiteList.data[vm.sIndex].customerId,
+                                  controllerId: master.controllerId,
+                                  deviceID: master.deviceId,
+                                )),
+                      );
+                    } else {
+                      showPasswordDialog(
+                          context,
+                          'Oro@321',
+                          vm.mySiteList.data[vm.sIndex].customerId,
+                          master.controllerId,
+                          master.deviceId,
+                          2);
+                    }
+
                 },
-              ),
+              ) : SizedBox(),
               const Divider(height: 0),
               ListTile(
                 leading: const Icon(Icons.feedback_outlined),
@@ -238,7 +272,6 @@ Widget _buildHelpMenu(BuildContext context, CustomerScreenControllerViewModel vm
                   Navigator.pop(context);
                 },
               ),
-
             ],
           ),
         ),
@@ -252,10 +285,14 @@ Widget _buildHelpMenu(BuildContext context, CustomerScreenControllerViewModel vm
   );
 }
 
-Widget _buildAccountMenu(BuildContext context, CustomerScreenControllerViewModel vm,
-    dynamic viewedCustomer, bool isNarrow) {
+Widget _buildAccountMenu(
+    BuildContext context,
+    CustomerScreenControllerViewModel vm,
+    dynamic viewedCustomer,
+    bool isNarrow) {
   return IconButton(
-    tooltip: 'Your Account\n${viewedCustomer!.name}\n${viewedCustomer.mobileNo}',
+    tooltip:
+        'Your Account\n${viewedCustomer!.name}\n${viewedCustomer.mobileNo}',
     onPressed: () {
       showMenu(
         context: context,
@@ -268,12 +305,15 @@ Widget _buildAccountMenu(BuildContext context, CustomerScreenControllerViewModel
               children: [
                 CircleAvatar(
                   radius: 30,
-                  backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
+                  backgroundColor:
+                      Theme.of(context).primaryColor.withOpacity(0.1),
                   child: Text(viewedCustomer.name.substring(0, 1).toUpperCase(),
                       style: const TextStyle(fontSize: 25)),
                 ),
-                Text('Hi, ${viewedCustomer.name}!', style: const TextStyle(fontSize: 20)),
-                Text(viewedCustomer.mobileNo, style: const TextStyle(fontSize: 13)),
+                Text('Hi, ${viewedCustomer.name}!',
+                    style: const TextStyle(fontSize: 20)),
+                Text(viewedCustomer.mobileNo,
+                    style: const TextStyle(fontSize: 13)),
                 const SizedBox(height: 8),
                 MaterialButton(
                   color: Theme.of(context).primaryColor,
@@ -290,7 +330,8 @@ Widget _buildAccountMenu(BuildContext context, CustomerScreenControllerViewModel
                         child: Container(
                           decoration: const BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+                            borderRadius:
+                                BorderRadius.vertical(top: Radius.circular(8)),
                           ),
                           child: UserProfile(isNarrow: isNarrow),
                         ),
@@ -299,21 +340,29 @@ Widget _buildAccountMenu(BuildContext context, CustomerScreenControllerViewModel
                   },
                 ),
                 const SizedBox(height: 8),
-                TextButton(onPressed: () async {
-                  await PreferenceHelper.clearAll();
-                  const route = kIsWeb ? Routes.login : Routes.loginOtp;
-                  Navigator.pushNamedAndRemoveUntil(context, route, (route) => false,);
-                  // Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false,);
-                },
+                TextButton(
+                  onPressed: () async {
+                    await PreferenceHelper.clearAll();
+                    const route = kIsWeb ? Routes.login : Routes.loginOtp;
+                    Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      route,
+                      (route) => false,
+                    );
+                    // Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false,);
+                  },
                   child: const SizedBox(
-                    width:100,
+                    width: 100,
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.exit_to_app, color: Colors.red),
                         SizedBox(width: 7),
-                        Text('Logout', style: TextStyle(color: Colors.red),),
+                        Text(
+                          'Logout',
+                          style: TextStyle(color: Colors.red),
+                        ),
                       ],
                     ),
                   ),
@@ -374,7 +423,9 @@ Widget _buildNonGemActions(BuildContext context, dynamic master,
                 builder: (context) => SentAndReceived(
                   customerId: customerId,
                   controllerId: master.controllerId,
-                  isWide: ScreenHelper.getScreenType(MediaQuery.of(context).size.width) == ScreenType.wide,
+                  isWide: ScreenHelper.getScreenType(
+                          MediaQuery.of(context).size.width) ==
+                      ScreenType.wide,
                 ),
               ),
             );
@@ -438,7 +489,8 @@ Widget _buildNonGemActions(BuildContext context, dynamic master,
   );
 }
 
-void showPasswordDialog(BuildContext context, correctPassword,userId,controllerID,imeiNumber,type) {
+void showPasswordDialog(BuildContext context, correctPassword, userId,
+    controllerID, imeiNumber, type) {
   final TextEditingController passwordController = TextEditingController();
   showDialog(
     context: context,
@@ -461,14 +513,13 @@ void showPasswordDialog(BuildContext context, correctPassword,userId,controllerI
             child: const Text('Cancel'),
           ),
           TextButton(
-            onPressed: () async{
+            onPressed: () async {
               final userPsw = passwordController.text;
 
-              try{
+              try {
                 final Repository repository = Repository(HttpService());
-                var getUserDetails = await repository.checkpassword({
-                  "passkey": userPsw
-                });
+                var getUserDetails =
+                    await repository.checkpassword({"passkey": userPsw});
 
                 if (getUserDetails.statusCode == 200) {
                   var jsonData = jsonDecode(getUserDetails.body);
@@ -477,20 +528,21 @@ void showPasswordDialog(BuildContext context, correctPassword,userId,controllerI
                       Navigator.of(context).pop();
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) =>
-                            ResetVerssion(userId: userId,
-                              controllerId: controllerID,
-                              deviceID: imeiNumber,)),
+                        MaterialPageRoute(
+                            builder: (context) => ResetVerssion(
+                                  userId: userId,
+                                  controllerId: controllerID,
+                                  deviceID: imeiNumber,
+                                )),
                       );
-                    }
-                    else if (type == 2) {
+                    } else if (type == 2) {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              ResetAccumalationScreen(userId: userId,
-                                  controllerId: controllerID,
-                                  deviceID: imeiNumber),
+                          builder: (context) => ResetAccumalationScreen(
+                              userId: userId,
+                              controllerId: controllerID,
+                              deviceID: imeiNumber),
                         ),
                       );
                     }
@@ -499,8 +551,7 @@ void showPasswordDialog(BuildContext context, correctPassword,userId,controllerI
                     showErrorDialog(context);
                   }
                 }
-              }
-              catch (e, stackTrace) {
+              } catch (e, stackTrace) {
                 debugPrint(' Error overAll getData => ${e.toString()}');
                 debugPrint(' trace overAll getData  => $stackTrace');
               }
