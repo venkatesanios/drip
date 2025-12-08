@@ -113,7 +113,7 @@ class _LineConfigurationState extends State<LineConfiguration> {
                                             // return sourceThatOnlyForMonitoring;
                                             return object.objectId == AppConstants.sourceObjectId;
                                           }).toList(),
-                                          validateAllLine: true
+                                          validateAllLine: false
                                       ),
                                     if(widget.configPvd.pump.any((pump) => pump.pumpType == 1))
                                       getLineParameter(
