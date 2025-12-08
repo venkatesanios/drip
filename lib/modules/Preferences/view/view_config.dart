@@ -27,6 +27,16 @@ class _ViewConfigState extends State<ViewConfig> {
   Timer? _timeoutTimer;
   int _remainingTime = 0;
   final MqttService mqttService = MqttService();
+  final List<String> titles = [
+    "Nothing",
+    "Motor 1",
+    "Motor 2",
+    "Motor 1, Motor 2",
+    "Motor 3",
+    "Motor 1, Motor 3",
+    "Motor 2, Motor 3",
+    "Motor 1, Motor 2, Motor 3",
+  ];
 
   Map<int, String> generateDynamicConfigs(int pumpConfig) {
     Map<int, String> indexToName = {
@@ -77,7 +87,7 @@ class _ViewConfigState extends State<ViewConfig> {
       _remainingTime = 90; // reset every time
     });
 
-    debugPrint('requestViewConfig START - payload:$selectedPayload index:$index');
+    // debugPrint('requestViewConfig START - payload:$selectedPayload index:$index');
 
     _timeoutTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (!mounted) {
@@ -165,7 +175,7 @@ class _ViewConfigState extends State<ViewConfig> {
       }
     } else {
       if (mqttProvider.viewSettingsList.isNotEmpty && mqttProvider.cCList.contains(deviceId)) {
-        debugPrint('Received response (non-LORA) for $deviceId - cancelling timer');
+        // debugPrint('Received response (non-LORA) for $deviceId - cancelling timer');
         _timeoutTimer?.cancel();
         _hasTimedOut = false;
       }
@@ -522,46 +532,53 @@ class _ViewConfigState extends State<ViewConfig> {
             alignment: WrapAlignment.start,
             spacing: 50,
             runAlignment: WrapAlignment.spaceBetween,
-            children: !(_hasPayload('calibration', provider, deviceId))
-                ? settings.map((setting) {
-              if ([206].contains(setting.type) && _hasPayload('ctconfig', provider, deviceId)) {
-                final values = widget.isLora
-                    ? provider.viewSetting['cM'].first['ctconfig'].split(',')
-                    : '${jsonDecode(provider.viewSettingsList[0])[1]['ctconfig']}'.split(',');
-                return _buildSettingCard(setting, values);
-              } else if ([204].contains(setting.type) && _hasPayload('voltageconfig', provider, deviceId)) {
-                final values = widget.isLora
-                    ? provider.viewSetting['cM'].first['voltageconfig'].split(',')
-                    : '${jsonDecode(provider.viewSettingsList[0])[2]['voltageconfig']}'.split(',');
-                return _buildSettingCard(setting, values);
-              }
-              return Container();
-            }).toList()
-                : calibrationSettings != null
-                ? calibrationSettings.map((setting) {
-              if ([208, 209, 210].contains(setting.type)) {
-                final List<String> values = widget.isLora
-                    ? provider.viewSetting['cM'].first['calibration'].split(',')
-                    : '${jsonDecode(provider.viewSettingsList[0])[3]['calibration']}'.split(',');
-                return _buildSettingCard(
-                  setting,
-                  setting.type == 208
-                      ? values
-                      : setting.type == 209
-                      ? values.skip(3).toList()
-                      : values.skip(6).toList(),
-                );
-              }
-              return Container();
-            }).toList()
-                : [Container()],
+            children: [
+              ...(!_hasPayload('calibration', provider, deviceId)
+                  ? settings.map((setting) {
+                if ([206].contains(setting.type) && _hasPayload('ctconfig', provider, deviceId)) {
+                  final values = widget.isLora
+                      ? provider.viewSetting['cM'].first['ctconfig'].split(',')
+                      : '${jsonDecode(provider.viewSettingsList[0])[1]['ctconfig']}'.split(',');
+                  return Column(
+                    children: [
+                      _buildSettingCard(setting, values),
+                      _buildSettingCard(setting, values, titles: titles),
+                    ],
+                  );
+                } else if ([204].contains(setting.type) && _hasPayload('voltageconfig', provider, deviceId)) {
+                  final values = widget.isLora
+                      ? provider.viewSetting['cM'].first['voltageconfig'].split(',')
+                      : '${jsonDecode(provider.viewSettingsList[0])[2]['voltageconfig']}'.split(',');
+                  return _buildSettingCard(setting, values);
+                }
+                return Container();
+              }).toList()
+                  : calibrationSettings != null
+                  ? calibrationSettings.map((setting) {
+                if ([208, 209, 210].contains(setting.type)) {
+                  final List<String> values = widget.isLora
+                      ? provider.viewSetting['cM'].first['calibration'].split(',')
+                      : '${jsonDecode(provider.viewSettingsList[0])[3]['calibration']}'.split(',');
+                  return _buildSettingCard(
+                    setting,
+                    setting.type == 208
+                        ? values
+                        : setting.type == 209
+                        ? values.skip(3).toList()
+                        : values.skip(6).toList(),
+                  );
+                }
+                return Container();
+              }).toList()
+                  : <Widget>[]),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSettingCard(SettingList setting, List<String> values) {
+  Widget _buildSettingCard(SettingList setting, List<String> values, {List<String> titles = const []}) {
     return SizedBox(
       width: MediaQuery.of(context).size.width <= 500 ? MediaQuery.of(context).size.width : 400,
       child: Column(
@@ -577,7 +594,7 @@ class _ViewConfigState extends State<ViewConfig> {
                   borderRadius: const BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(3))),
               child: Center(
                 child: Text(
-                  setting.name,
+                  titles.isEmpty ? setting.name : "2 PH ON/OFF Reference",
                   style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
                 ),
               ),
@@ -598,10 +615,18 @@ class _ViewConfigState extends State<ViewConfig> {
             surfaceTintColor: Colors.white,
             shadowColor: Theme.of(context).primaryColorLight.withAlpha(100),
             child: Column(
-              children: List.generate(
-                [208, 209, 210].contains(setting.type) ? setting.setting.length : values.length,
-                    (i) => _buildListTile(setting.setting[i].title, values[i]),
-              ),
+              children: [
+                if(titles.isEmpty)
+                ...List.generate(
+                  [208, 209, 210].contains(setting.type) ? setting.setting.length : values.length,
+                      (i) => _buildListTile(setting.setting[i].title, values[i]),
+                )
+                else
+                  ...List.generate(
+                    titles.length,
+                        (i) => _buildListTile(titles[i], "$i"),
+                  )
+              ]
             ),
           ),
         ],

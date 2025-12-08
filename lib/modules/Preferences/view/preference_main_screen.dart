@@ -8,7 +8,6 @@ import 'package:oro_drip_irrigation/services/http_service.dart';
 import 'package:oro_drip_irrigation/services/mqtt_service.dart';
 import 'package:oro_drip_irrigation/utils/constants.dart';
 import 'package:provider/provider.dart';
-import '../../../models/customer/site_model.dart';
 import '../../../StateManagement/mqtt_payload_provider.dart';
 import '../../../Widgets/custom_animated_switcher.dart';
 import '../../IrrigationProgram/view/schedule_screen.dart';
@@ -368,15 +367,15 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                               Expanded(
                                 child: _getDefaultTabController(),
                               ),
-                            if(MediaQuery.of(context).size.width > 500 && preferenceProvider.commonPumpSettings!.isNotEmpty)
-                              IconButton(
+                            if(selectedSetting == 0 && MediaQuery.of(context).size.width > 500 && preferenceProvider.commonPumpSettings!.isNotEmpty)
+                              FilledButton(
                                   onPressed: (){
                                     setState(() {
                                       viewConfig = !viewConfig;
                                     });
                                   },
-                                  icon: Icon(Icons.remove_red_eye_outlined, color: Theme.of(context).primaryColor,)
-                              ),
+                                  child: const Text('View')
+                              )
                           ],
                         ),
                       ),
