@@ -104,13 +104,14 @@ class _LineConfigurationState extends State<LineConfiguration> {
                                           objectId: AppConstants.sourceObjectId,
                                           objectName: 'Source only for monitoring',
                                           listOfObject: widget.configPvd.listOfGeneratedObject.where((object){
-                                            bool sourceThatOnlyForMonitoring = false;
-                                            for(var src in widget.configPvd.source){
-                                              if(src.commonDetails.sNo == object.sNo && src.inletPump.isEmpty && src.outletPump.isEmpty && src.valves.isEmpty){
-                                                sourceThatOnlyForMonitoring = true;
-                                              }
-                                            }
-                                            return sourceThatOnlyForMonitoring;
+                                            // bool sourceThatOnlyForMonitoring = false;
+                                            // for(var src in widget.configPvd.source){
+                                            //   if(src.commonDetails.sNo == object.sNo && src.inletPump.isEmpty && src.outletPump.isEmpty && src.valves.isEmpty){
+                                            //     sourceThatOnlyForMonitoring = true;
+                                            //   }
+                                            // }
+                                            // return sourceThatOnlyForMonitoring;
+                                            return object.objectId == AppConstants.sourceObjectId;
                                           }).toList(),
                                           validateAllLine: true
                                       ),

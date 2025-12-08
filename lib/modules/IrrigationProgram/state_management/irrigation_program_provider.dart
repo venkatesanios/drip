@@ -1632,13 +1632,17 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       // String sequenceSerialNo = sq['sNo'].toString();
       // String valSerialNo = sq['valve'][v]['sNo'].toString().split('.')[1];
       // String zoneSerialNo = sequenceSerialNo.contains('.') ? sequenceSerialNo.split('.')[1] : sequenceSerialNo;
+      String zoneTime = '';
+      String zoneQuantity = '';
+      zoneTime = DataConvert().convertLitersToTime(double.parse(sequenceData[selectedGroup]['quantityValue']), getNominalFlow());
+      zoneQuantity = DataConvert().convertTimeToLiters(sequenceData[selectedGroup]['timeValue'], getNominalFlow());
       Map<String, dynamic> jsonPayload = {
         'Zone_No' : sq['sNo'],
         'Program_No' : serialNumber,
         'SequenceData' : getValve.join(','),
         'ValveFlowRate' : getNominalFlow(),
         'IrrigationMethod' : sq['method'] == 'Time' ? 1 : 2,
-        'IrrigationDuration_Quantity' : timeAndQuantityForWaterValueInEcoGem(sq['timeValue'], sq['quantityValue']),
+        'IrrigationDuration_Quantity' : timeAndQuantityForWaterValueInEcoGem(zoneTime, zoneQuantity),
         'CentralFertOnOff' : sq['applyFertilizerForCentral'] == false ? 0 : sq['selectedCentralSite'] == -1 ? 0 : 1,
         // 'PrePostMethod' : sq['prePostMethod'] == 'Time' ? 1 : 2,
         'PreTime_PreQty' : timeAndQuantityForEcoGem(sq['preValue']),
@@ -1680,52 +1684,52 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
     print("water method updated...........111111");
 
     if(title == 'method'){
-      // var maxFertInSec = getMaxFertilizerValueForSelectedSequence();
-      // var diff = (postValueInSec() + preValueInSec() + maxFertInSec);
-      // var quantity = diff * flowRate();
-      //
-      // if(AppConstants.ecoGemAndPlusModelList.contains(modelId)){
-      //   if(sequenceData[selectedGroup][segmentedControlCentralLocal == 0 ? 'centralDosing' : 'localDosing'].isNotEmpty){
-      //     for(var fert in sequenceData[selectedGroup][segmentedControlCentralLocal == 0 ? 'centralDosing' : 'localDosing'][0]['fertilizer']){
-      //       fert['method'] = value;
-      //       fert['timeValue'] = '00:00:00';
-      //       fert['quantityValue'] = '0';
-      //     }
-      //   }
-      // }
-      //
-      // if(value == 'Time'){
-      //   sequenceData[selectedGroup]['timeValue'] = formatTime(diff);
-      // }else{
-      //   sequenceData[selectedGroup]['quantityValue'] = '${quantity.toInt() == 0 ? 0 : quantity.toInt() + 1}';
-      //   waterQuantity.text = '${quantity.toInt() == 0 ? 0 : quantity.toInt() + 1}';
-      // }
-      //
-      // sequenceData[selectedGroup]['method'] = value;
-      // if(sequenceData[selectedGroup]['method'] == 'Time'){
-      //   if(sequenceData[selectedGroup]['timeValue'] == '00:00:00'){
-      //     waterValueInTime = '00:00:00';
-      //     waterValueInQuantity = '0';
-      //
-      //   }else{
-      //     refreshTime();
-      //   }
-      // }else{
-      //   if(sequenceData[selectedGroup]['quantityValue'] == '0'){
-      //     waterValueInQuantity = '0';
-      //     waterValueInTime = '00:00:00';
-      //   }else{
-      //     refreshTime();
-      //   }
-      // }
-      if(sequenceData[selectedGroup]['method'] == 'Time' && value == 'Time'){
+      var maxFertInSec = getMaxFertilizerValueForSelectedSequence();
+      var diff = (postValueInSec() + preValueInSec() + maxFertInSec);
+      var quantity = diff * flowRate();
+
+      if(AppConstants.ecoGemAndPlusModelList.contains(modelId)){
+        if(sequenceData[selectedGroup][segmentedControlCentralLocal == 0 ? 'centralDosing' : 'localDosing'].isNotEmpty){
+          for(var fert in sequenceData[selectedGroup][segmentedControlCentralLocal == 0 ? 'centralDosing' : 'localDosing'][0]['fertilizer']){
+            fert['method'] = value;
+            fert['timeValue'] = '00:00:00';
+            fert['quantityValue'] = '0';
+          }
+        }
+      }
+
+      if(value == 'Time'){
+        sequenceData[selectedGroup]['timeValue'] = formatTime(diff);
+      }else{
+        sequenceData[selectedGroup]['quantityValue'] = '${quantity.toInt() == 0 ? 0 : quantity.toInt() + 1}';
+        waterQuantity.text = '${quantity.toInt() == 0 ? 0 : quantity.toInt() + 1}';
+      }
+
+      sequenceData[selectedGroup]['method'] = value;
+      if(sequenceData[selectedGroup]['method'] == 'Time'){
+        if(sequenceData[selectedGroup]['timeValue'] == '00:00:00'){
+          waterValueInTime = '00:00:00';
+          waterValueInQuantity = '0';
+
+        }else{
+          refreshTime();
+        }
+      }else{
+        if(sequenceData[selectedGroup]['quantityValue'] == '0'){
+          waterValueInQuantity = '0';
+          waterValueInTime = '00:00:00';
+        }else{
+          refreshTime();
+        }
+      }
+      /*if(sequenceData[selectedGroup]['method'] == 'Time' && value == 'Time'){
         // don't do anything...
       }else if(value == 'Time'){
         sequenceData[selectedGroup]['timeValue'] = DataConvert().convertLitersToTime(double.parse(sequenceData[selectedGroup]['quantityValue']), getNominalFlow());
       }else{
         sequenceData[selectedGroup]['quantityValue'] = DataConvert().convertTimeToLiters(sequenceData[selectedGroup]['timeValue'], getNominalFlow());
       }
-      sequenceData[selectedGroup]['method'] = value;
+      sequenceData[selectedGroup]['method'] = value;*/
       print("water method updated...........");
     }else if(title == 'timeValue'){
       sequenceData[selectedGroup]['timeValue'] = value;
