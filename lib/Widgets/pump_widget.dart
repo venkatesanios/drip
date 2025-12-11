@@ -19,12 +19,13 @@ class PumpWidget extends StatelessWidget {
   final bool isSourcePump;
   final String deviceId;
   final int customerId, controllerId, modelId;
-  final bool isMobile, isNova;
+  final bool isMobile, isNova, isAvailFrtSite;
   final String pumpPosition;
 
   PumpWidget({super.key, required this.pump, required this.isSourcePump,
     required this.deviceId, required this.customerId, required this.controllerId,
-    required this.isMobile, required this.modelId, required this.pumpPosition, required this.isNova});
+    required this.isMobile, required this.modelId, required this.pumpPosition,
+    required this.isNova, required this.isAvailFrtSite});
 
   final ValueNotifier<int> popoverUpdateNotifier = ValueNotifier<int>(0);
 
@@ -79,7 +80,7 @@ class PumpWidget extends StatelessWidget {
         }
 
         return Padding(
-          padding:  EdgeInsets.only(top: isNova ? 39.9 : 0),
+          padding:  EdgeInsets.only(top: (isNova && isAvailFrtSite) ? 39.5 : 0),
           child: Stack(
             children: [
               SizedBox(
@@ -412,7 +413,6 @@ class PumpWidget extends StatelessWidget {
     );
   }
 
-
   Widget _buildBottomControlButtons(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
@@ -480,5 +480,213 @@ class PumpWidget extends StatelessWidget {
     } else {
       throw Exception('Failed to load data');
     }
+  }
+}
+
+class VoltageWidget extends StatelessWidget {
+  const VoltageWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Selector<MqttPayloadProvider, List<String>?>(
+      selector: (_, provider) => provider.getNovaVoltage(),
+      builder: (_, data, __) {
+
+        if (data == null || data.isEmpty) {
+          return const SizedBox();
+        }
+
+        final pumpCount = data.length;
+
+        final payload = data.first;
+        final parts = payload.split(",");
+
+        if (parts.length < 7) return const SizedBox();
+
+        final voltageList = parts[5].split("_");
+
+        final currentRaw = parts[6].split("_");
+
+        String bcCurrentFromPump2 = "-";
+        if (pumpCount == 2) {
+          bcCurrentFromPump2 = getBcCurrentFromSecondPump(data);
+        }
+
+        List<String> currentColumns = ["0", "0", "0"];
+
+        for (var c in currentRaw) {
+          if (c.contains(":")) {
+            var sp = c.split(":");
+            var phase = int.tryParse(sp[0]) ?? 0;
+            var value = sp[1];
+
+            if (phase == 1) currentColumns[0] = value;
+            if (phase == 2) currentColumns[1] = value;
+            if (phase == 3) currentColumns[2] = value;
+          }
+        }
+
+        if (pumpCount == 2) {
+          currentColumns[2] = bcCurrentFromPump2;
+        }
+
+        final pumpNames = getPumpConnectionNames(data);
+
+        return _buildVoltagePopoverContent(
+            context,
+            voltageList,
+            currentColumns,
+            pumpNames
+        );
+      },
+    );
+  }
+
+  Widget _buildPhaseInfo() {
+    int phase = int.tryParse("0") ?? 0;
+    return Container(
+      width: 310,
+      height: 25,
+      color: Colors.transparent,
+      child: Row(
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(left: 9),
+            child: SizedBox(width: 100, child: Text('Phase', style: TextStyle(color: Colors.black54))),
+          ),
+          const Spacer(),
+          for (int i = 0; i < 3; i++)
+            Row(
+              children: [
+                CircleAvatar(
+                  radius: 7,
+                  backgroundColor: phase > i ? Colors.green : Colors.grey.shade400,
+                ),
+                const VerticalDivider(color: Colors.transparent),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+
+  String getBcCurrentFromSecondPump(List<String> data) {
+    if (data.length < 2) return "-";
+
+    final payload = data[1];
+    final parts = payload.split(",");
+
+    if (parts.length < 7) return "-";
+
+    final currents = parts[6].split("_");
+
+    for (var pair in currents) {
+      var sp = pair.split(":");
+      if (sp.length == 2) {
+        int phase = int.parse(sp[0]);
+        if (phase == 3) {
+          return sp[1];
+        }
+      }
+    }
+
+    return "-";
+  }
+
+  List<String> getPumpConnectionNames(List<String> data) {
+    List<String> connectedPump = ["-", "-", "-"];
+
+    for (int i = 0; i < data.length; i++) {
+      final parts = data[i].split(",");
+      if (parts.length < 7) continue;
+
+      final currentMap = parts[6].split("_");
+
+      for (var mapItem in currentMap) {
+        if (!mapItem.contains(":")) continue;
+
+        final sp = mapItem.split(":");
+        final phase = int.tryParse(sp[0]) ?? 0;
+
+        if (phase >= 1 && phase <= 3) {
+          connectedPump[phase - 1] = "Pump-${i + 1}";
+        }
+      }
+    }
+
+    return connectedPump;
+  }
+
+  Widget _buildVoltagePopoverContent(BuildContext context, voltages,
+      columns, List<String> pumpNames) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 8),
+        if (voltages.length == 6) ...[
+          _buildVoltageCurrentInfo(voltages.sublist(0, 3), ['RY', 'YB', 'BR']),
+          const SizedBox(height: 5),
+          _buildVoltageCurrentInfo(voltages.sublist(3, 6), ['RN', 'YN', 'BN']),
+        ] else ...[
+          _buildVoltageCurrentInfo(voltages.sublist(0, 3), ['RY', 'YB', 'BR']),
+        ],
+        const SizedBox(height: 8),
+        _buildVoltageCurrentInfo(columns, ['RC', 'YC', 'BC']),
+        const SizedBox(height: 10),
+      ],
+    );
+  }
+
+  Widget _buildVoltageCurrentInfo(List<String> values, List<String> prefixes) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 8),
+      child: Row(
+        children: [
+          ...List.generate(3, (index) {
+            Color bgColor, borderColor;
+            switch (index) {
+              case 0:
+                bgColor = Colors.red.shade100;
+                borderColor = Colors.red;
+                break;
+              case 1:
+                bgColor = Colors.yellow.shade200;
+                borderColor = Colors.yellow;
+                break;
+              case 2:
+                bgColor = Colors.blue.shade100;
+                borderColor = Colors.blue;
+                break;
+              default:
+                bgColor = Colors.white;
+                borderColor = Colors.grey;
+            }
+
+            return Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(right: 7),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: bgColor,
+                    border: Border.all(color: borderColor, width: 0.7),
+                    borderRadius: BorderRadius.circular(3.0),
+                  ),
+                  width: 95,
+                  height: 30,
+                  child: Center(
+                    child: Text(
+                      '${prefixes[index]} : ${values[index]}',
+                      style: const TextStyle(fontSize: 11),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }),
+        ],
+      ),
+    );
   }
 }

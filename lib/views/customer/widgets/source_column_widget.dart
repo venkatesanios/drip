@@ -20,6 +20,7 @@ class SourceColumnWidget extends StatelessWidget {
   final int modelId;
   final bool isMobile;
   final bool isNova;
+  final bool isAvailFrtSite;
 
   const SourceColumnWidget({
     super.key,
@@ -35,6 +36,7 @@ class SourceColumnWidget extends StatelessWidget {
     required this.modelId,
     required this.isMobile,
     required this.isNova,
+    required this.isAvailFrtSite,
   });
 
   @override
@@ -48,7 +50,7 @@ class SourceColumnWidget extends StatelessWidget {
     (index == total - 1) ? 'Last' : 'Center';
 
     return Padding(
-      padding: EdgeInsets.only(top: isNova ? 39.9 : 0),
+      padding: EdgeInsets.only(top: (isNova && isAvailFrtSite) ? 39.5 : 0),
       child: SizedBox(
         width: 70,
         height: 100,

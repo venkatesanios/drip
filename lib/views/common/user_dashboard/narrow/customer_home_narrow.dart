@@ -5,6 +5,7 @@ import 'package:oro_drip_irrigation/utils/helpers/mc_permission_helper.dart';
 import 'package:popover/popover.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../Widgets/pump_widget.dart';
 import '../../../../models/customer/site_model.dart';
 import '../../../../StateManagement/mqtt_payload_provider.dart';
 import '../../../../services/communication_service.dart';
@@ -63,6 +64,13 @@ class CustomerHomeNarrow extends StatelessWidget {
                 },
               ),
 
+              if(isNova)...[
+                const Padding(
+                  padding: EdgeInsets.only(left: 8, right: 8, top: 5),
+                  child: VoltageWidget(),
+                ),
+              ],
+
               ...linesToDisplay.map((line) {
 
                 final inletWaterSources = {
@@ -89,7 +97,6 @@ class CustomerHomeNarrow extends StatelessWidget {
                   if (line.localFertilizerSite != null) line.localFertilizerSite!.sNo : line.localFertilizerSite!
                 }.values.toList();
 
-
                 final prsSwitch = [
                   ..._buildSensorItems(line.prsSwitch, 'Pressure Switch', 'assets/png/pressure_switch_wj.png', false,
                       customerId, cM.controllerId),
@@ -109,19 +116,20 @@ class CustomerHomeNarrow extends StatelessWidget {
                   child: Stack(
                     children: [
                       Positioned(
-                        top: 4,
+                        top: (isNova && (cFertilizerSite.isNotEmpty || lFertilizerSite.isNotEmpty)) ? 126 : 4,
                         right: 3,
-                        bottom: line.pressureOut.isNotEmpty ? 17 : 50,
-                        child: Container(width: 4, color: Colors.grey.shade400),
+                        bottom: line.pressureOut.isNotEmpty ? 17 : 0,
+                        child: Container(width: 4, color: Colors.grey.shade300),
                       ),
-                      buildConnectionLine(context, 4),
+                      buildConnectionLine(context,
+                          (isNova && (cFertilizerSite.isNotEmpty || lFertilizerSite.isNotEmpty)) ? 126 : 4),
                       Positioned(
-                        bottom : line.pressureOut.isNotEmpty ? 17 : 50,
-                        left: MediaQuery.sizeOf(context).width - 35,
+                        bottom : line.pressureOut.isNotEmpty ? 17 : 0,
+                        left: MediaQuery.sizeOf(context).width - 35 ,
                         right: 3,
                         child: Container(
                           height: 4,
-                          color: Colors.grey.shade400,
+                          color: Colors.grey.shade300,
                         ),
                       ),
 
@@ -242,7 +250,7 @@ class CustomerHomeNarrow extends StatelessWidget {
           physics: const BouncingScrollPhysics(),
           padding: const EdgeInsets.symmetric(horizontal: 8),
           child: Row(
-            mainAxisSize: MainAxisSize.min,          // important: don't expand to full width
+            mainAxisSize: MainAxisSize.min,
             children: [
               ChangeNotifierProvider(
                 create: (context) => CurrentProgramViewModel(
@@ -298,14 +306,10 @@ class CustomerHomeNarrow extends StatelessWidget {
     bool hasBothFertilizers = hasCFertilizer && hasLFertilizer;
 
     if(isNova){
-      if (hasAnyFertilizer) {
-        int trueCount = 0;
-        if (hasPressureSwitch) trueCount++;
-        if (hasPressureSensor) trueCount++;
-        if (hasWaterMeter) trueCount++;
-        if (trueCount == 1) {
-          p = [215, 250];
-        }
+      if (hasPressureSensor && hasWaterMeter) {
+        p = [195, 235];
+      }else if (!hasPressureSensor && hasWaterMeter) {
+        p = [125];
       }
     }else{
       if (hasBothFertilizers && hasPressureSwitch && hasPressureSensor && hasWaterMeter) {
@@ -354,7 +358,7 @@ class CustomerHomeNarrow extends StatelessWidget {
       right: 3,
       child: Container(
         height: 4,
-        color: Colors.grey.shade400,
+        color: Colors.grey.shade300,
       ),
     );
   }

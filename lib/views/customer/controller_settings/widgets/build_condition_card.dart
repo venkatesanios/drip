@@ -23,6 +23,7 @@ Widget buildConditionCard(
             status: vm.clData.cnLibrary.condition[index].status,
             onStatusChanged: (value) => vm.switchStateOnChange(value, index),
             onRemove: () => vm.removeCondition(index),
+            onNameChanged: (newName) => vm.updateConditionName(index, newName),
           ),
           const Divider(height: 0),
           ConditionTypeSelector(

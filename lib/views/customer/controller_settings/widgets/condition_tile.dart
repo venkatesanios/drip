@@ -6,6 +6,7 @@ class ConditionTile extends StatelessWidget {
   final bool status;
   final VoidCallback onRemove;
   final ValueChanged<bool> onStatusChanged;
+  final ValueChanged<String> onNameChanged;
 
   const ConditionTile({
     super.key,
@@ -14,21 +15,25 @@ class ConditionTile extends StatelessWidget {
     required this.status,
     required this.onRemove,
     required this.onStatusChanged,
+    required this.onNameChanged,
   });
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(name, style: const TextStyle(fontSize: 15)),
-            Text(rule, style: const TextStyle(fontSize: 12, color: Colors.black54)),
-            const SizedBox(height: 5),
-          ],
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(name, style: const TextStyle(fontSize: 15),
+                maxLines: 1, overflow: TextOverflow.ellipsis),
+              Text(rule, style: const TextStyle(fontSize: 12, color: Colors.black54),
+                maxLines: 2, overflow: TextOverflow.ellipsis),
+              const SizedBox(height: 5),
+            ],
+          ),
         ),
-        const Spacer(),
         Transform.scale(
           scale: 0.7,
           child: Tooltip(
@@ -66,8 +71,41 @@ class ConditionTile extends StatelessWidget {
               ),
             );
           },
+        ),
+        IconButton(
+          tooltip: 'Edit condition name',
+          icon: const Icon(Icons.mode_edit, size: 20),
+          onPressed: () => _editName(context),
         )
       ],
+    );
+  }
+
+  void _editName(BuildContext context) {
+    final controller = TextEditingController(text: name);
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Edit Name"),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(labelText: "Condition Name"),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              onNameChanged(controller.text.trim());
+            },
+            child: const Text("Save"),
+          ),
+        ],
+      ),
     );
   }
 }

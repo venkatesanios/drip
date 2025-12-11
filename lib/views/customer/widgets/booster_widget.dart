@@ -142,34 +142,46 @@ class BoosterWidget extends StatelessWidget {
                   ],
                 )
             ),
-            if(kIsWeb)...[
+            if(kIsWeb || isNava)...[
+
               SizedBox(
                 width: 70,
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    const SizedBox(width:10),
-                    SizedBox(
-                      width:6.5,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(width: 1, height: 10,color: Colors.grey.shade300),
-                          const SizedBox(width: 3.5),
-                          Container(width: 1, height: 6.5,color: Colors.grey.shade300),
-                        ],
+
+                    if(isNava)...[
+                      SizedBox(
+                        width : 4,
+                        child: Container(width: 4, height: 8, color: Colors.grey.shade300),
                       ),
-                    ),
-                    SizedBox(
-                      width:53.5,
-                      child: Column(
-                        children: [
-                          const SizedBox(height: 5),
-                          Container(width: 53.5, height: 1,color: Colors.grey.shade300),
-                          const SizedBox(height: 3.5),
-                          Container(width: 53.5, height: 1,color: Colors.grey.shade300),
-                        ],
+                      Container(width: 66, height: 4, color: Colors.grey.shade300),
+                    ]else...[
+                      const SizedBox(width:10),
+                      SizedBox(
+                        width:6.5,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(width: 1, height: 10,color: Colors.grey.shade300),
+                            const SizedBox(width: 3.5),
+                            Container(width: 1, height: 6.5,color: Colors.grey.shade300),
+                          ],
+                        ),
                       ),
-                    ),
+                      SizedBox(
+                        width : 53.5,
+                        child: Column(
+                          children: [
+                            const SizedBox(height: 5),
+                            Container(width: 53.5, height: 1,color: Colors.grey.shade300),
+                            const SizedBox(height: 3.5),
+                            Container(width: 53.5, height: 1,color: Colors.grey.shade300),
+                          ],
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),

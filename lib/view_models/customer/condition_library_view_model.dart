@@ -431,6 +431,12 @@ class ConditionLibraryViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateConditionName(int index, String name) {
+    clData.cnLibrary.condition[index].name = name;
+    connectedTo.clear();
+    notifyListeners();
+  }
+
   String formatTime(String time) {
     if (time.contains("Sec")) {
       int seconds = int.parse(time.replaceAll(RegExp(r'[^0-9]'), ''));

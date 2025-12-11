@@ -47,10 +47,10 @@ class PumpStationMobile extends StatelessWidget {
         ..._buildWaterSource(context, outletWaterSources, inletWaterSources.isNotEmpty, false),
 
       if (cFilterSite.isNotEmpty)
-        ...buildFilter(context, cFilterSite, isNova? true:false, true, isNova),
+        ...buildFilter(context, cFilterSite, (cFertilizerSite.isNotEmpty || lFertilizerSite.isNotEmpty), true, isNova),
 
       if (lFilterSite.isNotEmpty)
-        ...buildFilter(context, lFilterSite, isNova? true:false, true, isNova),
+        ...buildFilter(context, lFilterSite, (cFertilizerSite.isNotEmpty || lFertilizerSite.isNotEmpty), true, isNova),
 
       if (isNova && cFertilizerSite.isNotEmpty)
         ..._buildFertilizer(context, cFertilizerSite, isNova),
@@ -70,7 +70,7 @@ class PumpStationMobile extends StatelessWidget {
     if(isNova) {
       return SizedBox(
         width: double.infinity,
-        height: 100,
+        height: (cFertilizerSite.isNotEmpty || lFertilizerSite.isNotEmpty) ? 170 : 100,
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           reverse: true,
@@ -207,6 +207,7 @@ class PumpStationMobile extends StatelessWidget {
         modelId: modelId,
         isMobile: true,
         isNova: isNova,
+        isAvailFrtSite: (cFertilizerSite.isNotEmpty || lFertilizerSite.isNotEmpty),
       ));
       gridItems.addAll(source.outletPump.map((pump) => PumpWidget(
         pump: pump,
@@ -218,6 +219,7 @@ class PumpStationMobile extends StatelessWidget {
         modelId: modelId,
         pumpPosition: 'First',
         isNova: isNova,
+        isAvailFrtSite: (cFertilizerSite.isNotEmpty || lFertilizerSite.isNotEmpty),
       )));
     }
     return gridItems;
