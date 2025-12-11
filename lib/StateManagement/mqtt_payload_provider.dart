@@ -108,6 +108,7 @@ class MqttPayloadProvider with ChangeNotifier {
 
    String? _programPreview;
    String? _sequencePreview;
+   List<String> _novaVoltage =[];
 
 
    final Map<String, String> _pumpOnOffStatusMap = {};
@@ -670,6 +671,10 @@ class MqttPayloadProvider with ChangeNotifier {
           updateScheduledProgram(data['cM']['2410'].split(";"));
           updateCondition(data['cM']['2411'].split(";"));
           updateAlarm(data['cM']['2412'].split(";"));
+
+          // for nova
+          _novaVoltage = data['cM']['2404'].split(";");
+
           notifyListeners();
         }
 
@@ -969,6 +974,8 @@ class MqttPayloadProvider with ChangeNotifier {
 
    String? getProgramPreview() => _programPreview;
    String? getSequencePreview() => _sequencePreview;
+   List<String> getNovaVoltage() => _novaVoltage;
+
 
   String get receivedDashboardPayload => dashBoardPayload;
   String get receivedSchedulePayload => schedulePayload;

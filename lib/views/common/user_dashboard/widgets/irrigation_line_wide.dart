@@ -193,6 +193,7 @@ class IrrigationLineWide extends StatelessWidget {
           modelId: modelId,
           isMobile: false,
           isNova: false,
+          isAvailFrtSite: (cFertilizerSite.isNotEmpty || lFertilizerSite.isNotEmpty),
         ),
       ));
       gridItems.addAll(source.outletPump.map((pump) => Padding(
@@ -207,6 +208,7 @@ class IrrigationLineWide extends StatelessWidget {
           modelId: modelId,
           pumpPosition: 'First',
           isNova: false,
+          isAvailFrtSite: (cFertilizerSite.isNotEmpty || lFertilizerSite.isNotEmpty),
         ),
       )));
     }
