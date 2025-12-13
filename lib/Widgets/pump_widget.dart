@@ -246,7 +246,8 @@ class PumpWidget extends StatelessWidget {
                 ),
             ],
           ),
-        );
+        )
+        ;
       },
     );
   }
