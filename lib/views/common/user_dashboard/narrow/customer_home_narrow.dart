@@ -320,7 +320,6 @@ class CustomerHomeNarrow extends StatelessWidget {
       floatingActionButtonLocation: FloatingActionButtonLocation.miniStartDocked,
 
     );
-
   }
 
   LinePositionResult calculateLinePositions({
@@ -350,6 +349,9 @@ class CustomerHomeNarrow extends StatelessWidget {
       } else if (!hasAnyFertilizer && hasPressureSensor && hasWaterMeter) {
         p = [195, 235];
         startPos = 192;
+      }else if (!hasAnyFertilizer && hasPressureSensor && !hasWaterMeter) {
+        p = [125];
+        startPos = 147;
       } else if (!hasPressureSensor && hasWaterMeter) {
         p = [125];
         startPos = 122;

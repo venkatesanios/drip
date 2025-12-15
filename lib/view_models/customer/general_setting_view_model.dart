@@ -198,6 +198,8 @@ class GeneralSettingViewModel extends ChangeNotifier {
         "modifyUser": userId,
       };
 
+      print(body);
+
       final payLoadFinal = jsonEncode({"6800": {"6801": selectedTimeZone}});
       final commService = Provider.of<CommunicationService>(context, listen: false);
       commService.sendCommand(serverMsg: '', payload: payLoadFinal);

@@ -254,6 +254,7 @@ class _GeneralSettingWideState extends State<GeneralSettingWide> {
                                 IconButton(
                                   onPressed: () {
                                     showEditControllerDialog(context, 'Farm Name', viewModel.farmName, (farmName) {
+                                      viewModel.farmName = farmName;
                                       viewModel.updateMasterDetails(context);
                                     });
                                   },
@@ -665,7 +666,14 @@ class _GeneralSettingWideState extends State<GeneralSettingWide> {
             ),
             TextButton(
               onPressed: () {
-                onSave(nameController.text.trim());
+                final name = nameController.text.trim();
+                if (name.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Name cannot be empty')),
+                  );
+                  return;
+                }
+                onSave(name);
                 Navigator.of(context).pop();
               },
               child: const Text('Save', style: TextStyle(color: Colors.green)),
