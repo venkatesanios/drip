@@ -259,6 +259,7 @@ class IrrigationLineWide extends StatelessWidget {
           widgets.add(AgitatorWidget(
             fertilizerSite: site,
             isMobile: false,
+            isNova: isNova,
           ));
         }
       }

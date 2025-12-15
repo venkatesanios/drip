@@ -12,7 +12,8 @@ if (localPropertiesFile.exists()) {
 }
 
 def keyProperties = new Properties()
-def keyPropertiesFile = rootProject.file('android/key.properties')
+def keyPropertiesFile = rootProject.file('key.properties')
+//def keyPropertiesFile = rootProject.file('android/key.properties')
 if (keyPropertiesFile.exists()) {
     println "key.properties found at: ${keyPropertiesFile.absolutePath}"
     keyProperties.load(keyPropertiesFile.newDataInputStream())

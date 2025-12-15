@@ -610,7 +610,7 @@ class MqttPayloadProvider with ChangeNotifier {
 
       try {
         Map<String, dynamic> data = _receivedPayload.isNotEmpty? jsonDecode(_receivedPayload) : {};
-        // debugPrint('_receivedPayload------>:$_receivedPayload');
+         debugPrint('_receivedPayload------>:$_receivedPayload');
 
         if(data['mC']=='2400'){
 
@@ -629,16 +629,16 @@ class MqttPayloadProvider with ChangeNotifier {
                   ? data['cM']['Version']
                   : "";
 
-              activeLoraData =
-              data['cM'] != null && data['cM'].containsKey('LoraData')
-                  ? data['cM']['LoraData']
-                  : null;
-
               wifiStrength =
               data['cM'] != null ? data['cM']['WifiStrength'] ?? 0 : 0;
 
               powerSupply =
               data['cM'] != null ? data['cM']['PowerSupply'] ?? 0 : 0;
+
+              activeLoraData =
+              data['cM'] != null && data['cM'].containsKey('LoraData')
+                  ? data['cM']['LoraData']
+                  : "";
             }
           } catch (e) {
             debugPrint("Error: $e");

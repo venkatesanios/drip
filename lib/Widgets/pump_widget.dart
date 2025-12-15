@@ -254,6 +254,8 @@ class PumpWidget extends StatelessWidget {
   Widget _buildVoltagePopoverContent(BuildContext context,
       voltages, columns, bool isNova) {
 
+    print('columns:$columns');
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -267,19 +269,52 @@ class PumpWidget extends StatelessWidget {
           const SizedBox(height: 5),
           _buildPhaseInfo(),
           const SizedBox(height: 8),
-          if (voltages.length == 6) ...[
+          if (voltages.length == 6)...[
             _buildVoltageCurrentInfo(voltages.sublist(0, 3), ['RY', 'YB', 'BR']),
             const SizedBox(height: 5),
             _buildVoltageCurrentInfo(voltages.sublist(3, 6), ['RN', 'YN', 'BN']),
-          ] else ...[
+          ]else ...[
             _buildVoltageCurrentInfo(voltages.sublist(0, 3), ['RY', 'YB', 'BR']),
           ],
+          const SizedBox(height: 8),
+          _buildVoltageCurrentInfo(columns, ['RC', 'YC', 'BC']),
+          const SizedBox(height: 10),
+        ]else...[
+          ListTile(
+            title: const Text(
+              'This pump connected with',
+              style: TextStyle(fontSize: 13, color: Colors.black54),
+            ),
+            trailing: Text(
+              getPumpConnectedPhaseNames(columns),
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
+            dense: true,
+          ),
         ],
-        const SizedBox(height: 8),
-        _buildVoltageCurrentInfo(columns, ['RC', 'YC', 'BC']),
-        const SizedBox(height: 10),
       ],
     );
+  }
+
+  String getPumpConnectedPhaseNames(List<String> columns) {
+    const phaseNames = ['RC', 'YC', 'BC'];
+    List<String> connected = [];
+
+    for (int i = 0; i < columns.length && i < 3; i++) {
+      final value = columns[i].trim();
+
+      if (value != '-' && value.isNotEmpty) {
+        connected.add(phaseNames[i]);
+      }
+    }
+
+    if (connected.isEmpty) return '-';
+
+    return connected.join(' & ');
   }
 
   Widget _buildReasonContainer(BuildContext context) {
@@ -364,6 +399,7 @@ class PumpWidget extends StatelessWidget {
   }
 
   Widget _buildVoltageCurrentInfo(List<String> values, List<String> prefixes) {
+
     return Container(
       width: 320,
       height: 30,
@@ -534,8 +570,6 @@ class VoltageWidget extends StatelessWidget {
           currentColumns[2] = bcCurrentFromPump2;
         }
 
-        final pumpNames = getPumpConnectionNames(data);
-
         return Column(
           children: [
             _buildPhaseInfo(context),
@@ -543,7 +577,6 @@ class VoltageWidget extends StatelessWidget {
                 context,
                 voltageList,
                 currentColumns,
-                pumpNames
             ),
           ],
         );
@@ -602,35 +635,8 @@ class VoltageWidget extends StatelessWidget {
     return "-";
   }
 
-  List<String> getPumpConnectionNames(List<String> data) {
-    List<String> connectedPump = ["-", "-", "-"];
 
-    for (int i = 0; i < data.length; i++) {
-      final parts = data[i].split(",");
-      if (parts.length < 7) continue;
-
-      final currentMap = parts[6].split("_");
-
-      for (var mapItem in currentMap) {
-        if (!mapItem.contains(":")) continue;
-
-        final sp = mapItem.split(":");
-        final phase = int.tryParse(sp[0]) ?? 0;
-
-        if (phase >= 1 && phase <= 3) {
-          connectedPump[phase - 1] = "Pump-${i + 1}";
-        }
-      }
-    }
-
-    return connectedPump;
-  }
-
-  Widget _buildVoltagePopoverContent(BuildContext context, voltages,
-      columns, List<String> pumpNames) {
-
-    print(pumpNames);
-    print(voltages);
+  Widget _buildVoltagePopoverContent(BuildContext context, voltages, columns) {
 
     return Column(
       mainAxisSize: MainAxisSize.min,

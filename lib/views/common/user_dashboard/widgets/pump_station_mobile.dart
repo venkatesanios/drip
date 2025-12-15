@@ -251,6 +251,7 @@ class PumpStationMobile extends StatelessWidget {
           channelWidgets.add(AgitatorWidget(
             fertilizerSite: site,
             isMobile: true,
+            isNova: isNova,
           ));
         }
       }

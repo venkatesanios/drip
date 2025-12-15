@@ -68,11 +68,11 @@ class CustomerHomeNarrow extends StatelessWidget {
 
               if(isNova)...[
                 const Padding(
-                  padding: EdgeInsets.only(left: 7, right: 7, top: 5),
+                  padding: EdgeInsets.only(left: 10, right: 10, top: 5),
                   child: Card(
-                    elevation: 1,
-                    color: Colors.white,
-                    surfaceTintColor: Colors.white,
+                      elevation: 1,
+                      color: Colors.white,
+                      surfaceTintColor: Colors.white,
                       child: VoltageWidget()),
                 ),
               ],
@@ -141,8 +141,10 @@ class CustomerHomeNarrow extends StatelessWidget {
                         bottom: line.pressureOut.isNotEmpty ? 17 : 60,
                         child: Container(width: 4, color: Colors.grey.shade200),
                       ),
+
                       buildConnectionLine(context,
                           (isNova && (cFertilizerSite.isNotEmpty || lFertilizerSite.isNotEmpty)) ? 126 : 4),
+
                       Positioned(
                         bottom : line.pressureOut.isNotEmpty ? 17 : 60,
                         left: MediaQuery.sizeOf(context).width - 35 ,
@@ -160,7 +162,11 @@ class CustomerHomeNarrow extends StatelessWidget {
 
                       if (vp.isNotEmpty) ...[
                         for (double p in vp)
-                          buildLineConnection(context, p + startPosition),
+                          if(isNova && (cFertilizerSite.isNotEmpty || lFertilizerSite.isNotEmpty) && vp.length==1)...[
+                            buildLineConnection(context, p + startPosition - 40),
+                          ]else...[
+                            buildLineConnection(context, p + startPosition),
+                          ]
                       ],
 
                       Row(

@@ -46,9 +46,10 @@ class _CustomerScreenNarrowState extends BaseCustomerScreenState<CustomerScreenN
     if (vm.mySiteList.data.isEmpty) return const SiteLoadingOrEmpty(isLoading: false);
 
     final cM = vm.mySiteList.data[vm.sIndex].master[vm.mIndex];
-    final isGem = isGemModel(cM.modelId);
 
-    final pages = isGem ? [
+    bool isGemOrNova = isGemOrNovaModel(cM.modelId);
+
+    final pages = isGemOrNova ? [
       const DashboardLayoutSelector(userRole: UserRole.customer),
       Consumer<CustomerScreenControllerViewModel>(
         builder: (context, viewModel, _) {
@@ -116,13 +117,14 @@ class _CustomerScreenNarrowState extends BaseCustomerScreenState<CustomerScreenN
           cM.getPermissionStatus("View Controller Log"),
         ],
       ),
-      bottomNavigationBar: isGem ? CustomerBottomNav(index: navModel.index, onTap: navModel.setIndex) : null,
+      bottomNavigationBar: isGemOrNova ? CustomerBottomNav(index: navModel.index, onTap: navModel.setIndex) : null,
       banners: [
-        if(isGem)
+        if(isGemOrNova)
           const NetworkConnectionBanner(),
-        if(isGem)
+        if(isGemOrNova)
           Consumer<CustomerProvider>(
-            builder: (_, provider, __) => ConnectionBanner(vm: vm, commMode: provider.controllerCommMode ?? 0),
+            builder: (_, provider, __) => ConnectionBanner(
+                vm: vm, commMode: provider.controllerCommMode ?? 0),
           ),
       ],
       body: IndexedStack(index: navModel.index, children: pages),

@@ -276,7 +276,13 @@ class PressureSensorWidget extends StatelessWidget {
                   ],
                 ),
               ),
-              Text(sensor.name, style: const TextStyle(fontSize: 11, color: Colors.black54)),
+              Text(sensor.name, maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Colors.black54,
+                  fontSize: 11,
+                ),
+              )
             ],
           ),
         );
