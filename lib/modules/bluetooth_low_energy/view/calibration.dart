@@ -457,12 +457,13 @@ class _CalibrationState extends State<Calibration> {
                             }
 
                           }
+                          loadingDialog('Get @0 Command Send Successfully..');
 
                         },
                         icon: const Icon(Icons.refresh, color: Colors.white),
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 100,
                         child: Text('Get @0', style: TextStyle(fontSize: 14),)
                     )
@@ -517,6 +518,7 @@ class _CalibrationState extends State<Calibration> {
                             }
 
                           }
+                          loadingDialog('Get @ 1.413 Command Send Successfully..');
                         },
                         icon: const Icon(Icons.refresh, color: Colors.white),
                       ),
@@ -678,9 +680,10 @@ class _CalibrationState extends State<Calibration> {
                               print("blePvd.calibrationPh2 : ${bleService.calibrationPh2}");
                             }
                           }
+                          loadingDialog('Get 4 Command Send Successfully..');
                         },
                         icon: const Icon(Icons.refresh, color: Colors.white,),
-                        label: const Text("Get 0", style: TextStyle(color: Colors.white),),
+                        label: const Text("Get 4", style: TextStyle(color: Colors.white),),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Theme.of(context).primaryColor,
                           padding: const EdgeInsets.symmetric(vertical: 14),
@@ -738,6 +741,7 @@ class _CalibrationState extends State<Calibration> {
                             }
 
                           }
+                          loadingDialog('Get 7.01 Command Send Successfully..');
                         },
                         icon: const Icon(Icons.refresh, color: Colors.white,),
                         label: const Text("Get 7.01", style: TextStyle(color: Colors.white),),
@@ -752,7 +756,7 @@ class _CalibrationState extends State<Calibration> {
                     )
                   ],
                 ),
-                Text('Last Updated Value : ${sensorCount == 1 ? ph_1 : ph_2}'),
+                Text('Last Updated Value : ${sensorCount == 0 ? ph_1 : ph_2}'),
                 SizedBox(
                   width: 150,
                   child: ElevatedButton.icon(
@@ -792,6 +796,7 @@ class _CalibrationState extends State<Calibration> {
                         print('payload : ${payload}');
                       }
                       bleService.sendDataToHw(fullData);
+                      loadingDialog('Ph Calibration Setting Send Successfully..');
                     },
                     icon: const Icon(Icons.send, color: Colors.white,),
                     label: const Text("Submit", style: TextStyle(color: Colors.white),),
