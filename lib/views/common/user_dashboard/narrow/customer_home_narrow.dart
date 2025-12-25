@@ -138,14 +138,13 @@ class CustomerHomeNarrow extends StatelessWidget {
                   child: Stack(
                     children: [
                       Positioned(
-                        top: (isNova && (cFertilizerSite.isNotEmpty || lFertilizerSite.isNotEmpty)) ? 126 : 4,
+                        top: 4,
                         right: 3,
                         bottom: 58,
                         child: Container(width: 4.5, color: Colors.blueGrey.shade100),
                       ),
 
-                      buildConnectionLine(context,
-                          (isNova && (cFertilizerSite.isNotEmpty || lFertilizerSite.isNotEmpty)) ? 126 : 4.5),
+                      /*buildConnectionLine(context, 4.5),*/
 
 
                       if (linePositions.isNotEmpty) ...[
@@ -335,11 +334,11 @@ class CustomerHomeNarrow extends StatelessWidget {
         p = [195, 235];
         startPos = 200;
       }else if (hasAnyFertilizer && !hasPressureIN && hasWaterMeter) {
-        p = [195];
-        startPos = 220;
+        p = [250];
+        startPos = 275;
       }else if (hasAnyFertilizer && !hasPressureIN && !hasWaterMeter) {
-        p = [195];
-        startPos = 220;
+        p = [215];
+        startPos = 275;
       } else if (!hasAnyFertilizer && hasPressureIN && hasWaterMeter) {
         p = [195, 235];
         startPos = 195;

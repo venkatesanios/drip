@@ -8,7 +8,7 @@ List<Widget> buildFilter (BuildContext context, List<FilterSiteModel> filterSite
   return filterSite.expand((site) => [
     if (site.pressureIn != null)
       Padding(
-        padding: EdgeInsets.only(top: (isFrtAvail && isNova && isMobile) ? 40: (isFrtAvail && !isMobile) ? 38.5: 0.5),
+        padding: EdgeInsets.only(top: (isFrtAvail && !isMobile) ? 38.5 : 0.5),
         child: PressureSensorWidget(sensor: site.pressureIn!, isMobile: isMobile),
       ),
 
@@ -17,7 +17,7 @@ List<Widget> buildFilter (BuildContext context, List<FilterSiteModel> filterSite
       final isLast = index == site.filters.length - 1;
 
       return Padding(
-        padding: EdgeInsets.only(top: (isFrtAvail && isNova && isMobile) ? 40: (isFrtAvail && !isMobile) ? 38.5: 0.5),
+        padding: EdgeInsets.only(top: (isFrtAvail && !isMobile) ? 38.5: 0.5),
         child: FilterWidget(
           filter: filter,
           siteSno: site.sNo.toString(),
@@ -30,7 +30,7 @@ List<Widget> buildFilter (BuildContext context, List<FilterSiteModel> filterSite
 
     if (site.pressureOut != null)
       Padding(
-        padding: EdgeInsets.only(top: (isFrtAvail && isNova && isMobile) ? 40: (isFrtAvail && !isMobile) ? 38.5: 0.5),
+        padding: EdgeInsets.only(top: (isFrtAvail && !isMobile) ? 38.5: 0.5),
         child: PressureSensorWidget(sensor: site.pressureOut!, isMobile: isMobile),
       ),
   ]).toList();

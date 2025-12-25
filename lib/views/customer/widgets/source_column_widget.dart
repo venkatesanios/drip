@@ -19,7 +19,6 @@ class SourceColumnWidget extends StatelessWidget {
   final int controllerId;
   final int modelId;
   final bool isMobile;
-  final bool isNova;
   final bool isAvailFrtSite;
 
   const SourceColumnWidget({
@@ -35,7 +34,6 @@ class SourceColumnWidget extends StatelessWidget {
     required this.controllerId,
     required this.modelId,
     required this.isMobile,
-    required this.isNova,
     required this.isAvailFrtSite,
   });
 
@@ -49,30 +47,27 @@ class SourceColumnWidget extends StatelessWidget {
     (index == 0 && !isAvailInlet) ? 'First' :
     (index == total - 1) ? 'Last' : 'Center';
 
-    return Padding(
-      padding: EdgeInsets.only(top: (isNova && isAvailFrtSite) ? 39.5 : 0),
-      child: SizedBox(
-        width: 70,
-        height: 100,
-        child: Column(
-          children: [
-            SizedBox(
-              width: 70,
-              height: 70,
-              child: Stack(
-                children: [
-                  Positioned.fill(
-                    child: AppConstants.getAsset(isMobile ? 'mobile source' : 'source', source.sourceType, position),
-                  ),
-                  if (hasLevel) ..._buildLevelWidgets(context),
-                  if (hasFloatSwitch) FloatSwitchPopover(source: source,
-                      popoverUpdateNotifier: popoverUpdateNotifier, isMobile: false),
-                ],
-              ),
+    return SizedBox(
+      width: 70,
+      height: 100,
+      child: Column(
+        children: [
+          SizedBox(
+            width: 70,
+            height: 70,
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: AppConstants.getAsset(isMobile ? 'mobile source' : 'source', source.sourceType, position),
+                ),
+                if (hasLevel) ..._buildLevelWidgets(context),
+                if (hasFloatSwitch) FloatSwitchPopover(source: source,
+                    popoverUpdateNotifier: popoverUpdateNotifier, isMobile: false),
+              ],
             ),
-            Text(source.name, textAlign: TextAlign.center, style: const TextStyle(fontSize: 10, color: Colors.black54)),
-          ],
-        ),
+          ),
+          Text(source.name, textAlign: TextAlign.center, style: const TextStyle(fontSize: 10, color: Colors.black54)),
+        ],
       ),
     );
   }

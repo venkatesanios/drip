@@ -11,10 +11,9 @@ import '../../../utils/constants.dart';
 class BoosterWidget extends StatelessWidget {
   final FertilizerSiteModel fertilizerSite;
   final bool isMobile;
-  final bool isNava;
   const BoosterWidget({
     super.key,
-    required this.fertilizerSite, required this.isMobile, required this.isNava,
+    required this.fertilizerSite, required this.isMobile
   });
 
   @override
@@ -39,15 +38,11 @@ class BoosterWidget extends StatelessWidget {
                 child : Stack(
                   children: [
                     if(isMobile)...[
-                      if(isNava)...[
-                        AppConstants.getAsset('mobile booster', fertilizerSite.boosterPump[0].status,''),
-                      ] else...[
-                        Transform(
-                          alignment: Alignment.center,
-                          transform: Matrix4.rotationY(math.pi),
-                          child: AppConstants.getAsset('mobile booster', fertilizerSite.boosterPump[0].status,''),
-                        ),
-                      ],
+                      Transform(
+                        alignment: Alignment.center,
+                        transform: Matrix4.rotationY(math.pi),
+                        child: AppConstants.getAsset('mobile booster', fertilizerSite.boosterPump[0].status,''),
+                      ),
                     ]else...[
                       AppConstants.getAsset('booster', fertilizerSite.boosterPump[0].status,''),
                     ],
@@ -144,45 +139,36 @@ class BoosterWidget extends StatelessWidget {
             ),
 
             if(!isMobile)...[
-              if(kIsWeb || isNava)...[
+              if(kIsWeb)...[
                 SizedBox(
                   width: 70,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-
-                      if(isNava)...[
-                        SizedBox(
-                          width : 4,
-                          child: Container(width: 4, height: 8, color: Colors.grey.shade300),
+                      const SizedBox(width:10),
+                      SizedBox(
+                        width:6.5,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(width: 1, height: 10,color: Colors.grey.shade300),
+                            const SizedBox(width: 3.5),
+                            Container(width: 1, height: 6.5,color: Colors.grey.shade300),
+                          ],
                         ),
-                        Container(width: 66, height: 4, color: Colors.grey.shade300),
-                      ]else...[
-                        const SizedBox(width:10),
-                        SizedBox(
-                          width:6.5,
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(width: 1, height: 10,color: Colors.grey.shade300),
-                              const SizedBox(width: 3.5),
-                              Container(width: 1, height: 6.5,color: Colors.grey.shade300),
-                            ],
-                          ),
+                      ),
+                      SizedBox(
+                        width : 53.5,
+                        child: Column(
+                          children: [
+                            const SizedBox(height: 5),
+                            Container(width: 53.5, height: 1,color: Colors.grey.shade300),
+                            const SizedBox(height: 3.5),
+                            Container(width: 53.5, height: 1,color: Colors.grey.shade300),
+                          ],
                         ),
-                        SizedBox(
-                          width : 53.5,
-                          child: Column(
-                            children: [
-                              const SizedBox(height: 5),
-                              Container(width: 53.5, height: 1,color: Colors.grey.shade300),
-                              const SizedBox(height: 3.5),
-                              Container(width: 53.5, height: 1,color: Colors.grey.shade300),
-                            ],
-                          ),
-                        ),
-                      ],
+                      ),
                     ],
                   ),
                 ),

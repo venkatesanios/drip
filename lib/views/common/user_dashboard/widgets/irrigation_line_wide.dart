@@ -192,7 +192,6 @@ class IrrigationLineWide extends StatelessWidget {
           controllerId: controllerId,
           modelId: modelId,
           isMobile: false,
-          isNova: false,
           isAvailFrtSite: (cFertilizerSite.isNotEmpty || lFertilizerSite.isNotEmpty),
         ),
       ));
@@ -240,7 +239,7 @@ class IrrigationLineWide extends StatelessWidget {
         widgets.add(_buildVerticalLine(height: 120));
       }
 
-      widgets.add(BoosterWidget(fertilizerSite: site, isMobile: false, isNava: false));
+      widgets.add(BoosterWidget(fertilizerSite: site, isMobile: false));
 
       for (int channelIndex = 0; channelIndex < site.channel.length; channelIndex++) {
         final channel = site.channel[channelIndex];
@@ -252,14 +251,12 @@ class IrrigationLineWide extends StatelessWidget {
           agitator: site.agitator,
           siteSno: site.sNo.toString(),
           isMobile: false,
-          isNova: isNova,
         ));
 
         if (channelIndex == site.channel.length - 1 && site.agitator.isNotEmpty) {
           widgets.add(AgitatorWidget(
             fertilizerSite: site,
             isMobile: false,
-            isNova: isNova,
           ));
         }
       }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
+import '../../../../flavors.dart';
 import '../../../../utils/enums.dart';
 import '../../../../view_models/product_stock_view_model.dart';
 
@@ -35,6 +36,7 @@ class StockView extends StatelessWidget {
       ),
       itemBuilder: (context, index) {
         final stock = viewModel.productStockList[index];
+        final folder = F.appFlavor!.name.contains('oro') ? 'Oro' : 'SmartComm';
 
         return Card(
           color: Colors.white,
@@ -48,8 +50,19 @@ class StockView extends StatelessWidget {
               children: [
                 Flexible(
                   flex: 2,
-                  child: Container(
-                    color: Colors.black12,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Container(
+                      width: double.infinity,
+                      color: Colors.black12,
+                      child: Image.asset(
+                        getProductImage(stock.model),
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Icon(Icons.image_not_supported);
+                        },
+                      ),
+                    ),
                   ),
                 ),
                 Flexible(
@@ -58,7 +71,6 @@ class StockView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 4),
-
                       Text(
                         stock.categoryName,
                         style: const TextStyle(fontWeight: FontWeight.bold),
@@ -109,7 +121,6 @@ class StockView extends StatelessWidget {
   }
 
   Widget buildProductStock(BuildContext context, ProductStockViewModel viewModel) {
-
     return Card(
       elevation: 1,
       surfaceTintColor: Colors.white,
@@ -196,5 +207,40 @@ class StockView extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String getProductImage(String model) {
+    final flavorFolder =
+    F.appFlavor!.name.contains('oro') ? 'Oro' : 'SmartComm';
+
+    final m = model.toLowerCase();
+
+    if (m.contains('nova')) {
+      return "assets/Images/Png/$flavorFolder/oro nova.png";
+    } else if (m.contains('gem')) {
+      return "assets/Images/Png/$flavorFolder/category_1.png";
+    } else if (m.contains('pump')) {
+      return "assets/Images/Png/$flavorFolder/category_2.png";
+    }else if (m.contains('level')) {
+      return "assets/Images/Png/$flavorFolder/category_3.png";
+    }else if (m.contains('weather')) {
+      return "assets/Images/Png/$flavorFolder/category_4.png";
+    }else if (m.contains('smart')) {
+      return "assets/Images/Png/$flavorFolder/category_5.png";
+    } else if (m.contains('smart+')) {
+      return "assets/Images/Png/$flavorFolder/category_6.png";
+    } else if (m.contains('rtu')) {
+      return "assets/Images/Png/$flavorFolder/category_7.png";
+    }else if (m.contains('rtu+')) {
+      return "assets/Images/Png/$flavorFolder/category_8.png";
+    }else if (m.contains('sense')) {
+      return "assets/Images/Png/$flavorFolder/category_9.png";
+    }else if (m.contains('shine')) {
+      return "assets/Images/Png/$flavorFolder/oro shine.png";
+    }else if (m.contains('elite')) {
+      return "assets/Images/Png/$flavorFolder/oro elite.png";
+    } else {
+      return "assets/Images/Png/$flavorFolder/default.png";
+    }
   }
 }

@@ -16,10 +16,9 @@ class ChannelWidget extends StatelessWidget {
   final List<Agitator> agitator;
   final String siteSno;
   final bool isMobile;
-  final bool isNova;
   const ChannelWidget({super.key, required this.channel, required this.cIndex,
     required this.channelLength, required this.agitator, required this.siteSno,
-    required this.isMobile, required this.isNova});
+    required this.isMobile});
 
   @override
   Widget build(BuildContext context) {
@@ -58,207 +57,111 @@ class ChannelWidget extends StatelessWidget {
                 children: [
 
                   if(isMobile)...[
-                    if(isNova)...[
-                      Image.asset(AppConstants.getFertilizerImage(cIndex, channel.status,
-                          channelLength, agitator, isMobile))
-                    ] else...[
-                      Transform(
-                        alignment: Alignment.center,
-                        transform: Matrix4.rotationY(math.pi),
-                        child: Image.asset(AppConstants.getFertilizerImage(cIndex, channel.status,
-                            channelLength, agitator, isMobile)),
-                      ),
-                    ],
+                    Transform(
+                      alignment: Alignment.center,
+                      transform: Matrix4.rotationY(math.pi),
+                      child: Image.asset(AppConstants.getFertilizerImage(cIndex, channel.status,
+                          channelLength, agitator, isMobile)),
+                    ),
                   ]
                   else...[
                     Image.asset(AppConstants.getFertilizerImage(cIndex, channel.status,
                         channelLength, agitator, isMobile)),
                   ],
 
-                  if(isMobile && !isNova)...[
-                    Positioned(
-                      top: 52,
-                      right: 6,
-                      child: CircleAvatar(
-                        radius: 8,
-                        backgroundColor: Colors.teal.shade100,
-                        child: Text('${cIndex+1}', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),),
-                      ),
+                  Positioned(
+                    top: 52,
+                    left: 6,
+                    child: CircleAvatar(
+                      radius: 8,
+                      backgroundColor: Colors.teal.shade100,
+                      child: Text('${cIndex+1}', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),),
                     ),
-                    Positioned(
-                      top: 50,
-                      right: 18,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.transparent,
-                          borderRadius: BorderRadius.circular(3),
-                        ),
-                        width: 60,
-                        child: Center(
-                          child: Text(channel.duration, style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          ),
-                        ),
+                  ),
+                  Positioned(
+                    top: 50,
+                    left: 18,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.transparent,
+                        borderRadius: BorderRadius.circular(3),
                       ),
-                    ),
-                    Positioned(
-                      top: 65,
-                      right: 18,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.transparent,
-                          borderRadius: BorderRadius.circular(3),
+                      width: 60,
+                      child: Center(
+                        child: Text(channel.duration, style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
                         ),
-                        width: 60,
-                        child: Center(
-                          child: Text('${channel.flowRateLpH}-lph', style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 9,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          ),
                         ),
                       ),
                     ),
-                    channel.status == 1 && channel.completedDrQ !='00:00:00' ?
-                    Positioned(
-                      top: 103,
-                      right: 0,
-                      child: Container(
-                        width: 55,
-                        decoration: BoxDecoration(
-                          color:Colors.greenAccent,
-                          borderRadius: const BorderRadius.all(Radius.circular(2)),
-                          border: Border.all(color: Colors.grey, width: .50,),
+                  ),
+                  Positioned(
+                    top: 65,
+                    left: 18,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.transparent,
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                      width: 60,
+                      child: Center(
+                        child: Text('${channel.flowRateLpH}-lph', style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
                         ),
-                        child: ChangeNotifierProvider(
-                          create: (_) => IncreaseDurationNotifier(channel.duration, channel.completedDrQ, double.parse(channel.flowRateLpH)),
-                          child: Stack(
-                            children: [
-                              Consumer<IncreaseDurationNotifier>(
-                                builder: (context, durationNotifier, _) {
-                                  return Center(
-                                    child: Text(channel.frtMethod=='1' || channel.frtMethod=='3'?
-                                    durationNotifier.onCompletedDrQ :
-                                    '${durationNotifier.onCompletedDrQ} L',
-                                      style: const TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  channel.status == 1 && channel.completedDrQ !='00:00:00' ?
+                  Positioned(
+                    top: 97,
+                    left: 0,
+                    child: Container(
+                      width: 55,
+                      decoration: BoxDecoration(
+                        color:Colors.greenAccent,
+                        borderRadius: const BorderRadius.all(Radius.circular(2)),
+                        border: Border.all(color: Colors.grey, width: .50,),
+                      ),
+                      child: ChangeNotifierProvider(
+                        create: (_) => IncreaseDurationNotifier(channel.duration, channel.completedDrQ, double.parse(channel.flowRateLpH)),
+                        child: Stack(
+                          children: [
+                            Consumer<IncreaseDurationNotifier>(
+                              builder: (context, durationNotifier, _) {
+                                return Center(
+                                  child: Text(channel.frtMethod=='1' || channel.frtMethod=='3'?
+                                  durationNotifier.onCompletedDrQ :
+                                  '${durationNotifier.onCompletedDrQ} L',
+                                    style: const TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
                                     ),
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ):
-                    const SizedBox(),
-                  ] else...[
-                    Positioned(
-                      top: 52,
-                      left: 6,
-                      child: CircleAvatar(
-                        radius: 8,
-                        backgroundColor: Colors.teal.shade100,
-                        child: Text('${cIndex+1}', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),),
-                      ),
-                    ),
-                    Positioned(
-                      top: 50,
-                      left: 18,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.transparent,
-                          borderRadius: BorderRadius.circular(3),
-                        ),
-                        width: 60,
-                        child: Center(
-                          child: Text(channel.duration, style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                    Positioned(
-                      top: 65,
-                      left: 18,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.transparent,
-                          borderRadius: BorderRadius.circular(3),
-                        ),
-                        width: 60,
-                        child: Center(
-                          child: Text('${channel.flowRateLpH}-lph', style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 9,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    channel.status == 1 && channel.completedDrQ !='00:00:00' ?
-                    Positioned(
-                      top: 97,
-                      left: 0,
-                      child: Container(
-                        width: 55,
-                        decoration: BoxDecoration(
-                          color:Colors.greenAccent,
-                          borderRadius: const BorderRadius.all(Radius.circular(2)),
-                          border: Border.all(color: Colors.grey, width: .50,),
-                        ),
-                        child: ChangeNotifierProvider(
-                          create: (_) => IncreaseDurationNotifier(channel.duration, channel.completedDrQ, double.parse(channel.flowRateLpH)),
-                          child: Stack(
-                            children: [
-                              Consumer<IncreaseDurationNotifier>(
-                                builder: (context, durationNotifier, _) {
-                                  return Center(
-                                    child: Text(channel.frtMethod=='1' || channel.frtMethod=='3'?
-                                    durationNotifier.onCompletedDrQ :
-                                    '${durationNotifier.onCompletedDrQ} L',
-                                      style: const TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ):
-                    const SizedBox(),
-                  ],
+                  ):
+                  const SizedBox(),
                 ],
               ),
             ),
 
             if(!isMobile)...[
-              if(kIsWeb || isNova)...[
-                if(isNova)...[
-                  const SizedBox(height: 2.5),
-                  Container(width: 70, height: 4.5, color: Colors.grey.shade300),
-                ]else...[
-                  const SizedBox(height: 4),
-                  Container(width: 70, height: 1, color: Colors.grey.shade300),
-                  const SizedBox(height: 3.5),
-                  Container(width: 70, height: 1, color: Colors.grey.shade300),
-                ],
+              if(kIsWeb)...[
+                const SizedBox(height: 4),
+                Container(width: 70, height: 1, color: Colors.grey.shade300),
+                const SizedBox(height: 3.5),
+                Container(width: 70, height: 1, color: Colors.grey.shade300),
               ]
             ]
           ],

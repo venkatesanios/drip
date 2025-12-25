@@ -52,11 +52,6 @@ class PumpStationMobile extends StatelessWidget {
       if (lFilterSite.isNotEmpty)
         ...buildFilter(context, lFilterSite, (cFertilizerSite.isNotEmpty || lFertilizerSite.isNotEmpty), true, isNova),
 
-      if (isNova && cFertilizerSite.isNotEmpty)
-        ..._buildFertilizer(context, cFertilizerSite, isNova),
-
-      if (isNova && lFertilizerSite.isNotEmpty)
-        ..._buildFertilizer(context, lFertilizerSite, isNova),
     ];
 
     final fertilizerItemsCentral = cFertilizerSite.isNotEmpty
@@ -67,10 +62,10 @@ class PumpStationMobile extends StatelessWidget {
         ? _buildFertilizer(context, lFertilizerSite, isNova).cast<Widget>()
         : <Widget>[];
 
-    if(isNova) {
+    if (cFertilizerSite.isEmpty && lFertilizerSite.isNotEmpty) {
       return SizedBox(
         width: double.infinity,
-        height: (cFertilizerSite.isNotEmpty || lFertilizerSite.isNotEmpty) ? 170 : 100,
+        height: 100,
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           reverse: true,
@@ -91,35 +86,33 @@ class PumpStationMobile extends StatelessWidget {
         ),
       );
     } else {
-      if (cFertilizerSite.isEmpty && lFertilizerSite.isNotEmpty) {
-        return SizedBox(
-          width: double.infinity,
-          height: 100,
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            reverse: true,
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: IntrinsicWidth(
-              child: Align(
-                alignment: Alignment.topRight,
-                child: Wrap(
-                  alignment: WrapAlignment.end,
-                  spacing: 0,
-                  runSpacing: 0,
-                  children: [
-                    ...wsAndFilterItems,
-                  ],
+      return Column(
+        children: [
+          SizedBox(
+            width: double.infinity,
+            height: 100,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              reverse: true,
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: IntrinsicWidth(
+                child: Align(
+                  alignment: Alignment.topRight,
+                  child: Wrap(
+                    alignment: WrapAlignment.end,
+                    spacing: 0,
+                    runSpacing: 0,
+                    children: wsAndFilterItems,
+                  ),
                 ),
               ),
             ),
           ),
-        );
-      } else {
-        return Column(
-          children: [
+
+          if (cFertilizerSite.isNotEmpty)
             SizedBox(
               width: double.infinity,
-              height: 100,
+              height: 125,
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 reverse: true,
@@ -131,60 +124,37 @@ class PumpStationMobile extends StatelessWidget {
                       alignment: WrapAlignment.end,
                       spacing: 0,
                       runSpacing: 0,
-                      children: wsAndFilterItems,
+                      children: fertilizerItemsCentral,
                     ),
                   ),
                 ),
               ),
             ),
 
-            if (cFertilizerSite.isNotEmpty)
-              SizedBox(
-                width: double.infinity,
-                height: 125,
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  reverse: true,
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  child: IntrinsicWidth(
-                    child: Align(
-                      alignment: Alignment.topRight,
-                      child: Wrap(
-                        alignment: WrapAlignment.end,
-                        spacing: 0,
-                        runSpacing: 0,
-                        children: fertilizerItemsCentral,
-                      ),
+
+          if (lFertilizerSite.isNotEmpty)
+            SizedBox(
+              width: double.infinity,
+              height: 125,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                reverse: true,
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: IntrinsicWidth(
+                  child: Align(
+                    alignment: Alignment.topRight,
+                    child: Wrap(
+                      alignment: WrapAlignment.end,
+                      spacing: 0,
+                      runSpacing: 0,
+                      children: fertilizerItemsLocal,
                     ),
                   ),
                 ),
               ),
-
-
-            if (lFertilizerSite.isNotEmpty)
-              SizedBox(
-                width: double.infinity,
-                height: 125,
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  reverse: true,
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  child: IntrinsicWidth(
-                    child: Align(
-                      alignment: Alignment.topRight,
-                      child: Wrap(
-                        alignment: WrapAlignment.end,
-                        spacing: 0,
-                        runSpacing: 0,
-                        children: fertilizerItemsLocal,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-          ],
-        );
-      }
+            ),
+        ],
+      );
     }
   }
 
@@ -206,7 +176,6 @@ class PumpStationMobile extends StatelessWidget {
         controllerId: controllerId,
         modelId: modelId,
         isMobile: true,
-        isNova: isNova,
         isAvailFrtSite: (cFertilizerSite.isNotEmpty || lFertilizerSite.isNotEmpty),
       ));
       gridItems.addAll(source.outletPump.map((pump) => PumpWidget(
@@ -218,8 +187,8 @@ class PumpStationMobile extends StatelessWidget {
         isMobile: true,
         modelId: modelId,
         pumpPosition: 'First',
-        isNova: isNova,
         isAvailFrtSite: (cFertilizerSite.isNotEmpty || lFertilizerSite.isNotEmpty),
+        isNova: isNova,
       )));
     }
     return gridItems;
@@ -243,7 +212,6 @@ class PumpStationMobile extends StatelessWidget {
           agitator: site.agitator,
           siteSno: site.sNo.toString(),
           isMobile: true,
-          isNova: isNova,
         ));
 
         final isLast = channelIndex == site.channel.length - 1;
@@ -251,26 +219,15 @@ class PumpStationMobile extends StatelessWidget {
           channelWidgets.add(AgitatorWidget(
             fertilizerSite: site,
             isMobile: true,
-            isNova: isNova,
           ));
         }
       }
 
-      if (isNova) {
-        widgets.add(BoosterWidget(
-          fertilizerSite: site,
-          isMobile: true,
-          isNava: isNova,
-        ));
-        widgets.addAll(channelWidgets);
-      } else {
-        widgets.addAll(channelWidgets.reversed);
-        widgets.add(BoosterWidget(
-          fertilizerSite: site,
-          isMobile: true,
-          isNava: isNova,
-        ));
-      }
+      widgets.addAll(channelWidgets.reversed);
+      widgets.add(BoosterWidget(
+        fertilizerSite: site,
+        isMobile: true,
+      ));
 
       return SingleChildScrollView(
         scrollDirection: Axis.horizontal,
