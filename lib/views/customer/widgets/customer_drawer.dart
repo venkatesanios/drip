@@ -12,6 +12,8 @@ import '../app_info.dart';
 import '../customer_product.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
+import '../help_support.dart';
+
 
 class CustomerDrawer extends StatelessWidget {
   final int customerId;
@@ -59,7 +61,19 @@ class CustomerDrawer extends StatelessWidget {
           _buildDrawerItem(
             context,
             icon: Icons.help_outline,
-            text: "Help",
+            text: "Help & Support",
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const DashboardHelpPage(),
+              ),
+            ),
+          ),
+          _divider(),
+          _buildDrawerItem(
+            context,
+            icon: Icons.feedback_outlined,
+            text: "Send Feedback",
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
@@ -70,13 +84,6 @@ class CustomerDrawer extends StatelessWidget {
                 ),
               ),
             ),
-          ),
-          _divider(),
-          _buildDrawerItem(
-            context,
-            icon: Icons.feedback_outlined,
-            text: "Send Feedback",
-            onTap: () {},
           ),
           _divider(),
           _buildDrawerItem(

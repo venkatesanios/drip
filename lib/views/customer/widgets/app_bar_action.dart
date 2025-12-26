@@ -21,6 +21,7 @@ import '../../../utils/routes.dart';
 import '../../../utils/shared_preferences_helper.dart';
 import '../../../view_models/customer/customer_screen_controller_view_model.dart';
 import '../../common/user_profile/user_profile.dart';
+import '../help_support.dart';
 import '../send_and_received/sent_and_received.dart';
 import 'alarm_button.dart';
 
@@ -189,18 +190,13 @@ Widget _buildHelpMenu(
               ),
               ListTile(
                 leading: const Icon(Icons.help_outline),
-                title: const Text('Help'),
+                title: const Text('Help & support'),
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (_) => UserChatScreen(
-                              userId: vm.mySiteList.data[vm.sIndex].customerId,
-                              userName:
-                                  vm.mySiteList.data[vm.sIndex].customerName,
-                              phoneNumber: viewedCustomer!.mobileNo,
-                            )),
+                        builder: (_) => const DashboardHelpPage()),
                   );
                 },
               ),
@@ -210,7 +206,6 @@ Widget _buildHelpMenu(
                 onTap: () async {
 
                   Navigator.pop(context);
-
                     if (loggedInUser.role == UserRole.admin) {
                       Navigator.push(
                         context,
@@ -233,7 +228,7 @@ Widget _buildHelpMenu(
 
                   }
                 },
-              ) : SizedBox(),
+              ) : const SizedBox(),
               !loggedUser.configPermission ? ListTile(
                 leading: const Icon(Icons.restore),
                 title: const Text('Factory Reset'),
@@ -270,6 +265,16 @@ Widget _buildHelpMenu(
                 title: const Text('Send feedback'),
                 onTap: () {
                   Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => UserChatScreen(
+                          userId: vm.mySiteList.data[vm.sIndex].customerId,
+                          userName:
+                          vm.mySiteList.data[vm.sIndex].customerName,
+                          phoneNumber: viewedCustomer!.mobileNo,
+                        )),
+                  );
                 },
               ),
             ],
