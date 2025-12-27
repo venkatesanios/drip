@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:oro_drip_irrigation/modules/IrrigationProgram/view/program_library.dart';
 import 'package:oro_drip_irrigation/modules/IrrigationProgram/view/schedule_screen.dart';
 import 'package:provider/provider.dart';
+import '../../../Constants/constants.dart';
 import '../../../services/mqtt_service.dart';
 import '../../../utils/constants.dart';
 import '../repository/irrigation_program_repo.dart';
@@ -255,12 +256,17 @@ class _AdditionalDataScreenState extends State<AdditionalDataScreen> {
                                     child: Text(doneProvider.priority, style: TextStyle(color: Theme.of(context).primaryColor, fontWeight: FontWeight.bold, fontSize: Theme.of(context).textTheme.bodyLarge!.fontSize),)
                                 ),
                                 CustomNativeTimePicker(
-                                  initialValue: doneProvider.delayBetweenZones != "" ? doneProvider.delayBetweenZones : "00:00:00",
+                                  initialValue: Constants.showHourAndMinuteOnly(doneProvider.delayBetweenZones != ""
+                                      ? doneProvider.delayBetweenZones.length > 5
+                                      ? doneProvider.delayBetweenZones
+                                      : '${doneProvider.delayBetweenZones}:00'
+                                      : "00:00:00", widget.modelId),
                                   is24HourMode: false,
                                   style: TextStyle(color: Theme.of(context).primaryColor, fontWeight: FontWeight.bold, fontSize: Theme.of(context).textTheme.bodyLarge!.fontSize),
                                   onChanged: (newTime){
                                     doneProvider.updateProgramName(newTime, 'delayBetweenZones');
-                                  }, modelId: widget.modelId,
+                                  },
+                                  modelId: widget.modelId,
                                 ),
                                 IntrinsicWidth(
                                   child: Row(
