@@ -173,7 +173,7 @@ class PumpWidget extends StatelessWidget {
             if (int.tryParse(pump.reason) case final reason? when reason > 0 && reason != 31)
               Positioned(
                 top: 1,
-                left: isMobile? 3 : 37.5,
+                left: 37.5,
                 child: Tooltip(
                   message: getContentByCode(reason),
                   textStyle: const TextStyle(color: Colors.black54),

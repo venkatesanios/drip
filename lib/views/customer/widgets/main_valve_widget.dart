@@ -33,9 +33,9 @@ class BuildMainValve extends StatelessWidget {
           valve.status = int.parse(statusParts[1]);
         }
 
-        final width = isNarrow ? 70.0 : 70.0;
-        final height = isNarrow ? 60.0 : 100.0;
-        final iconSize = isNarrow ? 40.0 : 70.0;
+        const width = 70.0;
+        final height = isNarrow ? 70.0 : 100.0;
+        final iconSize = isNarrow ? 43.0 : 70.0;
 
         return SizedBox(
           width: width,
@@ -52,7 +52,7 @@ class BuildMainValve extends StatelessWidget {
                     width: iconSize,
                     height: iconSize,
                     child: isNarrow ? Image.asset('assets/png/m_main_valve_gray.png',
-                      color: valve.status == 0 ? Colors.grey : valve.status == 1 ? Colors.green
+                      color: valve.status == 0 ? Colors.black54 : valve.status == 1 ? Colors.green
                           : valve.status == 1 ? Colors.orange : Colors.red,
                     ) : AppConstants.getAsset('main_valve', valve.status, ''),
                   ),

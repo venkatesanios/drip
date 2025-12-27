@@ -23,15 +23,15 @@ class LightWidget extends StatelessWidget {
 
         return SizedBox(
           width: 70,
-          height: isWide? 100 : 65,
+          height: isWide? 100 : 70,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SizedBox(
-                width: isWide? 70 : 40,
-                height: isWide? 70 : 40,
+                width: isWide? 70 : 43,
+                height: isWide? 70 : 43,
                 child: AppConstants.getAsset(isWide ? 'light':'light_mbl', objLight.status, ''),
               ),
               Text(
