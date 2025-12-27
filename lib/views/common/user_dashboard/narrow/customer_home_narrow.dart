@@ -123,6 +123,7 @@ class CustomerHomeNarrow extends StatelessWidget {
 
                 int valveCount = line.valveObjects.length + line.mainValveObjects.length
                     + line.lightObjects.length;
+
                 for (final valve in line.valveObjects) {
                   valveCount += (valve.waterSources.length);
                 }
@@ -130,7 +131,6 @@ class CustomerHomeNarrow extends StatelessWidget {
                 final vp = calculateValveLinePositions(
                   screenWidth: MediaQuery.sizeOf(context).width,
                   valveLength: valveCount,
-                  isNova: isNova,
                 );
 
                 return Padding(
@@ -140,11 +140,11 @@ class CustomerHomeNarrow extends StatelessWidget {
                       Positioned(
                         top: 4,
                         right: 3,
-                        bottom: 58,
+                        bottom: 62,
                         child: Container(width: 4.5, color: Colors.blueGrey.shade100),
                       ),
 
-                      /*buildConnectionLine(context, 4.5),*/
+                      buildConnectionLine(context, 5),
 
 
                       if (linePositions.isNotEmpty) ...[
@@ -271,7 +271,7 @@ class CustomerHomeNarrow extends StatelessWidget {
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 8),
+          padding: const EdgeInsets.only(left: 5, right: 16),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -504,10 +504,9 @@ class CustomerHomeNarrow extends StatelessWidget {
   List<double> calculateValveLinePositions({
     required double screenWidth,
     required int valveLength,
-    required bool isNova,
   }) {
-    const double valveWidth = 72;
-    const double rowHeight = 65;
+    const double valveWidth = 100;
+    const double rowHeight = 70;
 
     int perRow = screenWidth ~/ valveWidth;
     if (perRow < 1) perRow = 1;
@@ -525,7 +524,7 @@ class CustomerHomeNarrow extends StatelessWidget {
       right: 7,
       child: Container(
         height: 3,
-        color: Colors.black12,
+        color: Colors.blueGrey.shade100,
       ),
     );
   }

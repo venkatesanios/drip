@@ -77,7 +77,7 @@ class _ValveWidgetMobileState extends State<ValveWidgetMobile> {
   }
 
   Widget _buildWithoutSource(ValveModel valve, bool hasMoisture) {
-    return SizedBox(width: 70, height: 65, child: _buildValveIcon(valve, hasMoisture));
+    return SizedBox(width: 70, height: 70, child: _buildValveIcon(valve, hasMoisture));
   }
 
   Widget _buildValveIcon(ValveModel valve, bool hasMoisture) {
@@ -91,8 +91,8 @@ class _ValveWidgetMobileState extends State<ValveWidgetMobile> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox(
-              width: 40,
-              height: 40,
+              width: 43,
+              height: 43,
               child: Image.asset(
                 valve.status ==1 ? 'assets/gif/m_valve_green.gif' : 'assets/png/m_valve_grey.png',
                 color: valve.status ==1 ? null : valveColor,
@@ -116,7 +116,7 @@ class _ValveWidgetMobileState extends State<ValveWidgetMobile> {
   }
 
   Color _valveColor(int status) {
-    if (status == 0) return Colors.grey;
+    if (status == 0) return Colors.black54;
     if (status == 1) return Colors.green;
     if (status == 2) return Colors.orange;
     return Colors.red;
