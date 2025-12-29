@@ -30,6 +30,8 @@ class _BluetoothScanTileState extends State<BluetoothScanTile>
         curve: Curves.linear,
       ),
     );
+
+    widget.vm.blueService.onDeviceFound = stopScan;
   }
 
   Future<void> startScan() async {
@@ -45,8 +47,19 @@ class _BluetoothScanTileState extends State<BluetoothScanTile>
     _controller.stop();
   }
 
+  void stopScan() {
+    if (!mounted) return;
+
+    setState(() {
+      isScanning = false;
+    });
+
+    _controller.stop();
+  }
+
   @override
   void dispose() {
+    widget.vm.blueService.onDeviceFound = null;
     _controller.dispose();
     super.dispose();
   }

@@ -261,16 +261,16 @@ class CustomerFabMenu extends StatelessWidget {
                     title: const Text("Wi-Fi / MQTT"),
                     trailing: commMode == 1 ?
                     Icon(Icons.check, color: Theme.of(context).primaryColorLight) : null,
-                    onTap: () {
+                    onTap: () async {
+                      await vm.blueService.resetBluetoothState();
                       vm.updateCommunicationMode(1, customerId);
                     },
                   ),
                   ListTile(
                     leading: const Icon(Icons.bluetooth),
                     title: const Text("Bluetooth"),
-                    trailing: commMode == 2
-                        ? Icon(Icons.check, color: Theme.of(context).primaryColorLight)
-                        : null,
+                    trailing: commMode == 2 ?
+                    Icon(Icons.check, color: Theme.of(context).primaryColorLight) : null,
                     onTap: () {
                       vm.updateCommunicationMode(2, customerId);
                     },
@@ -318,6 +318,7 @@ class CustomerFabMenu extends StatelessWidget {
                         builder: (context, provider, _) {
                           final devices = provider.pairedDevices;
                           if (devices.isNotEmpty) {
+                            vm.blueService.stopDiscovery();
                             return Column(
                               children: devices.map((d) {
                                 return ListTile(
