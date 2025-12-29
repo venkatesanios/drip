@@ -29,6 +29,7 @@ class CustomDevice {
 class BluService {
   static BluService? _instance;
   BluService._internal();
+  VoidCallback? onDeviceFound;
 
   factory BluService() {
     _instance ??= BluService._internal();
@@ -88,30 +89,6 @@ class BluService {
     return true;
   }
 
-  /*Future<void> requestPermissions() async {
-    if (Platform.isAndroid) {
-      final deviceInfo = DeviceInfoPlugin();
-      final androidInfo = await deviceInfo.androidInfo;
-      final sdkInt = androidInfo.version.sdkInt;
-
-      final List<Permission> permissions = [
-        if (sdkInt >= 31) ...[
-          Permission.bluetoothScan,
-          Permission.bluetoothConnect,
-        ] else ...[
-          Permission.bluetooth,
-        ],
-        Permission.locationWhenInUse,
-      ];
-
-      Map<Permission, PermissionStatus> statuses = await permissions.request();
-
-      if (statuses.values.any((status) => status.isDenied || status.isPermanentlyDenied)) {
-        print('Some permissions were not granted.');
-        // Consider prompting user to go to settings
-      }
-    }
-  }*/
 
   int getTraceLogSize() {
     int totalBytes = 0;
@@ -138,13 +115,12 @@ class BluService {
     await requestPermissions();
     await checkLocationServices();
 
-    print(deviceId);
     _devices.clear();
     await FlutterBluetoothSerial.instance.cancelDiscovery();
     await requestPermissions();
     await checkLocationServices();
 
-    final subscription = FlutterBluetoothSerial.instance.startDiscovery().listen((result) {
+    _scanSubscription = FlutterBluetoothSerial.instance.startDiscovery().listen((result) {
       final device = result.device;
 
       if ((device.name?.contains(deviceId) ?? false)) {
@@ -172,13 +148,13 @@ class BluService {
 
           providerState?.updatePairedDevices(updatedList);
         }
+        onDeviceFound?.call();
       }
     });
 
     await Future.delayed(const Duration(seconds: 10));
-    await subscription.cancel();
+    await _scanSubscription?.cancel();
     await FlutterBluetoothSerial.instance.cancelDiscovery();
-    print("Bluetooth discovery stopped after 10 seconds.");
   }
 
   Future<void> connectToDevice(CustomDevice device) async {
@@ -216,45 +192,19 @@ class BluService {
     }
   }
 
-  /*Future<void> connectToDevice(CustomDevice device) async {
-    try {
-      // Update to connecting
-      providerState?.updateDeviceStatus(device.device.address, BlueConnectionSate.connecting.index);
+  Future<void> stopDiscovery() async {
+    await _scanSubscription?.cancel();
+    await FlutterBluetoothSerial.instance.cancelDiscovery();
+  }
 
-      // Disconnect any existing connection
-      if (isConnected) {
-        await disconnect();
-      }
-
-      _connectedAddress = device.device.address;
-
-      final connection = await BluetoothConnection.toAddress(device.device.address);
-      _connection = connection;
-
-      //  Update to connected
-      providerState?.updateDeviceStatus(device.device.address, BlueConnectionSate.connected.index);
-      providerState?.updateConnectedDeviceStatus(device);
-
-      connection.input?.listen((Uint8List data) {
-        _buffer += utf8.decode(data);
-        print('_buffer-------------> $_buffer');
-        _parseBuffer();
-      }).onDone(() {
-        _connectedAddress = null;
-        _connection = null;
-
-        // Update to disconnected when done
-        providerState?.updateDeviceStatus(device.device.address, BlueConnectionSate.disconnected.index);
-        providerState?.updateConnectedDeviceStatus(null);
-      });
-    } catch (e) {
-      print("Connection failed: $e");
-
-      // Update to disconnected on error
-      providerState?.updateDeviceStatus(device.device.address, BlueConnectionSate.disconnected.index);
-      providerState?.updateConnectedDeviceStatus(null);
-    }
-  }*/
+  Future<void> resetBluetoothState() async {
+    // stop scan
+    await _scanSubscription?.cancel();
+    await FlutterBluetoothSerial.instance.cancelDiscovery();
+    _devices.clear();
+    providerState?.updatePairedDevices([]);
+    print("Bluetooth state cleared");
+  }
 
   void _parseBuffer() {
     print('_buffer----> $_buffer');
