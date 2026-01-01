@@ -2,6 +2,7 @@ import'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:oro_drip_irrigation/Constants/notifications_service.dart';
+import 'package:oro_drip_irrigation/utils/Theme/agritel_theme.dart';
 import '../Screens/login_screenOTP/login_screenotp.dart';
 import '../flavors.dart';
 import '../utils/Theme/smart_comm_theme.dart';
@@ -58,12 +59,17 @@ class _MyAppState extends State<MyApp> {
     return FutureBuilder<String>(
       future: getInitialRoute(),
       builder: (context, snapshot) {
+
         var isOro = F.appFlavor?.name.contains('oro') ?? false;
+        var isATel = F.appFlavor?.name.contains('agritel') ?? false;
+
         return MaterialApp(
           navigatorKey: navigatorKey,
           debugShowCheckedModeBanner: false,
-          theme: isOro ? OroTheme.lightTheme : SmartCommTheme.lightTheme,
-          darkTheme: isOro ? OroTheme.darkTheme : SmartCommTheme.darkTheme,
+          theme: isOro ? OroTheme.lightTheme : isATel ? ATelTheme.lightTheme :
+          SmartCommTheme.lightTheme,
+          darkTheme: isOro ? OroTheme.darkTheme : isATel ? ATelTheme.darkTheme :
+          SmartCommTheme.darkTheme,
           themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
           home: navigateToInitialScreen(snapshot.data ?? Routes.login),
           onGenerateRoute: Routes.generateRoute,
@@ -75,7 +81,6 @@ class _MyAppState extends State<MyApp> {
 
 /// Helper function to navigate to the appropriate screen
 Widget navigateToInitialScreen(String route) {
-  var isOro = F.appFlavor?.name.contains('oro') ?? false;
   switch (route) {
     case Routes.login:
       return kIsWeb ? const LoginScreen() : LoginScreenOTP();

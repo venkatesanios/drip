@@ -14,6 +14,7 @@ class LoginMobile extends StatelessWidget {
   Widget build(BuildContext context) {
     final viewModel = Provider.of<LoginViewModel>(context);
     final isOro = F.appFlavor!.name.contains('oro');
+    final isATel = F.appFlavor!.name.contains('agritel');
 
     return Scaffold(
       body: SafeArea(
@@ -24,7 +25,8 @@ class LoginMobile extends StatelessWidget {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                isOro ? const OroLoginHeader() : const LkLoginHeader(),
+                isOro ? const OroLoginHeader() : isATel? const ATelLoginHeader():
+                const LkLoginHeader(),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                   child: ConstrainedBox(

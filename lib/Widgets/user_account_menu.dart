@@ -11,7 +11,7 @@ class UserAccountMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final showLogo = !F.appFlavor!.name.contains('oro');
+    final showLogo = (!F.appFlavor!.name.contains('oro') && !F.appFlavor!.name.contains('agritel'));
     final customer = Provider.of<UserProvider>(context).viewedCustomer;
     return Row(
       children: [

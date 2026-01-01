@@ -32,6 +32,36 @@ class OroLoginHeader extends StatelessWidget {
   }
 }
 
+class ATelLoginHeader extends StatelessWidget {
+  const ATelLoginHeader({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: (MediaQuery.of(context).size.height / 2) - 100,
+      child: const Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Spacer(),
+          Image(
+            image: AssetImage('assets/png/agritel_logo_white.png'),
+            height: 70,
+          ),
+          Padding(
+            padding: EdgeInsets.all(20),
+            child: Text(
+              AppConstants.appShortContent,
+              style: TextStyle(color: Colors.white70, fontSize: 13),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class LkLoginHeader extends StatelessWidget {
   const LkLoginHeader({super.key});
 

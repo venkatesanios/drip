@@ -157,3 +157,8 @@ flavorizr:
         name: "SMART COMM"
       android:
         applicationId: "com.niagaraautomations.SmartComm"
+    agritel:
+      app:
+        name: "Agritel"
+      android:
+        applicationId: "com.niagaraautomations.Agritel"

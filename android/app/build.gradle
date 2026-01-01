@@ -44,6 +44,11 @@ android {
             applicationId "com.niagaraautomations.smartComm"
             resValue "string", "app_name", "SMART COMM"
         }
+        agritel {
+            dimension "flavor-type"
+            applicationId "com.niagaraautomations.agritel"
+            resValue "string", "app_name", "Agritel"
+        }
     }
 
     namespace = "com.niagaraautomations.oroDripirrigation"

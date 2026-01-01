@@ -9,13 +9,14 @@ import '../../../../utils/constants.dart';
 import '../../../../view_models/login_view_model.dart';
 
 class WideLayout extends StatelessWidget {
-  final bool isOro;
+  final bool isOro, isATel;
   final LoginViewModel viewModel;
 
   const WideLayout({
     super.key,
     required this.isOro,
     required this.viewModel,
+    required this.isATel,
   });
 
   @override
@@ -33,13 +34,14 @@ class WideLayout extends StatelessWidget {
     return Expanded(
       child: Container(
         height: double.infinity,
-        color: Theme.of(context).primaryColorDark,
-        child: isOro
-            ? Padding(
+        color: isATel ? Theme.of(context).primaryColor : Theme.of(context).primaryColorDark,
+        child: isOro ? Padding(
           padding: const EdgeInsets.all(50.0),
           child: SvgPicture.asset('assets/svg_images/login_left_picture.svg'),
-        )
-            : const Image(
+        ) : isATel ? Padding(
+          padding: const EdgeInsets.all(50.0),
+          child: SvgPicture.asset('assets/svg_images/agritel_left_picture.svg'),
+        ) : const Image(
           image: AssetImage('assets/png/lk_login_left_picture.png'),
           fit: BoxFit.fill,
         ),
@@ -54,6 +56,7 @@ class WideLayout extends StatelessWidget {
         color: Colors.white,
         child: Column(
           children: [
+            isATel ? const SizedBox() :
             isOro ? const Expanded(
               child: Row(
                 children: [
@@ -78,6 +81,14 @@ class WideLayout extends StatelessWidget {
                     if (isOro)...[
                       SvgPicture.asset('assets/svg_images/oro_logo.svg', fit: BoxFit.cover),
                       const SizedBox(height: 10)
+                    ],
+                    if (isATel)...[
+                      const SizedBox(height: 50),
+                      const Image(
+                        image: AssetImage('assets/png/agritel_logo.png'),
+                        fit: BoxFit.cover,
+                      ),
+                      const SizedBox(height: 20)
                     ],
                     Padding(
                       padding: const EdgeInsets.only(left: 5, right: 5, bottom: 5),

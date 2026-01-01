@@ -2,6 +2,7 @@ enum Flavor {
   oroDevelopment,
   oroProduction,
   smartComm,
+  agritel
 }
 
 class F {
@@ -17,6 +18,8 @@ class F {
         return 'ORO';
       case Flavor.smartComm:
         return 'SMART COMM';
+      case Flavor.agritel:
+        return 'Agritel';
       default:
         return 'title';
     }
