@@ -9,7 +9,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.niagaraautomations.oroDevelopment</string>
+	<string>com.niagaraautomations.oroDripIrrigation</string>
 	<key>PROJECT_ID</key>
 	<string>smartcomm-6f42b</string>
 	<key>STORAGE_BUCKET</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:749016956909:ios:c7860b788252f2068831e4</string>
+	<string>1:749016956909:ios:a49edfcef198fddf8831e4</string>
 </dict>
 </plist>
