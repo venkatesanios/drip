@@ -39,7 +39,9 @@ class ProductView extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Image.asset(
-                    "assets/Images/Png/${F.appFlavor!.name.contains('oro') ? 'Oro' : 'SmartComm'}/category_${index + 1}.png",
+                    "assets/Images/Png/${F.appFlavor!.name.contains('oro') ? 'Oro' :
+                    F.appFlavor!.name.contains('agritel') ? 'Agritel' :
+                    'SmartComm'}/category_${index + 1}.png",
                     height: 60,
                     errorBuilder: (context, error, stackTrace) {
                       return const Icon(Icons.error);
@@ -70,7 +72,9 @@ class ProductView extends StatelessWidget {
             return ListTile(
               tileColor: Colors.white,
               leading: Image.asset(
-                "assets/Images/Png/${F.appFlavor!.name.contains('oro') ? 'Oro' : 'SmartComm'}/category_${index + 1}.png",
+                "assets/Images/Png/${F.appFlavor!.name.contains('oro') ? 'Oro' :
+                F.appFlavor!.name.contains('agritel') ? 'Agritel' :
+                'SmartComm'}/category_${index + 1}.png",
                 height: 40,
                 errorBuilder: (context, error, stackTrace) {
                   print('image loding error:$error');

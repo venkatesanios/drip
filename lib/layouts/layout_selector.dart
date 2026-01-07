@@ -12,7 +12,7 @@ class UserLayoutSelector extends StatelessWidget {
       case UserRole.admin:
         return const AdminScreenLayout();
       case UserRole.dealer:
-        return const DealerScreenLayout();
+        return const DealerScreenLayout(isSubdealer: false);
       case UserRole.customer:
       case UserRole.subUser:
         return const CustomerScreenLayout();

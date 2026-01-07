@@ -294,6 +294,7 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
         mobileNumber: number,
         email: userData['email'],
         configPermission: userData['permissionDenied'] ?? false,
+        password: '',
       );
 
       // 🔹 Example: Navigate based on role

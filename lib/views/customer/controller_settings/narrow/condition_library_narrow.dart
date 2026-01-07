@@ -40,7 +40,7 @@ class ConditionLibraryNarrow extends StatelessWidget {
                 enabled: vm.isLoading,
                 child: ListView.builder(
                   padding: const EdgeInsets.only(bottom: 60),
-                  itemCount: vm.clData.cnLibrary.condition.length,
+                  itemCount: vm.isLoading ? 3 : vm.clData.cnLibrary.condition.length,
                   itemBuilder: (context, index) {
 
                     if (vm.isLoading) {

@@ -1,10 +1,11 @@
-import 'package:flutter/foundation.dart';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:new_version_plus/new_version_plus.dart';
 import '../layouts/layout_selector.dart';
-import '../models/user_model.dart';
 import '../providers/user_provider.dart';
+import '../repository/repository.dart';
+import '../utils/auth_pref_checker.dart';
 import '../utils/enums.dart';
 import '../utils/shared_preferences_helper.dart';
 import 'common/login/login_screen.dart';
@@ -12,35 +13,35 @@ import 'common/login/login_screen.dart';
 class ScreenController extends StatelessWidget {
   const ScreenController({super.key});
 
-  static bool _versionChecked = false; // prevent duplicate dialogs
 
   Future<bool> initializeUser(BuildContext context) async {
-    final token = await PreferenceHelper.getToken();
-    if (token == null || token.isEmpty) return false;
 
-    final roleString = await PreferenceHelper.getUserRole();
-    final userId = await PreferenceHelper.getUserId();
-    final userName = await PreferenceHelper.getUserName();
-    final countryCode = await PreferenceHelper.getCountryCode();
-    final mobile = await PreferenceHelper.getMobileNumber();
-    final email = await PreferenceHelper.getEmail();
-    final role = getRoleFromString(roleString);
-    final configPermission = await PreferenceHelper.getConfigPermission();
+    final user = await AuthPrefChecker.getLoggedInUser();
+    if (user == null) return false;
 
-    final user = UserModel(
-      token: token,
-      id: userId ?? 0,
-      name: userName ?? '',
-      role: role,
-      countryCode: countryCode ?? '',
-      mobileNo: mobile ?? '',
-      email: email ?? '',
-      configPermission: configPermission ?? false,
-    );
-
-    final userProvider = context.read<UserProvider>();
-    userProvider.setLoggedInUser(user);
+    context.read<UserProvider>().setLoggedInUser(user);
     context.read<UserProvider>().pushViewedCustomer(user);
+
+    // Validate ONLY password-login users
+    if (user.password.isNotEmpty) {
+      try {
+        final response = await context.read<ApiRepository>().validateUser({
+          'userId': user.id,
+          'password': user.password,
+        });
+        final data = jsonDecode(response.body);
+        if (response.statusCode == 200 && data['code'] == 200) {
+          return true;
+        }else{
+          await PreferenceHelper.clearAll();
+          return false;
+        }
+      } catch (e) {
+        debugPrint('Validation skipped: $e');
+        await PreferenceHelper.clearAll();
+        return false;
+      }
+    }
 
     return true;
   }
@@ -62,34 +63,10 @@ class ScreenController extends StatelessWidget {
     }
   }
 
-  /// VERSION CHECK HERE (Safe)
-  void checkVersionDialog(BuildContext context) async {
-    if (_versionChecked) return; // avoid multiple calls
-    _versionChecked = true;
-
-    final newVersion = NewVersionPlus(
-      androidId: "com.niagaraautomations.oroDripirrigation",
-      iOSId: "com.niagaraautomations.oroDripirrigation",
-    );
-
-    final status = await newVersion.getVersionStatus();
-
-    if (status != null && status.canUpdate) {
-      newVersion.showUpdateDialog(
-        context: context,
-        versionStatus: status,
-        dialogTitle: "New Update Available",
-        // dialogText:
-        // "A new version (${status.storeVersion}) is available.\nPlease update for better performance.",
-        updateButtonText: "Update Now",
-        dismissButtonText: "Later",
-        allowDismissal: true,
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
+
     return FutureBuilder<bool>(
       future: initializeUser(context),
       builder: (context, snapshot) {
@@ -99,17 +76,13 @@ class ScreenController extends StatelessWidget {
           );
         }
 
-        if (snapshot.hasData && snapshot.data == false) {
+        if (snapshot.data != true) {
           return const LoginScreen();
         }
 
-        /// 🔥 Call version check AFTER first frame
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if(kIsWeb) checkVersionDialog(context);
-        });
+        final userData = context.read<UserProvider>().loggedInUser;
 
-        final userRole = context.read<UserProvider>().loggedInUser.role;
-        return UserLayoutSelector(userRole: userRole);
+        return UserLayoutSelector(userRole: userData.role);
       },
     );
   }

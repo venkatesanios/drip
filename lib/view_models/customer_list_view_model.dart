@@ -23,7 +23,7 @@ class CustomerListViewModel extends ChangeNotifier {
   Future<void> getMyCustomers(int userType) async {
     setCustomerLoading(true);
 
-    final body = {"userId": userId, "userType": userType};
+    final body = { "userId": userId, "userType": userType };
 
     try {
       final response = await repository.fetchMyCustomerList(body);

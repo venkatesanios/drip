@@ -28,7 +28,7 @@ class ATelTheme {
         textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 20),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8), // Add border radius
+          borderRadius: BorderRadius.circular(8),
         ),
       ),
     ),
@@ -53,8 +53,7 @@ class ATelTheme {
           return primaryLight.withOpacity(0.1);
         },
         ),
-        foregroundColor: WidgetStateProperty.resolveWith<Color?>(
-              (states) {
+        foregroundColor: WidgetStateProperty.resolveWith<Color?>((states) {
             if (states.contains(WidgetState.selected)) {
               return Colors.white;
             }

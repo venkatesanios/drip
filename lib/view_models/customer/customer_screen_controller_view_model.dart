@@ -346,6 +346,8 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
     final index = mySiteList.data.indexWhere((site) => site.groupName == siteName);
     if (index != -1) {
       sIndex = index;
+      mIndex = 0;
+      lIndex = 0;
       fromWhere = 'site';
       updateSite(index, 0, 0);
     }
@@ -374,6 +376,7 @@ class CustomerScreenControllerViewModel extends ChangeNotifier {
   }
 
   void updateMaster(int sIdx, int mIdx, int lIdx) {
+
     final customerProvider = Provider.of<CustomerProvider>(context, listen: false);
     final master = mySiteList.data[sIdx].master[mIdx];
 

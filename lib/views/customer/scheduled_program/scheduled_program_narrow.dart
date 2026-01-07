@@ -100,7 +100,6 @@ class _ScheduledProgramNarrowState extends State<ScheduledProgramNarrow> {
           ],
           Expanded(
             child: ListView.builder(
-              padding: const EdgeInsets.only(bottom: 130),
               itemCount: filteredScheduleProgram.length,
               itemBuilder: (context, index) {
                 final program = filteredScheduleProgram[index];

@@ -9,6 +9,8 @@ import '../utils/routes.dart';
 import '../utils/shared_preferences_helper.dart';
 
 class BaseHeaderViewModel extends ChangeNotifier {
+  bool _isDisposed = false;
+
   int selectedIndex = 0;
   int hoveredIndex = -1;
   final List<String> menuTitles;
@@ -16,19 +18,32 @@ class BaseHeaderViewModel extends ChangeNotifier {
   MainMenuSegment _segmentView = MainMenuSegment.dashboard;
   MainMenuSegment get mainMenuSegmentView => _segmentView;
 
-
   final Repository repository;
-  late Map<String, dynamic> jsonDataMap;
-  TextEditingController txtFldSearch = TextEditingController();
+  Map<String, dynamic>? jsonDataMap;
+  final TextEditingController txtFldSearch = TextEditingController();
+
+  BaseHeaderViewModel({
+    required this.repository,
+    required this.menuTitles,
+  });
+
+  void safeNotify() {
+    if (!_isDisposed) {
+      notifyListeners();
+    }
+  }
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    txtFldSearch.dispose();
+    super.dispose();
+  }
 
   void updateMainMenuSegmentView(MainMenuSegment newView) {
     _segmentView = newView;
     selectedIndex = newView.index;
-    notifyListeners();
-  }
-
-  BaseHeaderViewModel({required this.repository, required this.menuTitles}) {
-    initState();
+    safeNotify();
   }
 
   Future<void> fetchCategoryModelList(int userId, UserRole userRole) async {
@@ -38,46 +53,48 @@ class BaseHeaderViewModel extends ChangeNotifier {
         "userType": userRole.name == 'admin' ? 1 : 2,
       };
 
-      var response = await repository.fetchAllCategoriesAndModels(body);
+      final response = await repository.fetchAllCategoriesAndModels(body);
+
+      if (_isDisposed) return; // STOP
+
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final responseBody = jsonDecode(response.body);
         if (responseBody["code"] == 200) {
           jsonDataMap = responseBody;
-        } else {
-          debugPrint("API Error: ${responseBody['message']}");
         }
       }
-    } catch (error) {
-      debugPrint("Error: $error");
+    } catch (e) {
+      debugPrint("Error: $e");
     } finally {
-      notifyListeners();
+      if (!_isDisposed) safeNotify();
     }
-  }
-
-  void initState() {
-    selectedIndex = 0;
-    notifyListeners();
   }
 
   void onDestinationSelectingChange(int index) {
     selectedIndex = index;
-    notifyListeners();
+    safeNotify();
   }
 
   void onHoverChange(int index) {
     hoveredIndex = index;
-    notifyListeners();
-  }
-
-  Future<void> logout(BuildContext context) async {
-    await PreferenceHelper.clearAll();
-    const route = kIsWeb ? Routes.login : Routes.loginOtp;
-    Navigator.pushNamedAndRemoveUntil(context, route, (route) => false,);
-    // Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false);
+    safeNotify();
   }
 
   void clearSearch() {
     txtFldSearch.clear();
-    notifyListeners();
+    safeNotify();
+  }
+
+  Future<void> logout(BuildContext context) async {
+    await PreferenceHelper.clearAll();
+
+    if (!context.mounted) return;
+
+    const route = kIsWeb ? Routes.login : Routes.loginOtp;
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      route,
+          (_) => false,
+    );
   }
 }

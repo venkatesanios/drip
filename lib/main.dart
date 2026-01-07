@@ -7,8 +7,10 @@ import 'package:oro_drip_irrigation/modules/PumpController/state_management/pump
 import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/state_management/ble_service.dart';
 import 'package:oro_drip_irrigation/providers/button_loading_provider.dart';
 import 'package:oro_drip_irrigation/providers/user_provider.dart';
+import 'package:oro_drip_irrigation/repository/repository.dart';
 import 'package:oro_drip_irrigation/services/bluetooth_service.dart';
 import 'package:oro_drip_irrigation/services/communication_service.dart';
+import 'package:oro_drip_irrigation/services/http_service.dart';
 import 'package:oro_drip_irrigation/services/mqtt_service.dart';
 import 'package:oro_drip_irrigation/utils/network_utils.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -148,6 +150,10 @@ FutureOr<void> main() async {
               customerProvider: customer,
             );
           },
+        ),
+        Provider<HttpService>(create: (_) => HttpService()),
+        Provider<ApiRepository>(create: (context) =>
+              RepositoryImpl(context.read<HttpService>()),
         ),
       ],
       child: const MyApp(),

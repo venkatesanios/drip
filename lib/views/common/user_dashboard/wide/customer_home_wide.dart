@@ -218,5 +218,4 @@ class CustomerHomeWide extends StatelessWidget {
       isNava: false,
     );
   }
-
 }

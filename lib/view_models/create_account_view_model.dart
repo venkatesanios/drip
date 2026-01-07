@@ -5,6 +5,9 @@ import '../models/state_list_model.dart';
 import '../repository/repository.dart';
 import '../utils/enums.dart';
 
+//for sub-dealer creation...........
+enum AccountType { customer, dealer }
+
 class CreateAccountViewModel extends ChangeNotifier {
   final Repository repository;
   bool isLoading = false;
@@ -22,6 +25,8 @@ class CreateAccountViewModel extends ChangeNotifier {
   String? name, email, country, state, city, address;
   final TextEditingController mobileNoController = TextEditingController();
   String dialCode = '91';
+
+  AccountType accountType = AccountType.customer;
 
   final Function(Map<String, dynamic>) onAccountCreatedSuccess;
 
@@ -86,7 +91,8 @@ class CreateAccountViewModel extends ChangeNotifier {
       setLoading(true);
 
       try {
-        final cusType = role == UserRole.admin ? '2' : '3';
+        final cusType = role == UserRole.admin ? '2' :
+        accountType.name == "dealer" ? '2' : '3';
         final body = {
           'userName': name ?? '',
           'countryCode': dialCode.replaceAll('+', ''),
@@ -101,7 +107,6 @@ class CreateAccountViewModel extends ChangeNotifier {
           'email': email ?? '',
           'mainUserId': customerId != 0 ? customerId : userId,
         };
-        print(body);
 
         final response = customerId != 0
             ? await repository.createSubUserAccount(body)
@@ -109,7 +114,6 @@ class CreateAccountViewModel extends ChangeNotifier {
 
         if (response.statusCode == 200) {
           final jsonData = jsonDecode(response.body);
-          print(response.body);
           if (jsonData["code"] == 200) {
             onAccountCreatedSuccess({
               'status': 'success',
@@ -131,14 +135,16 @@ class CreateAccountViewModel extends ChangeNotifier {
       } finally {
         setLoading(false);
       }
-
-      //Navigator.pop(context);
     }
-
   }
 
   void setLoading(bool value) {
     isLoading = value;
+    notifyListeners();
+  }
+
+  void setAccountType(AccountType type) {
+    accountType = type;
     notifyListeners();
   }
 }

@@ -19,7 +19,8 @@ import '../../user_profile/create_account.dart';
 
 
 class CustomerView extends StatelessWidget {
-  const CustomerView({super.key, required this.role, required this.isNarrow, required this.onCustomerProductChanged});
+  const CustomerView({super.key, required this.role, required this.isNarrow,
+    required this.onCustomerProductChanged});
   final UserRole role;
   final bool isNarrow;
   final void Function(String action, List<StockModel> updatedProducts) onCustomerProductChanged;
@@ -174,7 +175,8 @@ class CustomerView extends StatelessWidget {
         '+ ${customer.countryCode} ${customer.mobileNumber}\n${customer.emailId}',
         style: subtitleStyle,
       ),
-      trailing: role.name == 'admin' ? IconButton(
+      trailing: (role.name == 'admin' || customer.userType == '2' ) ?
+      IconButton(
         tooltip: 'View and Add new product',
         icon: const Icon(Icons.playlist_add_circle),
         onPressed: () => _showDeviceList(context, customer, stockVM),
@@ -256,6 +258,7 @@ class CustomerView extends StatelessWidget {
       BuildContext context, CustomerListViewModel vm) {
     final userRole = role.name == 'admin' ? UserRole.admin : UserRole.dealer;
 
+
     if (isNarrow) {
       showModalBottomSheet(
         context: context,
@@ -268,7 +271,7 @@ class CustomerView extends StatelessWidget {
           child: CreateAccount(
             userId: vm.userId,
             role: userRole,
-            customerId: 0,
+            customerId : 0,
             onAccountCreated: vm.updateCustomerList,
           ),
         ),
@@ -302,9 +305,9 @@ class CustomerView extends StatelessWidget {
       CustomerListModel customer,
       ProductStockViewModel stockVM,
       ) {
-    final loggedInUser = Provider.of<UserProvider>(context, listen: false).loggedInUser;
-    final isAdmin = role.name == 'admin';
 
+    final loggedInUser = Provider.of<UserProvider>(context, listen: false).loggedInUser;
+    final isAdmin = role.name == 'admin' || customer.userType == '2';
 
     final Widget deviceListWidget = isAdmin ? DealerDeviceList(
       userId: loggedInUser.id,
@@ -312,6 +315,7 @@ class CustomerView extends StatelessWidget {
       customerId: customer.id,
       userRole: 'Dealer',
       productStockList: stockVM.productStockList,
+      fromAdminPage: role.name == 'admin' ? true : false,
       //onDeviceListAdded: stockVM.removeStockList,
     ) : CustomerDeviceList(
       userId: loggedInUser.id,
@@ -351,12 +355,15 @@ class CustomerView extends StatelessWidget {
       mobileNo: customer.mobileNumber,
       email: customer.emailId,
       configPermission: customer.configPermission,
+      password: userProvider.loggedInUser.password,
     );
 
     userProvider.pushViewedCustomer(user);
 
-    final route = role.name == 'admin'
-        ? const DealerScreenLayout()
+    print("userType : ${customer.userType}");
+
+    final route = role.name == 'admin' || customer.userType == '2'
+        ? const DealerScreenLayout(isSubdealer: false)
         : const CustomerScreenLayout();
 
     Navigator.push(

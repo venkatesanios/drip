@@ -67,7 +67,8 @@ class AdminDashboardLayout extends ScreenLayoutBuilder with LayoutHelpers {
 }
 
 class DealerScreenLayout extends ScreenLayoutBuilder with LayoutHelpers {
-  const DealerScreenLayout({super.key});
+  const DealerScreenLayout({super.key, required this.isSubdealer});
+  final bool isSubdealer;
 
   @override
   Widget build(BuildContext context) =>

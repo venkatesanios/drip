@@ -12,14 +12,18 @@ import '../../../utils/enums.dart';
 import '../../../utils/formatters.dart';
 import '../../../view_models/create_account_view_model.dart';
 
+
 class CreateAccount extends StatelessWidget {
-  const CreateAccount({super.key, required this.userId, required this.role, required this.customerId, required this.onAccountCreated});
+  const CreateAccount({super.key, required this.userId, required this.role,
+    required this.customerId, required this.onAccountCreated});
+
   final int userId, customerId;
   final UserRole role;
   final Function(Map<String, dynamic>) onAccountCreated;
 
   @override
   Widget build(BuildContext context) {
+
     return ChangeNotifierProvider(
       create: (_) {
         final viewModel = CreateAccountViewModel(Repository(HttpService()), onAccountCreatedSuccess: (result) async {
@@ -36,16 +40,40 @@ class CreateAccount extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(left: 2,right: 2, top: 2),
                 child: ListTile(
-                  title: Text(AppConstants.getFormTitle(role), style:  const TextStyle(fontSize: 20)),
-                  subtitle: const Text(AppConstants.pleaseFillDetails, style: TextStyle(fontSize: 14)),
+                  title: Text(
+                    AppConstants.getFormTitle(role),
+                    style: const TextStyle(fontSize: 20),
+                  ),
+                  subtitle: const Text(
+                    AppConstants.pleaseFillDetails,
+                    style: TextStyle(fontSize: 14),
+                  ),
+                  trailing: role.name == "dealer"  ?
+                  DropdownButton<AccountType>(
+                    value: viewModel.accountType,
+                    underline: const SizedBox(),
+                    items: const [
+                      DropdownMenuItem(
+                        value: AccountType.customer,
+                        child: Text('Customer'),
+                      ),
+                      DropdownMenuItem(
+                        value: AccountType.dealer,
+                        child: Text('Dealer'),
+                      ),
+                    ],
+                    onChanged: (value) {
+                      viewModel.setAccountType(value!);
+                    },
+                  ) : null,
                 ),
               ),
               const Divider(height: 0),
-              viewModel.errorMsg!=''?Container(
+              viewModel.errorMsg!='' ? Container(
                   width: MediaQuery.sizeOf(context).width,
                   color: Colors.redAccent,
                   child: Text(viewModel.errorMsg, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.normal), textAlign: TextAlign.center,)
-              ):
+              ) :
               const SizedBox(),
               Expanded(
                 child: SingleChildScrollView(
@@ -81,31 +109,6 @@ class CreateAccount extends StatelessWidget {
                           ),
 
                           const SizedBox(height: 15),
-
-                          // Mobile Number
-                         /* TextFormField(
-                            controller: viewModel.mobileNoController,
-                            keyboardType: TextInputType.phone,
-                            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                            decoration: InputDecoration(
-                              labelText: AppConstants.mobileNumber,
-                              icon: Icon(Icons.phone_outlined, color: Theme.of(context).primaryColor),
-                              prefixText: '+91 ', // or make it dynamic if needed
-                              contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return AppConstants.getMobileError(role);
-                              }
-                              if (value.length < 10) {
-                                return 'Enter a valid 10-digit number';
-                              }
-                              return null;
-                            },
-                            onSaved: (value) {
-                              viewModel.dialCode = '+91'; // static for now, dynamic if needed
-                            },
-                          ),*/
 
                           Padding(
                             padding: const EdgeInsets.only(top: 10),

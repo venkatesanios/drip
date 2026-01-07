@@ -113,7 +113,8 @@ class _CustomerScreenNarrowState extends BaseCustomerScreenState<CustomerScreenN
           customerMobileNo: viewedCustomer.mobileNo
       ),
 
-      floatingActionButton: CustomerFabMenu(
+      floatingActionButton: navModel.index==0?
+      CustomerFabMenu(
         currentMaster: cM,
         loggedInUser: loggedInUser,
         vm: vm,
@@ -123,7 +124,7 @@ class _CustomerScreenNarrowState extends BaseCustomerScreenState<CustomerScreenN
           cM.getPermissionStatus("Standalone On/Off"),
           cM.getPermissionStatus("View Controller Log"),
         ],
-      ),
+      ) : null,
       bottomNavigationBar: isGemOrNova ?
       CustomerBottomNav(index: navModel.index, onTap: navModel.setIndex,
         hasWeatherStation: hasWeatherStation) : null,
