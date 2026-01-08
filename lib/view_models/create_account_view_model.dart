@@ -106,6 +106,7 @@ class CreateAccountViewModel extends ChangeNotifier {
           'state': selectedStateID.toString(),
           'email': email ?? '',
           'mainUserId': customerId != 0 ? customerId : userId,
+          'isSubDealer': accountType.name == "dealer" ? "1" : "0",
         };
 
         final response = customerId != 0
@@ -126,7 +127,7 @@ class CreateAccountViewModel extends ChangeNotifier {
               'serviceRequestCount': 0,
               'criticalAlarmCount': 0,
             });
-          }else{
+          } else{
             errorMsg = jsonData["message"];
           }
         }

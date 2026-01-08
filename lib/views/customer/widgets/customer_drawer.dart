@@ -227,9 +227,11 @@ class CustomerDrawer extends StatelessWidget {
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
-          F.appFlavor!.name.contains('oro')
-              ? Image.asset('assets/png/company_logo_nia.png', width: 60)
-              : SizedBox(
+          F.appFlavor!.name.contains('oro') ?
+          Image.asset('assets/png/company_logo_nia.png', width: 60) :
+          F.appFlavor!.name.contains('agritel') ?
+          Image.asset('assets/png/agritel_logo.png', width: 157) :
+          SizedBox(
             height: 60,
             child: Image.asset('assets/png/company_logo.png'),
           ),

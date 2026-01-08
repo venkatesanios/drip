@@ -1,6 +1,5 @@
 import 'package:badges/badges.dart';
 import 'package:flutter/material.dart' hide Badge;
-import 'package:loading_indicator/loading_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import '../../../../Screens/Dealer/sevicerequestdealer.dart';
@@ -122,13 +121,10 @@ class CustomerView extends StatelessWidget {
             hintStyle: const TextStyle(
               color: Colors.black38,
             ),
-            prefixIcon: const Icon(Icons.search,
-                size: 20, // 👈 shrink icon size
+            prefixIcon: const Icon(Icons.search, size: 20,
                 color:Colors.black54),
-            suffixIcon: vm.searching
-                ? IconButton(
-              icon: const Icon(Icons.clear,
-                  size: 20,
+            suffixIcon: vm.searching ? IconButton(
+              icon: const Icon(Icons.clear, size: 20,
                   color: Colors.black),
               onPressed: vm.clearSearch,
             )
@@ -175,7 +171,7 @@ class CustomerView extends StatelessWidget {
         '+ ${customer.countryCode} ${customer.mobileNumber}\n${customer.emailId}',
         style: subtitleStyle,
       ),
-      trailing: (role.name == 'admin' || customer.userType == '2' ) ?
+      trailing: (role.name == 'admin' || customer.isSubdealer == '1' ) ?
       IconButton(
         tooltip: 'View and Add new product',
         icon: const Icon(Icons.playlist_add_circle),
@@ -258,7 +254,6 @@ class CustomerView extends StatelessWidget {
       BuildContext context, CustomerListViewModel vm) {
     final userRole = role.name == 'admin' ? UserRole.admin : UserRole.dealer;
 
-
     if (isNarrow) {
       showModalBottomSheet(
         context: context,
@@ -307,7 +302,7 @@ class CustomerView extends StatelessWidget {
       ) {
 
     final loggedInUser = Provider.of<UserProvider>(context, listen: false).loggedInUser;
-    final isAdmin = role.name == 'admin' || customer.userType == '2';
+    final isAdmin = role.name == 'admin' || customer.isSubdealer == '1';
 
     final Widget deviceListWidget = isAdmin ? DealerDeviceList(
       userId: loggedInUser.id,
@@ -327,8 +322,7 @@ class CustomerView extends StatelessWidget {
     );
 
     if (isNarrow) {
-      Navigator.push(
-        context,
+      Navigator.push(context,
         MaterialPageRoute(builder: (context) => deviceListWidget),
       );
     } else {
@@ -360,10 +354,10 @@ class CustomerView extends StatelessWidget {
 
     userProvider.pushViewedCustomer(user);
 
-    print("userType : ${customer.userType}");
+    print("userType : ${customer.isSubdealer}");
 
-    final route = role.name == 'admin' || customer.userType == '2'
-        ? const DealerScreenLayout(isSubdealer: false)
+    final route = role.name == 'admin' || customer.isSubdealer == '1'
+        ? const DealerScreenLayout()
         : const CustomerScreenLayout();
 
     Navigator.push(
