@@ -104,6 +104,7 @@ flutter:
     - assets/Images/Png/
     - assets/Images/Png/Oro/
     - assets/Images/Png/SmartComm/
+    - assets/Images/Png/Agritel/
     - assets/png/
     - assets/png/mobile/
     - assets/svg_images/
@@ -126,12 +127,21 @@ flutter:
     - assets/splash/transparent.png
 
 
+#flutter_launcher_icons:
+#  android: true
+#  ios: true
+#  image_path: "assets/playstore.png"
+#  adaptive_icon_background: "#FFFFFF"
+#  adaptive_icon_foreground: "assets/oro_store.png"
+
 flutter_launcher_icons:
-  android: true
-  ios: true
-  image_path: "assets/playstore.png"
-  adaptive_icon_background: "#FFFFFF"
-  adaptive_icon_foreground: "assets/oro_store.png"
+  agritel:
+    android: true
+    ios: true
+    image_path: assets/agritel_app_icon.png
+    adaptive_icon_background: "#FFFFFF"
+    adaptive_icon_foreground: assets/agritel_app_icon.png
+    remove_alpha_ios: true
 
 flavorizr:
   app:
@@ -157,3 +167,8 @@ flavorizr:
         name: "SMART COMM"
       android:
         applicationId: "com.niagaraautomations.SmartComm"
+    agritel:
+      app:
+        name: "Agritel"
+      android:
+        applicationId: "com.niagaraautomations.Agritel"

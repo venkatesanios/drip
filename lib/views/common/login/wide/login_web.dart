@@ -12,9 +12,10 @@ class LoginWeb extends StatelessWidget {
   Widget build(BuildContext context) {
     final viewModel = Provider.of<LoginViewModel>(context);
     final isOro = F.appFlavor!.name.contains('oro');
+    final isATel = F.appFlavor!.name.contains('agritel');
     return Scaffold(
       body: SafeArea(
-        child: WideLayout(isOro: isOro, viewModel: viewModel),
+        child: WideLayout(isOro: isOro, viewModel: viewModel, isATel: isATel),
       ),
     );
   }

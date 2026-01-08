@@ -3,7 +3,9 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../providers/user_provider.dart';
 import '../repository/repository.dart';
 import '../utils/shared_preferences_helper.dart';
 
@@ -13,7 +15,6 @@ class LoginViewModel extends ChangeNotifier {
   String errorMessage = "";
 
   String countryCode = '91';
-  late String verssion ;
   late TextEditingController mobileNoController;
   late TextEditingController passwordController;
   bool isObscure = true;
@@ -21,7 +22,8 @@ class LoginViewModel extends ChangeNotifier {
   final ApiRepository repository;
   final Function(String) onLoginSuccess;
 
-  LoginViewModel({required this.repository, required this.onLoginSuccess}) {
+  LoginViewModel({required this.repository,
+    required this.onLoginSuccess}) {
     initState();
   }
 
@@ -35,20 +37,8 @@ class LoginViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<String?> getCurrentVersion() async {
-    print('call:current verssion');
-    try {
-      final packageInfo = await PackageInfo.fromPlatform();
-      print('packageInfo.version:->${packageInfo.version}');
-
-      return packageInfo.version;
-
-    } catch (e) {
-      print('Error fetching release version: $e');
-      return null;
-    }
-  }
   Future<void> login() async {
+
     if(!kIsWeb) {
       FirebaseMessaging messaging = FirebaseMessaging.instance;
       await messaging.getToken().then((String? token) async{
@@ -61,8 +51,6 @@ class LoginViewModel extends ChangeNotifier {
     isLoading = true;
     errorMessage = "";
     notifyListeners();
-
-
 
     try {
       String mobileNumber = mobileNoController.text.trim();
@@ -86,7 +74,7 @@ class LoginViewModel extends ChangeNotifier {
         return;
       }
 
-       String cleanedCountryCode = countryCode.replaceAll("+", "");
+      String cleanedCountryCode = countryCode.replaceAll("+", "");
       Map<String, Object> body = {
         'countryCode' : cleanedCountryCode,
         'mobileNumber': mobileNumber,
@@ -94,16 +82,16 @@ class LoginViewModel extends ChangeNotifier {
         'deviceToken': token ?? '',
         'isMobile' : kIsWeb? false : true,
       };
-      print("body: $body");
-       final response = await repository.checkLoginAuth(body);
+
+      final response = await repository.checkLoginAuth(body);
       final data = jsonDecode(response.body);
-      print("data: $data");
       if (response.statusCode == 200 && data['code'] == 200) {
         final userData = data['data']['user'];
         await PreferenceHelper.saveUserDetails(
           token: userData['accessToken'],
           userId: userData['userId'],
           userName: userData['userName'],
+          password: password,
           role: userData['userType'],
           countryCode: cleanedCountryCode,
           mobileNumber: mobileNumber,
@@ -124,5 +112,4 @@ class LoginViewModel extends ChangeNotifier {
       notifyListeners();
     }
   }
-
 }

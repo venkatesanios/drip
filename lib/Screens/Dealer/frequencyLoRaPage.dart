@@ -211,7 +211,7 @@ class _FrequencyPageState extends State<FrequencyPage> {
                 labelText: "SF Value (7–12)",
                 border: OutlineInputBorder(),
               ),
-              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^(1[0-2]|[7-9])$'))],
+
             ),
             const SizedBox(height: 10),
             Row(

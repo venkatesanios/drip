@@ -11,6 +11,7 @@ class PreferenceHelper {
   static const String _emailKey = 'email';
   static const String _deviceTokenKey = 'deviceToken';
   static const String _confPermissionKey = 'permissionDenied';
+  static const String _passwordKey = 'password';
 
   static Future<void> saveUserDetails({
     required String token,
@@ -21,6 +22,7 @@ class PreferenceHelper {
     required String mobileNumber,
     required String email,
     required bool configPermission,
+    required String password,
   }) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString(_authTokenKey, token);
@@ -31,6 +33,7 @@ class PreferenceHelper {
     await prefs.setString(_mobileNumberKey, mobileNumber);
     await prefs.setString(_emailKey, email);
     await prefs.setBool(_confPermissionKey, configPermission);
+    await prefs.setString(_passwordKey, password);
   }
 
   static Future<String?> getToken() async {
@@ -83,4 +86,10 @@ class PreferenceHelper {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getBool(_confPermissionKey);
   }
+
+  static Future<String?> getUserPassword() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_passwordKey);
+  }
+
 }

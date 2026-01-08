@@ -9,13 +9,16 @@ class CustomerListModel
     this.serviceRequestCount = 0,
     this.criticalAlarmCount = 0,
     this.configPermission = false,
+    this.isSubdealer = '0',
   });
 
   int id,serviceRequestCount,criticalAlarmCount;
   String name, countryCode, mobileNumber, emailId;
   bool configPermission;
+  String isSubdealer;
 
-  factory CustomerListModel.fromJson(Map<String, dynamic> json) => CustomerListModel(
+  factory CustomerListModel.fromJson
+      (Map<String, dynamic> json) => CustomerListModel(
     id: json['userId'],
     name: json['userName'],
     countryCode: json['countryCode'],
@@ -23,6 +26,7 @@ class CustomerListModel
     emailId: json['emailId'],
     serviceRequestCount: json['serviceRequestCount'],
     criticalAlarmCount: json['criticalAlarmCount'],
+    isSubdealer: json['isSubdealer'],
   );
 
   factory CustomerListModel.fake() {
@@ -43,5 +47,6 @@ class CustomerListModel
     'emailId': emailId,
     'serviceRequestCount': serviceRequestCount,
     'criticalAlarmCount': criticalAlarmCount,
+    'isSubdealer': isSubdealer,
   };
 }

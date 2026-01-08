@@ -9,6 +9,7 @@ class UserModel {
   final UserRole role;
   final String token;
   final bool configPermission;
+  final String password;
 
   UserModel({
     required this.id,
@@ -19,6 +20,7 @@ class UserModel {
     required this.role,
     required this.token,
     required this.configPermission,
+    required this.password,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -31,6 +33,7 @@ class UserModel {
       role: _mapRole(json['userType']),
       token: json['accessToken'] ?? '',
       configPermission: json['accessToken'] ?? '',
+      password: json['password'] ?? '',
     );
   }
 
@@ -56,6 +59,7 @@ class UserModel {
       role: UserRole.customer,
       token: '',
       configPermission: false,
+      password: '',
     );
   }
 
@@ -77,7 +81,8 @@ class UserModel {
       countryCode: countryCode ?? this.countryCode,
       role: role ?? this.role,
       token: token ?? this.token,
-      configPermission: this.configPermission,
+      configPermission: configPermission,
+      password: password,
     );
   }
 }

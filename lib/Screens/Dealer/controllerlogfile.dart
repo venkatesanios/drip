@@ -86,11 +86,11 @@ class _ControllerLogState extends State<ControllerLog> with SingleTickerProvider
   Widget _buildScrollableText(String text) {
 
     final ScrollController scrollController = ScrollController();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (scrollController.hasClients) {
-        scrollController.jumpTo(scrollController.position.maxScrollExtent);
-      }
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   if (scrollController.hasClients) {
+    //     scrollController.jumpTo(scrollController.position.maxScrollExtent);
+    //   }
+    // });
     return Padding(
         padding: const EdgeInsets.all(8.0),
         child:  ScrollableTextWithSearch(text: text.isNotEmpty ? text : "Waiting...",)   //SelectableText(),
@@ -645,14 +645,12 @@ class _ScrollableTextWithSearchState extends State<ScrollableTextWithSearch> {
         ? []
         : _findMatches(widget.text, _searchQuery);
     _matchCount = matches.length;
-
     // Scroll to the first match if needed
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_scrollController.hasClients) {
-        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
-      }
-    });
-
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   if (_scrollController.hasClients) {
+    //     _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+    //   }
+    // });
     return Column(
       children: [
         Padding(

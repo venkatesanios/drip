@@ -12,14 +12,18 @@ import '../../../utils/enums.dart';
 import '../../../utils/formatters.dart';
 import '../../../view_models/create_account_view_model.dart';
 
+
 class CreateAccount extends StatelessWidget {
-  const CreateAccount({super.key, required this.userId, required this.role, required this.customerId, required this.onAccountCreated});
+  const CreateAccount({super.key, required this.userId, required this.role,
+    required this.customerId, required this.onAccountCreated});
+
   final int userId, customerId;
   final UserRole role;
   final Function(Map<String, dynamic>) onAccountCreated;
 
   @override
   Widget build(BuildContext context) {
+
     return ChangeNotifierProvider(
       create: (_) {
         final viewModel = CreateAccountViewModel(Repository(HttpService()), onAccountCreatedSuccess: (result) async {
@@ -36,16 +40,40 @@ class CreateAccount extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(left: 2,right: 2, top: 2),
                 child: ListTile(
-                  title: Text(AppConstants.getFormTitle(role), style:  const TextStyle(fontSize: 20)),
-                  subtitle: const Text(AppConstants.pleaseFillDetails, style: TextStyle(fontSize: 14)),
+                  title: Text(
+                    AppConstants.getFormTitle(role),
+                    style: const TextStyle(fontSize: 20),
+                  ),
+                  subtitle: const Text(
+                    AppConstants.pleaseFillDetails,
+                    style: TextStyle(fontSize: 14),
+                  ),
+                  trailing: role.name == "dealer"  ?
+                  DropdownButton<AccountType>(
+                    value: viewModel.accountType,
+                    underline: const SizedBox(),
+                    items: const [
+                      DropdownMenuItem(
+                        value: AccountType.customer,
+                        child: Text('Customer'),
+                      ),
+                      DropdownMenuItem(
+                        value: AccountType.dealer,
+                        child: Text('Dealer'),
+                      ),
+                    ],
+                    onChanged: (value) {
+                      viewModel.setAccountType(value!);
+                    },
+                  ) : null,
                 ),
               ),
               const Divider(height: 0),
-              viewModel.errorMsg!=''?Container(
+              viewModel.errorMsg!='' ? Container(
                   width: MediaQuery.sizeOf(context).width,
                   color: Colors.redAccent,
                   child: Text(viewModel.errorMsg, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.normal), textAlign: TextAlign.center,)
-              ):
+              ) :
               const SizedBox(),
               Expanded(
                 child: SingleChildScrollView(
@@ -62,7 +90,7 @@ class CreateAccount extends StatelessWidget {
                             keyboardType: TextInputType.name,
                             decoration: InputDecoration(
                               labelText: AppConstants.fullName,
-                              icon: Icon(Icons.text_fields, color: primaryDark),
+                              icon: Icon(Icons.text_fields, color: Theme.of(context).primaryColorDark),
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
@@ -82,31 +110,6 @@ class CreateAccount extends StatelessWidget {
 
                           const SizedBox(height: 15),
 
-                          // Mobile Number
-                         /* TextFormField(
-                            controller: viewModel.mobileNoController,
-                            keyboardType: TextInputType.phone,
-                            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                            decoration: InputDecoration(
-                              labelText: AppConstants.mobileNumber,
-                              icon: Icon(Icons.phone_outlined, color: primaryDark),
-                              prefixText: '+91 ', // or make it dynamic if needed
-                              contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return AppConstants.getMobileError(role);
-                              }
-                              if (value.length < 10) {
-                                return 'Enter a valid 10-digit number';
-                              }
-                              return null;
-                            },
-                            onSaved: (value) {
-                              viewModel.dialCode = '+91'; // static for now, dynamic if needed
-                            },
-                          ),*/
-
                           Padding(
                             padding: const EdgeInsets.only(top: 10),
                             child: IntlPhoneField(
@@ -114,7 +117,7 @@ class CreateAccount extends StatelessWidget {
                               focusNode: FocusNode(),
                               decoration: InputDecoration(
                                 labelText: AppConstants.mobileNumber,
-                                icon: Icon(Icons.phone_outlined, color: primaryDark),
+                                icon: Icon(Icons.phone_outlined, color: Theme.of(context).primaryColorDark),
                                 filled: true,
                                 fillColor: Colors.white,
                                 contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
@@ -159,7 +162,7 @@ class CreateAccount extends StatelessWidget {
                           TextFormField(
                             decoration: InputDecoration(
                               labelText: AppConstants.emailAddress,
-                              icon: Icon(Icons.email_outlined, color: primaryDark),
+                              icon: Icon(Icons.email_outlined, color: Theme.of(context).primaryColorDark),
                             ),
                             keyboardType: TextInputType.emailAddress,
                             validator: (value) {
@@ -180,7 +183,7 @@ class CreateAccount extends StatelessWidget {
                           DropdownButtonFormField<String>(
                             decoration: InputDecoration(
                               labelText: AppConstants.country,
-                              icon: Icon(CupertinoIcons.globe, color: primaryDark),
+                              icon: Icon(CupertinoIcons.globe, color: Theme.of(context).primaryColorDark),
                             ),
                             value: viewModel.country,
                             items: viewModel.countries.map((countryItem) {
@@ -211,7 +214,7 @@ class CreateAccount extends StatelessWidget {
                           DropdownButtonFormField<String>(
                             decoration: InputDecoration(
                               labelText: AppConstants.state,
-                              icon: Icon(CupertinoIcons.placemark, color: primaryDark),
+                              icon: Icon(CupertinoIcons.placemark, color: Theme.of(context).primaryColorDark),
                             ),
                             value: viewModel.state,
                             items: viewModel.states.map((stateItem) {
@@ -239,7 +242,7 @@ class CreateAccount extends StatelessWidget {
                           TextFormField(
                             decoration: InputDecoration(
                               labelText: AppConstants.city,
-                              icon: Icon(Icons.location_city, color: primaryDark),
+                              icon: Icon(Icons.location_city, color: Theme.of(context).primaryColorDark),
                             ),
                             keyboardType: TextInputType.name,
                             validator: (value) {
@@ -260,7 +263,7 @@ class CreateAccount extends StatelessWidget {
                           TextFormField(
                             decoration: InputDecoration(
                               labelText: AppConstants.address,
-                              icon: Icon(Icons.linear_scale, color: primaryDark),
+                              icon: Icon(Icons.linear_scale, color: Theme.of(context).primaryColorDark),
                             ),
                             keyboardType: TextInputType.streetAddress,
                             validator: (value) {
@@ -299,7 +302,7 @@ class CreateAccount extends StatelessWidget {
                           MaterialButton(
                             onPressed: () => viewModel.createAccount(userId, role, customerId),
                             textColor: Colors.white,
-                            color: primaryDark,
+                            color: Theme.of(context).primaryColor,
                             child: const Text('Create Account',style: TextStyle(color: Colors.white)),
                           ),
                         ],

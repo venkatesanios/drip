@@ -73,8 +73,8 @@ class ProductSearchBar extends StatelessWidget {
               icon: const Icon(Icons.filter_alt_outlined, color: Colors.white),
               tooltip: 'Filter by category or model',
               itemBuilder: (BuildContext context) {
-                final categoryItems = viewModel.jsonDataMap['data']?['category'] ?? [];
-                final modelItems = viewModel.jsonDataMap['data']?['model'] ?? [];
+                final categoryItems = viewModel.jsonDataMap?['data']?['category'] ?? [];
+                final modelItems = viewModel.jsonDataMap?['data']?['model'] ?? [];
 
                 return [
                   const PopupMenuItem<dynamic>(

@@ -25,15 +25,9 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-              'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-              'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -71,6 +65,25 @@ class DefaultFirebaseOptions {
     projectId: 'smartcomm-6f42b',
     storageBucket: 'smartcomm-6f42b.firebasestorage.app',
     iosBundleId: 'com.niagaraautomations.oroDevelopment',
+  );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyBMJi4_w-shxRfKJcqiDAd61g5w1CmxS48',
+    appId: '1:749016956909:ios:a49edfcef198fddf8831e4',
+    messagingSenderId: '749016956909',
+    projectId: 'smartcomm-6f42b',
+    storageBucket: 'smartcomm-6f42b.firebasestorage.app',
+    iosBundleId: 'com.niagaraautomations.oroDripIrrigation',
+  );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyBal6CkpHA1WDwLk-rCZPc9VRXK-uvsT2M',
+    appId: '1:749016956909:web:8e465822ac04c06c8831e4',
+    messagingSenderId: '749016956909',
+    projectId: 'smartcomm-6f42b',
+    authDomain: 'smartcomm-6f42b.firebaseapp.com',
+    storageBucket: 'smartcomm-6f42b.firebasestorage.app',
+    measurementId: 'G-T7PJCESKL8',
   );
 
 }

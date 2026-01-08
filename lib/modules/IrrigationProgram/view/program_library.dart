@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -362,7 +361,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                   SwitchListTile(
                     title: const Text('Enable Program Queue'),
                     value: programQueueModel.programQueue,
-                    activeColor: theme.primaryColor,
+                    activeTrackColor: theme.primaryColor,
                     onChanged: (v) => setState(() => programQueueModel.programQueue = v),
                   ),
 
@@ -486,7 +485,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                 SwitchListTile(
                   title: const Text('Agitator ON/OFF'),
                   value: programQueueModel.agitatorOnOff,
-                  activeColor: theme.primaryColor,
+                  activeTrackColor: theme.primaryColor,
                   onChanged: (v) => setState(() => programQueueModel.agitatorOnOff = v),
                 ),
 
@@ -972,7 +971,8 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                                     + int.parse(programItem.schedule['scheduleByDays']['schedule']['skipDays'].toString().isNotEmpty ? programItem.schedule['scheduleByDays']['schedule']['skipDays'].toString() : '0')); index++)
                                   buildScheduleMethodOfDay(
                                     method: days[index],
-                                    color: index >= int.parse(programItem.schedule['scheduleByDays']['schedule']['runDays'].toString()) ? const Color(0xffFFEFE1) : const Color(0xffE1F2FF),
+                                    color: index >= int.parse(programItem.schedule['scheduleByDays']['schedule']['runDays'].toString().isNotEmpty
+                                        ? programItem.schedule['scheduleByDays']['schedule']['runDays'].toString() : "0") ? const Color(0xffFFEFE1) : const Color(0xffE1F2FF),
                                   )
                               else
                                 buildScheduleMethodOfDay(

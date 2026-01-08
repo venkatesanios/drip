@@ -494,7 +494,7 @@ class _GeneralSettingWideState extends State<GeneralSettingWide> {
                       ),
                       const SizedBox(width: 16),
                       MaterialButton(
-                        color: Colors.green,
+                        color: Theme.of(context).primaryColorDark,
                         textColor: Colors.white,
                         onPressed: () => viewModel.updateMasterDetails(context),
                         child: const Text('Save Changes'),

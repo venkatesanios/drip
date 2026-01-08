@@ -11,6 +11,7 @@ class ConditionLibraryViewModel extends ChangeNotifier {
 
   final Repository repository;
   bool isLoading = false;
+  bool _isDisposed = false;
   String errorMessage = "";
 
   late ConditionLibraryModel clData;
@@ -69,7 +70,7 @@ class ConditionLibraryViewModel extends ChangeNotifier {
     clData.cnLibrary.condition[index].reason = '--';
     clData.cnLibrary.condition[index].delayTime = '--';
     clData.cnLibrary.condition[index].alertMessage = '--';
-    notifyListeners();
+    safeNotify();
   }
 
   void componentOnChange(String component, int index, String serialNo){
@@ -82,13 +83,13 @@ class ConditionLibraryViewModel extends ChangeNotifier {
     clData.cnLibrary.condition[index].delayTime = '--';
     clData.cnLibrary.condition[index].alertMessage = '--';
     updateRule(index);
-    notifyListeners();
+    safeNotify();
   }
 
   void parameterOnChange(String param, int index) {
     clData.cnLibrary.condition[index].parameter = param;
     updateRule(index);
-    notifyListeners();
+    safeNotify();
   }
 
   void thresholdOnChange(String valT, int index){
@@ -99,13 +100,13 @@ class ConditionLibraryViewModel extends ChangeNotifier {
     }else{
       clData.cnLibrary.condition[index].delayTime = '3 Sec';
     }
-    notifyListeners();
+    safeNotify();
   }
 
   void valueOnChange(String val, int index){
     clData.cnLibrary.condition[index].value = val;
     updateRule(index);
-    notifyListeners();
+    safeNotify();
   }
 
   void reasonOnChange(String reason, int index){
@@ -118,7 +119,7 @@ class ConditionLibraryViewModel extends ChangeNotifier {
     updateRule(index);
     amTEVControllers[index].text = clData.cnLibrary.condition[index].alertMessage;
 
-    notifyListeners();
+    safeNotify();
   }
 
   void updateLineName(String lineName, String lineSno, int index) {
@@ -131,7 +132,7 @@ class ConditionLibraryViewModel extends ChangeNotifier {
     amTEVControllers[index].text = condition.alertMessage;
 
     updateRule(index);
-    notifyListeners();
+    safeNotify();
   }
 
   void lineReasonOnChange(String reason, int index) {
@@ -143,27 +144,25 @@ class ConditionLibraryViewModel extends ChangeNotifier {
         : 'Unknown Line';
 
     condition.alertMessage = '$reason detected in $lineName';
-
     amTEVControllers[index].text = condition.alertMessage;
-
     updateRule(index);
 
-    notifyListeners();
+    safeNotify();
   }
 
   void delayTimeOnChange(String delayTime, int index){
     clData.cnLibrary.condition[index].delayTime = delayTime;
-    notifyListeners();
+    safeNotify();
   }
 
   void switchStateOnChange(bool status, int index){
     clData.cnLibrary.condition[index].status = status;
-    notifyListeners();
+    safeNotify();
   }
 
   void buildConnectingConditions(int count) {
     connectingCondition = List.generate(count, (index) => "Condition ${index+1}");
-    notifyListeners();
+    safeNotify();
   }
 
   List<String> getAvailableCondition(int index) {
@@ -209,14 +208,14 @@ class ConditionLibraryViewModel extends ChangeNotifier {
     clData.cnLibrary.condition[index].component = resultNames;
     clData.cnLibrary.condition[index].componentSNo = resultSerials;
 
-    notifyListeners();
+    safeNotify();
   }
 
   void clearCombined(int index) {
     connectedTo[index].clear();
     clData.cnLibrary.condition[index].component = '--';
     clData.cnLibrary.condition[index].componentSNo = '';
-    notifyListeners();
+    safeNotify();
   }
 
 
@@ -237,7 +236,8 @@ class ConditionLibraryViewModel extends ChangeNotifier {
     }else{
       clData.cnLibrary.condition[index].rule = '';
     }
-    notifyListeners();
+
+    safeNotify();
   }
 
   void createNewCondition() {
@@ -282,7 +282,7 @@ class ConditionLibraryViewModel extends ChangeNotifier {
           (index) => TextEditingController(),
     );
 
-    notifyListeners();
+    safeNotify();
   }
 
   Future<void> saveConditionLibrary(
@@ -428,13 +428,13 @@ class ConditionLibraryViewModel extends ChangeNotifier {
   void removeCondition(int index) {
     clData.cnLibrary.condition.removeAt(index);
     connectedTo.clear();
-    notifyListeners();
+    safeNotify();
   }
 
   void updateConditionName(int index, String name) {
     clData.cnLibrary.condition[index].name = name;
     connectedTo.clear();
-    notifyListeners();
+    safeNotify();
   }
 
   String formatTime(String time) {
@@ -453,7 +453,18 @@ class ConditionLibraryViewModel extends ChangeNotifier {
 
   void setLoading(bool value) {
     isLoading = value;
-    notifyListeners();
+    safeNotify();
   }
 
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
+  }
+
+  void safeNotify() {
+    if (!_isDisposed) {
+      notifyListeners();
+    }
+  }
 }

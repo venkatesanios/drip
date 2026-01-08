@@ -58,6 +58,7 @@ class _CustomerScreenWideState
 
     return Scaffold(
       key: _scaffoldKey,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: buildCustomerAppBar(context, vm, cMaster, _scaffoldKey, showMenu: false, isNarrow: false),
       body: Row(
         crossAxisAlignment: CrossAxisAlignment.start,

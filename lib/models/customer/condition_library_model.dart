@@ -16,7 +16,7 @@ class ConditionLibraryModel {
 
   Map<String, dynamic> toJson() {
     return {
-      'conditionLibrary': cnLibrary,
+      'conditionLibrary': cnLibrary.toJson(),
       'default': defaultData.toJson(),
     };
   }

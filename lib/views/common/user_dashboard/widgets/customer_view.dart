@@ -1,6 +1,5 @@
 import 'package:badges/badges.dart';
 import 'package:flutter/material.dart' hide Badge;
-import 'package:loading_indicator/loading_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import '../../../../Screens/Dealer/sevicerequestdealer.dart';
@@ -19,7 +18,8 @@ import '../../user_profile/create_account.dart';
 
 
 class CustomerView extends StatelessWidget {
-  const CustomerView({super.key, required this.role, required this.isNarrow, required this.onCustomerProductChanged});
+  const CustomerView({super.key, required this.role, required this.isNarrow,
+    required this.onCustomerProductChanged});
   final UserRole role;
   final bool isNarrow;
   final void Function(String action, List<StockModel> updatedProducts) onCustomerProductChanged;
@@ -29,6 +29,10 @@ class CustomerView extends StatelessWidget {
   Widget build(BuildContext context) {
     final viewModel = context.watch<CustomerListViewModel>();
     final stockVM = context.watch<ProductStockViewModel>();
+
+    final hasDealers = viewModel.subDealerList.isNotEmpty;
+    final hasCustomers = viewModel.customerList.isNotEmpty;
+    final showHeaders = hasDealers && hasCustomers;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -64,23 +68,44 @@ class CustomerView extends StatelessWidget {
                     );
                   },
                 ) :
-                viewModel.filteredCustomerList.isNotEmpty ? ListView.builder(
+                viewModel.filteredCustomerList.isNotEmpty ?
+                ListView(
                   padding: const EdgeInsets.only(bottom: 80),
-                  itemCount: viewModel.filteredCustomerList.length,
-                  itemBuilder: (context, index) {
-                    final customer = viewModel.filteredCustomerList[index];
-                    return _buildCustomerTile(
-                      context,
-                      customer,
-                      viewModel,
-                      stockVM,
-                    );
-                  },
-                ) :
-                const Center(child: Text(
-                  'No customer available',
-                  style: TextStyle(color: Colors.black54, fontSize: 15),
-                )),
+                  children: [
+                    // Dealers section
+                    if (hasDealers) ...[
+                      if (showHeaders) _sectionHeader(
+                          viewModel.subDealerList.length>1 ? 'Dealers'  : 'Dealer'),
+                      ...viewModel.subDealerList.map(
+                            (customer) => _buildCustomerTile(
+                          context,
+                          customer,
+                          viewModel,
+                          stockVM,
+                        ),
+                      ),
+                    ],
+
+                    // Customers section
+                    if (hasCustomers) ...[
+                      if (showHeaders) _sectionHeader(viewModel.customerList.length>1 ?
+                      'Customers' : 'Customer'),
+                      ...viewModel.customerList.map(
+                            (customer) => _buildCustomerTile(
+                          context,
+                          customer,
+                          viewModel,
+                          stockVM,
+                        ),
+                      ),
+                    ],
+                  ],
+                ) : const Center(
+                  child: Text(
+                    'No customer available',
+                    style: TextStyle(color: Colors.black54, fontSize: 15),
+                  ),
+                ),
               ),
             ),
           ],
@@ -92,6 +117,20 @@ class CustomerView extends StatelessWidget {
         child: const Icon(Icons.add),
       ),
       floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
+    );
+  }
+
+  Widget _sectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 15,
+          color: Colors.black54,
+        ),
+      ),
     );
   }
 
@@ -121,13 +160,10 @@ class CustomerView extends StatelessWidget {
             hintStyle: const TextStyle(
               color: Colors.black38,
             ),
-            prefixIcon: const Icon(Icons.search,
-                size: 20, // 👈 shrink icon size
+            prefixIcon: const Icon(Icons.search, size: 20,
                 color:Colors.black54),
-            suffixIcon: vm.searching
-                ? IconButton(
-              icon: const Icon(Icons.clear,
-                  size: 20,
+            suffixIcon: vm.searching ? IconButton(
+              icon: const Icon(Icons.clear, size: 20,
                   color: Colors.black),
               onPressed: vm.clearSearch,
             )
@@ -174,7 +210,8 @@ class CustomerView extends StatelessWidget {
         '+ ${customer.countryCode} ${customer.mobileNumber}\n${customer.emailId}',
         style: subtitleStyle,
       ),
-      trailing: role.name == 'admin' ? IconButton(
+      trailing: (role.name == 'admin' || customer.isSubdealer == '1' ) ?
+      IconButton(
         tooltip: 'View and Add new product',
         icon: const Icon(Icons.playlist_add_circle),
         onPressed: () => _showDeviceList(context, customer, stockVM),
@@ -269,7 +306,7 @@ class CustomerView extends StatelessWidget {
           child: CreateAccount(
             userId: vm.userId,
             role: userRole,
-            customerId: 0,
+            customerId : 0,
             onAccountCreated: vm.updateCustomerList,
           ),
         ),
@@ -303,9 +340,9 @@ class CustomerView extends StatelessWidget {
       CustomerListModel customer,
       ProductStockViewModel stockVM,
       ) {
-    final loggedInUser = Provider.of<UserProvider>(context, listen: false).loggedInUser;
-    final isAdmin = role.name == 'admin';
 
+    final loggedInUser = Provider.of<UserProvider>(context, listen: false).loggedInUser;
+    final isAdmin = role.name == 'admin' || customer.isSubdealer == '1';
 
     final Widget deviceListWidget = isAdmin ? DealerDeviceList(
       userId: loggedInUser.id,
@@ -313,6 +350,7 @@ class CustomerView extends StatelessWidget {
       customerId: customer.id,
       userRole: 'Dealer',
       productStockList: stockVM.productStockList,
+      fromAdminPage: role.name == 'admin' ? true : false,
       //onDeviceListAdded: stockVM.removeStockList,
     ) : CustomerDeviceList(
       userId: loggedInUser.id,
@@ -324,8 +362,7 @@ class CustomerView extends StatelessWidget {
     );
 
     if (isNarrow) {
-      Navigator.push(
-        context,
+      Navigator.push(context,
         MaterialPageRoute(builder: (context) => deviceListWidget),
       );
     } else {
@@ -352,11 +389,14 @@ class CustomerView extends StatelessWidget {
       mobileNo: customer.mobileNumber,
       email: customer.emailId,
       configPermission: customer.configPermission,
+      password: userProvider.loggedInUser.password,
     );
 
     userProvider.pushViewedCustomer(user);
 
-    final route = role.name == 'admin'
+    print("userType : ${customer.isSubdealer}");
+
+    final route = role.name == 'admin' || customer.isSubdealer == '1'
         ? const DealerScreenLayout()
         : const CustomerScreenLayout();
 

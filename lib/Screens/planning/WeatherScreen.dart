@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
+import 'package:oro_drip_irrigation/Screens/planning/weather_reports.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 import '../../models/weather_modelnew.dart';
 import '../../Widgets/animated_cloud.dart';
@@ -59,6 +60,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
     Request();
     fetchDataSunRiseSet();
     fetchDataLive();
+
   }
 
   @override
@@ -79,14 +81,12 @@ class _WeatherScreenState extends State<WeatherScreen> {
     }
     else if (weathernewlive.stations.isEmpty) {
       // return const Center(child: Text('Currently No Weather Data Available'));
-      return Column(
+      return const Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Center(
+          Center(
               child: Text('Currently No Weather Data Available...')),
-          // TextButton.icon(onPressed: (){
-          // Navigator.push(context, MaterialPageRoute(builder: (context) => WebViewExample(userid: widget.userId,controllerid: widget.controllerId,)));
-          // }, label: Text('Click To Open External Weather Data')),
+
 
         ],
       );
@@ -398,10 +398,27 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                         for (var index = 0;
                                         index < weathernewlive.stations[i].sensors.length;
                                         index++)
-                                          gaugeViewWeather(
-                                              getConfigObjectNameBySNo(weatherdataconfigobjects,weathernewlive.stations[i].sensors[index].sno)!,
-                                              i,
-                                              index)
+                                      GestureDetector(
+                                      onDoubleTap: (){
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ReportPage(
+                                          sensorsrno: weatherdataconfigobjects[index].sNo ,
+                                            devicesnro: 6,
+                                            userId:widget.userId,
+                                            controllerId:widget.controllerId,
+                                            deviceID: widget.deviceID,
+                                            initialReportType: getReportType(weatherdataconfigobjects[index].objectName,weatherdataconfigobjects[index].sNo) ?? "SoilMoisture1",
+                                       ),
+                                    ));
+                                  },
+                                            child: gaugeViewWeather(
+                                                getConfigObjectNameBySNo(weatherdataconfigobjects,weathernewlive.stations[i].sensors[index].sno)!,
+                                                i,
+                                                index),
+                                          )
+
                                       ],
                                     ),
                                   );
@@ -533,6 +550,68 @@ class _WeatherScreenState extends State<WeatherScreen> {
       ),
     );
   }
+
+
+  String? getReportType(String objectName, double sNo) {
+    print("objectNamecall$objectName");
+    print("sNo$sNo");
+    // Static reportTypes
+    const List<String> reportTypes = [
+      'SoilMoisture1',
+      'SoilMoisture2',
+      'SoilMoisture3',
+      'SoilMoisture4',
+      'SoilTemperature',
+      'Humidity',
+      'WindDirection',
+      'WindSpeed',
+      'temperature',
+      'AtmosphericPressure',
+      'LeafWetness',
+      'Rainfall',
+      'CO2',
+      'LDR',
+      'Lux'
+    ];
+
+    // Static objectName → base mapping
+    const Map<String, String> objectNameToBase = {
+      'Moisture Sensor': 'SoilMoisture',
+      'Temperature Sensor': 'temperature',
+      'Soil Temperature Sensor': 'SoilTemperature',
+      'Wind Direction Sensor': 'WindDirection',
+      'Wind Speed Sensor': 'WindSpeed',
+      'Humidity Sensor': 'Humidity',
+      'Leaf Wetness Sensor': 'LeafWetness',
+      'Rain Fall Sensor': 'Rainfall',
+      'Co2 Sensor': 'CO2',
+      'LUX Sensor': 'Lux',
+      'LDR Sensor': 'LDR',
+      'Atmospheric Pressure': 'AtmosphericPressure',
+    };
+
+    // 1️⃣ get base
+    final base = objectNameToBase[objectName];
+    if (base == null) return null;
+
+    // 2️⃣ Moisture Sensor → needs index
+    if (base == 'SoilMoisture') {
+      // 25.001 → 1, 25.002 → 2
+      final index = ((sNo * 1000).round() % 1000);
+      final value = '$base$index';
+print("value$value");
+      return reportTypes.contains(value) ? value : "SoilMoisture1";
+    }
+
+    // 3️⃣ Other sensors
+    print("value$base");
+
+    return reportTypes.contains(base) ? base : "SoilMoisture1";
+  }
+
+
+
+
 
   Color Getcolor(String val) {
     if (val == '1') {

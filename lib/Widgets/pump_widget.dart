@@ -173,7 +173,7 @@ class PumpWidget extends StatelessWidget {
             if (int.tryParse(pump.reason) case final reason? when reason > 0 && reason != 31)
               Positioned(
                 top: 1,
-                left: isMobile? 3 : 37.5,
+                left: 37.5,
                 child: Tooltip(
                   message: getContentByCode(reason),
                   textStyle: const TextStyle(color: Colors.black54),
@@ -368,7 +368,10 @@ class PumpWidget extends StatelessWidget {
   }
 
   Widget _buildPhaseInfo() {
+
     int phase = int.tryParse(pump.phase) ?? 0;
+    print("phase:$phase");
+
     return Container(
       width: 310,
       height: 25,
@@ -377,19 +380,31 @@ class PumpWidget extends StatelessWidget {
         children: [
           const Padding(
             padding: EdgeInsets.only(left: 9),
-            child: SizedBox(width: 100, child: Text('Phase', style: TextStyle(color: Colors.black54))),
+            child: SizedBox(width: 100, child: Text('Trip phase', style: TextStyle(color: Colors.black54))),
           ),
           const Spacer(),
-          for (int i = 0; i < 3; i++)
-            Row(
-              children: [
-                CircleAvatar(
-                  radius: 7,
-                  backgroundColor: phase > i ? Colors.green : Colors.grey.shade400,
-                ),
-                const VerticalDivider(color: Colors.transparent),
-              ],
-            ),
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 7,
+                backgroundColor: phase ==0 ? Colors.grey.shade400 :
+                phase == 1 ? Colors.red : Colors.green,
+              ),
+              const VerticalDivider(color: Colors.transparent),
+              CircleAvatar(
+                radius: 7,
+                backgroundColor: phase ==0 ? Colors.grey.shade400 :
+                phase == 2 ? Colors.red : Colors.green,
+              ),
+              const VerticalDivider(color: Colors.transparent),
+              CircleAvatar(
+                radius: 7,
+                backgroundColor: phase ==0 ? Colors.grey.shade400 :
+                phase == 3 ? Colors.red : Colors.green,
+              ),
+              const VerticalDivider(color: Colors.transparent),
+            ],
+          ),
         ],
       ),
     );
@@ -583,6 +598,7 @@ class VoltageWidget extends StatelessWidget {
 
   Widget _buildPhaseInfo(BuildContext context) {
     int phase = int.tryParse("0") ?? 0;
+    print("phase:$phase");
     return Container(
       width: MediaQuery.sizeOf(context).width,
       height: 25,
@@ -591,19 +607,31 @@ class VoltageWidget extends StatelessWidget {
         children: [
           const Padding(
             padding: EdgeInsets.only(left: 9),
-            child: SizedBox(width: 100, child: Text('Phase', style: TextStyle(color: Colors.black54))),
+            child: SizedBox(width: 100, child: Text('Trip phase', style: TextStyle(color: Colors.black54))),
           ),
           const Spacer(),
-          for (int i = 0; i < 3; i++)
-            Row(
-              children: [
-                CircleAvatar(
-                  radius: 7,
-                  backgroundColor: phase > i ? Colors.green : Colors.grey.shade400,
-                ),
-                const VerticalDivider(color: Colors.transparent),
-              ],
-            ),
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 7,
+                backgroundColor: phase ==0 ? Colors.grey.shade400 :
+                phase == 1 ? Colors.red : Colors.green,
+              ),
+              const VerticalDivider(color: Colors.transparent),
+              CircleAvatar(
+                radius: 7,
+                backgroundColor: phase ==0 ? Colors.grey.shade400 :
+                phase == 2 ? Colors.red : Colors.green,
+              ),
+              const VerticalDivider(color: Colors.transparent),
+              CircleAvatar(
+                radius: 7,
+                backgroundColor: phase ==0 ? Colors.grey.shade400 :
+                phase == 3 ? Colors.red : Colors.green,
+              ),
+              const VerticalDivider(color: Colors.transparent),
+            ],
+          ),
         ],
       ),
     );

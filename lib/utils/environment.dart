@@ -46,6 +46,21 @@ class Environment {
       'sftpPort': 22,
       'privateKeyPath': 'assets/ssh/smartComm/id_rsa',
     },
+    'agritel': {
+      'apiUrl': 'http://13.235.254.21:8000/api/v1',
+      'apiKey': 'dev-api-key',
+      'mqttWebUrl': 'ws://13.235.254.21/mqtt',
+      'mqttMobileUrl': '13.235.254.21',
+      'publishTopic': 'AgritelAppToFirmware',
+      'subscribeTopic': 'FirmwareToAgritelApp',
+      'mqttWebPort': 8083,
+      'mqttMobilePort': 1883,
+      "mqttUserName" : 'niagara',
+      "mqttPassword" : 'niagara123',
+      'sftpIpAddress': '54.179.114.89',
+      'sftpPort': 22,
+      'privateKeyPath': 'assets/ssh/smartComm/id_rsa',
+    },
   };
 
   static String get apiUrl => config[F.name]?['apiUrl'] ?? '';

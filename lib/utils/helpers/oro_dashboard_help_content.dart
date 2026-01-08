@@ -4,7 +4,7 @@ import '../../models/customer/help_support_model.dart';
 
 class OroDashboardHelpContent {
   static const String title =
-      'ORO Irrigation Dashboard – Quick Overview';
+      'Irrigation Dashboard – Quick Overview';
 
   static const List<HelpSection> sections = [
     HelpSection(

@@ -4,6 +4,7 @@ import '../../../layouts/user_layout.dart';
 import '../../../repository/repository.dart';
 import '../../../services/http_service.dart';
 import '../../../view_models/login_view_model.dart';
+import '../../screen_controller.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -14,10 +15,10 @@ class LoginScreen extends StatelessWidget {
       create: (_) => LoginViewModel(
         repository: RepositoryImpl(HttpService()),
         onLoginSuccess: (message) {
-          Navigator.pushNamedAndRemoveUntil(
+          Navigator.pushAndRemoveUntil(
             context,
-            '/dashboard',
-                (Route<dynamic> route) => false, // remove all previous routes
+            MaterialPageRoute(builder: (_) => const ScreenController()),
+                (route) => false,
           );
         },
       ),

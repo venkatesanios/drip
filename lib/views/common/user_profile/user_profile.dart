@@ -242,7 +242,7 @@ class UserProfile extends StatelessWidget {
                       MaterialButton(
                         minWidth:175,
                         height: 40,
-                        color: Theme.of(context).primaryColorLight,
+                        color: Theme.of(context).primaryColorDark,
                         textColor: Colors.white,
                         child: const Text('SAVE CHANGES'),
                         onPressed: () async {

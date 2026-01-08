@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/Screens/planning/weather/weather_page.dart';
 import '../../../Screens/Dealer/sevicecustomer.dart';
 import '../../../Screens/Logs/irrigation_and_pump_log.dart';
 import '../../../Screens/planning/WeatherScreen.dart';
@@ -102,11 +103,10 @@ Widget buildCustomerMainScreen({required int index, required UserRole role, requ
       );
 
     case 7:
-      return WeatherScreen(
-        userId: cSite.customerId,
+      return WeatherDashboardPage(   userId: cSite.customerId,
         controllerId: cMaster.controllerId,
-        deviceID: cMaster.deviceId,
-      );
+        deviceID: cMaster.deviceId,);
+
 
     default:
       return const Scaffold(
