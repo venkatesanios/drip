@@ -508,7 +508,7 @@ class _PumpTopicChangePageState extends State<PumpTopicChangePage> {
                   ],
                 ),
                 const SizedBox(height: 10),
-                Text(mqttPayloadProvider.receivedPayload),
+                // Text(mqttPayloadProvider.receivedPayload),
               ],
             ),
           ),
