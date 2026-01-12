@@ -52,16 +52,7 @@ class _WeatherDashboardPageState extends State<WeatherDashboardPage> {
     _fetchWeatherJson();
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-   print("didChangeDependencies call $loading ");
-    if (loading) {
-      _weatherLiveRequest();
-      _fetchWeatherJson();
-      loading = false;
-    }
-  }
+
 
   void _refreshWeather() async {
     setState(() => loading = true);
@@ -160,7 +151,7 @@ class _WeatherDashboardPageState extends State<WeatherDashboardPage> {
           value: devices.any((d) => d.serialNumber == selectedSerialNumber)
               ? selectedSerialNumber
               : null,
-          icon: const Icon(Icons.keyboard_arrow_down, size: 18),
+          icon: const Icon(Icons.keyboard_arrow_down, size: 18,color: Colors.white,),
           dropdownColor: Colors.teal.shade900,
           items: devices.map((d) {
             return DropdownMenuItem<int>(
@@ -183,6 +174,7 @@ class _WeatherDashboardPageState extends State<WeatherDashboardPage> {
           },
         ),
       ),
+      automaticallyImplyLeading: false,
       actions: [
         IconButton(
           icon: const Icon(Icons.refresh),
