@@ -249,39 +249,36 @@ class _WeatherDashboardPageState extends State<WeatherDashboardPage> {
              ],
            ),
          )
-              : Column(
-           children: [
-             /// 🔒 FIXED HEADER (WILL NOT SCROLL)
-             WeatherMobileHeader(
-               city: "Coimbatore",
-               temperature: temp?.value ?? "0",
-               feelsLike: temp?.value ?? "0",
-               time: time,
-               sunrise: "06:37 AM",
-               sunset: "06:37 PM",
-               humidity: hummitity?.value ?? "0",
-               wind: windSpeed?.value ?? "0",
-               pressure: Atmospheric?.value ?? "0",
-             ),
-
-             const SizedBox(height: 6),
-
-              Expanded(
-               child: SingleChildScrollView(
-                 physics: const BouncingScrollPhysics(),
-                 child: RightDashboardPanel(
-                   gridSensors: gridSensors,
-                   windSpeed: windSpeed,
-                   windDirection: windDirection,
-                   co2: co2,
-                   rain: rain,
-                   iconResolver: _icon,
-                   unitResolver: unit,
-                 ),
-               ),
-             ),
-           ],
-         )
+              : SingleChildScrollView(
+                child: Column(
+                           children: [
+                             /// 🔒 FIXED HEADER (WILL NOT SCROLL)
+                             WeatherMobileHeader(
+                 city: "Coimbatore",
+                 temperature: temp?.value ?? "0",
+                 feelsLike: temp?.value ?? "0",
+                 time: time,
+                 sunrise: "06:37 AM",
+                 sunset: "06:37 PM",
+                 humidity: hummitity?.value ?? "0",
+                 wind: windSpeed?.value ?? "0",
+                 pressure: Atmospheric?.value ?? "0",
+                             ),
+                
+                             const SizedBox(height: 6),
+                
+                RightDashboardPanel(
+                  gridSensors: gridSensors,
+                  windSpeed: windSpeed,
+                  windDirection: windDirection,
+                  co2: co2,
+                  rain: rain,
+                  iconResolver: _icon,
+                  unitResolver: unit,
+                ),
+                           ],
+                         ),
+              )
              : const Center(
            child: Text(
              "Weather data is currently unavailable.\nPlease check the sensor connection or try again later.",

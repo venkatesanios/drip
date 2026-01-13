@@ -426,40 +426,62 @@ class ConstantProvider extends ChangeNotifier{
     }).join(';');
   }
 
-  String getFertilizerSitePayload(){
-    print("ecPhSensor : ${ecPhSensor}");
-    print(AppConstants.gemModelList.contains(userData['modelId']) ?  'Gem' : 'Ecogem');
-    return List.generate(fertilizerSite.length, (siteIndex){
+  String getFertilizerSitePayload() {
+    final bool isGem =
+    AppConstants.gemModelList.contains(userData['modelId']);
+
+    return List.generate(fertilizerSite.length, (siteIndex) {
+      final site = fertilizerSite[siteIndex];
+
+      // ---------- SITE SETTINGS ----------
+      final siteSettingsPayload = site.setting
+          .where((s) => isGem ? s.gemPayload : s.ecoGemPayload)
+          .map((s) => payloadValidate(s.value.value))
+          .toList();
+
+      // ---------- EC SETTINGS ----------
+      List<dynamic> ecPayload;
+      if (ecPhSensor.isNotEmpty &&
+          ecPhSensor.length > siteIndex &&
+          ecPhSensor[siteIndex].setting.isNotEmpty &&
+          ecPhSensor[siteIndex].setting[0]
+              .any((s) => s.value.value != "0")) {
+        ecPayload = ecPhSensor[siteIndex].setting[0]
+            .where((s) => isGem ? s.gemPayload : s.ecoGemPayload)
+            .map((s) => payloadValidate(s.value.value))
+            .toList();
+      } else {
+        ecPayload = defaultEcPhSetting
+            .map((e) => payloadValidate(e.value.value))
+            .toList();
+      }
+
+      // ---------- PH SETTINGS ----------
+      List<dynamic> phPayload;
+      if (ecPhSensor.isNotEmpty &&
+          ecPhSensor.length > siteIndex &&
+          ecPhSensor[siteIndex].setting.length > 1 &&
+          ecPhSensor[siteIndex].setting[1]
+              .any((s) => s.value.value != "0")) {
+        phPayload = ecPhSensor[siteIndex].setting[1]
+            .where((s) => isGem ? s.gemPayload : s.ecoGemPayload)
+            .map((s) => payloadValidate(s.value.value))
+            .toList();
+      } else {
+        phPayload = defaultEcPhSetting
+            .map((e) => payloadValidate(e.value.value))
+            .toList();
+      }
+
       return [
-        fertilizerSite[siteIndex].sNo,
-        ...fertilizerSite[siteIndex].setting.where((setting){
-          return AppConstants.gemModelList.contains(userData['modelId']) ?  setting.gemPayload : setting.ecoGemPayload;
-        }).map((setting){
-          return payloadValidate(setting.value.value);
-        }),
-        if(ecPhSensor.isNotEmpty && ecPhSensor.length > siteIndex && ecPhSensor[siteIndex].ecPopup.isNotEmpty)
-          ...ecPhSensor[siteIndex].setting[0].where((setting){
-            return AppConstants.gemModelList.contains(userData['modelId']) ?  setting.gemPayload : setting.ecoGemPayload;
-          }).map((setting){
-            return payloadValidate(setting.value.value);
-          })
-        else
-          ...List.generate(defaultEcPhSetting.length, (index){
-            return payloadValidate(defaultEcPhSetting[index].value.value);
-          }),
-        if(ecPhSensor.isNotEmpty && ecPhSensor.length > siteIndex && ecPhSensor[siteIndex].phPopup.isNotEmpty)
-          ...ecPhSensor[siteIndex].setting[ecPhSensor[siteIndex].ecPopup.isEmpty ? 0 : 1].where((setting){
-            return AppConstants.gemModelList.contains(userData['modelId']) ?  setting.gemPayload : setting.ecoGemPayload;
-          }).map((setting){
-            return payloadValidate(setting.value.value);
-          })
-        else
-          ...List.generate(defaultEcPhSetting.length, (index){
-            return payloadValidate(defaultEcPhSetting[index].value.value);
-          }),
+        site.sNo,
+        ...siteSettingsPayload,
+        ...ecPayload,
+        ...phPayload,
       ].join(',');
     }).join(';');
   }
+
 
   String getNormalCriticalAlarm(){
     int alarmUniqueSno = 0;
