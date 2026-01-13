@@ -10,7 +10,7 @@ class EcPhInConstantModel{
   final double sNo;
   final String name;
   final String objectName;
-  final double location;
+  final dynamic location;
   List<PopUpItemModel> ecPopup;
   List<PopUpItemModel> phPopup;
   List<List<ConstantSettingModel>> setting = [];

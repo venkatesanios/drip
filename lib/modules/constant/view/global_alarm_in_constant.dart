@@ -216,6 +216,7 @@ class _GlobalAlarmInConstantState extends State<GlobalAlarmInConstant> {
     var channelPayload = widget.constPvd.getObjectInConstantPayload(widget.constPvd.channel);
     print("channelPayload : $channelPayload");
     var fertilizerSitePayload = widget.constPvd.getFertilizerSitePayload();
+    print('web');
     print("fertilizerSitePayload : $fertilizerSitePayload");
     var waterMeterPayload = widget.constPvd.getObjectInConstantPayload(widget.constPvd.waterMeter);
     print("waterMeterPayload : $waterMeterPayload");
