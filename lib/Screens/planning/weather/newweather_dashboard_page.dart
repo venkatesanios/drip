@@ -214,7 +214,7 @@ class _WeatherDashboardPageState extends State<WeatherDashboardPage> {
     final time = weatherModel.data.weatherLive.cT;
     final formattedtime = DateTimeHelper.formatDateTime(dt);
      return Scaffold(
-       backgroundColor: Colors.grey.shade200,
+       backgroundColor: Colors.teal.shade100,
        appBar: _appBar(),
        body: loading
            ? const Center(child: CircularProgressIndicator())
@@ -266,8 +266,7 @@ class _WeatherDashboardPageState extends State<WeatherDashboardPage> {
 
              const SizedBox(height: 6),
 
-             /// 🔽 ONLY THIS PART SCROLLS
-             Expanded(
+              Expanded(
                child: SingleChildScrollView(
                  physics: const BouncingScrollPhysics(),
                  child: RightDashboardPanel(

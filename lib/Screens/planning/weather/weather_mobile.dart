@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 
@@ -309,39 +311,89 @@ class _Metric extends StatelessWidget {
   }
 }
 
-// -----------------------------------------------------------------------------
-// WAVE CLIPPER (FIXED)
-// -----------------------------------------------------------------------------
-class WaveClip extends StatelessWidget {
+
+
+
+class WaveClip extends StatefulWidget {
   const WaveClip({super.key});
 
   @override
+  State<WaveClip> createState() => _WaveClipState();
+}
+
+class _WaveClipState extends State<WaveClip>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3), // wave speed
+    )..repeat(); // infinite loop
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return ClipPath(
-      clipper: _WaveClipper(),
-      child: Container(
-        height: 40,
-        color: const Color(0xFFEFF3F4),
-      ),
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (_, __) {
+        return ClipPath(
+          clipper: InfiniteWaveClipper(
+            phase: _controller.value * 2 * pi,
+            amplitude: 12,
+            frequency: 1.5,
+          ),
+          child: Container(
+            height: 40,
+            color: Colors.teal.shade100,
+          ),
+        );
+      },
     );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 }
 
-class _WaveClipper extends CustomClipper<Path> {
+class InfiniteWaveClipper extends CustomClipper<Path> {
+  final double phase;
+  final double amplitude;
+  final double frequency;
+
+  InfiniteWaveClipper({
+    required this.phase,
+    this.amplitude = 12,
+    this.frequency = 1.5,
+  });
+
   @override
   Path getClip(Size size) {
     final path = Path();
-    path.moveTo(0, 0);
-    path.quadraticBezierTo(
-        size.width * 0.25, 20, size.width * 0.5, 15);
-    path.quadraticBezierTo(
-        size.width * 0.75, 10, size.width, 20);
-    path.lineTo(size.width, size.height);
-    path.lineTo(0, size.height);
+    final width = size.width;
+    final height = size.height;
+
+    path.moveTo(0, height / 2);
+
+    for (double x = 0; x <= width; x++) {
+      // Subtract phase to move wave left → right
+      final y = height / 2 + amplitude * sin((2 * pi * frequency * x / width) - phase);
+      path.lineTo(x, y);
+    }
+
+    path.lineTo(width, height);
+    path.lineTo(0, height);
     path.close();
+
     return path;
   }
 
   @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
+  bool shouldReclip(InfiniteWaveClipper oldClipper) => oldClipper.phase != phase;
 }
+
