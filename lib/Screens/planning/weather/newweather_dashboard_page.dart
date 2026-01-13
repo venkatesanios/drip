@@ -1,10 +1,12 @@
 
 
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
  import 'package:oro_drip_irrigation/Screens/planning/weather/weather_helper.dart';
 import 'package:oro_drip_irrigation/Screens/planning/weather/weather_left_side_card.dart';
+import 'package:oro_drip_irrigation/Screens/planning/weather/weather_mobile.dart';
 import 'package:oro_drip_irrigation/Screens/planning/weather/weather_sensor_tile.dart';
 import '../../../repository/repository.dart';
 import '../../../services/http_service.dart';
@@ -190,12 +192,13 @@ class _WeatherDashboardPageState extends State<WeatherDashboardPage> {
 
   @override
   Widget build(BuildContext context) {
-    final windSpeed = _findSensor('wind speed');
-    final windDirection = _findSensor('wind direction');
-    final co2 = _findSensor('co2');
-    final rain = _findSensor('rain');
+    final windSpeed = _findSensor('Wind Speed Sensor');
+    final windDirection = _findSensor('Wind Direction Sensor');
+    final co2 = _findSensor('Co2 Sensor');
+    final rain = _findSensor('Rain Fall Sensor');
     final temp = _findSensor('Temperature Sensor');
-    final hummitituy = _findSensor('Humidity Sensor');
+    final hummitity = _findSensor('Humidity Sensor');
+    final Atmospheric = _findSensor('Atmospheric Pressure');
 
     final gridSensors = uiData.where((e) {
       final t = e.sensorType.toLowerCase();
@@ -211,24 +214,83 @@ class _WeatherDashboardPageState extends State<WeatherDashboardPage> {
     final time = weatherModel.data.weatherLive.cT;
     final formattedtime = DateTimeHelper.formatDateTime(dt);
      return Scaffold(
-      backgroundColor: Colors.grey.shade200,
-      appBar: _appBar(),
-      body: loading
-          ? const Center(child: CircularProgressIndicator())
-          :  Padding(
-        padding: EdgeInsets.all(16),
-        child: SingleChildScrollView(
-          child:  gridSensors.isNotEmpty ? Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              LeftWeatherPanel(city: "Coimbatore",date: formattedtime,time: time,  wind: windSpeed?.value ?? "0", temp: temp?.value ?? "0", humidity: hummitituy?.value ?? "0"),
-              SizedBox(width: 16),
-              Expanded(child: RightDashboardPanel(gridSensors: gridSensors, windSpeed: windSpeed, windDirection: windDirection, co2: co2, rain: rain, iconResolver: _icon, unitResolver: unit)),
-            ],
-          ) : Center(child: Text("Weather data is currently unavailable. Please check the sensor connection or try again later.")),
-        ),
-      ),
-    );
+       backgroundColor: Colors.grey.shade200,
+       appBar: _appBar(),
+       body: loading
+           ? const Center(child: CircularProgressIndicator())
+           : Padding(
+         padding: EdgeInsets.all(kIsWeb ? 16 : 0),
+         child: gridSensors.isNotEmpty
+             ? kIsWeb
+              ? SingleChildScrollView(
+           child: Row(
+             crossAxisAlignment: CrossAxisAlignment.start,
+             children: [
+               LeftWeatherPanel(
+                 city: "Coimbatore",
+                 date: formattedtime,
+                 time: time,
+                 wind: windSpeed?.value ?? "0",
+                 temp: temp?.value ?? "0",
+                 humidity: hummitity?.value ?? "0",
+               ),
+               const SizedBox(width: 16),
+               Expanded(
+                 child: RightDashboardPanel(
+                   gridSensors: gridSensors,
+                   windSpeed: windSpeed,
+                   windDirection: windDirection,
+                   co2: co2,
+                   rain: rain,
+                   iconResolver: _icon,
+                   unitResolver: unit,
+                 ),
+               ),
+             ],
+           ),
+         )
+              : Column(
+           children: [
+             /// 🔒 FIXED HEADER (WILL NOT SCROLL)
+             WeatherMobileHeader(
+               city: "Coimbatore",
+               temperature: temp?.value ?? "0",
+               feelsLike: temp?.value ?? "0",
+               time: time,
+               sunrise: "06:37 AM",
+               sunset: "06:37 PM",
+               humidity: hummitity?.value ?? "0",
+               wind: windSpeed?.value ?? "0",
+               pressure: Atmospheric?.value ?? "0",
+             ),
+
+             const SizedBox(height: 6),
+
+             /// 🔽 ONLY THIS PART SCROLLS
+             Expanded(
+               child: SingleChildScrollView(
+                 physics: const BouncingScrollPhysics(),
+                 child: RightDashboardPanel(
+                   gridSensors: gridSensors,
+                   windSpeed: windSpeed,
+                   windDirection: windDirection,
+                   co2: co2,
+                   rain: rain,
+                   iconResolver: _icon,
+                   unitResolver: unit,
+                 ),
+               ),
+             ),
+           ],
+         )
+             : const Center(
+           child: Text(
+             "Weather data is currently unavailable.\nPlease check the sensor connection or try again later.",
+             textAlign: TextAlign.center,
+           ),
+         ),
+       ),
+     );
   }
 }
 
@@ -294,20 +356,18 @@ class RightDashboardPanel extends StatelessWidget {
     required this.iconResolver,
     required this.unitResolver,
   });
-
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-
-        /// SENSOR GRID
+         Text("Sensors:"),
         Wrap(
           spacing: 5,
           runSpacing: 5,
           children: gridSensors.map((e) {
             return SizedBox(
-              width: 280,
+              width: kIsWeb ? 280 : MediaQuery.of(context).size.width - 20,
               height: 180,
               child: SensorTile(
                 data: e,

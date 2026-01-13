@@ -80,11 +80,12 @@ Widget weatherCardLeft({
 }
 
 Widget sunCard() {
-  return Row(
-    children: const [
-      Expanded(child: _SunTimeCard("Sunrise", "4:50 AM",'assets/Images/sunrise.png')),
+  return const Row(
+    children: [
+      Expanded(child: _SunTimeCard("Sunrise", "6:10 AM",'assets/Images/sunrise.png')),
       SizedBox(width: 12),
       Expanded(child: _SunTimeCard("Sunset", "6:45 PM",'assets/Images/sunset.png')),
+
     ],
   );
 }
