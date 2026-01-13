@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:oro_drip_irrigation/Screens/planning/weather/weather_page.dart';
-import '../../../Screens/Dealer/sevicecustomer.dart';
+ import '../../../Screens/Dealer/sevicecustomer.dart';
 import '../../../Screens/Logs/irrigation_and_pump_log.dart';
 import '../../../Screens/planning/WeatherScreen.dart';
+ import '../../../Screens/planning/weather/newweather_dashboard_page.dart';
 import '../../../layouts/layout_selector.dart';
 import '../../../modules/PumpController/view/pump_controller_home.dart';
 import '../../../utils/constants.dart';
@@ -103,9 +103,11 @@ Widget buildCustomerMainScreen({required int index, required UserRole role, requ
       );
 
     case 7:
-      return WeatherDashboardPage(   userId: cSite.customerId,
-        controllerId: cMaster.controllerId,
-        deviceID: cMaster.deviceId,);
+      return WeatherDashboardPage(userId:  cSite.customerId, controllerId: cMaster.controllerId, deviceID: cMaster.deviceId,);
+
+        // WeatherDashboardPage(   userId: cSite.customerId,
+        // controllerId: cMaster.controllerId,
+        // deviceID: cMaster.deviceId,);
 
 
     default:
