@@ -89,7 +89,7 @@ android {
         minSdkVersion = 23
         targetSdk = flutter.targetSdkVersion
         versionCode = 1790
-        versionName = "1.2.67"
+        versionName = "1.2.68"
     }
 
     buildTypes {
