@@ -478,7 +478,7 @@ class PumpWidget extends StatelessWidget {
             textColor: Colors.white,
             onPressed: () {
               String payload = '${pump.sNo},1,1';
-              if (modelId == 56 || modelId == 57 || modelId == 58 || modelId == 59) {
+              if(AppConstants.ecoGemModelList.contains(modelId)) {
                 payload = payload.replaceAll(RegExp(r'[.]'), ',');
               }
 
@@ -496,7 +496,7 @@ class PumpWidget extends StatelessWidget {
             textColor: Colors.white,
             onPressed: () {
               String payload = '${pump.sNo},0,1';
-              if (modelId == 56 || modelId == 57 || modelId == 58 || modelId == 59) {
+              if(AppConstants.ecoGemModelList.contains(modelId)) {
                 payload = payload.replaceAll(RegExp(r'[.]'), ',');
               }
 

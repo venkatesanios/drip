@@ -427,6 +427,8 @@ class ConstantProvider extends ChangeNotifier{
   }
 
   String getFertilizerSitePayload(){
+    print("ecPhSensor : ${ecPhSensor}");
+    print(AppConstants.gemModelList.contains(userData['modelId']) ?  'Gem' : 'Ecogem');
     return List.generate(fertilizerSite.length, (siteIndex){
       return [
         fertilizerSite[siteIndex].sNo,
@@ -435,7 +437,7 @@ class ConstantProvider extends ChangeNotifier{
         }).map((setting){
           return payloadValidate(setting.value.value);
         }),
-        if(ecPhSensor.isNotEmpty && ecPhSensor[siteIndex].ecPopup.isNotEmpty)
+        if(ecPhSensor.isNotEmpty && ecPhSensor.length > siteIndex && ecPhSensor[siteIndex].ecPopup.isNotEmpty)
           ...ecPhSensor[siteIndex].setting[0].where((setting){
             return AppConstants.gemModelList.contains(userData['modelId']) ?  setting.gemPayload : setting.ecoGemPayload;
           }).map((setting){
@@ -445,7 +447,7 @@ class ConstantProvider extends ChangeNotifier{
           ...List.generate(defaultEcPhSetting.length, (index){
             return payloadValidate(defaultEcPhSetting[index].value.value);
           }),
-        if(ecPhSensor.isNotEmpty && ecPhSensor[siteIndex].phPopup.isNotEmpty)
+        if(ecPhSensor.isNotEmpty && ecPhSensor.length > siteIndex && ecPhSensor[siteIndex].phPopup.isNotEmpty)
           ...ecPhSensor[siteIndex].setting[ecPhSensor[siteIndex].ecPopup.isEmpty ? 0 : 1].where((setting){
             return AppConstants.gemModelList.contains(userData['modelId']) ?  setting.gemPayload : setting.ecoGemPayload;
           }).map((setting){
