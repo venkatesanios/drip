@@ -29,8 +29,8 @@ class WindCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _KeyValueRow("Wind Speed", windSpeed),
-                const SizedBox(height: 8),
-                _KeyValueRow("Gusts", gusts),
+                // const SizedBox(height: 8),
+                // _KeyValueRow("Gusts", gusts),
                 const SizedBox(height: 8),
                 _KeyValueRow("Wind Direction ", directionText),
               ],
@@ -63,7 +63,6 @@ class _KeyValueRow extends StatelessWidget {
     );
   }
 }
-
 
 class _WindCompass extends StatelessWidget {
   final double angle;
@@ -110,7 +109,6 @@ class _WindCompass extends StatelessWidget {
     );
   }
 }
-
 
 Widget _baseCard({required String title, required Widget child}) {
   return Container(

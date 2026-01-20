@@ -301,6 +301,7 @@ class ConstantProvider extends ChangeNotifier{
       if (kDebugMode) {
         print('channel updated..');
       }
+      print("listOfFertilizerSiteObject => ${listOfFertilizerSiteObject}");
       // update ec ph
       if(listOfFertilizerSiteObject.isNotEmpty){
         // find out and filter the fertilizer site has ec or ph
@@ -318,6 +319,7 @@ class ConstantProvider extends ChangeNotifier{
             return false;
           }
         }).toList();
+        print("fertilizerSiteWithEcPh : $fertilizerSiteWithEcPh");
         ecPhSensor = fertilizerSiteWithEcPh.map((site){
           return EcPhInConstantModel.fromJson(
               objectData: site,
@@ -427,7 +429,13 @@ class ConstantProvider extends ChangeNotifier{
   }
 
   String getFertilizerSitePayload(){
+    print("ecPhSensor : ${ecPhSensor}");
+    print(AppConstants.gemModelList.contains(userData['modelId']) ?  'Gem' : 'Ecogem');
     return List.generate(fertilizerSite.length, (siteIndex){
+      print(ecPhSensor);
+      print(siteIndex);
+      print(ecPhSensor[siteIndex].ecPopup);
+      print(ecPhSensor.isNotEmpty && ecPhSensor.length > siteIndex && ecPhSensor[siteIndex].ecPopup.isNotEmpty);
       return [
         fertilizerSite[siteIndex].sNo,
         ...fertilizerSite[siteIndex].setting.where((setting){
