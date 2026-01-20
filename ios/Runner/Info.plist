@@ -22,8 +22,8 @@
 	<string>1.2.03</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
-	<key>CFBundleURLTypes</key>
-	<array>
+    <key>CFBundleURLTypes</key>
+ 	<array>
 		<dict>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>

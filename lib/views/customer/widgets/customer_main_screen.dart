@@ -105,11 +105,6 @@ Widget buildCustomerMainScreen({required int index, required UserRole role, requ
     case 7:
       return WeatherDashboardPage(userId:  cSite.customerId, controllerId: cMaster.controllerId, deviceID: cMaster.deviceId,);
 
-        // WeatherDashboardPage(   userId: cSite.customerId,
-        // controllerId: cMaster.controllerId,
-        // deviceID: cMaster.deviceId,);
-
-
     default:
       return const Scaffold(
         body: Center(
