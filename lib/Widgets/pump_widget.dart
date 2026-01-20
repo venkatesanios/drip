@@ -134,7 +134,13 @@ class PumpWidget extends StatelessWidget {
                   Text(
                     pump.name,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 10, color: Colors.black54),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    softWrap: false,
+                    style: const TextStyle(
+                      fontSize: 10,
+                      color: Colors.black54,
+                    ),
                   ),
                 ],
               ),
@@ -370,7 +376,6 @@ class PumpWidget extends StatelessWidget {
   Widget _buildPhaseInfo() {
 
     int phase = int.tryParse(pump.phase) ?? 0;
-    print("phase:$phase");
 
     return Container(
       width: 310,

@@ -55,20 +55,8 @@ class ChannelWidget extends StatelessWidget {
               height: 120,
               child: Stack(
                 children: [
-
-                  if(isMobile)...[
-                    Transform(
-                      alignment: Alignment.center,
-                      transform: Matrix4.rotationY(math.pi),
-                      child: Image.asset(AppConstants.getFertilizerImage(cIndex, channel.status,
-                          channelLength, agitator, isMobile)),
-                    ),
-                  ]
-                  else...[
-                    Image.asset(AppConstants.getFertilizerImage(cIndex, channel.status,
-                        channelLength, agitator, isMobile)),
-                  ],
-
+                  Image.asset(AppConstants.getFertilizerChannelImage(cIndex, channel.status,
+                      channelLength, agitator, isMobile)),
                   Positioned(
                     top: 52,
                     left: 6,

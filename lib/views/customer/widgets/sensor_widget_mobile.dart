@@ -32,76 +32,93 @@ class SensorWidgetMobile extends StatelessWidget {
 
         return ListTile(
           minVerticalPadding: 0,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+          minLeadingWidth: 0,
+          horizontalTitleGap: 8,
+          contentPadding: const EdgeInsets.only(left: 6, right: 12),
           visualDensity: const VisualDensity(vertical: -4),
+
+          leading: sensorType == 'Pressure Switch' ? Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(
+                width: 25,
+                height: 25,
+                child: Image(image: AssetImage('assets/png/mobile/m_pressure_switch.png')),
+              ),
+              const SizedBox(width: 5),
+              _statusBox(sensor),
+            ],
+          )
+              : Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: 40,
+                height: 40,
+                child: Image(
+                  image: AssetImage(
+                    sensorType == 'Pressure Sensor'
+                        ? 'assets/png/mobile/m_pressure_sensor.png'
+                        : 'assets/png/mobile/m_water_meter.png',
+                  ),
+                  color: Colors.black,
+                ),
+              ),
+              const SizedBox(width: 5),
+              _unitBox(context, sensor, sensorType),
+            ],
+          ),
+
           title: Text(
             sensor.name,
-            textAlign: TextAlign.right,
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,
               color: Colors.black54,
             ),
           ),
-          trailing: sensorType == 'Pressure Switch' ?
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: sensor.value == "1" ? Colors.green.shade300 : Colors.red.shade300,
-                  borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: Colors.grey, width: 0.5),
-                ),
-                child: Text(
-                  sensor.value == "1" ? 'Low' : 'High',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: sensorType != 'Pressure Switch' ? Colors.black87 : Colors.white,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 5),
-              const SizedBox(
-                width: 25,
-                height: 25,
-                child: Image(image: AssetImage('assets/png/mobile/m_pressure_switch.png')),
-              )
-            ],
-          ) :
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.yellow.shade400,
-                  borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: Colors.grey, width: 0.5),
-                ),
-                child: Text(
-                  MyFunction().getUnitByParameter(context, sensorType, sensor.value.toString(),) ?? '',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 5),
-              SizedBox(
-                width: 40,
-                height: 40,
-                child: Image(image: AssetImage( sensorType == 'Pressure Sensor' ?
-                'assets/png/mobile/m_pressure_sensor.png' : 'assets/png/mobile/m_water_meter.png'),
-                  color: Colors.black),
-              )
-            ],
-          ),
         );
       },
+    );
+  }
+
+  Widget _statusBox(SensorModel sensor) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: sensor.value == "1" ? Colors.green.shade300 : Colors.red.shade300,
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: Colors.grey, width: 0.5),
+      ),
+      child: Text(
+        sensor.value == "1" ? 'Low' : 'High',
+        style: const TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+
+  Widget _unitBox(BuildContext context, SensorModel sensor, String sensorType) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.yellow,
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: Colors.grey, width: 0.5),
+      ),
+      child: Text(
+        MyFunction()
+            .getUnitByParameter(context, sensorType, sensor.value.toString()) ??
+            '',
+        style: const TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+          color: Colors.black87,
+        ),
+      ),
     );
   }
 }
