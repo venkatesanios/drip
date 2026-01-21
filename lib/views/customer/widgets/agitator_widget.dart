@@ -32,9 +32,7 @@ class AgitatorWidget extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
 
-            (isMobile)
-                ? agitatorWidget(true, fertilizerSite)
-                : agitatorWidget(false, fertilizerSite),
+            agitatorWidget(fertilizerSite),
 
             if(kIsWeb && !isMobile)...[
               SizedBox(height: fertilizerSite.agitator[0].status==1? 25:90),
@@ -48,7 +46,7 @@ class AgitatorWidget extends StatelessWidget {
     );
   }
 
-  Widget agitatorWidget(bool isMobile, FertilizerSiteModel fertilizerSite) {
+  Widget agitatorWidget(FertilizerSiteModel fertilizerSite) {
     final agitator = fertilizerSite.agitator[0];
     final height = agitator.status == 1 ? 99.0 : 34.0;
 
@@ -61,14 +59,6 @@ class AgitatorWidget extends StatelessWidget {
         '',
       ),
     );
-
-    if (isMobile) {
-      content = Transform(
-        alignment: Alignment.center,
-        transform: Matrix4.rotationY(math.pi),
-        child: content,
-      );
-    }
 
     return content;
   }

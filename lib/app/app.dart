@@ -7,6 +7,7 @@ import '../Screens/login_screenOTP/login_screenotp.dart';
 import '../flavors.dart';
 import '../utils/Theme/smart_comm_theme.dart';
 import '../utils/Theme/oro_theme.dart';
+import '../utils/network_utils.dart';
 import '../utils/routes.dart';
 import '../utils/shared_preferences_helper.dart';
 import '../views/common/login/login_screen.dart';
@@ -27,10 +28,11 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    if(!kIsWeb){
+     if(!kIsWeb){
       NotificationServiceCall().initialize();
       NotificationServiceCall().configureFirebaseMessaging();
-    }
+
+     }
   }
 
   /// Decide the initial route based on whether a token exists
@@ -81,9 +83,11 @@ class _MyAppState extends State<MyApp> {
 
 /// Helper function to navigate to the appropriate screen
 Widget navigateToInitialScreen(String route) {
+  final isOro = F.appFlavor!.name.contains('oro');
+
   switch (route) {
     case Routes.login:
-      return kIsWeb ? const LoginScreen() : LoginScreenOTP();
+      return kIsWeb ? const LoginScreen() : isOro ? LoginScreenOTP() : const LoginScreen();
     case Routes.dashboard:
       return const ScreenController();
     default:
