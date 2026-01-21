@@ -56,7 +56,7 @@ class IrrigationLineNarrow extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        const itemWidth = 70.0;
+        const itemWidth = 65.0;
         const rowHeight = 65.0;
 
         final columns =
@@ -75,25 +75,24 @@ class IrrigationLineNarrow extends StatelessWidget {
               height: rows * gridItemHeight,
               child: Stack(
                 children: [
-                  Positioned(
-                    top: 0,
-                    left: 0,
+                   Positioned(
+                    top: 3,
+                    left: 5,
                     right: 0,
                     child: Column(
                       children: [
-                        Divider(height: 0,)
+                        Divider(height: 5, color: Colors.grey.shade200, thickness: 3)
                       ],
                     ),
                   ),
-                  // horizontal row lines
                   for (int r = 1; r < rows; r++)
                     Positioned(
-                      top: r * gridItemHeight - 1,
-                      left: 0,
+                      top: r * gridItemHeight + 3,
+                      left: 5,
                       right: 0,
                       child: Column(
                         children: [
-                          Divider(height: 0,)
+                          Divider(height: 5, color: Colors.grey.shade200, thickness: 3)
                         ],
                       ),
                     ),
