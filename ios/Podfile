@@ -1,4 +1,4 @@
-
+ 
   # Specify the minimum iOS version (required for google_maps_flutter_ios)
 platform :ios, '15.0'
 
@@ -55,3 +55,6 @@ post_install do |installer|
     end
   end
 end
+
+
+ 

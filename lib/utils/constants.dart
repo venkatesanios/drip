@@ -90,11 +90,6 @@ class AppConstants {
   static const String boosterPumpNotON = "dp_frt_booster_pump_y.png";
   static const String boosterPumpNotOFF = "dp_frt_booster_pump_r.png";
 
-  static const String mblBoosterPumpOFF = "m_dp_frt_booster_pump.png";
-  static const String mblBoosterPumpON = "m_dp_frt_booster_pump_g.gif";
-  static const String mblBoosterPumpNotON = "m_dp_frt_booster_pump_y.png";
-  static const String mblBoosterPumpNotOFF = "m_dp_frt_booster_pump_r.png";
-
   static const String soilMoistureSensor = "moisture_sensor.png";
   static const String pressureSensor = "pressure_sensor.png";
   static const String levelSensor = "level_sensor.png";
@@ -242,9 +237,6 @@ class AppConstants {
         break;
       case 'booster':
         imagePathFinal = _getBoosterImagePath(keyTwo);
-      case 'mobile booster':
-        imagePathFinal = _getMobileBoosterImagePath(keyTwo);
-        break;
       case 'sensor':
         imagePathFinal = _getSensorImagePath(keyThree);
         break;
@@ -384,26 +376,26 @@ class AppConstants {
     }
   }
 
-  static String getFertilizerImage(int cIndex, int status,
+  static String getFertilizerChannelImage(int cIndex, int status,
       int cheLength, List agitatorList, bool isMobile) {
 
     String imageName;
 
     if(cIndex == cheLength - 1){
       if(agitatorList.isNotEmpty){
-        imageName = isMobile ? 'm_dp_frt_channel_last_aj':'dp_frt_channel_last_aj';
+        imageName = 'dp_frt_channel_last_aj';
       }else{
-        imageName = isMobile ? 'm_dp_frt_channel_last':'dp_frt_channel_last';
+        imageName = 'dp_frt_channel_last';
       }
     }else{
       if(agitatorList.isNotEmpty){
         if(cIndex==0){
-          imageName = isMobile ? 'm_dp_frt_channel_first_aj':'dp_frt_channel_first_aj';
+          imageName = 'dp_frt_channel_first_aj';
         }else{
-          imageName = isMobile ? 'm_dp_frt_channel_center_aj':'dp_frt_channel_center_aj';
+          imageName = 'dp_frt_channel_center_aj';
         }
       }else{
-        imageName = isMobile ? 'm_dp_frt_channel_center':'dp_frt_channel_center';
+        imageName = 'dp_frt_channel_center';
       }
     }
 
@@ -427,7 +419,7 @@ class AppConstants {
         imageName += '.png';
     }
 
-    return isMobile ? 'assets/png/mobile/$imageName' : 'assets/png/$imageName';
+    return 'assets/png/$imageName';
 
   }
 
@@ -446,20 +438,6 @@ class AppConstants {
     }
   }
 
-  static String _getMobileBoosterImagePath(int status) {
-    switch (status) {
-      case 0:
-        return mblBoosterPumpOFF;
-      case 1:
-        return mblBoosterPumpON;
-      case 2:
-        return mblBoosterPumpNotON;
-      case 3:
-        return mblBoosterPumpNotOFF;
-      default:
-        return '';
-    }
-  }
 
   static String _getSensorImagePath(String type) {
     if (type.contains('SM')) {
