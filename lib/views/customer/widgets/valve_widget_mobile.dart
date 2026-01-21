@@ -69,8 +69,8 @@ class _ValveWidgetMobileState extends State<ValveWidgetMobile> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          SizedBox(width: 70, height: 65, child: _buildValveIcon(valve, hasMoisture)),
-          SizedBox(width: 70, height: 65, child: _buildWaterSource(valve)),
+          SizedBox(width: 65, height: 65, child: _buildValveIcon(valve, hasMoisture)),
+          SizedBox(width: 65, height: 65, child: _buildWaterSource(valve)),
         ],
       ),
     );
