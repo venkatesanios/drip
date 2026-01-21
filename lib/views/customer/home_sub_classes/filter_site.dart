@@ -206,11 +206,16 @@ class FilterWidget extends StatelessWidget {
                   ]
                 ],
               ),
-              Text(filter.name, style: const TextStyle(
-                color: Colors.black54,
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
-              ),
+              Text(
+                filter.name,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                softWrap: false,
+                style: const TextStyle(
+                  fontSize: 10,
+                  color: Colors.black54,
+                ),
               ),
             ],
           ),

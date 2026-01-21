@@ -39,6 +39,7 @@ class PumpStationMobile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
+
     final wsAndFilterItems = [
       if (inletWaterSources.isNotEmpty)
         ..._buildWaterSource(context, inletWaterSources, true, true),
@@ -61,6 +62,111 @@ class PumpStationMobile extends StatelessWidget {
     final fertilizerItemsLocal = lFertilizerSite.isNotEmpty
         ? _buildFertilizer(context, lFertilizerSite, isNova).cast<Widget>()
         : <Widget>[];
+
+    const double itemWidth = 70;
+    const double itemHeight = 90;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final int itemsPerRow = (constraints.maxWidth / itemWidth)
+            .floor().clamp(1, wsAndFilterItems.length);
+        final int rowCount = (wsAndFilterItems.length / itemsPerRow).ceil();
+
+        return Column(
+          children: [
+            for (int row = 0; row < rowCount; row++)
+              SizedBox(
+                height: itemHeight,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    for (int i = 0; i < itemsPerRow; i++)
+                      if (row * itemsPerRow + i < wsAndFilterItems.length)
+                        wsAndFilterItems[
+                        row == 0
+                            ? row * itemsPerRow + (itemsPerRow - 1 - i).
+                        clamp(0, wsAndFilterItems.length - 1)
+                            : row * itemsPerRow + i
+                        ],
+                  ],
+                ),
+              ),
+
+            if (cFertilizerSite.isNotEmpty)
+              SizedBox(
+                width: double.infinity,
+                height: 125,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: IntrinsicWidth(
+                    child: Align(
+                      alignment: Alignment.topRight,
+                      child: Wrap(
+                        alignment: WrapAlignment.end,
+                        spacing: 0,
+                        runSpacing: 0,
+                        children: fertilizerItemsCentral,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
+    );
+
+
+    final screenWidth = MediaQuery.of(context).size.width;
+    //const double itemWidth = 70;
+    //const double itemHeight = 100; // height of each item
+    final int totalItems = wsAndFilterItems.length;
+
+// How many items can fit in one row horizontally
+    final int itemsPerRow = screenWidth ~/ itemWidth;
+
+// Number of rows needed to display all items
+    final int rowCount = (totalItems / itemsPerRow).ceil();
+
+    return SizedBox(
+      width: double.infinity,
+      height: rowCount * itemHeight, // grid height grows based on rows
+      child: GridView.builder(
+        scrollDirection: Axis.horizontal,
+        physics: const AlwaysScrollableScrollPhysics(),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: rowCount,   // number of rows (vertical)
+          mainAxisExtent: itemWidth,   // width of each item
+          mainAxisSpacing: 0,
+          crossAxisSpacing: 0,
+        ),
+        itemCount: wsAndFilterItems.length,
+        itemBuilder: (context, index) {
+          return wsAndFilterItems[index]; // just use the list order
+        },
+      ),
+    );
+
+
+    return SizedBox(
+      width: double.infinity,
+      height: 100,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        reverse: false,
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Align(
+          alignment: Alignment.topLeft,
+          child: Wrap(
+            alignment: WrapAlignment.start,
+            spacing: 0,
+            runSpacing: 0,
+            children: wsAndFilterItems.reversed.toList(),
+          ),
+        ),
+      ),
+    );
 
     if (cFertilizerSite.isEmpty && lFertilizerSite.isNotEmpty) {
       return SizedBox(
@@ -88,7 +194,20 @@ class PumpStationMobile extends StatelessWidget {
     } else {
       return Column(
         children: [
-          SizedBox(
+
+          IntrinsicWidth(
+            child: Align(
+              alignment: Alignment.topRight,
+              child: Wrap(
+                alignment: WrapAlignment.end,
+                spacing: 0,
+                runSpacing: 0,
+                children: wsAndFilterItems,
+              ),
+            ),
+          ),
+
+          /*SizedBox(
             width: double.infinity,
             height: 100,
             child: SingleChildScrollView(
@@ -107,7 +226,8 @@ class PumpStationMobile extends StatelessWidget {
                 ),
               ),
             ),
-          ),
+          ),*/
+
 
           if (cFertilizerSite.isNotEmpty)
             SizedBox(
@@ -223,11 +343,12 @@ class PumpStationMobile extends StatelessWidget {
         }
       }
 
-      widgets.addAll(channelWidgets.reversed);
       widgets.add(BoosterWidget(
         fertilizerSite: site,
         isMobile: true,
       ));
+      widgets.addAll(channelWidgets);
+
 
       return SingleChildScrollView(
         scrollDirection: Axis.horizontal,
