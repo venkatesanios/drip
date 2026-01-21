@@ -68,6 +68,7 @@ class IrrigationLineNarrow extends StatelessWidget {
             gridItemWidth / (itemWidth / rowHeight);
 
         return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (baseSensors.isNotEmpty) ...baseSensors,
             SizedBox(
