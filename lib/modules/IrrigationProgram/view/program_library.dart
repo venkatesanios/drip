@@ -100,7 +100,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
       if (getUserDayCountRtcResult.statusCode == 200) {
         final responseJson = getUserDayCountRtcResult.body;
         final convertedJson = jsonDecode(responseJson);
-        // print("convertedJson ::: $convertedJson");
+        print("convertedJson ::: $convertedJson");
         if(convertedJson['data']['dayCountRtc'] != null) {
           setState(() {
             dayCountRtcModel = DayCountRtcModel.fromJson(convertedJson['data']['dayCountRtc']);
