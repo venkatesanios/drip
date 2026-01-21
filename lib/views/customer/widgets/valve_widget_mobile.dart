@@ -125,8 +125,8 @@ class _ValveWidgetMobileState extends State<ValveWidgetMobile> {
   Widget _buildMoistureButton(ValveModel valve) {
 
     return Positioned(
-      top: 12,
-      left: 40,
+      top: 2,
+      left: 38,
       child: TextButton(
         onPressed: () async {
 
