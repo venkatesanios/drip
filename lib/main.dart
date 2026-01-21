@@ -49,7 +49,7 @@ Future<void> requestAppPermissions() async {
 
   // Notifications (iOS + Android 13+)
   final notifStatus = await Permission.notification.request();
-  debugPrint("Notification permission: $notifStatus");
+  debugPrint("Notification permission status: $notifStatus");
 
   if (Platform.isAndroid) {
     final statuses = await [
