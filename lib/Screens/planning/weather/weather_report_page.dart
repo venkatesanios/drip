@@ -50,22 +50,16 @@ class _SensorHourlyReportPageState extends State<SensorHourlyReportPage> {
         "fromDate": selectedDate,
         "toDate": selectedDate,
       });
-      print(response.body);
-      final model = weatherReportModelFromJson(response.body);
-      print(model);
+       final model = weatherReportModelFromJson(response.body);
 
       if (model.data.isEmpty) {
-        print("isEmpty");
 
         setState(() => isLoading = false);
         return;
       }
 
       final datum = model.data.first;
-      print("datum:$datum");
-      print("datum-11 :${model.data[0].the1100}");
-      print("datum:${datum.the0000.toString()}");
-      print("datum:${datum.the1000.toString()}");
+
 
 
       final Map<String, String> hours = {
@@ -94,23 +88,20 @@ class _SensorHourlyReportPageState extends State<SensorHourlyReportPage> {
         "23:00": datum.the2300,
         "00:00": datum.the0000,
       };
-      print("hours:$hours");
-      final List<SensorHourReport> temp = [];
+       final List<SensorHourReport> temp = [];
 
       hours.forEach((hour, raw) {
-        final data = parseSensorRecord(
+        final data = parseSensorHourData(
           hour: hour,
           raw: raw,
-          targetDevice: widget.deviceSrNo,
+          deviceSrNo: widget.deviceSrNo,
           targetSensor: widget.sensorSrNo,
         );
-        print("data:$data");
-        if (data != null) temp.add(data);
+         if (data != null) temp.add(data);
       });
 
       setState(() {
-        print("temp:$temp");
-        report = temp;
+         report = temp;
         isLoading = false;
       });
     } catch (e) {
@@ -137,14 +128,12 @@ class _SensorHourlyReportPageState extends State<SensorHourlyReportPage> {
     }
   }
 
-  // ------------------ UI ------------------
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.green.shade700,
-        title: Column(
+         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('${widget.sensorName} Hourly Report'),
@@ -166,39 +155,48 @@ class _SensorHourlyReportPageState extends State<SensorHourlyReportPage> {
           : report.isEmpty
           ? const Center(child: Text('No data available'))
           : SingleChildScrollView(
-         child: DataTable(
-          headingRowColor: MaterialStateProperty.all(
-              Colors.green.shade50),
-          columns: const [
-            DataColumn(label: Text('Hour')),
-            DataColumn(label: Text('Value')),
-            DataColumn(label: Text('Min')),
-            DataColumn(label: Text('Max')),
-            DataColumn(label: Text('Avg')),
-            DataColumn(label: Text('Error')),
-          ],
-          rows: report.map((r) {
-            return DataRow(cells: [
-              DataCell(Text(r.hour)),
-              DataCell(Text(r.value)),
-              DataCell(Text(r.minValue)),
-              DataCell(Text(r.maxValue)),
-              DataCell(Text(r.averageValue)),
-              DataCell(
-                Text(
-                  r.errorCode,
-                  style: TextStyle(
-                    color: r.errorCode == '255'
-                        ? Colors.green
-                        : Colors.red,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+        scrollDirection: Axis.horizontal, // ⬅️ horizontal
+        child: SingleChildScrollView(
+          scrollDirection: Axis.vertical, // ⬅️ vertical
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: DataTable(
+              headingRowColor: MaterialStateProperty.all(
+                Colors.green.shade50,
               ),
-            ]);
-          }).toList(),
+              columns: const [
+                DataColumn(label: Text('Hour')),
+                DataColumn(label: Text('Value')),
+                DataColumn(label: Text('Min')),
+                DataColumn(label: Text('Max')),
+                DataColumn(label: Text('Avg')),
+                DataColumn(label: Text('Error')),
+              ],
+              rows: report.map((r) {
+                return DataRow(cells: [
+                  DataCell(Text(r.hour)),
+                  DataCell(Text(r.value)),
+                  DataCell(Text(r.minValue)),
+                  DataCell(Text(r.maxValue)),
+                  DataCell(Text(r.averageValue)),
+                  DataCell(
+                    Text(
+                      r.errorCode,
+                      style: TextStyle(
+                        color: r.errorCode == '255'
+                            ? Colors.green
+                            : Colors.red,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ]);
+              }).toList(),
+            ),
+          ),
         ),
       ),
+
     );
   }
 }

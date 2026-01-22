@@ -62,10 +62,12 @@ List<WeatherLiveUIModel> parseWeatherLive(
 
       result.add(
         WeatherLiveUIModel(
+          devicesno: device.serialNumber,
           deviceName: device.deviceName,
           irrigationLine: commonIrrigationLine,
           objectName: config.name,
           sensorType: config.objectName,
+          sensorSno: config.sNo,
           value: sensorValue,
           errorCode: errorCode,
           minValue: values[3],
