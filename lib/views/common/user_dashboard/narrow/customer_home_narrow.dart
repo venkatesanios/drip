@@ -108,58 +108,16 @@ class CustomerHomeNarrow extends StatelessWidget {
                       customerId, cM.controllerId),
                 ];
 
-                final result = calculateLinePositions(
-                  hasCFertilizer: cFertilizerSite.isNotEmpty,
-                  hasLFertilizer: lFertilizerSite.isNotEmpty,
-                  hasPressureSwitch: prsSwitch.isNotEmpty,
-                  hasPressureIN: line.pressureIn.isNotEmpty,
-                  hasWaterMeter: line.waterMeter.isNotEmpty,
-                  hasPressureOUT: line.pressureOut.isNotEmpty,
-                  isNova: isNova,
-                );
-
-                final linePositions = result.positions;
-                final startPosition = result.startPosition;
-
-                int valveCount = line.valveObjects.length + line.mainValveObjects.length
-                    + line.lightObjects.length;
-
-                for (final valve in line.valveObjects) {
-                  valveCount += (valve.waterSources.length);
-                }
-
-                final vp = calculateValveLinePositions(
-                  screenWidth: MediaQuery.sizeOf(context).width,
-                  valveLength: valveCount,
-                );
-
                 return Padding(
                   padding: const EdgeInsets.all(5),
                   child: Stack(
                     children: [
                       Positioned(
-                        top: 4,
-                        right: 3,
-                        bottom: 62,
-                        child: Container(width: 4.5, color: Colors.blueGrey.shade100),
+                        top: !isNova ? 49 : 4,
+                        left: 2,
+                        bottom: 72,
+                        child: Container(width: 4, color: Colors.grey.shade300),
                       ),
-
-                      buildConnectionLine(context, 5),
-
-
-                      if (linePositions.isNotEmpty) ...[
-                        for (double p in linePositions)
-                          buildConnectionLine(context, p),
-                      ],
-
-                      if (vp.isNotEmpty) ...[
-                        for (double p in vp)
-                          if(isNova && (cFertilizerSite.isNotEmpty || lFertilizerSite.isNotEmpty) && vp.length==1)...[
-                            buildLineConnection(context, p + startPosition - 40),
-                          ]else...[
-                            buildLineConnection(context, p + startPosition),
-                          ]
-                      ],
 
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -168,6 +126,45 @@ class CustomerHomeNarrow extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                if (!isNova) ...[
+                                  Container(
+                                    width: MediaQuery.sizeOf(context).width,
+                                    color: Colors.grey.shade200,
+                                    height: 45,
+                                    child: Row(
+                                      children: [
+                                        const SizedBox(width: 16),
+                                        Text(
+                                          line.name,
+                                          textAlign: TextAlign.left,
+                                          style: const TextStyle(
+                                              color: Colors.black54,
+                                              fontSize: 17,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        if (hasLinePP) ...[
+                                          const Spacer(),
+                                          SizedBox(
+                                            height: 35,
+                                            child: MyMaterialButton(
+                                              buttonId: 'line_${line.sNo}_4900',
+                                              label: line.linePauseFlag == 0 ? 'Pause the line' : 'Resume the line',
+                                              payloadKey: "4900",
+                                              payloadValue: "${line.sNo},${line.linePauseFlag == 0 ? 1 : 0}",
+                                              color: line.linePauseFlag == 0 ? Colors.orangeAccent : Colors.green,
+                                              textColor: Colors.white,
+                                              serverMsg: line.linePauseFlag == 0
+                                                  ? 'Paused the ${line.name}'
+                                                  : 'Resumed the ${line.name}',
+                                              blink: line.linePauseFlag != 0,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 5)
+                                        ]
+                                      ],
+                                    ),
+                                  ),
+                                ],
                                 Padding(
                                   padding: const EdgeInsets.only(left: 5, top: 3, bottom: 3),
                                   child: PumpStationMobile(
@@ -186,7 +183,7 @@ class CustomerHomeNarrow extends StatelessWidget {
                                 ),
                                 if (prsSwitch.isNotEmpty) ...[
                                   Padding(
-                                    padding: const EdgeInsets.only(left: 5,top: 5, bottom: 5),
+                                    padding: const EdgeInsets.only(right: 5, top: 5, bottom: 5),
                                     child: Wrap(
                                       alignment: WrapAlignment.start,
                                       spacing: 0,
@@ -195,65 +192,23 @@ class CustomerHomeNarrow extends StatelessWidget {
                                     ),
                                   ),
                                 ],
-                                Column(
-                                  children: [
-                                    if (!isNova) ...[
-                                      SizedBox(
-                                        width: MediaQuery.sizeOf(context).width,
-                                        height: 45,
-                                        child: Row(
-                                          children: [
-                                            const SizedBox(width: 16),
-                                            Text(
-                                              line.name,
-                                              textAlign: TextAlign.left,
-                                              style: const TextStyle(
-                                                  color: Colors.black54,
-                                                  fontSize: 17,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                            if (hasLinePP) ...[
-                                              const Spacer(),
-                                              SizedBox(
-                                                height: 35,
-                                                child: MyMaterialButton(
-                                                  buttonId: 'line_${line.sNo}_4900',
-                                                  label: line.linePauseFlag == 0 ? 'Pause the line' : 'Resume the line',
-                                                  payloadKey: "4900",
-                                                  payloadValue: "${line.sNo},${line.linePauseFlag == 0 ? 1 : 0}",
-                                                  color: line.linePauseFlag == 0 ? Colors.orangeAccent : Colors.green,
-                                                  textColor: Colors.white,
-                                                  serverMsg: line.linePauseFlag == 0
-                                                      ? 'Paused the ${line.name}'
-                                                      : 'Resumed the ${line.name}',
-                                                  blink: line.linePauseFlag != 0,
-                                                ),
-                                              ),
-                                              const SizedBox(width: 5)
-                                            ]
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                    IrrigationLineNarrow(
-                                      valves: line.valveObjects,
-                                      mainValves: line.mainValveObjects,
-                                      lights:line.lightObjects,
-                                      gates:line.gateObjects,
-                                      pressureIn: line.pressureIn,
-                                      pressureOut: line.pressureOut,
-                                      waterMeter: line.waterMeter,
-                                      customerId: customerId,
-                                      controllerId: cM.controllerId,
-                                      deviceId: cM.deviceId,
-                                      modelId: cM.modelId,
-                                    ),
-                                  ],
+                                IrrigationLineNarrow(
+                                  valves: line.valveObjects,
+                                  mainValves: line.mainValveObjects,
+                                  lights:line.lightObjects,
+                                  gates:line.gateObjects,
+                                  pressureIn: line.pressureIn,
+                                  pressureOut: line.pressureOut,
+                                  waterMeter: line.waterMeter,
+                                  customerId: customerId,
+                                  controllerId: cM.controllerId,
+                                  deviceId: cM.deviceId,
+                                  modelId: cM.modelId,
                                 ),
+                                const SizedBox(height: 10),
                               ],
                             ),
                           ),
-                          Container(width: 10),
                         ],
                       ),
                     ],
@@ -314,232 +269,6 @@ class CustomerHomeNarrow extends StatelessWidget {
     );
   }
 
-  LinePositionResult calculateLinePositions({
-    required bool hasCFertilizer,
-    required bool hasLFertilizer,
-    required bool hasPressureSwitch,
-    required bool hasPressureIN,
-    required bool hasWaterMeter,
-    required bool hasPressureOUT,
-    required bool isNova,
-  }) {
-    List<double> p = [];
-    double startPos = 0;
-
-    bool hasAnyFertilizer = hasCFertilizer || hasLFertilizer;
-    bool hasBothFertilizers = hasCFertilizer && hasLFertilizer;
-
-    if (isNova) {
-      if (hasAnyFertilizer && hasPressureIN && hasWaterMeter) {
-        p = [195, 235];
-        startPos = 200;
-      }else if (hasAnyFertilizer && !hasPressureIN && hasWaterMeter) {
-        p = [250];
-        startPos = 275;
-      }else if (hasAnyFertilizer && !hasPressureIN && !hasWaterMeter) {
-        p = [215];
-        startPos = 275;
-      } else if (!hasAnyFertilizer && hasPressureIN && hasWaterMeter) {
-        p = [195, 235];
-        startPos = 195;
-      }else if (!hasAnyFertilizer && hasPressureIN && !hasWaterMeter) {
-        p = [125];
-        startPos = 150;
-      } else if (!hasPressureIN && hasWaterMeter) {
-        p = [125];
-        startPos = 125;
-      }else{
-        p = [4];
-        startPos = 110;
-      }
-    } else {
-      if (hasBothFertilizers && hasPressureSwitch && hasPressureIN
-          && hasWaterMeter && !hasPressureOUT) {
-        p = [215, 340, 380, 470, 510];
-        startPos = 532;
-      }
-      else if (hasBothFertilizers && hasPressureSwitch && hasPressureIN && !hasWaterMeter) {
-        p = [215, 340, 380, 470];
-        startPos = 495;
-      }
-      else if (hasBothFertilizers && hasPressureSwitch && !hasPressureIN && !hasWaterMeter) {
-        p = [215, 340, 380];
-        startPos = 452;
-      }
-      else if (hasBothFertilizers && !hasPressureSwitch && hasPressureIN
-          && hasWaterMeter && !hasPressureOUT) {
-        p = [215, 340, 420, 460];
-        startPos = 485;
-      }
-      else if (hasBothFertilizers && !hasPressureSwitch && hasPressureIN
-          && hasWaterMeter&& hasPressureOUT) {
-        p = [215, 340, 420, 460, 500];
-        startPos = 525;
-      }
-      else if (hasBothFertilizers && !hasPressureSwitch && !hasPressureIN
-          && !hasWaterMeter && !hasPressureOUT) {
-        p = [215, 340];
-        startPos = 405;
-      }
-
-      else if (hasAnyFertilizer && hasPressureSwitch && hasPressureIN
-          && hasPressureOUT && hasWaterMeter) {
-        p = [215, 255, 345, 385, 425];
-        startPos = 450;
-      }
-      else if (hasAnyFertilizer && !hasPressureSwitch && hasPressureIN
-          && hasPressureOUT && hasWaterMeter) {
-        p = [215, 295, 335, 375];
-        startPos = 400;
-      }
-      else if (hasAnyFertilizer && !hasPressureSwitch && hasPressureIN
-          && !hasPressureOUT && hasWaterMeter) {
-        p = [215, 294, 334];
-        startPos = 357;
-      }
-      else if (hasAnyFertilizer && !hasPressureSwitch && hasPressureIN
-          && !hasWaterMeter && !hasPressureOUT) {
-        p = [215, 295];
-        startPos = 320;
-      }
-      else if (hasAnyFertilizer && !hasPressureSwitch && !hasPressureIN
-          && hasWaterMeter && !hasPressureOUT) {
-        p = [295];
-        startPos = 320;
-      }
-      else if (hasAnyFertilizer && !hasPressureSwitch && !hasPressureIN
-          && !hasWaterMeter&& !hasPressureOUT) {
-        p = [215];
-        startPos = 280;
-      }
-      else if (hasAnyFertilizer && hasPressureSwitch && !hasPressureIN
-          && !hasWaterMeter && !hasPressureOUT) {
-        p = [215, 255];
-        startPos = 330;
-      }
-      else if (hasAnyFertilizer && !hasPressureSwitch && !hasPressureIN
-          && hasWaterMeter && hasPressureOUT) {
-        p = [295, 335];
-        startPos = 360;
-      }
-      else if (hasAnyFertilizer && hasPressureSwitch && !hasPressureIN
-          && !hasWaterMeter && hasPressureOUT) {
-        p = [255, 345];
-        startPos = 370;
-      }
-      else if (hasAnyFertilizer && !hasPressureSwitch && hasPressureIN
-          && !hasWaterMeter && hasPressureOUT) {
-        p = [295, 335];
-        startPos = 360;
-      }
-
-
-      else if (!hasAnyFertilizer && hasPressureSwitch &&
-          hasPressureIN && !hasWaterMeter && hasPressureOUT) {
-        p = [130, 220, 260];
-        startPos = 285;
-      }
-      else if (!hasAnyFertilizer && hasPressureSwitch &&
-          hasPressureIN && hasWaterMeter && hasPressureOUT) {
-        p = [130, 220, 260, 300];
-        startPos = 325;
-      }
-      else if (!hasAnyFertilizer && hasPressureSwitch &&
-          hasPressureIN && !hasPressureOUT && !hasWaterMeter) {
-        p = [130, 220];
-        startPos = 245;
-      }
-      else if (!hasAnyFertilizer && hasPressureSwitch &&
-          !hasPressureIN && hasPressureOUT && !hasWaterMeter) {
-        p = [130, 220];
-        startPos = 245;
-      }
-      else if (!hasAnyFertilizer && !hasPressureSwitch && hasPressureIN
-          && hasWaterMeter && hasPressureOUT) {
-        p = [170, 210, 250];
-        startPos = 275;
-      }
-      else if (!hasAnyFertilizer && !hasPressureSwitch && hasPressureIN
-          && hasWaterMeter && !hasPressureOUT) {
-        p = [170, 209];
-        startPos = 232;
-      }
-      else if (!hasAnyFertilizer && !hasPressureSwitch && hasPressureIN
-          && !hasWaterMeter && !hasPressureOUT) {
-        p = [170];
-        startPos = 195;
-      }
-      else if (!hasAnyFertilizer && hasPressureSwitch && !hasPressureIN
-          && !hasWaterMeter && !hasPressureOUT) {
-        p = [130];
-        startPos = 205;
-      }
-      else if (!hasAnyFertilizer && !hasPressureSwitch && !hasPressureIN
-          && !hasWaterMeter && hasPressureOUT) {
-        p = [170];
-        startPos = 195;
-      }
-      else if (!hasAnyFertilizer && !hasPressureSwitch && !hasPressureIN
-          && hasWaterMeter && !hasPressureOUT) {
-        p = [170];
-        startPos = 195;
-      }
-      else if (!hasAnyFertilizer && !hasPressureSwitch && !hasPressureIN
-          && !hasWaterMeter && !hasPressureOUT) {
-        p = [];
-        startPos = 155;
-      }
-
-      else {
-        p = [];
-        startPos = 152;
-      }
-    }
-
-    p.sort();
-
-    return LinePositionResult(p, startPos);
-  }
-
-  List<double> calculateValveLinePositions({
-    required double screenWidth,
-    required int valveLength,
-  }) {
-    const double valveWidth = 100;
-    const double rowHeight = 70;
-
-    int perRow = screenWidth ~/ valveWidth;
-    if (perRow < 1) perRow = 1;
-
-    int totalRows = (valveLength / perRow).ceil();
-
-    return List.generate(totalRows, (i) => i * rowHeight);
-  }
-
-
-  Widget buildConnectionLine(BuildContext context, double top) {
-    return Positioned(
-      top : top,
-      left: MediaQuery.sizeOf(context).width - 38,
-      right: 7,
-      child: Container(
-        height: 3,
-        color: Colors.blueGrey.shade100,
-      ),
-    );
-  }
-
-  Widget buildLineConnection(BuildContext context, double top) {
-    return Positioned(
-      top : top,
-      left: 33,
-      right: 7,
-      child: Container(
-        height: 3.0,
-        color: Colors.blueGrey.shade50,
-      ),
-    );
-  }
 
   List<Widget> _buildSensorItems(List<SensorModel> sensors, String type, String imagePath, bool isAvailFertilizer,
       int customerId, int controllerId) {

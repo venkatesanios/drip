@@ -73,7 +73,10 @@ FutureOr<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   tz.initializeTimeZones();
-  await NetworkUtils.initialize();
+
+
+    await NetworkUtils.initialize();
+
 
   // Request runtime permissions before providers start
   if (!kIsWeb && Platform.isAndroid) {

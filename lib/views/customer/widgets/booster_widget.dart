@@ -37,19 +37,11 @@ class BoosterWidget extends StatelessWidget {
                 height: 119,
                 child : Stack(
                   children: [
-                    if(isMobile)...[
-                      Transform(
-                        alignment: Alignment.center,
-                        transform: Matrix4.rotationY(math.pi),
-                        child: AppConstants.getAsset('mobile booster', fertilizerSite.boosterPump[0].status,''),
-                      ),
-                    ]else...[
-                      AppConstants.getAsset('booster', fertilizerSite.boosterPump[0].status,''),
-                    ],
+                    AppConstants.getAsset('booster', fertilizerSite.boosterPump[0].status,''),
 
                     Positioned(
                       top: 85,
-                      left: isMobile ? 0 : 18,
+                      left: 18,
                       child: fertilizerSite.selector.isNotEmpty ? Container(
                         decoration: BoxDecoration(
                           color: fertilizerSite.selector[0].status == 0? Colors.grey.shade300:
@@ -71,7 +63,7 @@ class BoosterWidget extends StatelessWidget {
                     ),
                     Positioned(
                       top: 50,
-                      left: isMobile ? 0 : 18,
+                      left: 18,
                       child: fertilizerSite.ec!.isNotEmpty ?
                       Selector<MqttPayloadProvider, String?>(
                         selector: (_, provider) => provider.getSensorUpdatedValve(fertilizerSite.ec![0].sNo.toString()),
@@ -104,7 +96,7 @@ class BoosterWidget extends StatelessWidget {
                     ),
                     Positioned(
                       top: 63,
-                      left: isMobile ? 0 : 18,
+                      left: 18,
                       child: fertilizerSite.ph!.isNotEmpty ? Selector<MqttPayloadProvider, String?>(
                         selector: (_, provider) => provider.getSensorUpdatedValve(fertilizerSite.ph![0].sNo.toString()),
                         builder: (_, status, __) {

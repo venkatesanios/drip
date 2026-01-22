@@ -22,7 +22,6 @@ class SensorHourlyLogsVm extends ChangeNotifier {
     sensorsBySNo.clear();
     date = DateFormat('yyyy-MM-dd').format(selectedDate);
 
-
     Map<String, Object> body = {
       "userId": customerId,
       "controllerId": controllerId,
@@ -58,7 +57,6 @@ class SensorHourlyLogsVm extends ChangeNotifier {
 
                   String sensorName = matchedNode.name;
                   String objectName = matchedNode.objectName;
-
 
                   final sensorData = SensorHourlyData(
                     sNo: sNo,

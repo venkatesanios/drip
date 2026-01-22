@@ -1,5 +1,3 @@
-
-
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -383,7 +381,7 @@ class RightDashboardPanel extends StatelessWidget {
           runSpacing: 12,
           children: [
             SizedBox(
-              width: 300,
+              width: kIsWeb ? 300 : MediaQuery.of(context).size.width - 20,
               height: 180,
               child: WindCard(
                 windSpeed: windSpeed != null
@@ -399,7 +397,7 @@ class RightDashboardPanel extends StatelessWidget {
               ),
             ),
             SizedBox(
-              width: 250,
+              width: kIsWeb ? 250 : MediaQuery.of(context).size.width - 20,
               height: 180,
               child: CO2Card(
                 co2Value: int.tryParse(co2?.value ?? '0') ?? 0,
@@ -410,7 +408,7 @@ class RightDashboardPanel extends StatelessWidget {
               ),
             ),
             SizedBox(
-              width: 250,
+              width: kIsWeb ? 250 : MediaQuery.of(context).size.width - 20,
               height: 180,
               child: RainfallCard(
                 rainfallValue: rain != null

@@ -6,6 +6,7 @@ import '../../../models/customer/site_model.dart';
 import '../../../utils/constants.dart';
 import '../../../utils/my_function.dart';
 import 'float_switch_popover.dart';
+import 'dart:math';
 
 class SourceColumnWidget extends StatelessWidget {
   final WaterSourceModel source;
@@ -58,7 +59,17 @@ class SourceColumnWidget extends StatelessWidget {
             child: Stack(
               children: [
                 Positioned.fill(
-                  child: AppConstants.getAsset(isMobile ? 'mobile source' : 'source', source.sourceType, position),
+                  child: Transform(
+                    alignment: Alignment.center,
+                    transform: isMobile
+                        ? Matrix4.rotationY(pi)
+                        : Matrix4.identity(),
+                    child: AppConstants.getAsset(
+                      isMobile ? 'mobile source' : 'source',
+                      source.sourceType,
+                      position,
+                    ),
+                  ),
                 ),
                 if (hasLevel) ..._buildLevelWidgets(context),
                 if (hasFloatSwitch) FloatSwitchPopover(source: source,
@@ -66,7 +77,17 @@ class SourceColumnWidget extends StatelessWidget {
               ],
             ),
           ),
-          Text(source.name, textAlign: TextAlign.center, style: const TextStyle(fontSize: 10, color: Colors.black54)),
+          Text(
+            source.name,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            softWrap: false,
+            style: const TextStyle(
+              fontSize: 10,
+              color: Colors.black54,
+            ),
+          ),
         ],
       ),
     );
