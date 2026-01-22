@@ -1,3 +1,4 @@
+import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -154,46 +155,48 @@ class _SensorHourlyReportPageState extends State<SensorHourlyReportPage> {
           ? const Center(child: CircularProgressIndicator())
           : report.isEmpty
           ? const Center(child: Text('No data available'))
-          : SingleChildScrollView(
-        scrollDirection: Axis.horizontal, // ⬅️ horizontal
-        child: SingleChildScrollView(
-          scrollDirection: Axis.vertical, // ⬅️ vertical
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: DataTable(
-              headingRowColor: MaterialStateProperty.all(
-                Colors.green.shade50,
-              ),
-              columns: const [
-                DataColumn(label: Text('Hour')),
-                DataColumn(label: Text('Value')),
-                DataColumn(label: Text('Min')),
-                DataColumn(label: Text('Max')),
-                DataColumn(label: Text('Avg')),
-                DataColumn(label: Text('Error')),
-              ],
-              rows: report.map((r) {
-                return DataRow(cells: [
-                  DataCell(Text(r.hour)),
-                  DataCell(Text(r.value)),
-                  DataCell(Text(r.minValue)),
-                  DataCell(Text(r.maxValue)),
-                  DataCell(Text(r.averageValue)),
-                  DataCell(
-                    Text(
-                      r.errorCode,
-                      style: TextStyle(
-                        color: r.errorCode == '255'
-                            ? Colors.green
-                            : Colors.red,
-                        fontWeight: FontWeight.bold,
+          : Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            const SizedBox(height: 8),
+            Expanded( // ✅ REQUIRED
+              child: DataTable2(
+                minWidth: 700,
+                headingRowColor: MaterialStateProperty.all(
+                  Colors.green.shade100,
+                ),
+                columns: const [
+                  DataColumn2(label: Text('Hour',style: TextStyle(fontWeight: FontWeight.bold),), fixedWidth: 80,),
+                  DataColumn2(label: Text('Value',style: TextStyle(fontWeight: FontWeight.bold),)),
+                  DataColumn2(label: Text('Min',style: TextStyle(fontWeight: FontWeight.bold),)),
+                  DataColumn2(label: Text('Max',style: TextStyle(fontWeight: FontWeight.bold),)),
+                  DataColumn2(label: Text('Avg',style: TextStyle(fontWeight: FontWeight.bold),)),
+                  DataColumn2(label: Text('Error',style: TextStyle(fontWeight: FontWeight.bold),)),
+                ],
+                rows: report.map((r) {
+                  return DataRow(cells: [
+                    DataCell(Text(r.hour)),
+                    DataCell(Text(r.value)),
+                    DataCell(Text(r.minValue)),
+                    DataCell(Text(r.maxValue)),
+                    DataCell(Text(r.averageValue)),
+                    DataCell(
+                      Text(
+                        r.errorCode,
+                        style: TextStyle(
+                          color: r.errorCode == '255'
+                              ? Colors.green
+                              : Colors.red,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                  ),
-                ]);
-              }).toList(),
+                  ]);
+                }).toList(),
+              ),
             ),
-          ),
+          ],
         ),
       ),
 

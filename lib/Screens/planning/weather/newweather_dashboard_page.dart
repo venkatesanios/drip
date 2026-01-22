@@ -36,6 +36,7 @@ class WeatherDashboardPage extends StatefulWidget {
 class _WeatherDashboardPageState extends State<WeatherDashboardPage> {
   late WeatherJsonModel weatherModel;
 
+
   final MqttService manager = MqttService();
 
   List<WeatherLiveUIModel> uiData = [];
@@ -222,30 +223,33 @@ class _WeatherDashboardPageState extends State<WeatherDashboardPage> {
          child: gridSensors.isNotEmpty
              ? kIsWeb
               ? SingleChildScrollView(
-           child: Row(
-             crossAxisAlignment: CrossAxisAlignment.start,
-             children: [
-               LeftWeatherPanel(
-                 city: "Coimbatore",
-                 date: formattedtime,
-                 time: time,
-                 wind: windSpeed?.value ?? "0",
-                 temp: temp?.value ?? "0",
-                 humidity: hummitity?.value ?? "0",
-               ),
-               const SizedBox(width: 16),
-               Expanded(
-                 child: RightDashboardPanel(
-                   gridSensors: gridSensors,
-                   windSpeed: windSpeed,
-                   windDirection: windDirection,
-                   co2: co2,
-                   rain: rain,
-                   iconResolver: _icon,
-                   unitResolver: unit, userId: '${widget.userId}', deviceId: '${selectedSerialNumber}', controllerId: '${widget.controllerId}',
+           child: SizedBox(
+             height: MediaQuery.of(context).size.height,
+             child: Row(
+               crossAxisAlignment: CrossAxisAlignment.start,
+               children: [
+                 LeftWeatherPanel(
+                   city: "Coimbatore",
+                   date: formattedtime,
+                   time: time,
+                   wind: windSpeed?.value ?? "0",
+                   temp: temp?.value ?? "0",
+                   humidity: hummitity?.value ?? "0",
                  ),
-               ),
-             ],
+                 const SizedBox(width: 16),
+                 Expanded(
+                   child: RightDashboardPanel(
+                     gridSensors: gridSensors,
+                     windSpeed: windSpeed,
+                     windDirection: windDirection,
+                     co2: co2,
+                     rain: rain,
+                     iconResolver: _icon,
+                     unitResolver: unit, userId: '${widget.userId}', deviceId: '${selectedSerialNumber}', controllerId: '${widget.controllerId}',
+                   ),
+                 ),
+               ],
+             ),
            ),
          )
               : SingleChildScrollView(
@@ -359,132 +363,134 @@ class RightDashboardPanel extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-         Text("Sensors:"),
-        Wrap(
-          spacing: 5,
-          runSpacing: 5,
-          children: gridSensors.map((e) {
-            return GestureDetector(
-              onTap: (){
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => SensorHourlyReportPage(
-                      deviceSrNo: deviceId,
-                      sensorSrNo: e.sensorSno.toString(), sensorName: e.sensorType, userId: userId, controllerId: controllerId,
-                     ),
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+           Text("Sensors:"),
+          Wrap(
+            spacing: 5,
+            runSpacing: 5,
+            children: gridSensors.map((e) {
+              return GestureDetector(
+                onTap: (){
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => SensorHourlyReportPage(
+                        deviceSrNo: deviceId,
+                        sensorSrNo: e.sensorSno.toString(), sensorName: e.sensorType, userId: userId, controllerId: controllerId,
+                       ),
+                    ),
+                  );
+                },
+                child: SizedBox(
+                  width: kIsWeb ? 280 : MediaQuery.of(context).size.width - 20,
+                  height: 180,
+                  child: SensorTile(
+                    data: e,
+                    icon: iconResolver(e.sensorType),
+                    unit: unitResolver(e.sensorType),
                   ),
-                );
-              },
-              child: SizedBox(
-                width: kIsWeb ? 280 : MediaQuery.of(context).size.width - 20,
+                ),
+              );
+            }).toList(),
+          ),
+
+          const SizedBox(height: 24),
+
+          /// SPECIAL CARDS
+          gridSensors.isNotEmpty
+              ? Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: [
+              SizedBox(
+                width: kIsWeb ? 300 : MediaQuery.of(context).size.width - 20,
                 height: 180,
-                child: SensorTile(
-                  data: e,
-                  icon: iconResolver(e.sensorType),
-                  unit: unitResolver(e.sensorType),
-                ),
-              ),
-            );
-          }).toList(),
-        ),
-
-        const SizedBox(height: 24),
-
-        /// SPECIAL CARDS
-        gridSensors.isNotEmpty
-            ? Wrap(
-          spacing: 12,
-          runSpacing: 12,
-          children: [
-            SizedBox(
-              width: kIsWeb ? 300 : MediaQuery.of(context).size.width - 20,
-              height: 180,
-              child: GestureDetector(
-                onTap: (){
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => SensorHourlyReportPage(
-                        deviceSrNo: deviceId,
-                        sensorSrNo: '32.001', sensorName: 'Wind Speed Sensor', userId: userId, controllerId: controllerId,
+                child: GestureDetector(
+                  onTap: (){
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => SensorHourlyReportPage(
+                          deviceSrNo: deviceId,
+                          sensorSrNo: '32.001', sensorName: 'Wind Speed Sensor', userId: userId, controllerId: controllerId,
+                        ),
                       ),
-                    ),
-                  );
-                },
-                child: WindCard(
-                  windSpeed: windSpeed != null
-                      ? "${windSpeed!.value} ${unitResolver(windSpeed!.sensorType)}"
-                      : "--",
-                  gusts: "--",
-                  directionText: windDirection != null
-                      ? "${windDirection!.value}°"
-                      : "--",
-                  directionAngle: windDirection != null
-                      ? double.tryParse(windDirection!.value) ?? 0
-                      : 0,
+                    );
+                  },
+                  child: WindCard(
+                    windSpeed: windSpeed != null
+                        ? "${windSpeed!.value} ${unitResolver(windSpeed!.sensorType)}"
+                        : "--",
+                    gusts: "--",
+                    directionText: windDirection != null
+                        ? "${windDirection!.value}°"
+                        : "--",
+                    directionAngle: windDirection != null
+                        ? double.tryParse(windDirection!.value) ?? 0
+                        : 0,
+                  ),
                 ),
               ),
-            ),
-            SizedBox(
-              width: kIsWeb ? 250 : MediaQuery.of(context).size.width - 20,
-              height: 180,
-              child:GestureDetector(
-                onTap: (){
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => SensorHourlyReportPage(
-                        deviceSrNo: deviceId,
-                        sensorSrNo: '33.001', sensorName: 'Co2 Sensor', userId: userId, controllerId: controllerId,
+              SizedBox(
+                width: kIsWeb ? 250 : MediaQuery.of(context).size.width - 20,
+                height: 180,
+                child:GestureDetector(
+                  onTap: (){
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => SensorHourlyReportPage(
+                          deviceSrNo: deviceId,
+                          sensorSrNo: '33.001', sensorName: 'Co2 Sensor', userId: userId, controllerId: controllerId,
+                        ),
                       ),
-                    ),
-                  );
-                },
-                child: CO2Card(
-                  co2Value: int.tryParse(co2?.value ?? '0') ?? 0,
-                  message:
-                  (int.tryParse(co2?.value ?? '0') ?? 0) < 800
-                      ? "Air quality is great!\nPerfect for outdoor activities."
-                      : "High CO₂ detected.\nVentilation advised.",
+                    );
+                  },
+                  child: CO2Card(
+                    co2Value: int.tryParse(co2?.value ?? '0') ?? 0,
+                    message:
+                    (int.tryParse(co2?.value ?? '0') ?? 0) < 800
+                        ? "Air quality is great!\nPerfect for outdoor activities."
+                        : "High CO₂ detected.\nVentilation advised.",
+                  ),
                 ),
               ),
-            ),
-            SizedBox(
-              width: kIsWeb ? 250 : MediaQuery.of(context).size.width - 20,
-              height: 180,
-              child: GestureDetector(
-                onTap: (){
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => SensorHourlyReportPage(
-                        deviceSrNo: deviceId,
-                        sensorSrNo: '38.001', sensorName: 'Rain Fall Sensor', userId: userId, controllerId: controllerId,
+              SizedBox(
+                width: kIsWeb ? 250 : MediaQuery.of(context).size.width - 20,
+                height: 180,
+                child: GestureDetector(
+                  onTap: (){
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => SensorHourlyReportPage(
+                          deviceSrNo: deviceId,
+                          sensorSrNo: '38.001', sensorName: 'Rain Fall Sensor', userId: userId, controllerId: controllerId,
+                        ),
                       ),
-                    ),
-                  );
-                },
-                child: RainfallCard(
-                  rainfallValue: rain != null
-                      ? "${rain!.value} ${unitResolver(rain!.sensorType)}"
-                      : "--",
-                  forecastText: "Rain sensor reading",
-                  description: rain != null &&
-                      double.tryParse(rain!.value) != null &&
-                      double.parse(rain!.value) > 0
-                      ? "Light rain detected."
-                      : "No rainfall detected.",
+                    );
+                  },
+                  child: RainfallCard(
+                    rainfallValue: rain != null
+                        ? "${rain!.value} ${unitResolver(rain!.sensorType)}"
+                        : "--",
+                    forecastText: "Rain sensor reading",
+                    description: rain != null &&
+                        double.tryParse(rain!.value) != null &&
+                        double.parse(rain!.value) > 0
+                        ? "Light rain detected."
+                        : "No rainfall detected.",
+                  ),
                 ),
               ),
-            ),
-          ],
-        )
-            : const Center(child: Text("No Weather Data")),
-      ],
+            ],
+          )
+              : const Center(child: Text("No Weather Data")),
+        ],
+      ),
     );
   }
 }
