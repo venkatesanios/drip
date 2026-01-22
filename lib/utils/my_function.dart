@@ -62,20 +62,37 @@ class MyFunction {
     }
   }
 
-  String? getUnitValue(BuildContext context, String parameter, String value) {
-    MqttPayloadProvider payloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
+  double getChartValue(
+      BuildContext context,
+      String parameter,
+      double value,
+      ) {
+    final unit = getUnitValue(context, parameter, value.toString());
 
-    try {
-      Map<String, dynamic>? unitMap = payloadProvider.unitList.firstWhereOrNull(
-            (unit) => unit['parameter'] == parameter,
-      );
-      if (unitMap == null) return '';
-      return unitMap['value'];
-    } catch (e) {
-      print('Error: $e');
-      return 'Error: $e';
+    double result = value;
+
+    if (parameter == 'Level Sensor') {
+      if (unit == 'feet') {
+        result = convertMetersToFeet(value);
+      } else if (unit == 'inch') {
+        result = convertMetersToInches(value);
+      }
     }
+    else if (parameter == 'Pressure Sensor') {
+      if (unit == 'kPa') {
+        result = convertBarToKPa(value);
+      }
+    }
+    else if (parameter == 'Water Meter') {
+      if (unit == 'l/h') result = value * 3600;
+      if (unit == 'm3/h') result = value * 3.6;
+    }
+
+    return _round2(result);
   }
+
+  double _round2(double v) => (v * 100).roundToDouble() / 100;
+
 
   String getSensorUnit(String type, BuildContext context) {
     if(type.contains('Moisture')||type.contains('SM')){
@@ -107,6 +124,21 @@ class MyFunction {
       return 'Cubic Meters (m³)';
     }else{
       return 'Sensor value';
+    }
+  }
+
+  String? getUnitValue(BuildContext context, String parameter, String value) {
+    MqttPayloadProvider payloadProvider = Provider.of<MqttPayloadProvider>(context, listen: false);
+
+    try {
+      Map<String, dynamic>? unitMap = payloadProvider.unitList.firstWhereOrNull(
+            (unit) => unit['parameter'] == parameter,
+      );
+      if (unitMap == null) return '';
+      return unitMap['value'];
+    } catch (e) {
+      print('Error: $e');
+      return 'Error: $e';
     }
   }
 

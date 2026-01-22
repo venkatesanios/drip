@@ -24,6 +24,8 @@ import 'StateManagement/search_provider.dart';
 import 'app/app.dart';
 import 'StateManagement/customer_provider.dart';
 import 'firebase_options.dart';
+import 'flavors.dart';
+import 'modules/PumpController/state_management/pump_controller_provider.dart';
 import 'modules/IrrigationProgram/state_management/irrigation_program_provider.dart';
 import 'modules/Preferences/state_management/preference_provider.dart';
 import 'modules/SystemDefinitions/state_management/system_definition_provider.dart';
@@ -31,6 +33,7 @@ import 'modules/config_maker/state_management/config_maker_provider.dart';
 import 'StateManagement/mqtt_payload_provider.dart';
 import 'StateManagement/overall_use.dart';
 import 'modules/constant/state_management/constant_provider.dart';
+import 'package:new_version_plus/new_version_plus.dart';
 
 
 // Initialize local notifications plugin
@@ -73,10 +76,8 @@ FutureOr<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   tz.initializeTimeZones();
-
-
-    await NetworkUtils.initialize();
-
+  F.appFlavor = Flavor.oroProduction;
+  await NetworkUtils.initialize();
 
   // Request runtime permissions before providers start
   if (!kIsWeb && Platform.isAndroid) {
@@ -84,10 +85,10 @@ FutureOr<void> main() async {
   }
   // Firebase init
   if (!kIsWeb) {
-    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-    await FirebaseAppCheck.instance.activate(
-      androidProvider: AndroidProvider.playIntegrity,  // Use debug for local testing: AndroidProvider.debug
-    );
+    // Firebase init
+    await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform);
+
     // Firebase Messaging
     FirebaseMessaging messaging = FirebaseMessaging.instance;
     await messaging.requestPermission(alert: true, badge: true, sound: true);

@@ -50,9 +50,13 @@
                 android:name="io.flutter.embedding.android.NormalTheme"
                 android:resource="@style/NormalTheme"
                 />
-            <intent-filter>
+            <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="oro.niagaraautomations.com" />
             </intent-filter>
         </activity>
         <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyCfMo2V0inDY3xpp91BjfIrD4s-v6PPSzw" />

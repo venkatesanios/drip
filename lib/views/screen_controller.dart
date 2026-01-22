@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:new_version_plus/new_version_plus.dart';
 import 'package:provider/provider.dart';
 import '../layouts/layout_selector.dart';
 import '../providers/user_provider.dart';
@@ -13,6 +14,7 @@ import 'common/login/login_screen.dart';
 class ScreenController extends StatelessWidget {
   const ScreenController({super.key});
 
+  static bool _versionChecked = false; // prevent duplicate dialogs
 
   Future<bool> initializeUser(BuildContext context) async {
 
@@ -63,6 +65,31 @@ class ScreenController extends StatelessWidget {
     }
   }
 
+  /// VERSION CHECK HERE (Safe)
+  void checkVersionDialog(BuildContext context) async {
+    if (_versionChecked) return; // avoid multiple calls
+    _versionChecked = true;
+
+    final newVersion = NewVersionPlus(
+      androidId: "com.niagaraautomations.oroDripirrigation",
+      iOSId: "com.niagaraautomations.oroDripirrigation",
+    );
+
+    final status = await newVersion.getVersionStatus();
+        print("status:${status?.storeVersion},${status?.localVersion},${status?.originalStoreVersion}");
+    if (status != null && status.canUpdate) {
+      newVersion.showUpdateDialog(
+        context: context,
+        versionStatus: status,
+        dialogTitle: "New Update Available",
+        // dialogText:
+        // "A new version (${status.storeVersion}) is available.\nPlease update for better performance.",
+        updateButtonText: "Update Now",
+        dismissButtonText: "Later",
+        allowDismissal: true,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

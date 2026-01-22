@@ -2334,26 +2334,28 @@ class IrrigationLogModel {
     List<dynamic> list = [];
     try{
       for(var parameter in channelParameterList){
-        if(parameter.payloadKey == '${central ? 'Central' : 'Local'}FertChannelName') {
-          if(parameter.show == true){
-            var data = date['irrigation']['${central ? 'Central' : 'Local'}FertChannelName'][howMany];
-            if(data == null || data == ''){
-              list.add(null);
-            }else{
-              if(data.contains('_')){
-                var splitData = data.split('_');
-                if(splitData.length <= channelNo){
-                  list.add(null);
-                }else{
-                  // print("${splitData.length} ==== $channelNo");
-                  list.add(splitData[channelNo]);
-                }
-              }else{
-                list.add(null);
-              }
-            }
-          }
-        }
+        // if(parameter.payloadKey == '${central ? 'Central' : 'Local'}FertChannelName') {
+        //   if(parameter.show == true){
+        //     print("date['irrigation']['${central ? 'Central' : 'Local'}FertChannelName'] => ${date['irrigation']['${central ? 'Central' : 'Local'}FertChannelName']}");
+        //     // var data = date['irrigation']['${central ? 'Central' : 'Local'}FertChannelName'][howMany];
+        //     var data = null;
+        //     if(data == null || data == ''){
+        //       list.add(null);
+        //     }else{
+        //       if(data.contains('_')){
+        //         var splitData = data.split('_');
+        //         if(splitData.length <= channelNo){
+        //           list.add(null);
+        //         }else{
+        //           // print("${splitData.length} ==== $channelNo");
+        //           list.add(splitData[channelNo]);
+        //         }
+        //       }else{
+        //         list.add(null);
+        //       }
+        //     }
+        //   }
+        // }
         if(parameter.payloadKey == '${central ? 'Central' : 'Local'}FertMethod') {
           if(parameter.show == true){
             var data = date['irrigation']['${central ? 'Central' : 'Local'}FertMethod'][howMany];
