@@ -1,7 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 import '../../../../models/customer/site_model.dart';
+import '../../../customer/widgets/valve_widget_mobile.dart';
 import 'customer_widget_builders.dart';
 
 class IrrigationLineNarrow extends StatelessWidget {
@@ -54,10 +53,16 @@ class IrrigationLineNarrow extends StatelessWidget {
         controllerId: controllerId, modelId: modelId, isMobile: true),
     ];
 
+
+
     return LayoutBuilder(
       builder: (context, constraints) {
-        const itemWidth = 70.0;
-        const rowHeight = 65.0;
+        const itemWidth = 65.0;
+
+        final itemsPerRow =
+        (constraints.maxWidth / itemWidth).floor().clamp(1, 100);
+
+        final rowHeight = itemsPerRow == 5 ? 58.0 : 65.0;
 
         final columns =
         (constraints.maxWidth / itemWidth).floor().clamp(1, 10);
@@ -69,6 +74,7 @@ class IrrigationLineNarrow extends StatelessWidget {
             gridItemWidth / (itemWidth / rowHeight);
 
         return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (baseSensors.isNotEmpty) ...baseSensors,
             SizedBox(
@@ -76,44 +82,44 @@ class IrrigationLineNarrow extends StatelessWidget {
               child: Stack(
                 children: [
                   Positioned(
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    child: Column(
-                      children: [
-                        Divider(height: 0,)
-                      ],
+                    top: 3,
+                    left: 5,
+                    child: SizedBox(
+                      width: MediaQuery.sizeOf(context).width,
+                      child: Divider(
+                        height: 5,
+                        thickness: 3,
+                        color: Colors.grey.shade200,
+                      ),
                     ),
                   ),
-                  // horizontal row lines
+
                   for (int r = 1; r < rows; r++)
                     Positioned(
-                      top: r * gridItemHeight - 1,
-                      left: 0,
+                      top: r * gridItemHeight + 3,
+                      left: 5,
                       right: 0,
                       child: Column(
                         children: [
-                          Divider(height: 0,)
+                          Divider(height: 5, color: Colors.grey.shade200, thickness: 3)
                         ],
                       ),
                     ),
 
-                  GridView.builder(
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate:
-                    SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: columns,
-                      childAspectRatio: itemWidth / rowHeight,
-                      mainAxisSpacing: 0,
-                      crossAxisSpacing: 0,
-                    ),
-                    itemCount: allItems.length,
-                    itemBuilder: (context, index) {
-                      return Align(
-                        alignment: Alignment.centerLeft, // LEFT aligned
-                        child: allItems[index],
+                  Wrap(
+                    alignment: WrapAlignment.start,
+                    runAlignment: WrapAlignment.start,
+                    crossAxisAlignment: WrapCrossAlignment.start,
+                    children: allItems.map((item) {
+                      final bool hasSource =
+                          item is ValveWidgetMobile && item.valve.waterSources.isNotEmpty;
+
+                      return SizedBox(
+                        width: hasSource ? gridItemWidth * 2 : gridItemWidth,
+                        height: gridItemHeight,
+                        child: item,
                       );
-                    },
+                    }).toList(),
                   ),
                 ],
               ),
@@ -121,80 +127,6 @@ class IrrigationLineNarrow extends StatelessWidget {
           ],
         );
       },
-    );
-
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        const itemWidth = 70;
-        const rowHeight = 65;
-
-        final columns = (constraints.maxWidth / itemWidth).floor().clamp(1, 10);
-
-        final rows = (allItems.length / columns).ceil();
-
-        return Column(
-          children: [
-            if (baseSensors.isNotEmpty) ...baseSensors,
-            SizedBox(
-              height: rows * rowHeight.toDouble(),
-              child: Stack(
-                children: [
-                  for (int r = 0; r < rows; r++)...[
-                    Positioned(
-                      top: r * (rowHeight+1.5) + 1,
-                      left: 0,
-                      right: 0,
-                      child: Container(
-                        height: 2,
-                        color: Colors.grey.shade200,
-                      ),
-                    ),
-                    Positioned(
-                      top: r * (rowHeight+1.5) + 4,
-                      left: 0,
-                      right: 0,
-                      child: Container(
-                        height: 2,
-                        color: Colors.grey.shade200,
-                      ),
-                    ),
-                  ],
-
-
-                  GridView.builder(
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: columns,
-                      mainAxisSpacing: 0,
-                      crossAxisSpacing: 0,
-                      childAspectRatio: itemWidth / rowHeight,
-                    ),
-                    itemCount: allItems.length,
-                    itemBuilder: (context, index) {
-                      return allItems[index];
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ],
-        );
-      },
-    );
-
-    return Column(
-      children: [
-        if (baseSensors.isNotEmpty) ...baseSensors,
-        Align(
-          alignment: Alignment.topLeft,
-          child: Wrap(
-            spacing: 0,
-            runSpacing: 0,
-            children: allItems,
-          ),
-        ),
-      ],
     );
   }
 }

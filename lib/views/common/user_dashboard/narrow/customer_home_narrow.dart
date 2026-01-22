@@ -114,16 +114,9 @@ class CustomerHomeNarrow extends StatelessWidget {
                     children: [
                       Positioned(
                         top: !isNova ? 49 : 4,
-                        left: 0,
-                        bottom: 65,
-                        child: Container(width: 2, color: Colors.grey.shade300),
-                      ),
-
-                      Positioned(
-                        top: !isNova ? 49 : 4,
-                        left: 5,
-                        bottom: 65,
-                        child: Container(width: 2, color: Colors.grey.shade300),
+                        left: 2,
+                        bottom: 72,
+                        child: Container(width: 4, color: Colors.grey.shade300),
                       ),
 
                       Row(
