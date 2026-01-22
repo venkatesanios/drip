@@ -53,10 +53,16 @@ class IrrigationLineNarrow extends StatelessWidget {
         controllerId: controllerId, modelId: modelId, isMobile: true),
     ];
 
+
+
     return LayoutBuilder(
       builder: (context, constraints) {
         const itemWidth = 65.0;
-        const rowHeight = 65.0;
+
+        final itemsPerRow =
+        (constraints.maxWidth / itemWidth).floor().clamp(1, 100);
+
+        final rowHeight = itemsPerRow == 5 ? 58.0 : 65.0;
 
         final columns =
         (constraints.maxWidth / itemWidth).floor().clamp(1, 10);
