@@ -32,7 +32,6 @@ class SensorHourlyLogsVm extends ChangeNotifier {
     var response = await repository.fetchSensorHourlyData(body);
     if (response.statusCode == 200) {
       var data = jsonDecode(response.body);
-      print(response.body);
       if (data["code"] == 200) {
         final jsonData = data["data"] as List;
 
