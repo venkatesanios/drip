@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
  import 'package:oro_drip_irrigation/Screens/planning/weather/weather_helper.dart';
 import 'package:oro_drip_irrigation/Screens/planning/weather/weather_left_side_card.dart';
 import 'package:oro_drip_irrigation/Screens/planning/weather/weather_mobile.dart';
+import 'package:oro_drip_irrigation/Screens/planning/weather/weather_report_page.dart';
 import 'package:oro_drip_irrigation/Screens/planning/weather/weather_sensor_tile.dart';
 import '../../../repository/repository.dart';
 import '../../../services/http_service.dart';
@@ -360,13 +361,26 @@ class RightDashboardPanel extends StatelessWidget {
           spacing: 5,
           runSpacing: 5,
           children: gridSensors.map((e) {
-            return SizedBox(
-              width: kIsWeb ? 280 : MediaQuery.of(context).size.width - 20,
-              height: 180,
-              child: SensorTile(
-                data: e,
-                icon: iconResolver(e.sensorType),
-                unit: unitResolver(e.sensorType),
+            return GestureDetector(
+              onTap: (){
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => SensorHourlyReportPage(
+                      deviceSrNo: '6',
+                      sensorSrNo: '25.002', sensorName: 'Moisture Sensor 2', userId: '139', controllerId: '751',
+                     ),
+                  ),
+                );
+              },
+              child: SizedBox(
+                width: kIsWeb ? 280 : MediaQuery.of(context).size.width - 20,
+                height: 180,
+                child: SensorTile(
+                  data: e,
+                  icon: iconResolver(e.sensorType),
+                  unit: unitResolver(e.sensorType),
+                ),
               ),
             );
           }).toList(),

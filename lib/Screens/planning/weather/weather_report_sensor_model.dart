@@ -24,12 +24,13 @@ class SensorHourReport {
     return '$hour → value:$value min:$minValue max:$maxValue avg:$averageValue error:$errorCode';
   }
 }
-SensorHourReport? _parseSensorRecord({
+SensorHourReport? parseSensorRecord({
   required String raw,
   required String hour,
   required String targetDevice,
   required String targetSensor,
-}) {
+})
+{
   final parts = raw.split(',');
   if (parts.length < 6) return null;
 
@@ -57,9 +58,10 @@ SensorHourReport? _parseSensorRecord({
 }
 List<SensorHourReport> getSingleSensorReport({
   required Map<String, dynamic> apiResponse,
-  required String deviceSrNo,   // example: "6"
-  required String sensorSrNo,   // example: "31.001"
-}) {
+  required String deviceSrNo,
+  required String sensorSrNo,
+})
+{
   final List<SensorHourReport> report = [];
 
   if (apiResponse['data'] == null || apiResponse['data'].isEmpty) {
@@ -84,7 +86,7 @@ List<SensorHourReport> getSingleSensorReport({
       final sensors = block.split('_');
 
       for (final sensorRaw in sensors) {
-        final parsed = _parseSensorRecord(
+        final parsed = parseSensorRecord(
           raw: sensorRaw,
           hour: hour,
           targetDevice: deviceSrNo,
