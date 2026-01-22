@@ -62,7 +62,8 @@ class SensorHourlyLogs extends StatelessWidget {
                       LineSeries<SensorHourlyData, String>(
                         dataSource: chartData,
                         xValueMapper: (SensorHourlyData data, _) => data.hour,
-                        yValueMapper: (SensorHourlyData data, _) => data.value,
+                        yValueMapper: (SensorHourlyData data, _) =>
+                            MyFunction().getChartValue(context, data.objectName, data.value ?? 0.0),
                         dataLabelSettings: const DataLabelSettings(isVisible: true),
                         name: chartData.elementAt(0).objectName,
                       ),
@@ -78,4 +79,3 @@ class SensorHourlyLogs extends StatelessWidget {
     );
   }
 }
-

@@ -22,7 +22,6 @@ class SensorHourlyLogsVm extends ChangeNotifier {
     sensorsBySNo.clear();
     date = DateFormat('yyyy-MM-dd').format(selectedDate);
 
-
     Map<String, Object> body = {
       "userId": customerId,
       "controllerId": controllerId,
@@ -33,6 +32,7 @@ class SensorHourlyLogsVm extends ChangeNotifier {
     var response = await repository.fetchSensorHourlyData(body);
     if (response.statusCode == 200) {
       var data = jsonDecode(response.body);
+      print(response.body);
       if (data["code"] == 200) {
         final jsonData = data["data"] as List;
 
@@ -58,7 +58,6 @@ class SensorHourlyLogsVm extends ChangeNotifier {
 
                   String sensorName = matchedNode.name;
                   String objectName = matchedNode.objectName;
-
 
                   final sensorData = SensorHourlyData(
                     sNo: sNo,
