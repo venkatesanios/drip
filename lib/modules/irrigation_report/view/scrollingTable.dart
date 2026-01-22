@@ -789,15 +789,16 @@ class _ScrollingTableState extends State<ScrollingTable> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             for(var i = 0;i < columnList.length;i++)
-              Container(
-                // color: Color(0xffEAEAEA),
-                color: Colors.orange.shade200,
-                padding: const EdgeInsets.only(left: 8),
-                width: 100,
-                height: 50,
-                alignment: Alignment.centerLeft,
-                child: Text('${columnList[i]}',style: TextStyle(color: Colors.black),),
-              ),
+              if(columnList[i] != 'Name')
+                Container(
+                  // color: Color(0xffEAEAEA),
+                  color: Colors.orange.shade200,
+                  padding: const EdgeInsets.only(left: 8),
+                  width: 100,
+                  height: 50,
+                  alignment: Alignment.centerLeft,
+                  child: Text('${columnList[i]}',style: TextStyle(color: Colors.black),),
+                ),
 
           ],
         ),
