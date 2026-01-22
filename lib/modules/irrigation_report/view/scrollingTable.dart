@@ -800,6 +800,7 @@ class _ScrollingTableState extends State<ScrollingTable> {
                   child: Text('${columnList[i]}',style: TextStyle(color: Colors.black),),
                 ),
 
+
           ],
         ),
       ],
