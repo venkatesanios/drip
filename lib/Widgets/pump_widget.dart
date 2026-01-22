@@ -269,8 +269,6 @@ class PumpWidget extends StatelessWidget {
           _buildReasonContainer(context),
 
         if(!isNova)...[
-          const SizedBox(height: 5),
-          _buildPhaseInfo(),
           const SizedBox(height: 8),
           if (voltages.length == 6)...[
             _buildVoltageCurrentInfo(voltages.sublist(0, 3), ['RY', 'YB', 'BR']),
@@ -369,48 +367,6 @@ class PumpWidget extends StatelessWidget {
             const SizedBox(width: 5),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildPhaseInfo() {
-
-    int phase = int.tryParse(pump.phase) ?? 0;
-
-    return Container(
-      width: 310,
-      height: 25,
-      color: Colors.transparent,
-      child: Row(
-        children: [
-          const Padding(
-            padding: EdgeInsets.only(left: 9),
-            child: SizedBox(width: 100, child: Text('Trip phase', style: TextStyle(color: Colors.black54))),
-          ),
-          const Spacer(),
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 7,
-                backgroundColor: phase ==0 ? Colors.grey.shade400 :
-                phase == 1 ? Colors.red : Colors.green,
-              ),
-              const VerticalDivider(color: Colors.transparent),
-              CircleAvatar(
-                radius: 7,
-                backgroundColor: phase ==0 ? Colors.grey.shade400 :
-                phase == 2 ? Colors.red : Colors.green,
-              ),
-              const VerticalDivider(color: Colors.transparent),
-              CircleAvatar(
-                radius: 7,
-                backgroundColor: phase ==0 ? Colors.grey.shade400 :
-                phase == 3 ? Colors.red : Colors.green,
-              ),
-              const VerticalDivider(color: Colors.transparent),
-            ],
-          ),
-        ],
       ),
     );
   }
@@ -589,7 +545,6 @@ class VoltageWidget extends StatelessWidget {
 
         return Column(
           children: [
-            _buildPhaseInfo(context),
             _buildVoltagePopoverContent(
                 context,
                 voltageList,
@@ -598,47 +553,6 @@ class VoltageWidget extends StatelessWidget {
           ],
         );
       },
-    );
-  }
-
-  Widget _buildPhaseInfo(BuildContext context) {
-    int phase = int.tryParse("0") ?? 0;
-    print("phase:$phase");
-    return Container(
-      width: MediaQuery.sizeOf(context).width,
-      height: 25,
-      color: Colors.transparent,
-      child: Row(
-        children: [
-          const Padding(
-            padding: EdgeInsets.only(left: 9),
-            child: SizedBox(width: 100, child: Text('Trip phase', style: TextStyle(color: Colors.black54))),
-          ),
-          const Spacer(),
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 7,
-                backgroundColor: phase ==0 ? Colors.grey.shade400 :
-                phase == 1 ? Colors.red : Colors.green,
-              ),
-              const VerticalDivider(color: Colors.transparent),
-              CircleAvatar(
-                radius: 7,
-                backgroundColor: phase ==0 ? Colors.grey.shade400 :
-                phase == 2 ? Colors.red : Colors.green,
-              ),
-              const VerticalDivider(color: Colors.transparent),
-              CircleAvatar(
-                radius: 7,
-                backgroundColor: phase ==0 ? Colors.grey.shade400 :
-                phase == 3 ? Colors.red : Colors.green,
-              ),
-              const VerticalDivider(color: Colors.transparent),
-            ],
-          ),
-        ],
-      ),
     );
   }
 

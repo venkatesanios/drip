@@ -9,6 +9,7 @@ import 'package:oro_drip_irrigation/utils/environment.dart';
 import 'package:uuid/uuid.dart';
 import '../Constants/constants.dart';
 import '../StateManagement/mqtt_payload_provider.dart';
+import '../flavors.dart';
 import '../modules/PumpController/model/pump_controller_data_model.dart';
 import '../utils/constants.dart';
 import 'package:rxdart/rxdart.dart';
@@ -91,13 +92,60 @@ class MqttService {
 
   void initializeMQTTClient({MqttPayloadProvider? state}) {
     providerState = state;
+    final uniqueId = const Uuid().v4();
+
+    if (_client != null) return;
+
+    if (kIsWeb) {
+      _client = MqttBrowserClient(
+        Environment.mqttWebUrl,
+        uniqueId,
+      );
+      _client!.websocketProtocols = ['mqtt'];
+      _client!.port = AppConstants.mqttWebPort;
+    } else {
+      _client = MqttServerClient(
+        Environment.mqttMobileUrl,
+        uniqueId,
+      );
+
+      _client!.port = AppConstants.mqttMobilePort;
+    }
+
+    _client!
+      ..keepAlivePeriod = 30
+      ..logging(on: false)
+      ..onDisconnected = onDisconnected
+      ..onConnected = onConnected
+      ..onSubscribed = onSubscribed;
+
+    final connMess = MqttConnectMessage()
+        .withClientIdentifier(uniqueId)
+        .authenticateAs(
+      AppConstants.mqttUserName,
+      AppConstants.mqttPassword,
+    ).startClean();
+
+    _client!.connectionMessage = connMess;
+  }
+
+  /*void initializeMQTTClient({MqttPayloadProvider? state}) {
+    providerState = state;
     String uniqueId = const Uuid().v4();
 
     if (_client == null) {
       if (kIsWeb) {
+        var isLK = F.appFlavor?.name.contains('smart comm') ?? false;
         _client = MqttBrowserClient(Environment.mqttWebUrl, uniqueId);
-        (_client as MqttBrowserClient).websocketProtocols = MqttClientConstants.protocolsSingleDefault;
-        _client!.port = AppConstants.mqttWebPort;
+
+        if(isLK){
+          print('inside websocketProtocols');
+          _client!.websocketProtocols = ['mqtt'];
+        }else{
+          (_client as MqttBrowserClient).websocketProtocols = MqttClientConstants.protocolsSingleDefault;
+          _client!.port = AppConstants.mqttWebPort;
+        }
+
       } else {
         _client = MqttServerClient(Environment.mqttMobileUrl, uniqueId);
         _client!.port = AppConstants.mqttMobilePort;
@@ -120,19 +168,21 @@ class MqttService {
 
       _client!.connectionMessage = connMess;
     }
-  }
+  }*/
 
   Future<void> connect() async {
-    if (_client == null || isConnected || _client!.connectionStatus!.state == MqttConnectionState.connecting) {
+    if (_client == null ||
+        isConnected ||
+        _client!.connectionStatus?.state == MqttConnectionState.connecting) {
       return;
     }
+
     try {
-      _connectionController.add(MqttConnectionState.connecting);
       await _client!.connect();
     } catch (e, stackTrace) {
       debugPrint('MQTT Connect Exception: $e');
       debugPrint('$stackTrace');
-      rethrow;
+      _client?.disconnect();
     }
   }
 

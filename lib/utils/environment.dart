@@ -16,10 +16,34 @@ class Environment {
       "mqttUserName" : '',
       "mqttPassword" : '',
     },
-    'smartComm' : {
+    "smartComm": {
+      "apiUrl": "https://smartcomm-wms.com:5000/api/v1",
+      "apiKey": "prod-api-key",
+
+      // Web (Flutter Web)
+      //"mqttWebUrl": "wss://smartcomm-wms.com:9001",
+      //"mqttWebUrl": "wss://smartcomm-wms.com/mqtt",
+      'mqttWebUrl': 'ws://52.172.214.208:9001/mqtt',
+      "mqttWebPort": 8884,
+
+      // Mobile (Android / iOS)
+      "mqttMobileUrl": "52.172.214.208",
+      "mqttMobilePort": 1883,
+
+      "publishTopic": "AppToFirmware",
+      "subscribeTopic": "FirmwareToApp",
+
+      "mqttUserName": "imsmqtt",
+      "mqttPassword": "2L9((WonMr",
+
+      "sftpIpAddress": "54.179.114.89",
+      "sftpPort": 22,
+      "privateKeyPath": "assets/ssh/smartComm/id_rsa"
+    },
+    /*'smartComm' : {
       'apiUrl': 'https://smartcomm-wms.com:5000/api/v1',
       'apiKey': 'prod-api-key',
-      'mqttWebUrl': 'ws://52.172.214.208:9001/mqtt',
+      'mqttWebUrl': 'wss://52.172.214.208:9001/mqtt',
       'mqttMobileUrl': '52.172.214.208',
       'publishTopic': 'AppToFirmware',
       'subscribeTopic': 'FirmwareToApp',
@@ -30,7 +54,7 @@ class Environment {
       'privateKeyPath': 'assets/ssh/smartComm/id_rsa',
       "mqttUserName" : 'imsmqtt',
       "mqttPassword" : '2L9((WonMr',
-    },
+    },*/
     'oroProduction': {
       'apiUrl': 'http://13.235.254.21:5000/api/v1',
       'apiKey': 'dev-api-key',
