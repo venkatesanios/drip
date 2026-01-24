@@ -65,7 +65,15 @@ class IrrigationLineNarrow extends StatelessWidget {
         final columns =
         (constraints.maxWidth / itemWidth).floor().clamp(1, 10);
 
-        final rows = (allItems.length / columns).ceil();
+        int usedCells = 0;
+
+        for (var item in allItems) {
+          final hasSource =
+              item is ValveWidgetMobile && item.valve.waterSources.isNotEmpty;
+          usedCells += hasSource ? 2 : 1;
+        }
+
+        final rows = (usedCells / columns).ceil();
 
         final gridItemWidth = constraints.maxWidth / columns;
         final gridItemHeight =
