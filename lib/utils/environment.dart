@@ -16,7 +16,7 @@ class Environment {
       "mqttUserName" : '',
       "mqttPassword" : '',
     },
-    "smartComm": {
+    /*"smartComm": {
       "apiUrl": "https://smartcomm-wms.com:5000/api/v1",
       "apiKey": "prod-api-key",
 
@@ -39,8 +39,8 @@ class Environment {
       "sftpIpAddress": "54.179.114.89",
       "sftpPort": 22,
       "privateKeyPath": "assets/ssh/smartComm/id_rsa"
-    },
-    /*'smartComm' : {
+    },*/
+    'smartComm' : {
       'apiUrl': 'https://smartcomm-wms.com:5000/api/v1',
       'apiKey': 'prod-api-key',
       'mqttWebUrl': 'wss://52.172.214.208:9001/mqtt',
@@ -54,7 +54,7 @@ class Environment {
       'privateKeyPath': 'assets/ssh/smartComm/id_rsa',
       "mqttUserName" : 'imsmqtt',
       "mqttPassword" : '2L9((WonMr',
-    },*/
+    },
     'oroProduction': {
       'apiUrl': 'http://13.235.254.21:5000/api/v1',
       'apiKey': 'dev-api-key',
