@@ -201,6 +201,7 @@ class _AdditionalDataScreenState extends State<AdditionalDataScreen> {
                                       baseOffset: 0,
                                       extentOffset: _textEditingController.text.length,
                                     );
+
                                     showDialog(
                                       context: context,
                                       builder: (ctx) => AlertDialog(
