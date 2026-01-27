@@ -570,7 +570,7 @@ class _CalibrationState extends State<Calibration> {
                           print('fullData : ${fullData}');
                           print('payload : ${payload}');
                         }
-
+                        loadingDialog('Ec calibration setting sent successfully...');
                         bleService.sendDataToHw(fullData);
                       },
                       icon: const Icon(Icons.send, color: Colors.white,),
