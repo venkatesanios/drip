@@ -1,8 +1,10 @@
 class WeatherLiveUIModel {
   final String deviceName;
+  final int devicesno;
   final String irrigationLine;
   final String objectName;
   final String sensorType;
+  final double sensorSno;
   final String value;
   final String errorCode;
   final String minValue;
@@ -11,9 +13,11 @@ class WeatherLiveUIModel {
 
   WeatherLiveUIModel({
     required this.deviceName,
+    required this.devicesno,
     required this.irrigationLine,
     required this.objectName,
     required this.sensorType,
+    required this.sensorSno,
     required this.value,
     required this.errorCode,
     required this.minValue,
@@ -25,8 +29,10 @@ class WeatherLiveUIModel {
   String toString() {
     return '''
 Device       : $deviceName
+Devicesno    : $devicesno
 Irrigation   : $irrigationLine
 Sensor       : $objectName
+sensorSno    : $sensorSno
 Type         : $sensorType
 Value        : $value
 Error Code   : $errorCode

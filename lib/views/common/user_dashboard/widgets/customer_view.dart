@@ -284,6 +284,7 @@ class CustomerView extends StatelessWidget {
               },
             ),
           ),
+
         ]
       ],
     );

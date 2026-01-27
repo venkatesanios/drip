@@ -80,9 +80,7 @@ class _CustomerScreenNarrowState extends BaseCustomerScreenState<CustomerScreenN
       ),
       if(hasWeatherStation)...[
         WeatherDashboardPage(userId: vm.mySiteList.data[vm.sIndex].customerId, controllerId: cM.controllerId, deviceID: cM.deviceId),
-        // WeatherScreen(userId: vm.mySiteList.data[vm.sIndex].customerId,
-        //     controllerId: cM.controllerId, deviceID: cM.deviceId),
-        // WeatherDashboardPage(userId: vm.mySiteList.data[vm.sIndex].customerId, controllerId: cM.controllerId, deviceID: cM.deviceId),
+
       ],
       const SettingsMenuNarrow(),
     ] :

@@ -78,6 +78,8 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
        builder: (context, mqttProvider, _) {
          final deviceList = mqttProvider.mapModelInstance.data?.deviceList;
 
+         print("deviceList:->${deviceList.toString()}");
+
          if (deviceList == null || deviceList.isEmpty) {
            return Scaffold(
              appBar: AppBar(title: const Text('Map Device List')),
