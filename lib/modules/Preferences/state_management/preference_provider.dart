@@ -98,11 +98,12 @@ class PreferenceProvider extends ChangeNotifier {
       final response = await repository.getUserPreferenceCalibration(userData);
       if(response.statusCode == 200) {
         final result = jsonDecode(response.body);
+        print("result in the calibration :: $result");
         calibrationSetting = List.from(result['data'].map((json) => CommonPumpSetting.fromJson(json)));
       }
     } catch(error, stackTrace) {
-      // print("Error parsing setting data: $error");
-      // print("Stack trace setting data: $stackTrace");
+      print("Error parsing setting data: $error");
+      print("Stack trace setting data: $stackTrace");
     }
     notifyListeners();
   }

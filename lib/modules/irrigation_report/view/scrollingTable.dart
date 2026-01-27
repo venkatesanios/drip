@@ -799,7 +799,6 @@ class _ScrollingTableState extends State<ScrollingTable> {
                   alignment: Alignment.centerLeft,
                   child: Text('${columnList[i]}',style: TextStyle(color: Colors.black),),
                 ),
-
           ],
         ),
       ],
