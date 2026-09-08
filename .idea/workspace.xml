@@ -5,9 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f2f9418e-6c3f-4208-958b-3bdf91e8d388" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/drip.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/drip.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/modules/bluetooth_low_energy/state_management/ble_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/modules/bluetooth_low_energy/state_management/ble_service.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/views/common/user_dashboard/widgets/oms_line.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/views/common/user_dashboard/widgets/oms_line.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -27,6 +26,18 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;venkatesanios&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/venkatesanios/drip.git&quot;,
+    &quot;accountId&quot;: &quot;ab901d65-f9a0-4027-a04a-dd326fda4b77&quot;
+  }
+}</component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 4
