@@ -5,12 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f2f9418e-6c3f-4208-958b-3bdf91e8d388" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/lib/modules/config_maker/view/valve_configuration.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/modules/config_maker/model/valve_configuration.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/modules/config_maker/model/moisture_model.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/modules/config_maker/model/moisture_model.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/modules/config_maker/state_management/config_maker_provider.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/modules/config_maker/state_management/config_maker_provider.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/modules/config_maker/view/moisture_configuration.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/modules/config_maker/view/moisture_configuration.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/views/common/user_dashboard/widgets/oms_line.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/views/common/user_dashboard/widgets/oms_line.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/modules/config_maker/view/config_web_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/modules/config_maker/view/config_web_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/modules/config_maker/view/site_configure.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/modules/config_maker/view/site_configure.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/modules/config_maker/view/source_configuration.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/modules/config_maker/view/source_configuration.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/modules/config_maker/view/valve_configuration.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/modules/config_maker/view/valve_configuration.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,7 +53,7 @@
     &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;siva&quot;,
     &quot;io.flutter.project.isFirstOpen&quot;: &quot;true&quot;,
     &quot;io.flutter.reload.alreadyRun&quot;: &quot;true&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mqtt_client/mqtt_client.dart';
+import 'package:oro_drip_irrigation/modules/config_maker/model/valve_configuration.dart';
 import 'package:oro_drip_irrigation/modules/config_maker/view/product_limit.dart';
 import 'package:oro_drip_irrigation/modules/config_maker/view/site_configure.dart';
 import 'package:oro_drip_irrigation/Widgets/sized_image.dart';
@@ -646,6 +647,10 @@ class _ConfigWebViewState extends State<ConfigWebView> {
             '106' : configPvd.getFertilizerInjectorPayload(),
           if(gem && !omsGem)
             '107' : configPvd.getIrrigationLinePayload(),
+          if(gem && !omsGem)
+            '108' : configPvd.getValveConfigPayload(),
+          if(gem && !omsGem)
+            '109' : configPvd.getMoisturePayload(),
         }
       };
       setState(() {
@@ -874,6 +879,9 @@ class _ConfigWebViewState extends State<ConfigWebView> {
     var pressure = configPvd.pressureSensor.cast<PressureModel>().map((object){
       return object.toJson();
     }).toList();
+    var valveConfig = configPvd.valveConfig.cast<ValveConfigModel>().map((object){
+      return object.toJson();
+    }).toList();
     var line = configPvd.line.cast<IrrigationLineModel>().map((object){
       return object.toJson();
     }).toList();
@@ -897,6 +905,7 @@ class _ConfigWebViewState extends State<ConfigWebView> {
       "fertilizerSite" : fertilization,
       "moistureSensor" : moisture,
       "pressureSensor" : pressure,
+      "valveConfig" : valveConfig,
       "irrigationLine" : line,
       "ecSensor" : ecSensor,
       "phSensor" : phSensor,
