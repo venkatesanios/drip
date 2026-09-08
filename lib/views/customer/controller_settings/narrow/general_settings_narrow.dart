@@ -6,6 +6,7 @@ import 'package:oro_drip_irrigation/utils/constants.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../Screens/Dealer/controllerverssionupdate.dart';
+import '../../../../StateManagement/mqtt_payload_provider.dart';
 import '../../../../models/customer/controller_context.dart';
 import '../../../../modules/bluetooth_low_energy/view/node_connection_page.dart';
 import '../../../../providers/user_provider.dart';
@@ -34,19 +35,63 @@ class GeneralSettingsNarrow extends StatefulWidget {
 }
 
 class _GeneralSettingsNarrowState extends State<GeneralSettingsNarrow> {
+
+  // Don't create a new instance - use the singleton
+  final BluetoothBleService bleService = BluetoothBleService();
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Initialize the service with the provider
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = Provider.of<MqttPayloadProvider>(context, listen: false);
+      bleService.initializeBleService(state: provider);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
 
     final loggedInUser = Provider.of<UserProvider>(context).loggedInUser;
 
-
-    return ChangeNotifierProvider(
-      create: (_) => GeneralSettingViewModel(Repository(HttpService()))
-        ..initIds(customerId: widget.customerId, controllerId: widget.controllerId, userId: widget.userId, isSubUser: widget.isSubUser)
-        ..getControllerInfo()
-        ..getSubUserList(),
-      child: Consumer<GeneralSettingViewModel>(
-        builder: (context, viewModel, _) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => GeneralSettingViewModel(Repository(HttpService()))
+            ..initIds(
+              customerId: widget.customerId,
+              controllerId: widget.controllerId,
+              userId: widget.userId,
+              isSubUser: widget.isSubUser,
+            )
+            ..getControllerInfo()
+            ..getSubUserList(),
+        ),
+      ],
+      child: Consumer2<GeneralSettingViewModel, MqttPayloadProvider>(
+        builder: (context, viewModel, mqttProvider, _) {
+          // Listen for WiFi update messages from the provider
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mqttProvider.wifiUpdateMessage != null && mounted) {
+              ScaffoldMessenger.of(context).clearSnackBars();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    mqttProvider.wifiUpdateMessage!,
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                  ),
+                  backgroundColor: mqttProvider.wifiUpdateSuccess ? Colors.green : Colors.red,
+                  duration: const Duration(seconds: 5),
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              );
+              mqttProvider.hideWifiUpdateResult();
+            }
+          });
 
           final bool isEcoMdl = [...AppConstants.ecoGemModelList, ...AppConstants.pumpList].contains(viewModel.modelId);
 
@@ -280,6 +325,7 @@ class _GeneralSettingsNarrowState extends State<GeneralSettingsNarrow> {
         },
       ),
     );
+
   }
 
   Widget buildLoadingIndicator(bool isVisible, double width) {
