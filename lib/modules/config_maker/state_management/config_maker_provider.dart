@@ -510,7 +510,7 @@ class ConfigMakerProvider extends ChangeNotifier{
               );
             }else if(deviceObjectModel.objectId == AppConstants.moistureObjectId){
               moisture.add(
-                  MoistureModel(commonDetails: deviceObjectModel, valves: [])
+                  MoistureModel(commonDetails: deviceObjectModel, valves: [], soilTemperature: [])
               );
             }else if(deviceObjectModel.objectId == AppConstants.pressureSensorObjectId){
               pressureSensor.add(
@@ -986,11 +986,16 @@ class ConfigMakerProvider extends ChangeNotifier{
     notifyListeners();
   }
 
-  void updateSelectionInMoisture(double sNo){
+  void updateSelectionInMoisture(double sNo, int objectId){
     for(var moistureSensor in moisture){
       if(moistureSensor.commonDetails.sNo == sNo){
-        moistureSensor.valves.clear();
-        moistureSensor.valves.addAll(listOfSelectedSno);
+        if(objectId == AppConstants.valveObjectId){
+          moistureSensor.valves.clear();
+          moistureSensor.valves.addAll(listOfSelectedSno);
+        }else{
+          moistureSensor.soilTemperature.clear();
+          moistureSensor.soilTemperature.addAll(listOfSelectedSno);
+        }
         listOfSelectedSno.clear();
       }
     }

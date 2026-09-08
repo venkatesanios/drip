@@ -671,7 +671,7 @@ class _OmsLineState extends State<OmsLine> {
                               masterData: {
                                 "userId": loggedInUser.id,
                                 "customerId": widget.customerId,
-                                "controllerId": widget.master..controllerId,
+                                "controllerId": widget.master.controllerId,
                               },
                               connectMode: ConnectMode.normal,
                             ),
@@ -1991,3 +1991,5 @@ class _MobileStatusChip extends StatelessWidget {
     );
   }
 }
+
+

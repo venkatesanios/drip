@@ -524,7 +524,7 @@ class BleProvider extends ChangeNotifier {
               if (value.isNotEmpty) {
                 readFromHardwareStringValue += String.fromCharCodes(value);
               }
-              if(value[value.length - 1] == 125){
+              if(value.isNotEmpty && value[value.length - 1] == 125){
                 if(readFromHardwareStringValue[0] == '{'){
                   if(readFromHardwareStringValue.contains('MID')){
                     nodeDataFromHw = jsonDecode(readFromHardwareStringValue);
