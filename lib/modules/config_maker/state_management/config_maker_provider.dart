@@ -409,7 +409,7 @@ class ConfigMakerProvider extends ChangeNotifier{
       source = (configMakerData['waterSource'] as List<dynamic>).map((sourceObject) => SourceModel.fromJson(sourceObject)).toList();
       pump = (configMakerData['pump'] as List<dynamic>).map((pumpObject) => PumpModel.fromJson(pumpObject)).toList();
       moisture = (configMakerData['moistureSensor'] as List<dynamic>).map((moistureObject) => MoistureModel.fromJson(moistureObject)).toList();
-      valveConfig = configMakerData['valveConfig'] != null ? (configMakerData['valveConfig'] as List<dynamic>).map((valveObject) => ValveConfigModel.fromJson(valveObject)).toList() : [];
+      valveConfig = configMakerData['valve'] != null ? (configMakerData['valve'] as List<dynamic>).map((valveObject) => ValveConfigModel.fromJson(valveObject)).toList() : [];
       pressureSensor = configMakerData['pressureSensor'] != null ? (configMakerData['pressureSensor'] as List<dynamic>).map((pressureObject) => PressureModel.fromJson(pressureObject)).toList() : [];
       if(configMakerData.containsKey('ecSensor')){
         ec = (configMakerData['ecSensor'] as List<dynamic>).map((ecObject) => EcModel.fromJson(ecObject)).toList();

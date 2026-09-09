@@ -668,7 +668,7 @@ class _ConfigWebViewState extends State<ConfigWebView> {
       });
     }
     // MqttManager().topicToPublishAndItsMessage('${Environment.mqttWebPublishTopic}/${configPvd.masterData['deviceId']}', jsonEncode(configMakerPayload));
-    print("listOfPayload ==> $listOfPayload");
+    debugPrint("listOfPayload ==> $listOfPayload");
     payloadAlertBox();
   }
 
@@ -879,7 +879,7 @@ class _ConfigWebViewState extends State<ConfigWebView> {
     var pressure = configPvd.pressureSensor.cast<PressureModel>().map((object){
       return object.toJson();
     }).toList();
-    var valveConfig = configPvd.valveConfig.cast<ValveConfigModel>().map((object){
+    var valve = configPvd.valveConfig.cast<ValveConfigModel>().map((object){
       return object.toJson();
     }).toList();
     var line = configPvd.line.cast<IrrigationLineModel>().map((object){
@@ -905,7 +905,7 @@ class _ConfigWebViewState extends State<ConfigWebView> {
       "fertilizerSite" : fertilization,
       "moistureSensor" : moisture,
       "pressureSensor" : pressure,
-      "valveConfig" : valveConfig,
+      "valve" : valve,
       "irrigationLine" : line,
       "ecSensor" : ecSensor,
       "phSensor" : phSensor,
@@ -936,10 +936,12 @@ class _ConfigWebViewState extends State<ConfigWebView> {
     body['configObject'] = configPvd.listOfGeneratedObject.map((object){
       return object.toJson(data: body);
     }).toList();
-    var response = await ConfigMakerRepository().createUserConfigMaker(body);
-    print('body : ${jsonEncode(body)}');
-    print('body configMaker: ${jsonEncode(body)}');
-    print('response : ${response.body}');
+    try{
+      var response = await ConfigMakerRepository().createUserConfigMaker(body);
+      debugPrint('response : ${response.body}');
+    }catch(e){
+      debugPrint('createUserConfigMaker error : $e');
+    }
   }
 
   Widget sideNavigationWidget(screenWidth, screenHeight){
