@@ -153,6 +153,26 @@ class MqttPayloadProvider with ChangeNotifier {
    int traceLogSize = 0;
    int totalTraceLogSize = 0;
 
+   String? _wifiUpdateMessage;
+   bool _wifiUpdateSuccess = false;
+
+   String? get wifiUpdateMessage => _wifiUpdateMessage;
+   bool get wifiUpdateSuccess => _wifiUpdateSuccess;
+
+   void showWifiUpdateResult(String message, bool success) {
+     _wifiUpdateMessage = message;
+     _wifiUpdateSuccess = success;
+     notifyListeners();
+
+     // Auto-hide after 6 seconds (the UI will handle showing it)
+   }
+
+   void hideWifiUpdateResult() {
+     _wifiUpdateMessage = null;
+     _wifiUpdateSuccess = false;
+     notifyListeners();
+   }
+
    CropAdvisoryModel cropAdvisoryModelInstance = CropAdvisoryModel();
 
 

@@ -415,7 +415,7 @@ class CriticalAlarmList extends StatelessWidget {
                             deviceID: criticalAlarmData['data'][group]['master'][master]['deviceName'],
                             customerId: userId,
                             controllerId: criticalAlarmData['data'][group]['master'][master]['controllerId'],
-                            irrigationLine: (criticalAlarmData['data'][group]['master'][master]['irrigationLine'] as List).map((item) => IrrigationLineModel.fromJson(item, [], [], [])).toList(),
+                            irrigationLine: (criticalAlarmData['data'][group]['master'][master]['irrigationLine'] as List).map((item) => IrrigationLineModel.fromJson(item, [], [], [], [])).toList(),
                           isNarrow: !kIsWeb,
                           isOMS: false,
                         ),
