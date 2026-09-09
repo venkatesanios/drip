@@ -502,7 +502,7 @@ class ConfigMakerProvider extends ChangeNotifier{
               );
             }else if(deviceObjectModel.objectId == AppConstants.sourceObjectId){
               source.add(
-                  SourceModel(commonDetails: deviceObjectModel, inletPump: [], outletPump: [], aerator: [], valves: [], outletValves: [])
+                  SourceModel(commonDetails: deviceObjectModel, inletPump: [], outletPump: [], aerator: [], valves: [], outletValves: [], channel: [])
               );
             }else if(deviceObjectModel.objectId == AppConstants.pumpObjectId){
               pump.add(
