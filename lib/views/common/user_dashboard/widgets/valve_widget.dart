@@ -35,6 +35,7 @@ class ValveWidget extends StatelessWidget {
         }
 
         bool hasMoisture = valve.moistureSensors.isNotEmpty;
+        bool hasPressure = valve.prsSensors.isNotEmpty;
         bool hasWaterSource = valve.waterSources.isNotEmpty;
         final ValueNotifier<int> popoverUpdateNotifier = ValueNotifier<int>(0);
 
@@ -234,7 +235,7 @@ class ValveWidget extends StatelessWidget {
               )
             ],
           ),
-        ):
+        ) :
         SizedBox(
           width: 70,
           height: 100,
@@ -312,6 +313,73 @@ class ValveWidget extends StatelessWidget {
                             width: 25,
                             height: 25,
                           ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+
+              if (hasPressure)
+                Positioned(
+                  top: 50,
+                  left: 33,
+                  child: TextButton(
+                    onPressed: () async {
+
+                      showPopover(
+                        context: context,
+                        bodyBuilder: (context) {
+                          return MoistureSensorPopover(valve: valve,
+                              customerId: customerId, controllerId: controllerId);
+                        },
+                        direction: PopoverDirection.bottom,
+                        width: 580,
+                        height: 340,
+                        arrowHeight: 15,
+                        arrowWidth: 30,
+                        barrierColor: Colors.black54,
+                        arrowDyOffset: -40,
+                      );
+                    },
+                    style: ButtonStyle(
+                      padding: WidgetStateProperty.all(EdgeInsets.zero),
+                      minimumSize: WidgetStateProperty.all(Size.zero),
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      backgroundColor: WidgetStateProperty.all(Colors.transparent),
+                    ),
+                    child: Consumer<MqttPayloadProvider>(
+                      builder: (_, provider, __) {
+
+                        for (var sensor in valve.prsSensors) {
+                          final sensorUpdate = provider.getSensorUpdatedValve(sensor.sNo.toString());
+                          final statusParts = sensorUpdate?.split(',') ?? [];
+                          if (statusParts.length > 1) {
+                            sensor.value = statusParts[1];
+                          }
+                        }
+
+                        final sensorList = valve.prsSensors.map((sensor) => {
+                          'name': sensor.name,
+                          'value': sensor.value,
+                        }).toList();
+
+                        return Container(
+                          width: 100,
+                          height: 25,
+                          decoration: BoxDecoration(
+                            color: Colors.yellowAccent,
+                            borderRadius: const BorderRadius.all(Radius.circular(2)),
+                            border: Border.all(color: Colors.grey, width: 0.5),
+                          ),
+                          /*child: Text(
+                            MyFunction().getUnitByParameter(context,
+                                sensorType, sensor.value.toString()) ?? '',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),*/
                         );
                       },
                     ),
