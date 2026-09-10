@@ -8,6 +8,7 @@ import '../../../utils/constants.dart';
 import '../../../utils/my_function.dart';
 import 'float_switch_popover.dart';
 import 'moisture_sensor_popover.dart';
+import 'pressure_sensor_popover.dart';
 
 class ValveWidgetMobile extends StatefulWidget {
   final ValveModel valve;
@@ -49,17 +50,19 @@ class _ValveWidgetMobileState extends State<ValveWidgetMobile> {
         }
 
         final bool hasMoisture = valve.moistureSensors.isNotEmpty;
+        final bool hasInputPressure = valve.inputPressure.isNotEmpty;
+        final bool hasLateralPressure = valve.lateralPressure.isNotEmpty;
         final bool hasWaterSource = valve.waterSources.isNotEmpty;
 
         return hasWaterSource
-            ? _buildWithSource(valve, hasMoisture)
-            : _buildWithoutSource(valve, hasMoisture);
+            ? _buildWithSource(valve, hasMoisture, hasInputPressure, hasLateralPressure)
+            : _buildWithoutSource(valve, hasMoisture, hasInputPressure, hasLateralPressure);
       },
     );
   }
 
 
-  Widget _buildWithSource(ValveModel valve, bool hasMoisture) {
+  Widget _buildWithSource(ValveModel valve, bool hasMoisture, bool hasInputPressure, bool hasLateralPressure) {
     return SizedBox(
       width: 140,
       height: 65,
@@ -68,18 +71,18 @@ class _ValveWidgetMobileState extends State<ValveWidgetMobile> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          SizedBox(width: 65, height: 65, child: _buildValveIcon(valve, hasMoisture)),
+          SizedBox(width: 65, height: 65, child: _buildValveIcon(valve, hasMoisture, hasInputPressure, hasLateralPressure)),
           SizedBox(width: 65, height: 65, child: _buildWaterSource(valve)),
         ],
       ),
     );
   }
 
-  Widget _buildWithoutSource(ValveModel valve, bool hasMoisture) {
-    return SizedBox(width: 70, height: 70, child: _buildValveIcon(valve, hasMoisture));
+  Widget _buildWithoutSource(ValveModel valve, bool hasMoisture, bool hasInputPressure, bool hasLateralPressure) {
+    return SizedBox(width: 70, height: 70, child: _buildValveIcon(valve, hasMoisture, hasInputPressure, hasLateralPressure));
   }
 
-  Widget _buildValveIcon(ValveModel valve, bool hasMoisture) {
+  Widget _buildValveIcon(ValveModel valve, bool hasMoisture, bool hasInputPressure, bool hasLateralPressure) {
     final Color valveColor = _valveColor(valve.status, valve.completePercent);
     return Stack(
       alignment: Alignment.center,
@@ -109,6 +112,8 @@ class _ValveWidgetMobileState extends State<ValveWidgetMobile> {
           ],
         ),
         if (hasMoisture) _buildMoistureButton(valve),
+        if (hasInputPressure) _buildPressureButton(valve, 'input'),
+        if (hasLateralPressure) _buildPressureButton(valve, 'lateral'),
       ],
     );
   }
@@ -153,6 +158,78 @@ class _ValveWidgetMobileState extends State<ValveWidgetMobile> {
           backgroundColor: MyFunction().getMoistureColor(valve.moistureSensors
               .map((s) => {'name': s.name, 'value': s.value}).toList()),
           child: Image.asset('assets/png/moisture_sensor.png', width: 25, height: 25),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPressureButton(ValveModel valve, String sensorType) {
+    final sensorList = sensorType == 'lateral' ? valve.lateralPressure : valve.inputPressure;
+
+    // Position input badge upper-left, lateral badge lower-left so they don't overlap the moisture button
+    final double top = sensorType == 'lateral' ? 35 : 5;
+
+    return Positioned(
+      top: top,
+      left: 0,
+      child: TextButton(
+        onPressed: () async {
+          showPopover(
+            context: context,
+            bodyBuilder: (context) {
+              return PressureSensorPopover(
+                valve: valve,
+                customerId: widget.customerId,
+                controllerId: widget.controllerId,
+                sensorType: sensorType,
+              );
+            },
+            direction: PopoverDirection.bottom,
+            width: 550,
+            height: 320,
+            arrowHeight: 15,
+            arrowWidth: 30,
+            barrierColor: Colors.black54,
+            arrowDyOffset: sensorType == 'lateral' ? -20 : -55,
+          );
+        },
+        style: ButtonStyle(
+          padding: WidgetStateProperty.all(EdgeInsets.zero),
+          minimumSize: WidgetStateProperty.all(Size.zero),
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          backgroundColor: WidgetStateProperty.all(Colors.transparent),
+        ),
+        child: Consumer<MqttPayloadProvider>(
+          builder: (_, provider, __) {
+            for (var sensor in sensorList) {
+              final sensorUpdate = provider.getSensorUpdatedValve(sensor.sNo.toString());
+              final statusParts = sensorUpdate?.split(',') ?? [];
+              if (statusParts.length > 1) {
+                sensor.value = statusParts[1];
+              }
+            }
+
+            final displaySensor = sensorList.first;
+
+            return Container(
+              width: 50,
+              height: 16,
+              decoration: BoxDecoration(
+                color: sensorType == 'lateral' ? Colors.lightBlueAccent : Colors.yellowAccent,
+                borderRadius: const BorderRadius.all(Radius.circular(2)),
+                border: Border.all(color: Colors.grey, width: 0.5),
+              ),
+              child: Text(
+                MyFunction().getUnitByParameter(context, 'Pressure Sensor', displaySensor.value.toString()) ?? '',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 9,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+            );
+          },
         ),
       ),
     );
