@@ -9,6 +9,7 @@ import '../../../../utils/constants.dart';
 import '../../../../utils/my_function.dart';
 import '../../../customer/widgets/float_switch_popover.dart';
 import '../../../customer/widgets/moisture_sensor_popover.dart';
+import '../../../customer/widgets/pressure_sensor_popover.dart';
 
 class ValveWidget extends StatelessWidget {
   final ValveModel valve;
@@ -35,8 +36,10 @@ class ValveWidget extends StatelessWidget {
         }
 
         bool hasMoisture = valve.moistureSensors.isNotEmpty;
-        bool hasPressure = valve.prsSensors.isNotEmpty;
+        bool hasInputPressure = valve.inputPressure.isNotEmpty;
+        bool hasLateralPressure = valve.lateralPressure.isNotEmpty;
         bool hasWaterSource = valve.waterSources.isNotEmpty;
+
         final ValueNotifier<int> popoverUpdateNotifier = ValueNotifier<int>(0);
 
 
@@ -319,26 +322,29 @@ class ValveWidget extends StatelessWidget {
                   ),
                 ),
 
-              if (hasPressure)
+              if (hasInputPressure)
                 Positioned(
-                  top: 50,
-                  left: 33,
+                  top: 15,
+                  left: 0,
                   child: TextButton(
                     onPressed: () async {
-
                       showPopover(
                         context: context,
                         bodyBuilder: (context) {
-                          return MoistureSensorPopover(valve: valve,
-                              customerId: customerId, controllerId: controllerId);
+                          return PressureSensorPopover(
+                            valve: valve,
+                            customerId: customerId,
+                            controllerId: controllerId,
+                            sensorType: 'input',
+                          );
                         },
                         direction: PopoverDirection.bottom,
                         width: 580,
-                        height: 340,
+                        height: 320,
                         arrowHeight: 15,
                         arrowWidth: 30,
                         barrierColor: Colors.black54,
-                        arrowDyOffset: -40,
+                        arrowDyOffset: -70,
                       );
                     },
                     style: ButtonStyle(
@@ -349,8 +355,7 @@ class ValveWidget extends StatelessWidget {
                     ),
                     child: Consumer<MqttPayloadProvider>(
                       builder: (_, provider, __) {
-
-                        for (var sensor in valve.prsSensors) {
+                        for (var sensor in valve.inputPressure) {
                           final sensorUpdate = provider.getSensorUpdatedValve(sensor.sNo.toString());
                           final statusParts = sensorUpdate?.split(',') ?? [];
                           if (statusParts.length > 1) {
@@ -358,28 +363,91 @@ class ValveWidget extends StatelessWidget {
                           }
                         }
 
-                        final sensorList = valve.prsSensors.map((sensor) => {
-                          'name': sensor.name,
-                          'value': sensor.value,
-                        }).toList();
+                        final displaySensor = valve.inputPressure.first;
 
                         return Container(
-                          width: 100,
-                          height: 25,
+                          width: 65,
+                          height: 17,
                           decoration: BoxDecoration(
                             color: Colors.yellowAccent,
                             borderRadius: const BorderRadius.all(Radius.circular(2)),
                             border: Border.all(color: Colors.grey, width: 0.5),
                           ),
-                          /*child: Text(
-                            MyFunction().getUnitByParameter(context,
-                                sensorType, sensor.value.toString()) ?? '',
+                          child: Text(
+                            "IP: ${MyFunction().getUnitByParameter(context, 'Pressure Sensor', displaySensor.value.toString()) ?? ''}",
+                            textAlign: TextAlign.center,
                             style: const TextStyle(
-                              fontSize: 12,
+                              fontSize: 10,
                               fontWeight: FontWeight.bold,
                               color: Colors.black87,
                             ),
-                          ),*/
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+
+              if (hasLateralPressure)
+                Positioned(
+                  top: 63,
+                  left: 0,
+                  child: TextButton(
+                    onPressed: () async {
+                      showPopover(
+                        context: context,
+                        bodyBuilder: (context) {
+                          return PressureSensorPopover(
+                            valve: valve,
+                            customerId: customerId,
+                            controllerId: controllerId,
+                            sensorType: 'lateral',
+                          );
+                        },
+                        direction: PopoverDirection.bottom,
+                        width: 580,
+                        height: 320,
+                        arrowHeight: 15,
+                        arrowWidth: 30,
+                        barrierColor: Colors.black54,
+                        arrowDyOffset: -20,
+                      );
+                    },
+                    style: ButtonStyle(
+                      padding: WidgetStateProperty.all(EdgeInsets.zero),
+                      minimumSize: WidgetStateProperty.all(Size.zero),
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      backgroundColor: WidgetStateProperty.all(Colors.transparent),
+                    ),
+                    child: Consumer<MqttPayloadProvider>(
+                      builder: (_, provider, __) {
+                        for (var sensor in valve.lateralPressure) {
+                          final sensorUpdate = provider.getSensorUpdatedValve(sensor.sNo.toString());
+                          final statusParts = sensorUpdate?.split(',') ?? [];
+                          if (statusParts.length > 1) {
+                            sensor.value = statusParts[1];
+                          }
+                        }
+
+                        final displaySensor = valve.lateralPressure.first;
+
+                        return Container(
+                          width: 65,
+                          height: 17,
+                          decoration: BoxDecoration(
+                            color: Colors.lightBlueAccent,
+                            borderRadius: const BorderRadius.all(Radius.circular(2)),
+                            border: Border.all(color: Colors.grey, width: 0.5),
+                          ),
+                          child: Text(
+                            "LT: ${MyFunction().getUnitByParameter(context, 'Pressure Sensor', displaySensor.value.toString()) ?? ''}",
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
                         );
                       },
                     ),

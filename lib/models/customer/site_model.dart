@@ -208,7 +208,8 @@ class MasterControllerModel {
     final filterSiteRaw = config['filterSite'] as List? ?? [];
     final fertilizerSiteRaw = config['fertilizerSite'] as List? ?? [];
     final moistureSensorRaw = config['moistureSensor'] as List? ?? [];
-    final pressureSensorRaw = config['pressureSensor'] as List? ?? [];
+    final valveRaw = config['valve'] as List? ?? [];
+    debugPrint('DEBUG valveRaw for controllerId=${json['controllerId']}: ${valveRaw.length} items');
 
     List<ConfigObject> configObjectsR = json["config"] != null &&
         json["config"] is Map<String, dynamic> &&
@@ -241,7 +242,7 @@ class MasterControllerModel {
 
     // STEP 6: Create IrrigationLineModel from filtered list
     List<IrrigationLineModel> irrigationLines = filteredIrrigationLines
-        .map((item) => IrrigationLineModel.fromJson(item, configObjects, moistureSensorRaw, waterSources, pressureSensorRaw))
+        .map((item) => IrrigationLineModel.fromJson(item, configObjects, moistureSensorRaw, waterSources, valveRaw))
         .toList();
 
     for (var line in irrigationLines) {
@@ -519,7 +520,7 @@ class IrrigationLineModel {
   });
 
   factory IrrigationLineModel.fromJson(Map<String, dynamic> json, List<ConfigObject> configObjects,
-      var moistureSensorRaw, List<WaterSourceModel> waterSources, var pressureSensorRaw) {
+      var moistureSensorRaw, List<WaterSourceModel> waterSources, var valveRaw) {
 
     final sourcePumpList = (json['sourcePump'] as List?) ?? [];
     final sourcePumpSet = sourcePumpList.map((e) => (e as num).toDouble()).toSet();
@@ -608,19 +609,46 @@ class IrrigationLineModel {
         .map((obj) => FCValveModel.fromConfigObject(obj))
         .toList();
 
-    final Map<double, List<PressureSensor>> valveToPrsSensors = {};
-    for (var prsSensor in pressureSensorRaw) {
-      final sensorSNo = (prsSensor['sNo'] as num).toDouble();
-      final sensorName = prsSensor['name'] as String;
-      final sensorValves = prsSensor['valves'] as List;
 
-      for (var valve in sensorValves) {
-        final valveSNo = (valve as num).toDouble();
-        valveToPrsSensors
-            .putIfAbsent(valveSNo, () => [])
-            .add(PressureSensor(sNo: sensorSNo, name: sensorName));
-      }
+    // Map valve SNo → Valve model (for O(1) lookup)
+
+    // Build a lookup: pressure sensor sNo → ConfigObject (objectId 24 = Pressure Sensor)
+    final pressureSensorBySNo = <double, ConfigObject>{
+      for (var obj in configObjects)
+        if (obj.objectId == 24)
+          obj.sNo: obj
+    };
+
+// Build a lookup: raw valve sNo → raw valve json (to get inputPressure/lateralPressure sNo lists)
+    final valveRawBySNo = <double, Map<String, dynamic>>{
+      for (var raw in valveRaw)
+        if (raw is Map && raw['sNo'] != null)
+          (raw['sNo'] as num).toDouble(): raw as Map<String, dynamic>
+    };
+
+// Assign directly to each ValveModel already in `valves`
+    for (var valve in valves) {
+      final raw = valveRawBySNo[valve.sNo];
+      if (raw == null) continue;
+
+      final inputPressureSNos   = (raw['inputPressure']   as List?) ?? [];
+      final lateralPressureSNos = (raw['lateralPressure'] as List?) ?? [];
+
+      valve.inputPressure = inputPressureSNos
+          .whereType<num>()
+          .map((sNo) => sNo.toDouble())
+          .where((sNo) => pressureSensorBySNo.containsKey(sNo))
+          .map((sNo) => PressureSensor.fromConfigObject(pressureSensorBySNo[sNo]!))
+          .toList();
+
+      valve.lateralPressure = lateralPressureSNos
+          .whereType<num>()
+          .map((sNo) => sNo.toDouble())
+          .where((sNo) => pressureSensorBySNo.containsKey(sNo))
+          .map((sNo) => PressureSensor.fromConfigObject(pressureSensorBySNo[sNo]!))
+          .toList();
     }
+    //prs end------------------
 
     final Map<double, List<MoistureSensorModel>> valveToMoistureSensors = {};
 
@@ -639,7 +667,6 @@ class IrrigationLineModel {
 
     for (var valve in valves) {
       valve.moistureSensors = valveToMoistureSensors[valve.sNo] ?? [];
-      valve.prsSensors = valveToPrsSensors[valve.sNo] ?? [];
     }
 
     final pressureSwitchSNoList = (json['pressureSwitch'] is List)
@@ -1599,7 +1626,8 @@ class ValveModel {
   int completePercent;
   bool isOn;
   List<MoistureSensorModel> moistureSensors = [];
-  List<PressureSensor> prsSensors = [];
+  List<PressureSensor> inputPressure = [];
+  List<PressureSensor> lateralPressure = [];
 
   ValveModel({
     required this.sNo,
