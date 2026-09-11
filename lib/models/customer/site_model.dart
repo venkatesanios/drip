@@ -162,7 +162,7 @@ class MasterControllerModel {
         json['modelId'] ?? 0);
 
     // STEP 5: Only add "All" line if there are multiple permitted lines
-    if(filteredIrrigationLines.isNotEmpty && filteredIrrigationLines.length > 1){
+    if(filteredIrrigationLines.isNotEmpty && filteredIrrigationLines.length > 1) {
       var allLine = {
         "objectId": 0,
         "sNo": 0,
@@ -209,7 +209,6 @@ class MasterControllerModel {
     final fertilizerSiteRaw = config['fertilizerSite'] as List? ?? [];
     final moistureSensorRaw = config['moistureSensor'] as List? ?? [];
     final valveRaw = config['valve'] as List? ?? [];
-    debugPrint('DEBUG valveRaw for controllerId=${json['controllerId']}: ${valveRaw.length} items');
 
     List<ConfigObject> configObjectsR = json["config"] != null &&
         json["config"] is Map<String, dynamic> &&
@@ -650,24 +649,78 @@ class IrrigationLineModel {
     }
     //prs end------------------
 
+    // Lookup for resolving soil-temp sensor S/N -> ConfigObject
+    final configBySNo = <double, ConfigObject>{
+      for (var obj in configObjects) obj.sNo: obj,
+    };
+
     final Map<double, List<MoistureSensorModel>> valveToMoistureSensors = {};
+    final Map<double, List<SensorModel>> valveToSoilTemperature = {};
 
     for (var sensor in moistureSensorRaw) {
       final sensorSNo = (sensor['sNo'] as num).toDouble();
       final sensorName = sensor['name'] as String;
-      final sensorValves = sensor['valves'] as List;
 
-      for (var valve in sensorValves) {
-        final valveSNo = (valve as num).toDouble();
+      final valveSNos = ((sensor['valves'] as List?) ?? [])
+          .map((e) => (e as num).toDouble())
+          .toList();
+
+      // soilTemperature entries are SENSOR S/Ns (e.g. 30.001), not valve S/Ns
+      final soilTempSNos = ((sensor['soilTemperature'] as List?) ?? [])
+          .map((e) => (e as num).toDouble())
+          .toList();
+
+      // Resolve each soil-temp S/N to a real SensorModel via configObjects
+      final soilTempSensors = soilTempSNos
+          .where(configBySNo.containsKey)
+          .map((sNo) => SensorModel.fromConfigObject(configBySNo[sNo]!))
+          .toList();
+
+      // Attach to every valve this moisture sensor is linked to
+      for (final valveSNo in valveSNos) {
         valveToMoistureSensors
             .putIfAbsent(valveSNo, () => [])
             .add(MoistureSensorModel(sNo: sensorSNo, name: sensorName));
+
+        valveToSoilTemperature
+            .putIfAbsent(valveSNo, () => [])
+            .addAll(soilTempSensors);
       }
     }
 
     for (var valve in valves) {
       valve.moistureSensors = valveToMoistureSensors[valve.sNo] ?? [];
+      valve.soilTemperature = valveToSoilTemperature[valve.sNo] ?? [];
     }
+
+    /*final Map<double, List<MoistureSensorModel>> valveToMoistureSensors = {};
+    final Map<double, List<SensorModel>> valveToSoilTemperature = {};
+
+    for (var sensor in moistureSensorRaw) {
+      final sensorSNo = (sensor['sNo'] as num).toDouble();
+      final sensorName = sensor['name'] as String;
+      final valves = sensor['valves'] as List;
+      final vlvSoilTemperature = sensor['soilTemperature'] as List;
+
+      for (var valve in valves) {
+        final valveSNo = (valve as num).toDouble();
+        valveToMoistureSensors
+            .putIfAbsent(valveSNo, () => [])
+            .add(MoistureSensorModel(sNo: sensorSNo, name: sensorName));
+      }
+
+      for (var valve in vlvSoilTemperature) {
+        final valveSNo = (valve as num).toDouble();
+        valveToSoilTemperature
+            .putIfAbsent(valveSNo, () => [])
+            .add(SensorModel(sNo: sensorSNo, name: sensorName));
+      }
+    }
+
+    for (var valve in valves) {
+      valve.moistureSensors = valveToMoistureSensors[valve.sNo] ?? [];
+      valve.soilTemperature = valveToSoilTemperature[valve.sNo] ?? [];
+    }*/
 
     final pressureSwitchSNoList = (json['pressureSwitch'] is List)
         ? (json['pressureSwitch'] as List).map((e) => (e as num).toDouble()).toSet()
@@ -1626,6 +1679,7 @@ class ValveModel {
   int completePercent;
   bool isOn;
   List<MoistureSensorModel> moistureSensors = [];
+  List<SensorModel> soilTemperature = [];
   List<PressureSensor> inputPressure = [];
   List<PressureSensor> lateralPressure = [];
 
