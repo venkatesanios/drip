@@ -138,7 +138,9 @@ class _SourceConfigurationState extends State<SourceConfiguration> {
                                 trailing: IntrinsicWidth(
                                   child: CustomDropDownButton(
                                       value: getTankCodeToString(source.sourceType),
-                                      list: const ['Tank', 'Sump', 'Well', 'Bore', 'Fertilizer Source', 'Fertilizer Tank', 'Others'],
+                                      list: const ['Tank', 'Sump', 'Well', 'Bore',
+                                        // 'Fertilizer Source', 'Fertilizer Tank',
+                                        'Others'],
                                       onChanged: (value){
                                         setState(() {
                                           source.sourceType = getTankStringToCode(value!);
