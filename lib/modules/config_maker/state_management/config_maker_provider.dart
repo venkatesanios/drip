@@ -418,9 +418,27 @@ class ConfigMakerProvider extends ChangeNotifier{
         ph = (configMakerData['phSensor'] as List<dynamic>).map((phObject) => PhModel.fromJson(phObject)).toList();
       }
       line = (configMakerData['irrigationLine'] as List<dynamic>).map((lineObject) => IrrigationLineModel.fromJson(lineObject)).toList();
+      if(listOfGeneratedObject.any((object) => object.objectId == AppConstants.valveObjectId) && valveConfig.isEmpty){
+        for(var i in listOfGeneratedObject){
+          if(i.objectId == AppConstants.valveObjectId){
+            valveConfig.add(
+              ValveConfigModel(commonDetails: i, inputPressure: [], lateralPressure: [])
+            );
+          }
+        }
+      }
+      if(listOfGeneratedObject.any((object) => object.objectId == AppConstants.pressureSensorObjectId) && pressureSensor.isEmpty){
+        for(var i in listOfGeneratedObject){
+          if(i.objectId == AppConstants.pressureSensorObjectId){
+            pressureSensor.add(
+                PressureModel(commonDetails: i, valves: [], mainValve: [])
+            );
+          }
+        }
+      }
     } catch (e, stackTrace){
-      print('Error on converting to device model :: $e');
-      print('stackTrace on converting to device model :: $stackTrace');
+      debugPrint('Error on converting to device model :: $e');
+      debugPrint('stackTrace on converting to device model :: $stackTrace');
     }
     notifyListeners();
     return listOfDeviceModel;

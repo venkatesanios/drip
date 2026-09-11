@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 import '../model/data_parsing_and_sorting_model.dart';
+import 'reason_lookup.dart';
 
 class ScrollingTable extends StatefulWidget {
   final String fixedColumn;
@@ -159,22 +160,26 @@ class _ScrollingTableState extends State<ScrollingTable> {
                     child: Text('${widget.fixedColumn}',style: TextStyle(color: Colors.white),),
                   ),
                   Expanded(
-                    child: SingleChildScrollView(
+                    child: Scrollbar(
+                      thumbVisibility: true,
                       controller: _verticalScroll1,
-                      child: Container(
-                        child: Column(
-                          children: [
-                            ...fixedNestedColumnWidget(),
-                            // for(var i = 0;i < widget.fixedColumnData.length;i++)
-                            //   Container(
-                            //     color: Color(0xffDCF3DD),
-                            //     padding: const EdgeInsets.only(left: 8),
-                            //     width: 100,
-                            //     height:getBoxHeight(widget.filterColumnData, i),
-                            //     alignment: Alignment.center,
-                            //     child: Text('${widget.fixedColumnData[i]}',style: TextStyle(color: Colors.black),),
-                            //   ),
-                          ],
+                      child: SingleChildScrollView(
+                        controller: _verticalScroll1,
+                        child: Container(
+                          child: Column(
+                            children: [
+                              ...fixedNestedColumnWidget(),
+                              // for(var i = 0;i < widget.fixedColumnData.length;i++)
+                              //   Container(
+                              //     color: Color(0xffDCF3DD),
+                              //     padding: const EdgeInsets.only(left: 8),
+                              //     width: 100,
+                              //     height:getBoxHeight(widget.filterColumnData, i),
+                              //     alignment: Alignment.center,
+                              //     child: Text('${widget.fixedColumnData[i]}',style: TextStyle(color: Colors.black),),
+                              //   ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -188,211 +193,215 @@ class _ScrollingTableState extends State<ScrollingTable> {
                     color: Color(0xff03464F),
                     width: width-100,
                     height: 75,
-                    child: SingleChildScrollView(
+                    child: Scrollbar(
+                      thumbVisibility: true,
                       controller: _horizontalScroll1,
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          getColumnDotLine(),
-                          if(widget.generalColumn.isNotEmpty)
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Center(
-                                  child: Text('General',style: TextStyle(color: Colors.white),),
-                                ),
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    for(var i = 0;i < widget.generalColumn.length;i++)
-                                      Container(
-                                        // color: Color(0xffEAEAEA),
-                                        color: Colors.orange.shade200,
-                                        padding: const EdgeInsets.only(left: 8),
-                                        width: widget.generalColumn[i] == 'Status' ? 150 : ['Start Stop Reason','Pause Resume Reason', 'Pump CT Average', 'Pump CT Maximum', 'Pump CT Minimum', 'Pressure Average', 'Pressure Maximum', 'Pressure Minimum'].contains(widget.generalColumn[i]) ? 200 : 100,
-                                        height: 50,
-                                        alignment: Alignment.centerLeft,
-                                        child: Text('${widget.generalColumn[i]}',style: TextStyle(color: Colors.black), maxLines: 2,),
-                                      ),
+                      child: SingleChildScrollView(
+                        controller: _horizontalScroll1,
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            getColumnDotLine(),
+                            if(widget.generalColumn.isNotEmpty)
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Center(
+                                    child: Text('General',style: TextStyle(color: Colors.white),),
+                                  ),
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      for(var i = 0;i < widget.generalColumn.length;i++)
+                                        Container(
+                                          // color: Color(0xffEAEAEA),
+                                          color: Colors.orange.shade200,
+                                          padding: const EdgeInsets.only(left: 8),
+                                          width: widget.generalColumn[i] == 'Status' ? 150 : ['Start Stop Reason','Pause Resume Reason', 'Pump CT Average', 'Pump CT Maximum', 'Pump CT Minimum', 'Pressure Average', 'Pressure Maximum', 'Pressure Minimum'].contains(widget.generalColumn[i]) ? 200 : 100,
+                                          height: 50,
+                                          alignment: Alignment.centerLeft,
+                                          child: Text('${widget.generalColumn[i]}',style: TextStyle(color: Colors.black), maxLines: 2,),
+                                        ),
 
-                                  ],
-                                ),
-                              ],
-                            ),
-                          getColumnDotLine(),
-                          if(widget.waterColumn.isNotEmpty)
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Center(
-                                  child: Text('Water',style: TextStyle(color: Colors.white),),
-                                ),
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    for(var i = 0;i < widget.waterColumn.length;i++)
-                                      Container(
-                                        color: Colors.orange.shade200,
-                                        padding: const EdgeInsets.only(left: 8),
-                                        width: 100,
-                                        height: 50,
-                                        alignment: Alignment.centerLeft,
-                                        child: Text('${widget.waterColumn[i]}',style: const TextStyle(color: Colors.black),),
-                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            getColumnDotLine(),
+                            if(widget.waterColumn.isNotEmpty)
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Center(
+                                    child: Text('Water',style: TextStyle(color: Colors.white),),
+                                  ),
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      for(var i = 0;i < widget.waterColumn.length;i++)
+                                        Container(
+                                          color: Colors.orange.shade200,
+                                          padding: const EdgeInsets.only(left: 8),
+                                          width: 100,
+                                          height: 50,
+                                          alignment: Alignment.centerLeft,
+                                          child: Text('${widget.waterColumn[i]}',style: const TextStyle(color: Colors.black),),
+                                        ),
 
-                                  ],
-                                ),
-                              ],
-                            ),
-                          getColumnDotLine(),
-                          if(widget.filterColumn.isNotEmpty)
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Center(
-                                  child: Text('Filter',style: TextStyle(color: Colors.white),),
-                                ),
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    for(var i = 0;i < widget.filterColumn.length;i++)
-                                      Container(
-                                        color: Colors.orange.shade200,
-                                        padding: const EdgeInsets.only(left: 8),
-                                        width: 200,
-                                        height: 50,
-                                        alignment: Alignment.centerLeft,
-                                        child: Text('${widget.filterColumn[i]}',style: TextStyle(color: Colors.black),),
-                                      ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          getColumnDotLine(),
-                          if(widget.prePostColumn.isNotEmpty)
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Center(
-                                  child: Text('Pre Post',style: TextStyle(color: Colors.white),),
-                                ),
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    for(var i = 0;i < widget.prePostColumn.length;i++)
-                                      Container(
-                                        color: Colors.orange.shade200,
-                                        padding: const EdgeInsets.only(left: 8),
-                                        width: 100,
-                                        height: 50,
-                                        alignment: Alignment.centerLeft,
-                                        child: Text('${widget.prePostColumn[i]}',style: TextStyle(color: Colors.black),),
-                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            getColumnDotLine(),
+                            if(widget.filterColumn.isNotEmpty)
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Center(
+                                    child: Text('Filter',style: TextStyle(color: Colors.white),),
+                                  ),
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      for(var i = 0;i < widget.filterColumn.length;i++)
+                                        Container(
+                                          color: Colors.orange.shade200,
+                                          padding: const EdgeInsets.only(left: 8),
+                                          width: 200,
+                                          height: 50,
+                                          alignment: Alignment.centerLeft,
+                                          child: Text('${widget.filterColumn[i]}',style: TextStyle(color: Colors.black),),
+                                        ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            getColumnDotLine(),
+                            if(widget.prePostColumn.isNotEmpty)
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Center(
+                                    child: Text('Pre Post',style: TextStyle(color: Colors.white),),
+                                  ),
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      for(var i = 0;i < widget.prePostColumn.length;i++)
+                                        Container(
+                                          color: Colors.orange.shade200,
+                                          padding: const EdgeInsets.only(left: 8),
+                                          width: 100,
+                                          height: 50,
+                                          alignment: Alignment.centerLeft,
+                                          child: Text('${widget.prePostColumn[i]}',style: TextStyle(color: Colors.black),),
+                                        ),
 
-                                  ],
-                                ),
-                              ],
-                            ),
-                          getColumnDotLine(),
-                          if(widget.centralEcPhColumn.isNotEmpty)
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Center(
-                                  child: Text('<C-EC-PH>',style: TextStyle(color: Colors.white),),
-                                ),
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    for(var i = 0;i < widget.centralEcPhColumn.length;i++)
-                                      Container(
-                                        color: Colors.orange.shade200,
-                                        padding: const EdgeInsets.only(left: 8),
-                                        width: 100,
-                                        height: 50,
-                                        alignment: Alignment.centerLeft,
-                                        child: Text('${widget.centralEcPhColumn[i]}',style: TextStyle(color: Colors.black),),
-                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            getColumnDotLine(),
+                            if(widget.centralEcPhColumn.isNotEmpty)
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Center(
+                                    child: Text('<C-EC-PH>',style: TextStyle(color: Colors.white),),
+                                  ),
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      for(var i = 0;i < widget.centralEcPhColumn.length;i++)
+                                        Container(
+                                          color: Colors.orange.shade200,
+                                          padding: const EdgeInsets.only(left: 8),
+                                          width: 100,
+                                          height: 50,
+                                          alignment: Alignment.centerLeft,
+                                          child: Text('${widget.centralEcPhColumn[i]}',style: TextStyle(color: Colors.black),),
+                                        ),
 
-                                  ],
-                                ),
-                              ],
-                            ),
-                          getColumnDotLine(),
-                          if(widget.centralChannel1Column.isNotEmpty)
-                            getChannelColumnWidget(columnList: widget.centralChannel1Column, channelNo: 1,central: true),
-                          getColumnDotLine(),
-                          if(widget.centralChannel2Column.isNotEmpty)
-                            getChannelColumnWidget(columnList: widget.centralChannel2Column, channelNo: 2,central: true),
-                          getColumnDotLine(),
-                          if(widget.centralChannel3Column.isNotEmpty)
-                            getChannelColumnWidget(columnList: widget.centralChannel3Column, channelNo: 3,central: true),
-                          getColumnDotLine(),
-                          if(widget.centralChannel4Column.isNotEmpty)
-                            getChannelColumnWidget(columnList: widget.centralChannel4Column, channelNo: 4,central: true),
-                          getColumnDotLine(),
-                          if(widget.centralChannel5Column.isNotEmpty)
-                            getChannelColumnWidget(columnList: widget.centralChannel5Column, channelNo: 5,central: true),
-                          getColumnDotLine(),
-                          if(widget.centralChannel6Column.isNotEmpty)
-                            getChannelColumnWidget(columnList: widget.centralChannel6Column, channelNo: 6,central: true),
-                          getColumnDotLine(),
-                          if(widget.centralChannel7Column.isNotEmpty)
-                            getChannelColumnWidget(columnList: widget.centralChannel7Column, channelNo: 7,central: true),
-                          getColumnDotLine(),
-                          if(widget.centralChannel8Column.isNotEmpty)
-                            getChannelColumnWidget(columnList: widget.centralChannel8Column, channelNo: 8,central: true),
-                          getColumnDotLine(),
-                          if(widget.localEcPhColumn.isNotEmpty)
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Center(
-                                  child: Text('<L-EC-PH>',style: TextStyle(color: Colors.white),),
-                                ),
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    for(var i = 0;i < widget.localEcPhColumn.length;i++)
-                                      Container(
-                                        color: Colors.orange.shade200,
-                                        padding: const EdgeInsets.only(left: 8),
-                                        width: 100,
-                                        height: 50,
-                                        alignment: Alignment.centerLeft,
-                                        child: Text('${widget.localEcPhColumn[i]}',style: TextStyle(color: Colors.black),),
-                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            getColumnDotLine(),
+                            if(widget.centralChannel1Column.isNotEmpty)
+                              getChannelColumnWidget(columnList: widget.centralChannel1Column, channelNo: 1,central: true),
+                            getColumnDotLine(),
+                            if(widget.centralChannel2Column.isNotEmpty)
+                              getChannelColumnWidget(columnList: widget.centralChannel2Column, channelNo: 2,central: true),
+                            getColumnDotLine(),
+                            if(widget.centralChannel3Column.isNotEmpty)
+                              getChannelColumnWidget(columnList: widget.centralChannel3Column, channelNo: 3,central: true),
+                            getColumnDotLine(),
+                            if(widget.centralChannel4Column.isNotEmpty)
+                              getChannelColumnWidget(columnList: widget.centralChannel4Column, channelNo: 4,central: true),
+                            getColumnDotLine(),
+                            if(widget.centralChannel5Column.isNotEmpty)
+                              getChannelColumnWidget(columnList: widget.centralChannel5Column, channelNo: 5,central: true),
+                            getColumnDotLine(),
+                            if(widget.centralChannel6Column.isNotEmpty)
+                              getChannelColumnWidget(columnList: widget.centralChannel6Column, channelNo: 6,central: true),
+                            getColumnDotLine(),
+                            if(widget.centralChannel7Column.isNotEmpty)
+                              getChannelColumnWidget(columnList: widget.centralChannel7Column, channelNo: 7,central: true),
+                            getColumnDotLine(),
+                            if(widget.centralChannel8Column.isNotEmpty)
+                              getChannelColumnWidget(columnList: widget.centralChannel8Column, channelNo: 8,central: true),
+                            getColumnDotLine(),
+                            if(widget.localEcPhColumn.isNotEmpty)
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Center(
+                                    child: Text('<L-EC-PH>',style: TextStyle(color: Colors.white),),
+                                  ),
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      for(var i = 0;i < widget.localEcPhColumn.length;i++)
+                                        Container(
+                                          color: Colors.orange.shade200,
+                                          padding: const EdgeInsets.only(left: 8),
+                                          width: 100,
+                                          height: 50,
+                                          alignment: Alignment.centerLeft,
+                                          child: Text('${widget.localEcPhColumn[i]}',style: TextStyle(color: Colors.black),),
+                                        ),
 
-                                  ],
-                                ),
-                              ],
-                            ),
-                          getColumnDotLine(),
-                          if(widget.localChannel1Column.isNotEmpty)
-                            getChannelColumnWidget(columnList: widget.localChannel1Column, channelNo: 1,central: false),
-                          getColumnDotLine(),
-                          if(widget.localChannel2Column.isNotEmpty)
-                            getChannelColumnWidget(columnList: widget.localChannel2Column, channelNo: 2,central: false),
-                          getColumnDotLine(),
-                          if(widget.localChannel3Column.isNotEmpty)
-                            getChannelColumnWidget(columnList: widget.localChannel3Column, channelNo: 3,central: false),
-                          getColumnDotLine(),
-                          if(widget.localChannel4Column.isNotEmpty)
-                            getChannelColumnWidget(columnList: widget.localChannel4Column, channelNo: 4,central: false),
-                          getColumnDotLine(),
-                          if(widget.localChannel5Column.isNotEmpty)
-                            getChannelColumnWidget(columnList: widget.localChannel5Column, channelNo: 5,central: false),
-                          getColumnDotLine(),
-                          if(widget.localChannel6Column.isNotEmpty)
-                            getChannelColumnWidget(columnList: widget.localChannel6Column, channelNo: 6,central: false),
-                          getColumnDotLine(),
-                          if(widget.localChannel7Column.isNotEmpty)
-                            getChannelColumnWidget(columnList: widget.localChannel7Column, channelNo: 7,central: false),
-                          getColumnDotLine(),
-                          if(widget.localChannel8Column.isNotEmpty)
-                            getChannelColumnWidget(columnList: widget.localChannel8Column, channelNo: 8,central: false),
-                          getColumnDotLine(),
-                        ],
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            getColumnDotLine(),
+                            if(widget.localChannel1Column.isNotEmpty)
+                              getChannelColumnWidget(columnList: widget.localChannel1Column, channelNo: 1,central: false),
+                            getColumnDotLine(),
+                            if(widget.localChannel2Column.isNotEmpty)
+                              getChannelColumnWidget(columnList: widget.localChannel2Column, channelNo: 2,central: false),
+                            getColumnDotLine(),
+                            if(widget.localChannel3Column.isNotEmpty)
+                              getChannelColumnWidget(columnList: widget.localChannel3Column, channelNo: 3,central: false),
+                            getColumnDotLine(),
+                            if(widget.localChannel4Column.isNotEmpty)
+                              getChannelColumnWidget(columnList: widget.localChannel4Column, channelNo: 4,central: false),
+                            getColumnDotLine(),
+                            if(widget.localChannel5Column.isNotEmpty)
+                              getChannelColumnWidget(columnList: widget.localChannel5Column, channelNo: 5,central: false),
+                            getColumnDotLine(),
+                            if(widget.localChannel6Column.isNotEmpty)
+                              getChannelColumnWidget(columnList: widget.localChannel6Column, channelNo: 6,central: false),
+                            getColumnDotLine(),
+                            if(widget.localChannel7Column.isNotEmpty)
+                              getChannelColumnWidget(columnList: widget.localChannel7Column, channelNo: 7,central: false),
+                            getColumnDotLine(),
+                            if(widget.localChannel8Column.isNotEmpty)
+                              getChannelColumnWidget(columnList: widget.localChannel8Column, channelNo: 8,central: false),
+                            getColumnDotLine(),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -445,7 +454,10 @@ class _ScrollingTableState extends State<ScrollingTable> {
                                                         // color: getStatus(i[j])['color'],
                                                           borderRadius: BorderRadius.circular(20)
                                                       ),
-                                                      child: Text('${getStatus(widget.generalColumnData[i][j])['status']}',textAlign: TextAlign.center,style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold,color: getStatus(widget.generalColumnData[i][j])['textColor']),overflow: TextOverflow.ellipsis,)
+                                                      child: Tooltip(
+                                                        message: '${getStatus(widget.generalColumnData[i][j])['status']}',
+                                                        child: Text('${getStatus(widget.generalColumnData[i][j])['status']}',textAlign: TextAlign.center,style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold,color: getStatus(widget.generalColumnData[i][j])['textColor']),overflow: TextOverflow.ellipsis,),
+                                                      )
                                                   ),
                                                 )
                                               else if(['Start Stop Reason','Pause Resume Reason'].contains(widget.generalColumn[j]))
@@ -463,38 +475,47 @@ class _ScrollingTableState extends State<ScrollingTable> {
                                                       decoration: BoxDecoration(
                                                         borderRadius: BorderRadius.circular(20),
                                                       ),
-                                                      child: Text(programStartStopReason(code: widget.generalColumnData[i][j]),textAlign: TextAlign.center,style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold,color: getStatus(widget.generalColumnData[i][j])['textColor']),overflow: TextOverflow.ellipsis,)
+                                                      child: Tooltip(
+                                                        message: programStartStopReason(code: widget.generalColumnData[i][j]),
+                                                        child: Text(programStartStopReason(code: widget.generalColumnData[i][j]),textAlign: TextAlign.center,style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold,color: getStatus(widget.generalColumnData[i][j])['textColor']),overflow: TextOverflow.ellipsis,),
+                                                      )
                                                   ),
                                                 )
                                               else if(['Pump CT Average', 'Pump CT Maximum', 'Pump CT Minimum', 'Pressure Average', 'Pressure Maximum', 'Pressure Minimum'].contains(widget.generalColumn[j]))
-                                                Container(
-                                                  padding: const EdgeInsets.only(left: 8),
-                                                  width: 200,
-                                                  height: getBoxHeight(widget.filterColumnData, i),
-                                                  alignment: Alignment.centerLeft,
-                                                  decoration: BoxDecoration(
-                                                    border: seperatingLength(i) ? const Border(bottom: BorderSide(width: 1)) : null,
+                                                  Container(
+                                                    padding: const EdgeInsets.only(left: 8),
+                                                    width: 200,
+                                                    height: getBoxHeight(widget.filterColumnData, i),
+                                                    alignment: Alignment.centerLeft,
+                                                    decoration: BoxDecoration(
+                                                      border: seperatingLength(i) ? const Border(bottom: BorderSide(width: 1)) : null,
+                                                    ),
+                                                    child: Container(
+                                                        width: 200,
+                                                        padding: const EdgeInsets.all(5),
+                                                        decoration: BoxDecoration(
+                                                          borderRadius: BorderRadius.circular(20),
+                                                        ),
+                                                        child: Tooltip(
+                                                          message: '${widget.generalColumnData[i][j]}',
+                                                          child: Text(widget.generalColumnData[i][j],textAlign: TextAlign.center,style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold,color: getStatus(widget.generalColumnData[i][j])['textColor']),overflow: TextOverflow.ellipsis,),
+                                                        )
+                                                    ),
+                                                  )
+                                                else
+                                                  Container(
+                                                    decoration: BoxDecoration(
+                                                      border: seperatingLength(i) ? const Border(bottom: BorderSide(width: 1)) : null,
+                                                    ),
+                                                    padding: const EdgeInsets.only(left: 8),
+                                                    width: 100,
+                                                    height: getBoxHeight(widget.filterColumnData, i),
+                                                    alignment: Alignment.centerLeft,
+                                                    child: Tooltip(
+                                                      message: '${widget.generalColumnData[i][j] ?? '-'}',
+                                                      child: Text('${widget.generalColumnData[i][j] ?? '-'}',style: TextStyle(fontSize: 12,fontWeight: FontWeight.normal),overflow: TextOverflow.ellipsis,),
+                                                    ),
                                                   ),
-                                                  child: Container(
-                                                      width: 200,
-                                                      padding: const EdgeInsets.all(5),
-                                                      decoration: BoxDecoration(
-                                                        borderRadius: BorderRadius.circular(20),
-                                                      ),
-                                                      child: Text(widget.generalColumnData[i][j],textAlign: TextAlign.center,style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold,color: getStatus(widget.generalColumnData[i][j])['textColor']),overflow: TextOverflow.ellipsis,)
-                                                  ),
-                                                )
-                                              else
-                                                Container(
-                                                  decoration: BoxDecoration(
-                                                    border: seperatingLength(i) ? const Border(bottom: BorderSide(width: 1)) : null,
-                                                  ),
-                                                  padding: const EdgeInsets.only(left: 8),
-                                                  width: 100,
-                                                  height: getBoxHeight(widget.filterColumnData, i),
-                                                  alignment: Alignment.centerLeft,
-                                                  child: Text('${widget.generalColumnData[i][j] ?? '-'}',style: TextStyle(fontSize: 12,fontWeight: FontWeight.normal),overflow: TextOverflow.ellipsis,),
-                                                ),
                                             SizedBox(
                                               width: 0,
                                               height: getBoxHeight(widget.filterColumnData, i),
@@ -524,7 +545,10 @@ class _ScrollingTableState extends State<ScrollingTable> {
                                                 width: 100,
                                                 height:getBoxHeight(widget.filterColumnData, i),
                                                 alignment: Alignment.centerLeft,
-                                                child: Text('${widget.waterColumnData[i][j] ?? '-'}',style: TextStyle(fontSize: 12,fontWeight: FontWeight.normal),overflow: TextOverflow.ellipsis,),
+                                                child: Tooltip(
+                                                  message: '${widget.waterColumnData[i][j] ?? '-'}',
+                                                  child: Text('${widget.waterColumnData[i][j] ?? '-'}',style: TextStyle(fontSize: 12,fontWeight: FontWeight.normal),overflow: TextOverflow.ellipsis,),
+                                                ),
                                               ),
                                             SizedBox(
                                               width: 0,
@@ -554,7 +578,10 @@ class _ScrollingTableState extends State<ScrollingTable> {
                                                 width: 200,
                                                 height: getBoxHeight(widget.filterColumnData, i),
                                                 alignment: Alignment.centerLeft,
-                                                child: Text('${widget.filterColumnData[i][j] ?? '-'}',style: TextStyle(fontSize: 12,fontWeight: FontWeight.normal),overflow: TextOverflow.ellipsis,),
+                                                child: Tooltip(
+                                                  message: '${widget.filterColumnData[i][j] ?? '-'}',
+                                                  child: Text('${widget.filterColumnData[i][j] ?? '-'}',style: TextStyle(fontSize: 12,fontWeight: FontWeight.normal),overflow: TextOverflow.ellipsis,),
+                                                ),
                                               ),
                                             SizedBox(
                                               width: 0,
@@ -584,7 +611,10 @@ class _ScrollingTableState extends State<ScrollingTable> {
                                                 width: 100,
                                                 height:getBoxHeight(widget.filterColumnData, i),
                                                 alignment: Alignment.centerLeft,
-                                                child: Text('${widget.prePostColumnData[i][j] ?? '-'}',style: TextStyle(fontSize: 12,fontWeight: FontWeight.normal),overflow: TextOverflow.ellipsis,),
+                                                child: Tooltip(
+                                                  message: '${widget.prePostColumnData[i][j] ?? '-'}',
+                                                  child: Text('${widget.prePostColumnData[i][j] ?? '-'}',style: TextStyle(fontSize: 12,fontWeight: FontWeight.normal),overflow: TextOverflow.ellipsis,),
+                                                ),
                                               ),
                                             SizedBox(
                                               width: 0,
@@ -615,7 +645,10 @@ class _ScrollingTableState extends State<ScrollingTable> {
                                                 width: 100,
                                                 height:getBoxHeight(widget.filterColumnData, i),
                                                 alignment: Alignment.centerLeft,
-                                                child: Text('${widget.centralEcPhColumnData[i][j] ?? '-'}',style: TextStyle(fontSize: 12,fontWeight: FontWeight.normal),overflow: TextOverflow.ellipsis,),
+                                                child: Tooltip(
+                                                  message: '${widget.centralEcPhColumnData[i][j] ?? '-'}',
+                                                  child: Text('${widget.centralEcPhColumnData[i][j] ?? '-'}',style: TextStyle(fontSize: 12,fontWeight: FontWeight.normal),overflow: TextOverflow.ellipsis,),
+                                                ),
                                               ),
                                             SizedBox(
                                               width: 0,
@@ -655,7 +688,10 @@ class _ScrollingTableState extends State<ScrollingTable> {
                                                 width: 100,
                                                 height:getBoxHeight(widget.filterColumnData, i),
                                                 alignment: Alignment.centerLeft,
-                                                child: Text('${widget.localEcPhColumnData[i][j] ?? '-'}',style: TextStyle(fontSize: 12,fontWeight: FontWeight.normal),overflow: TextOverflow.ellipsis,),
+                                                child: Tooltip(
+                                                  message: '${widget.localEcPhColumnData[i][j] ?? '-'}',
+                                                  child: Text('${widget.localEcPhColumnData[i][j] ?? '-'}',style: TextStyle(fontSize: 12,fontWeight: FontWeight.normal),overflow: TextOverflow.ellipsis,),
+                                                ),
                                               ),
                                             SizedBox(
                                               width: 0,
@@ -779,7 +815,10 @@ class _ScrollingTableState extends State<ScrollingTable> {
                   width: 100,
                   height:getBoxHeight(widget.filterColumnData, i),
                   alignment: Alignment.centerLeft,
-                  child: Text('${columnDataList[i][j] ?? '-'}',style: TextStyle(fontSize: 12,fontWeight: FontWeight.normal),overflow: TextOverflow.ellipsis,),
+                  child: Tooltip(
+                    message: '${columnDataList[i][j] ?? '-'}',
+                    child: Text('${columnDataList[i][j] ?? '-'}',style: TextStyle(fontSize: 12,fontWeight: FontWeight.normal),overflow: TextOverflow.ellipsis,),
+                  ),
                 ),
               SizedBox(
                 width: 0,
@@ -859,79 +898,5 @@ class VerticalDotBorder extends CustomPainter{
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
     return false;
-  }
-
-}
-
-String programStartStopReason({required code}){
-  switch(code){
-    case (1):
-      return 'Running As Per Schedule';
-    case (2):
-      return 'Turned On Manually';
-    case (3):
-      return 'Started By Condition';
-    case (4):
-      return 'TurnedOff Manually';
-    case (5):
-      return 'Program TurnedOff';
-    case (6):
-      return 'Zone TurnedOff';
-    case (7):
-      return 'Stopped By Condition';
-    case (8):
-      return 'Disabled By Condition';
-    case (9):
-      return 'StandAlone Program Started';
-    case (10):
-      return 'StandAlone Program Stopped';
-    case (11):
-      return 'StandAlone Program Stopped After SetValue';
-    case (12):
-      return 'Stand Alone Manual Started';
-    case (13):
-      return 'StandAlone Manual Stopped';
-    case (14):
-      return 'StandAlone Manual Stopped AfterSetValue';
-    case (15):
-      return 'Started By Day CountRtc';
-    case (16):
-      return 'Paused By User';
-    case (17):
-      return 'Manually Started Paused By User';
-    case (18):
-      return 'Program Deleted';
-    case (19):
-      return 'Program Ready';
-    case (20):
-      return 'Program Completed';
-    case (21):
-      return 'Resumed By User';
-    case (22):
-      return 'Paused By Condition';
-    case (23):
-      return 'Program Ready And Run By Condition';
-    case (24):
-      return 'Running As PerSchedule And Condition';
-    case (25):
-      return 'Started B yCondition Paused By User';
-    case (26):
-      return 'Resumed By Condition';
-    case (27):
-      return 'Bypassed Start ConditionManually';
-    case (28):
-      return 'Bypassed Stop ConditionManually';
-    case (29):
-      return 'Continue Manually';
-    case (30):
-      return '-';
-    case (31):
-      return 'Program Completed';
-    case (32):
-      return 'Waiting For Condition';
-    case (33):
-      return 'Started By Condition And Run As Per Schedule';
-    default:
-      return 'code : $code';
   }
 }

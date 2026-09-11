@@ -90,6 +90,7 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
         'userId' : widget.userData['customerId'],
         'controllerId' : widget.userData['controllerId'],
       };
+      debugPrint("body getUserLogConfig: $body");
       var response = await IrrigationRepository().getUserLogConfig(body);
       var configResponse = await IrrigationRepository().getUserNames(body);
       Map<String, dynamic> jsonData = jsonDecode(response.body);
