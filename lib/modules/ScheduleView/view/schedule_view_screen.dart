@@ -74,6 +74,7 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> {
       "groupId": widget.groupId,
       "categoryId": widget.groupId
     };
+    print(userData);
     var getUserConfigMaker = await IrrigationProgramRepository(HttpService()).getUserConfigMaker(userData);
     Map<String, dynamic> response = jsonDecode(getUserConfigMaker.body);
     selectedHeadUnits.clear();
@@ -570,6 +571,47 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> {
     );
   }
 
+  int parseValue(dynamic value) {
+    if (value == null) {
+      return 0;
+    }
+
+    // Already int
+    if (value is int) {
+      return value;
+    }
+
+    // Double
+    if (value is double) {
+      return value.toInt();
+    }
+
+    // String
+    if (value is String) {
+      final trimmedValue = value.trim();
+
+      // Time format: HH:mm:ss
+      if (RegExp(r'^\d{1,2}:\d{2}:\d{2}$').hasMatch(trimmedValue)) {
+        return durationToSeconds(trimmedValue);
+      }
+
+      // Normal numeric string
+      return double.tryParse(trimmedValue)?.toInt() ?? 0;
+    }
+
+    return 0;
+  }
+
+  int durationToSeconds(String value) {
+    final parts = value.split(':');
+
+    final hours = int.tryParse(parts[0]) ?? 0;
+    final minutes = int.tryParse(parts[1]) ?? 0;
+    final seconds = int.tryParse(parts[2]) ?? 0;
+
+    return (hours * 3600) + (minutes * 60) + seconds;
+  }
+
   /// Widget for displaying the schedule card
   Widget _buildScheduleCard(Map<String, dynamic> data, int index, int totalItems, BoxConstraints constraints) {
     final theme = Theme.of(context);
@@ -596,9 +638,10 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> {
     final String time12 = DateFormat("hh:mm:ss").format(DateFormat("HH:mm:ss").parse(startTime));
 
      // Calculate progress value
-
-    final int input = double.parse(inputValue).toInt();
-    final int completed = double.parse(completedValue).toInt();
+    print("inputValue:$inputValue");
+    print("completedValue:$completedValue");
+    final int input = parseValue(inputValue);
+    final int completed = parseValue(completedValue);
 
      final double progressValue = method == "1"
         ? _calculateTimeProgress(inputValue, completedValue)
@@ -662,12 +705,15 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> {
                 _buildIconButton(
                     Icons.edit_note_outlined,
                     (
-                        ([0, 1, 4, 5].contains(status.code))
-                            && (scheduleDateWithoutTime.isAfter(todayWithoutTime) || scheduleDateWithoutTime.isAtSameMomentAs(todayWithoutTime)))? () {
+                        ([0, 1, 4, 5,2].contains(status.code))
+                            || (scheduleDateWithoutTime.isAfter(todayWithoutTime) || scheduleDateWithoutTime.isAtSameMomentAs(todayWithoutTime)))? () {
                       _textController.text = scheduleItem["ScaleFactor"].toString();
                           _showEditSideSheet(scheduleItem, constraints, index);
-                        } : null
-                ),
+                        } : (){
+                      print('status.code:${status.code}');
+                      print('scheduleDateWithoutTime.isAfter(todayWithoutTime):${scheduleDateWithoutTime.isAfter(todayWithoutTime)}');
+                      print('scheduleDateWithoutTime.isAtSameMomentAs(todayWithoutTime):${scheduleDateWithoutTime.isAtSameMomentAs(todayWithoutTime)}');
+                    }),
                 if(screenSize >= 700)
                   const SizedBox(width: 20),
                 _buildIconButton(
@@ -722,6 +768,21 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> {
 
     return names.isNotEmpty ? names.join(', ') : "N/A";
   }
+
+  String _getItemNameSingleString(String sNo) {
+    print('call _getItemNameSingleString sNo:-->$sNo');
+     final double? valve = double.tryParse(sNo);
+    if (valve == null) return 'N/A';
+
+    for (final element in configObjects) {
+      print('element-->$element');
+      if (element['sNo'] == valve) {
+        return element['name'] as String;
+      }
+    }
+    return 'N/A';
+  }
+
 
   /// Helper function to get the program name
   String _getProgramName(dynamic sNo) {
@@ -1120,7 +1181,7 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> {
     );
   }
 
-  void _showEditSideSheet(scheduleItem, constraints, index) {
+  void _showEditSiderrreSheet(scheduleItem, constraints, index) {
     showGeneralDialog(
       barrierLabel: "Side sheet",
       barrierDismissible: true,
@@ -1197,4 +1258,559 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> {
       },
     );
   }
+
+
+
+
+
+  void _showEditSideSheet(
+      dynamic scheduleItem,
+      BoxConstraints constraints,
+      int index,
+      )
+  {
+    print('scheduleItem: $scheduleItem, index: $index');
+
+  String getStringValue(dynamic value) {
+      if (value == null) {
+        return "";
+      }
+
+      return value.toString().trim();
+    }
+
+    // Your API may contain either:
+    // CentralFertilizerSiteName OR CentralFertilizerSite
+    final String centralFertilizerSiteName =
+    getStringValue(
+      scheduleItem["CentralFertilizerSiteName"],
+    ).isNotEmpty
+        ? getStringValue(
+      scheduleItem["CentralFertilizerSiteName"],
+    )
+        : getStringValue(
+      scheduleItem["CentralFertilizerSite"],
+    );
+
+    final String localFertilizerSiteName =
+    getStringValue(
+      scheduleItem["LocalFertilizerSiteName"],
+    ).isNotEmpty
+        ? getStringValue(
+      scheduleItem["LocalFertilizerSiteName"],
+    )
+        : getStringValue(
+      scheduleItem["LocalFertilizerSite"],
+    );
+
+    final String centralFertChannelSelection =
+    getStringValue(
+      scheduleItem["CentralFertChannelSelection"],
+    );
+
+    final String localFertChannelSelection =
+    getStringValue(
+      scheduleItem["LocalFertChannelSelection"],
+    );
+
+    print(
+      "centralFertilizerSiteName: $centralFertilizerSiteName",
+    );
+
+    print("centralFertChannelSelection:$centralFertChannelSelection");
+
+    final centralFertilizerSiteNamewe =  _getItemNameSingleString(centralFertilizerSiteName);
+    print("centralFerxcvdfvdfvfdtilizerSiteName:$centralFertilizerSiteNamewe");
+    print(
+      "localFertilizerSiteName: $localFertilizerSiteName",
+    );
+
+    print(
+      "centralFertChannelSelection: "
+          "$centralFertChannelSelection",
+    );
+
+    print(
+      "localFertChannelSelection: "
+          "$localFertChannelSelection",
+    );
+
+    // ============================================================
+    // SHOW SIDE SHEET
+    // ============================================================
+
+    showGeneralDialog(
+      barrierLabel: "Side sheet",
+      barrierDismissible: true,
+      transitionDuration: const Duration(
+        milliseconds: 300,
+      ),
+      context: context,
+
+      pageBuilder: (
+          context,
+          animation1,
+          animation2,
+          ) {
+        return Align(
+          alignment: Alignment.centerRight,
+
+          child: Material(
+            elevation: 15,
+            color: Colors.transparent,
+
+            child: StatefulBuilder(
+              builder: (
+                  BuildContext context,
+                  StateSetter stateSetter,
+                  ) {
+                return Container(
+                  padding: const EdgeInsets.all(15),
+
+                  height: double.infinity,
+
+                  width: constraints.maxWidth < 600
+                      ? constraints.maxWidth * 0.7
+                      : constraints.maxWidth * 0.2,
+
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                  ),
+
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+
+                        // ==================================================
+                        // SCALE FACTOR
+                        // ==================================================
+
+                        Row(
+                          mainAxisAlignment:
+                          MainAxisAlignment.spaceBetween,
+
+                          children: [
+
+                            const Text(
+                              "Scale Factor",
+                              style: TextStyle(
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+
+                            SizedBox(
+                              width: 100,
+
+                              child: TextFormField(
+                                initialValue:
+                                scheduleItem[
+                                "ScaleFactor"]
+                                    ?.toString() ??
+                                    "0",
+
+                                keyboardType:
+                                TextInputType.number,
+
+                                style: TextStyle(
+                                  color: Theme.of(context)
+                                      .primaryColor,
+                                ),
+
+                                decoration:
+                                const InputDecoration(
+                                  suffixText: "%",
+                                ),
+
+                                onChanged: (
+                                    String newValue,
+                                    ) {
+                                  stateSetter(() {
+                                    if (newValue
+                                        .trim()
+                                        .isNotEmpty) {
+                                      scheduleItem[
+                                      "ScaleFactor"] =
+                                          newValue.trim();
+                                    }
+                                  });
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        Divider(
+                          thickness: 0.3,
+                          color:
+                          Theme.of(context).primaryColor,
+                        ),
+
+                        // ==================================================
+                        // CENTRAL FERTILIZER
+                        // ==================================================
+
+                        if (centralFertilizerSiteName
+                            .isNotEmpty)
+                          Column(
+                            children: [
+
+                              // CENTRAL FERTILIZER TITLE + SWITCH
+                              Row(
+                                mainAxisAlignment:
+                                MainAxisAlignment
+                                    .spaceBetween,
+
+                                children: [
+                                  Expanded(
+                                    child: Text(_getItemNameSingleString(centralFertilizerSiteName), style:
+                                      const TextStyle(
+                                        fontWeight:
+                                        FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+
+                                  Switch(
+                                    value:
+                                    scheduleItem["CentralFertOnOff"] == 1,
+
+                                    onChanged: (
+                                        bool value,
+                                        ) {
+                                      stateSetter(() {
+
+                                        scheduleItem[
+                                        "CentralFertOnOff"] =
+                                        value ? 1 : 0;
+                                      });
+                                    },
+                                  ),
+                                ],
+                              ),
+
+                              // ==================================================
+                              // CENTRAL FERTILIZER CHANNELS
+                              // ==================================================
+
+                              if (scheduleItem[
+                              "CentralFertOnOff"] ==
+                                  1 &&
+                                  centralFertChannelSelection
+                                      .isNotEmpty)
+                                _buildChannelList(
+                                  scheduleItem:
+                                  scheduleItem,
+
+                                  selectionKey:
+                                  "CentralFertChannelSelection",
+
+                                  nameKey:
+                                  "CentralFertChannelName",
+
+                                  stateSetter:
+                                  stateSetter,
+                                ),
+
+                              Divider(
+                                thickness: 0.3,
+                                color:
+                                Theme.of(context)
+                                    .primaryColor,
+                              ),
+                            ],
+                          ),
+
+                        // ==================================================
+                        // LOCAL FERTILIZER
+                        // ==================================================
+
+                        if (localFertilizerSiteName
+                            .isNotEmpty)
+                          Column(
+                            children: [
+
+                              // LOCAL FERTILIZER TITLE + SWITCH
+                              Row(
+                                mainAxisAlignment:
+                                MainAxisAlignment
+                                    .spaceBetween,
+
+                                children: [
+
+                                  Expanded(
+                                    child: Text(
+                                      localFertilizerSiteName,
+
+                                      style:
+                                      const TextStyle(
+                                        fontWeight:
+                                        FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+
+                                  Switch(
+                                    value:
+                                    scheduleItem[
+                                    "LocalFertOnOff"] ==
+                                        1,
+
+                                    onChanged: (
+                                        bool value,
+                                        ) {
+                                      stateSetter(() {
+
+                                        scheduleItem[
+                                        "LocalFertOnOff"] =
+                                        value ? 1 : 0;
+                                      });
+                                    },
+                                  ),
+                                ],
+                              ),
+
+                              // ==================================================
+                              // LOCAL FERTILIZER CHANNELS
+                              // ==================================================
+
+                              if (scheduleItem[
+                              "LocalFertOnOff"] ==
+                                  1 &&
+                                  localFertChannelSelection
+                                      .isNotEmpty)
+                                _buildChannelList(
+                                  scheduleItem:
+                                  scheduleItem,
+
+                                  selectionKey:
+                                  "LocalFertChannelSelection",
+
+                                  nameKey:
+                                  "LocalFertChannelName",
+
+                                  stateSetter:
+                                  stateSetter,
+                                ),
+
+                              Divider(
+                                thickness: 0.3,
+                                color:
+                                Theme.of(context)
+                                    .primaryColor,
+                              ),
+                            ],
+                          ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      },
+
+      // ============================================================
+      // SLIDE ANIMATION
+      // ============================================================
+
+      transitionBuilder: (
+          context,
+          animation1,
+          animation2,
+          child,
+          ) {
+        return SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(1, 0),
+            end: Offset.zero,
+          ).animate(
+            CurvedAnimation(
+              parent: animation1,
+              curve: Curves.easeOut,
+            ),
+          ),
+
+          child: child,
+        );
+      },
+    );
+  }
+
+
+// ============================================================================
+// CHANNEL LIST
+// ============================================================================
+
+  Widget _buildChannelList({
+    required dynamic scheduleItem,
+    required String selectionKey,
+    required String nameKey,
+    required StateSetter stateSetter,
+  }) {
+    // ============================================================
+    // GET CHANNEL SELECTION
+    // ============================================================
+
+    final dynamic selectionValue =
+    scheduleItem[selectionKey];
+
+    // NULL CHECK
+    if (selectionValue == null) {
+      return const SizedBox.shrink();
+    }
+
+    final String selectionString =
+    selectionValue.toString().trim();
+
+    // EMPTY CHECK
+    if (selectionString.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    // ============================================================
+    // GET CHANNEL NAMES
+    // ============================================================
+
+    final dynamic nameValue =
+    scheduleItem[nameKey];
+
+    List<String> channelNames = [];
+
+    if (nameValue != null) {
+
+      if (nameValue is List) {
+        channelNames = nameValue
+            .map(
+              (item) =>
+          item?.toString().trim() ?? "",
+        )
+            .toList();
+      } else {
+        final String nameString =
+        nameValue.toString().trim();
+
+        if (nameString.isNotEmpty) {
+          channelNames =
+              nameString.split('_');
+        }
+      }
+    }
+
+    // ============================================================
+    // SELECTION FORMAT
+    //
+    // Example:
+    // 1_1_1_1_1_0_0_0
+    // ============================================================
+
+    final List<String> selections =
+    selectionString.split('_');
+
+    // ============================================================
+    // IF CHANNEL NAMES ARE NOT AVAILABLE
+    // ============================================================
+
+    if (channelNames.isEmpty) {
+      return Column(
+        children: List.generate(
+          selections.length,
+              (channelIndex) {
+
+            final bool isSelected =
+                selections[channelIndex] == "1";
+
+            return CheckboxListTile(
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+
+              title: Text(
+                "Channel ${channelIndex + 1}",
+              ),
+
+              value: isSelected,
+
+              onChanged: (
+                  bool? value,
+                  ) {
+                stateSetter(() {
+
+                  selections[channelIndex] =
+                  value == true ? "1" : "0";
+
+                  scheduleItem[selectionKey] =
+                      selections.join('_');
+                });
+              },
+            );
+          },
+        ),
+      );
+    }
+
+    // ============================================================
+    // CHANNEL NAME + SELECTION
+    // ============================================================
+
+    return Column(
+      children: List.generate(
+        channelNames.length,
+            (channelIndex) {
+
+          final bool isSelected =
+              channelIndex < selections.length &&
+                  selections[channelIndex] == "1";
+
+          final String channelName =
+          channelNames[channelIndex]
+              .trim()
+              .isNotEmpty
+              ? channelNames[channelIndex]
+              : "Channel ${channelIndex + 1}";
+
+          return CheckboxListTile(
+            dense: true,
+
+            contentPadding:
+            EdgeInsets.zero,
+
+            title: Text(
+              channelName,
+
+              style: const TextStyle(
+                fontSize: 14,
+              ),
+            ),
+
+            value: isSelected,
+
+            onChanged: (
+                bool? value,
+                ) {
+              stateSetter(() {
+
+                // Make sure selection list
+                // has enough items
+                while (selections.length <=
+                    channelIndex) {
+                  selections.add("0");
+                }
+
+                selections[channelIndex] =
+                value == true ? "1" : "0";
+
+                // Update original scheduleItem
+                scheduleItem[selectionKey] =
+                    selections.join('_');
+              });
+            },
+          );
+        },
+      ),
+    );
+  }
+
+
+
+
 }
