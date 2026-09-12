@@ -4,6 +4,7 @@ import 'package:oro_drip_irrigation/modules/config_maker/view/ph_configuration.d
 import 'package:oro_drip_irrigation/modules/config_maker/view/pressure_configuration.dart';
 import 'package:oro_drip_irrigation/modules/config_maker/view/pump_configuration.dart';
 import 'package:oro_drip_irrigation/modules/config_maker/view/source_configuration.dart';
+import 'package:oro_drip_irrigation/modules/config_maker/view/valve_configuration.dart';
 import 'package:oro_drip_irrigation/utils/constants.dart';
 import '../model/device_object_model.dart';
 import '../state_management/config_maker_provider.dart';
@@ -59,9 +60,11 @@ class _SiteConfigureState extends State<SiteConfigure> {
                     ? LineConfiguration(configPvd: widget.configPvd)
                     : widget.configPvd.selectedConfigurationTab == 6
                     ? EcConfiguration(configPvd: widget.configPvd,)
-                    : widget.configPvd.selectedConfigurationTab == 6 ?
+                    : widget.configPvd.selectedConfigurationTab == 7 ?
                     PhConfiguration(configPvd: widget.configPvd,)
-                    : PressureConfiguration(configPvd: widget.configPvd)
+                    : widget.configPvd.selectedConfigurationTab == 8 ?
+                    PressureConfiguration(configPvd: widget.configPvd) :
+                    ValveConfiguration(configPvd: widget.configPvd)
               )
             ],
           ),

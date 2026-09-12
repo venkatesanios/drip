@@ -138,9 +138,9 @@ class _SourceConfigurationState extends State<SourceConfiguration> {
                                 trailing: IntrinsicWidth(
                                   child: CustomDropDownButton(
                                       value: getTankCodeToString(source.sourceType),
-                                      list: const ['Tank', 'Sump', 'Well', 'Bore', 'Others',
-                                        // 'Fertilizer Source', 'Fertilizer Tank'
-                                      ],
+                                      list: const ['Tank', 'Sump', 'Well', 'Bore',
+                                        // 'Fertilizer Source', 'Fertilizer Tank',
+                                        'Others'],
                                       onChanged: (value){
                                         setState(() {
                                           source.sourceType = getTankStringToCode(value!);
@@ -557,7 +557,6 @@ class _SourceConfigurationState extends State<SourceConfiguration> {
       ),
     );
   }
-
 }
 
 List<Widget> getWaterMeterAndPressure(double pressureInSno, double waterMeterSno, ConfigMakerProvider configPvd){
