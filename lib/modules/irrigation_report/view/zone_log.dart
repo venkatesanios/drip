@@ -380,7 +380,8 @@ class _ZoneLogState extends State<ZoneLog> {
               : 'User Stop';
 
           int colorIdx = pSNo;
-          String dateHeaderStr = DateFormat('dd MMM yyyy (E)').format(parsedDate);
+          String dateHeaderStr =
+              DateFormat('dd MMM yyyy (E)').format(parsedDate);
 
           ScheduleItem item = ScheduleItem(
             no: itemGlobalNo++,
@@ -404,8 +405,8 @@ class _ZoneLogState extends State<ZoneLog> {
               .putIfAbsent(rawLogDate, () => {})
               .putIfAbsent(progName, () => [])
               .add(item);
-          dateProgramSNoMap
-              .putIfAbsent(rawLogDate, () => {})[progName] = colorIdx;
+          dateProgramSNoMap.putIfAbsent(rawLogDate, () => {})[progName] =
+              colorIdx;
         }
       }
 
@@ -415,8 +416,8 @@ class _ZoneLogState extends State<ZoneLog> {
 
         List<ProgramScheduleData> programListForDay = [];
         progMap.forEach((progTitle, itemsList) {
-          int colorIdx =
-              dateProgramSNoMap[rawDate]?[progTitle] ?? progTitle.hashCode.abs();
+          int colorIdx = dateProgramSNoMap[rawDate]?[progTitle] ??
+              progTitle.hashCode.abs();
           programListForDay.add(
             ProgramScheduleData(
               id: colorIdx.toString(),
@@ -715,8 +716,8 @@ class _ZoneLogState extends State<ZoneLog> {
                   ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF1E88E5),
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 8),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(6)),
                     ),
@@ -726,7 +727,7 @@ class _ZoneLogState extends State<ZoneLog> {
                     },
                     icon: const Icon(Icons.filter_alt_outlined,
                         size: 16, color: Colors.white),
-                    label: const Text("Apply",
+                    label: const Text("Filter",
                         style: TextStyle(
                             color: Colors.white, fontWeight: FontWeight.bold)),
                   ),
@@ -734,8 +735,8 @@ class _ZoneLogState extends State<ZoneLog> {
                   OutlinedButton.icon(
                     style: OutlinedButton.styleFrom(
                       backgroundColor: const Color(0xFFF8FAFC),
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 8),
                       side: const BorderSide(color: Color(0xFFCBD5E1)),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(6)),
@@ -754,7 +755,8 @@ class _ZoneLogState extends State<ZoneLog> {
                         size: 16, color: Color(0xFF334155)),
                     label: const Text("Clear",
                         style: TextStyle(
-                            color: Color(0xFF334155), fontWeight: FontWeight.bold)),
+                            color: Color(0xFF334155),
+                            fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),
@@ -883,8 +885,8 @@ class _ZoneLogState extends State<ZoneLog> {
                             borderRadius: const BorderRadius.only(
                                 topRight: Radius.circular(7)),
                             border: Border(
-                              bottom: BorderSide(
-                                  color: primaryDark.withAlpha(30)),
+                              bottom:
+                                  BorderSide(color: primaryDark.withAlpha(30)),
                             ),
                           ),
                           child: _buildTimeScaleHeader(context),
@@ -1068,8 +1070,8 @@ class _ZoneLogState extends State<ZoneLog> {
                   Expanded(
                     child: Container(
                       decoration: const BoxDecoration(
-                        border: Border(
-                            right: BorderSide(color: Color(0xFFEDF2F7))),
+                        border:
+                            Border(right: BorderSide(color: Color(0xFFEDF2F7))),
                       ),
                     ),
                   ),
@@ -1739,7 +1741,8 @@ class _ScheduleBarWidgetState extends State<ScheduleBarWidget> {
 
     if (barLeft + barWidth > widget.totalWidth - labelW) {
       // Near right edge: label floats LEFT of/over the bar
-      labelLeft = (barLeft + barWidth - labelW).clamp(0.0, widget.totalWidth - labelW);
+      labelLeft =
+          (barLeft + barWidth - labelW).clamp(0.0, widget.totalWidth - labelW);
       labelTextAlign = TextAlign.right;
     } else if (barLeft < labelW / 2) {
       // Near left edge: label starts at bar left
