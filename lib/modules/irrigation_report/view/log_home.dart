@@ -11,6 +11,7 @@ import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:oro_drip_irrigation/Constants/properties.dart';
 import 'package:oro_drip_irrigation/Widgets/custom_buttons.dart';
+import 'package:oro_drip_irrigation/modules/irrigation_report/view/reason_lookup.dart';
 import 'package:oro_drip_irrigation/modules/irrigation_report/view/scrollingTable.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';

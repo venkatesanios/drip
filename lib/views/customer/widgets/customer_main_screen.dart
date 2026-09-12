@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/modules/irrigation_report/view/oms_log.dart';
 import '../../../Screens/Dealer/sevicecustomer.dart';
-import '../../../modules/service_request/view/service_request_screen.dart';
 import '../../../Screens/Logs/irrigation_and_pump_log.dart';
 import '../../../Screens/Map/oro_map/map_areator.dart';
 import '../../../Screens/Map/oro_map/map_oro.dart';

@@ -1,94 +1,62 @@
-import 'dart:developer';
 import 'dart:io';
-import 'package:excel/excel.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'excel_builder.dart';
 
-Future<bool> generateExcel(data, String name) async {
+/// This file is selected by the conditional import in log_home.dart on
+/// every platform WITHOUT dart:html (i.e. everything except web - Android,
+/// iOS, desktop). It must never import dart:html, or non-web builds fail
+/// to compile with an "unsupported dart:html import" error.
+///
+/// Must stay functionally equivalent to excel_download_web.dart's web
+/// counterpart - both call the same buildLogsExcel() so header/data
+/// columns can never drift apart between platforms.
+Future<bool> generateExcel(Map<String, dynamic> data, String name) async {
   try {
-    var excel = Excel.createExcel();
-    Sheet sheetObject = excel['Logs'];
-
-    // Create header row
-    dynamic headerRow = [
-      data['fixedColumn'],
-      if (data['generalColumnData'][0] != null)
-        for (var j = 0; j < data['generalColumnData'][0].length; j++)
-          data['generalColumn'][j],
-      if (data['waterColumnData'][0] != null)
-        for (var j = 0; j < data['waterColumnData'][0].length; j++)
-          'Water ${data['waterColumn'][j]}',
-      if (data['prePostColumnData'][0] != null)
-        for (var j = 0; j < data['prePostColumnData'][0].length; j++)
-          data['prePostColumn'][j],
-      if (data['centralEcPhColumnData'][0] != null)
-        for (var j = 0; j < data['centralEcPhColumnData'][0].length; j++)
-          data['centralEcPhColumn'][j],
-      for (var i = 1; i < 7; i++)
-        if (data['centralChannel${i}ColumnData'][0] != null)
-          for (var j = 0;
-          j < data['centralChannel${i}ColumnData'][0].length;
-          j++)
-            'CH${i} - ${data['centralChannel${i}Column'][j]}',
-      if (data['localEcPhColumnData'][0] != null)
-        for (var j = 0; j < data['localEcPhColumnData'][0].length; j++)
-          data['localEcPhColumn'][j],
-      for (var i = 1; i < 7; i++)
-        if (data['localChannel${i}ColumnData'][0] != null)
-          for (var j = 0;
-          j < data['localChannel${i}ColumnData'][0].length;
-          j++)
-            'LH${i} - ${data['localChannel${i}Column'][j]}',
-    ];
-
-    // Write header row
-    sheetObject.appendRow(
-        [for (var i in headerRow) TextCellValue(i)]);
-
-    // Write data rows
-    for (var i = 0; i < data['fixedColumnData'].length; i++) {
-      List<String> eachRow = [data['fixedColumnData'][i]];
-      for (var columnData in [
-        'generalColumnData',
-        'waterColumnData',
-        'prePostColumnData',
-        'centralEcPhColumnData',
-        for (var i = 1; i < 7; i++)
-          'centralChannel${i}ColumnData',
-        'localEcPhColumnData',
-        for (var i = 1; i < 7; i++)
-          'localChannel${i}ColumnData',
-      ]) {
-        if (data[columnData][0] != null) {
-          for (var j = 0; j < data[columnData][i].length; j++) {
-            eachRow.add('${data[columnData][i][j]}');
-          }
-        }
-      }
-      sheetObject.appendRow(
-          [for (var cell in eachRow) TextCellValue(cell)]);
-    }
-
-    // Save the file
-    var fileBytes = excel.encode();
-    if (fileBytes != null) {
-      String downloadsDirectoryPath = "/storage/emulated/0/Download";
-      String filePath = "$downloadsDirectoryPath/$name.xlsx";
-      File file = File(filePath);
-      await file.create(recursive: true);
-      await file.writeAsBytes(fileBytes);
-
-      if (await file.exists()) {
-        log("Excel file saved successfully at $filePath");
-        return true;
-      } else {
-        log("Failed to save the Excel file.");
-        return false;
-      }
-    } else {
-      log("Error encoding the Excel file.");
+    if (Platform.isAndroid && !await _hasStorageAccess()) {
       return false;
     }
-  } catch (e) {
-    log("Error saving the Excel file: $e");
+
+    final excel = buildLogsExcel(data);
+
+    final fileBytes = excel.encode();
+    if (fileBytes == null) {
+      return false;
+    }
+
+    // Matches the path already shown to the user in log_home.dart's
+    // "saved successfully" dialog.
+    final downloadDir = Directory('/storage/emulated/0/Download');
+    if (!await downloadDir.exists()) {
+      await downloadDir.create(recursive: true);
+    }
+
+    final file = File('${downloadDir.path}/$name.xlsx');
+    await file.writeAsBytes(fileBytes);
+
+    return true;
+  } catch (e, stackTrace) {
+    print('Error generating Excel: $e');
+    print('stackTrace generating Excel: $stackTrace');
     return false;
   }
+}
+
+/// Requests whichever storage permission is actually meaningful on the
+/// device's Android version and returns whether we ended up with write
+/// access to the public Download folder.
+///
+/// - Android 10 and below (and 11-12 with legacy storage enabled): a
+///   granted Permission.storage is enough.
+/// - Android 11+ (API 30+): Permission.storage no longer grants broad
+///   filesystem writes - Permission.manageExternalStorage ("All files
+///   access") is required instead. That one takes the user to a system
+///   settings screen rather than a normal dialog, so only request it if
+///   the plain storage permission wasn't sufficient.
+Future<bool> _hasStorageAccess() async {
+  final storageStatus = await Permission.storage.request();
+  if (storageStatus.isGranted) {
+    return true;
+  }
+  final manageStatus = await Permission.manageExternalStorage.request();
+  return manageStatus.isGranted;
 }

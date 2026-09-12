@@ -101,7 +101,7 @@ class _PressureConfigurationState extends State<PressureConfiguration> {
           const SizedBox(width: 20,),
           Text('$objectName : ', style: AppProperties.listTileBlackBoldStyle,),
           Center(
-            child: Text(objectList.isEmpty ? '-' : objectList.map((sNo) => getObjectName(sNo, widget.configPvd).name!).join(', '), style: TextStyle(color: Colors.teal, fontSize: 12, fontWeight: FontWeight.bold),),
+            child: Text(objectList.isEmpty ? '-' : objectList.map((sNo) => getObjectName(sNo, widget.configPvd).name!).join(', '), style: const TextStyle(color: Colors.teal, fontSize: 12, fontWeight: FontWeight.bold),),
           ),
           IconButton(
               onPressed: (){
@@ -113,7 +113,7 @@ class _PressureConfigurationState extends State<PressureConfiguration> {
                     context: context,
                     title: 'Select $objectName',
                     singleSelection: false,
-                    listOfObject: widget.configPvd.listOfGeneratedObject.where((object) => object.objectId == AppConstants.valveObjectId).toList(),
+                    listOfObject: widget.configPvd.listOfGeneratedObject.where((object) => object.objectId == objectId).toList(),
                     onPressed: (){
                       setState(() {
                         widget.configPvd.updateSelectionInPressure(pressureSensor.commonDetails.sNo!, objectId);

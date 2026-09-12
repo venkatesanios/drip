@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../Constants/data_convertion.dart';
+import '../view/reason_lookup.dart';
 import 'general_parameter_model.dart';
 
 class IrrigationLogModel {
@@ -228,8 +229,9 @@ class IrrigationLogModel {
 
   String getName(dynamic sNo){
     var name = '';
-
+    debugPrint("$sNo = ${sNo.runtimeType}  | ${sNo.toString().length}");
     if(sNo is String && !sNo.toString().contains('_')){
+      print("names : $names");
       for(var n in names){
         if(n['sNo'].toString() == sNo.toString()){
           name = n['name'];
@@ -2723,82 +2725,3 @@ GraphData getGraphData({required method, required planned, required actualDurati
   );
 }
 
-dynamic getStatus(code){
-  String statusString = '';
-  Color innerCircleColor = Colors.grey;
-  switch (code.toString()) {
-    case "0":
-      innerCircleColor = Colors.grey;
-      statusString = "Pending";
-      break;
-    case "1":
-      innerCircleColor = Colors.orange;
-      statusString = "Running";
-      break;
-    case "2":
-      innerCircleColor = Colors.green;
-      statusString = "Completed";
-      break;
-    case "3":
-      innerCircleColor = Colors.yellow;
-      statusString = "Skipped by user";
-      break;
-    case "4":
-      innerCircleColor = Colors.orangeAccent;
-      statusString = "Day schedule pending";
-      break;
-    case "5":
-      innerCircleColor = const Color(0xFF0D5D9A);
-      statusString = "Day schedule running";
-      break;
-    case "6":
-      innerCircleColor = Colors.yellowAccent;
-      statusString = "Day schedule completed";
-      break;
-    case "7":
-      innerCircleColor = Colors.red;
-      statusString = "Day schedule skipped";
-      break;
-    case "8":
-      innerCircleColor = Colors.redAccent;
-      statusString = "Postponed partially to tomorrow";
-      break;
-    case "9":
-      innerCircleColor = Colors.green;
-      statusString = "Postponed fully to tomorrow";
-      break;
-    case "10":
-      innerCircleColor = Colors.amberAccent;
-      statusString = "RTC off time reached";
-      break;
-    case "11":
-      innerCircleColor = Colors.blueGrey;
-      statusString = "RTC max time reached";
-      break;
-    case "12":
-      innerCircleColor = Colors.redAccent;
-      statusString = "High Flow";
-      break;
-    case "13":
-      innerCircleColor = Colors.orangeAccent;
-      statusString = "Low Flow";
-      break;
-    case "14":
-      innerCircleColor = Colors.purple;
-      statusString = "No Flow";
-      break;
-    case "15":
-      innerCircleColor = Colors.blue;
-      statusString = "Skipped by Global Limit";
-      break;
-    case "16":
-      innerCircleColor = Colors.black;
-      statusString = "Stopped Manually";
-      break;
-    default:
-      innerCircleColor = Colors.amber;
-      statusString = "RTC max time reached";
-      break;
-  }
-  return {'status' : statusString,'color':innerCircleColor};
-}
