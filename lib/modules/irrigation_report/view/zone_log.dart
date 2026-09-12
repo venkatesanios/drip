@@ -3,11 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../models/customer/site_model.dart';
 import '../repository/irrigation_repository.dart';
+import 'zone_log_exporter_stub.dart'
+    if (dart.library.html) 'zone_log_exporter_web.dart';
 
 class ScheduleItem {
   final int no;
   final String dateStr;
   final String programTitle;
+  final String sequenceTitle;
+  final String headUnit;
+  final String pump;
   final Color programColor;
   final Color programTextColor;
   final String startTime;
@@ -17,12 +22,14 @@ class ScheduleItem {
   final double endHour;
   final String startReason;
   final String endReason;
-  final String percentage;
 
   ScheduleItem({
     required this.no,
     required this.dateStr,
     required this.programTitle,
+    required this.sequenceTitle,
+    required this.headUnit,
+    required this.pump,
     required this.programColor,
     required this.programTextColor,
     required this.startTime,
@@ -32,7 +39,6 @@ class ScheduleItem {
     required this.endHour,
     required this.startReason,
     required this.endReason,
-    this.percentage = "100%",
   });
 }
 
@@ -85,20 +91,20 @@ class ZoneLog extends StatefulWidget {
 class _ZoneLogState extends State<ZoneLog> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  DateTime _fromDate = DateTime(2026, 9, 8);
-  DateTime _toDate = DateTime(2026, 9, 10);
+  DateTime _fromDate = DateTime.now();
+  DateTime _toDate = DateTime.now();
   String _selectedProgramFilter = 'All Programs';
-  String _selectedViewMode = 'Multi-Day';
 
   String? _selectedProgramTitle;
   ScheduleItem? _selectedItem;
 
-  late List<DailyTimelineData> _dailyTimelines;
+  List<DailyTimelineData> _dailyTimelines = [];
+  List<String> _programDropdownOptions = ['All Programs'];
 
   @override
   void initState() {
     super.initState();
-    _initDefaultData();
+
     fetchZoneLogApi();
   }
 
@@ -107,8 +113,8 @@ class _ZoneLogState extends State<ZoneLog> {
     String toDateStr = DateFormat('yyyy-MM-dd').format(_toDate);
 
     Map<String, dynamic> body = {
-      "userId": widget.userData['customerId'],
-      "controllerId": widget.userData['controllerId'],
+      "userId": widget.userData['customerId'] ?? 1002,
+      "controllerId": widget.userData['controllerId'] ?? 3382,
       "logType": "Irrigation",
       "fromDate": fromDateStr,
       "toDate": toDateStr,
@@ -138,6 +144,7 @@ class _ZoneLogState extends State<ZoneLog> {
       Map<String, dynamic> jsonData = jsonDecode(response.body);
       if (jsonData['code'] == 200 && jsonData['data'] != null) {
         debugPrint('ZONE LOG DATA FETCH SUCCESS: ${jsonData['data']}');
+        _parseZoneApiResponse(jsonData['data']);
       }
     } catch (e, stackTrace) {
       debugPrint('Error in Zone Log API: ${e.toString()}');
@@ -145,313 +152,372 @@ class _ZoneLogState extends State<ZoneLog> {
     }
   }
 
-  void _initDefaultData() {
-    _dailyTimelines = [
-      DailyTimelineData(
-        dateHeader: "08 Sep 2026 (Tue)",
-        date: DateTime(2026, 9, 8),
-        programs: [
-          ProgramScheduleData(
-            id: '1',
-            title: 'Program 1',
-            headerColor: const Color(0xFFE8F5E9),
-            cardHeaderBg: const Color(0xFFDCEDC8),
-            barColor: const Color(0xFF4CAF50),
-            labelColor: const Color(0xFF2E7D32),
-            items: [
-              ScheduleItem(
-                no: 1,
-                dateStr: '08 Sep 2026 (Tue)',
-                programTitle: 'Program 1',
-                programColor: const Color(0xFFDCEDC8),
-                programTextColor: const Color(0xFF2E7D32),
-                startTime: '08:00',
-                endTime: '08:05',
-                duration: '5 min',
-                startHour: 8.0,
-                endHour: 8.0833,
-                startReason: 'Scheduled Start',
-                endReason: 'Temperature Reached',
-              ),
-              ScheduleItem(
-                no: 2,
-                dateStr: '08 Sep 2026 (Tue)',
-                programTitle: 'Program 1',
-                programColor: const Color(0xFFDCEDC8),
-                programTextColor: const Color(0xFF2E7D32),
-                startTime: '14:00',
-                endTime: '14:10',
-                duration: '10 min',
-                startHour: 14.0,
-                endHour: 14.1667,
-                startReason: 'Manual Start',
-                endReason: 'User Stop',
-              ),
-            ],
-          ),
-          ProgramScheduleData(
-            id: '2',
-            title: 'Program 2',
-            headerColor: const Color(0xFFFFEBEE),
-            cardHeaderBg: const Color(0xFFFFCDD2),
-            barColor: const Color(0xFFE53935),
-            labelColor: const Color(0xFFC62828),
-            items: [
-              ScheduleItem(
-                no: 3,
-                dateStr: '08 Sep 2026 (Tue)',
-                programTitle: 'Program 2',
-                programColor: const Color(0xFFFFCDD2),
-                programTextColor: const Color(0xFFC62828),
-                startTime: '09:30',
-                endTime: '09:35',
-                duration: '5 min',
-                startHour: 9.5,
-                endHour: 9.5833,
-                startReason: 'Manual Start',
-                endReason: 'User Stop',
-              ),
-              ScheduleItem(
-                no: 4,
-                dateStr: '08 Sep 2026 (Tue)',
-                programTitle: 'Program 2',
-                programColor: const Color(0xFFFFCDD2),
-                programTextColor: const Color(0xFFC62828),
-                startTime: '18:00',
-                endTime: '18:15',
-                duration: '15 min',
-                startHour: 18.0,
-                endHour: 18.25,
-                startReason: 'Auto Start',
-                endReason: 'Sensor Off',
-              ),
-            ],
-          ),
-          ProgramScheduleData(
-            id: '3',
-            title: 'Program 3',
-            headerColor: const Color(0xFFFFF8E1),
-            cardHeaderBg: const Color(0xFFFFF9C4),
-            barColor: const Color(0xFFFB8C00),
-            labelColor: const Color(0xFFEF6C00),
-            items: [],
-          ),
-          ProgramScheduleData(
-            id: '4',
-            title: 'Program 4',
-            headerColor: const Color(0xFFF3E5F5),
-            cardHeaderBg: const Color(0xFFE1BEE7),
-            barColor: const Color(0xFF8E24AA),
-            labelColor: const Color(0xFF6A1B9A),
-            items: [
-              ScheduleItem(
-                no: 5,
-                dateStr: '08 Sep 2026 (Tue)',
-                programTitle: 'Program 4',
-                programColor: const Color(0xFFE1BEE7),
-                programTextColor: const Color(0xFF6A1B9A),
-                startTime: '10:15',
-                endTime: '10:30',
-                duration: '15 min',
-                startHour: 10.25,
-                endHour: 10.5,
-                startReason: 'Auto Start',
-                endReason: 'Sensor Off',
-              ),
-            ],
-          ),
-        ],
-      ),
-      DailyTimelineData(
-        dateHeader: "09 Sep 2026 (Wed)",
-        date: DateTime(2026, 9, 9),
-        programs: [
-          ProgramScheduleData(
-            id: '1',
-            title: 'Program 1',
-            headerColor: const Color(0xFFE8F5E9),
-            cardHeaderBg: const Color(0xFFDCEDC8),
-            barColor: const Color(0xFF4CAF50),
-            labelColor: const Color(0xFF2E7D32),
-            items: [
-              ScheduleItem(
-                no: 6,
-                dateStr: '09 Sep 2026 (Wed)',
-                programTitle: 'Program 1',
-                programColor: const Color(0xFFDCEDC8),
-                programTextColor: const Color(0xFF2E7D32),
-                startTime: '07:30',
-                endTime: '07:40',
-                duration: '10 min',
-                startHour: 7.5,
-                endHour: 7.6667,
-                startReason: 'Scheduled Start',
-                endReason: 'User Stop',
-              ),
-            ],
-          ),
-          ProgramScheduleData(
-            id: '2',
-            title: 'Program 2',
-            headerColor: const Color(0xFFFFEBEE),
-            cardHeaderBg: const Color(0xFFFFCDD2),
-            barColor: const Color(0xFFE53935),
-            labelColor: const Color(0xFFC62828),
-            items: [
-              ScheduleItem(
-                no: 7,
-                dateStr: '09 Sep 2026 (Wed)',
-                programTitle: 'Program 2',
-                programColor: const Color(0xFFFFCDD2),
-                programTextColor: const Color(0xFFC62828),
-                startTime: '11:00',
-                endTime: '11:10',
-                duration: '10 min',
-                startHour: 11.0,
-                endHour: 11.1667,
-                startReason: 'Auto Start',
-                endReason: 'Sensor Off',
-              ),
-            ],
-          ),
-          ProgramScheduleData(
-            id: '3',
-            title: 'Program 3',
-            headerColor: const Color(0xFFFFF8E1),
-            cardHeaderBg: const Color(0xFFFFF9C4),
-            barColor: const Color(0xFFFB8C00),
-            labelColor: const Color(0xFFEF6C00),
-            items: [
-              ScheduleItem(
-                no: 8,
-                dateStr: '09 Sep 2026 (Wed)',
-                programTitle: 'Program 3',
-                programColor: const Color(0xFFFFF9C4),
-                programTextColor: const Color(0xFFEF6C00),
-                startTime: '15:00',
-                endTime: '15:20',
-                duration: '20 min',
-                startHour: 15.0,
-                endHour: 15.3333,
-                startReason: 'Manual Start',
-                endReason: 'User Stop',
-              ),
-            ],
-          ),
-          ProgramScheduleData(
-            id: '4',
-            title: 'Program 4',
-            headerColor: const Color(0xFFF3E5F5),
-            cardHeaderBg: const Color(0xFFE1BEE7),
-            barColor: const Color(0xFF8E24AA),
-            labelColor: const Color(0xFF6A1B9A),
-            items: [],
-          ),
-        ],
-      ),
-      DailyTimelineData(
-        dateHeader: "10 Sep 2026 (Thu)",
-        date: DateTime(2026, 9, 10),
-        programs: [
-          ProgramScheduleData(
-            id: '1',
-            title: 'Program 1',
-            headerColor: const Color(0xFFE8F5E9),
-            cardHeaderBg: const Color(0xFFDCEDC8),
-            barColor: const Color(0xFF4CAF50),
-            labelColor: const Color(0xFF2E7D32),
-            items: [
-              ScheduleItem(
-                no: 9,
-                dateStr: '10 Sep 2026 (Thu)',
-                programTitle: 'Program 1',
-                programColor: const Color(0xFFDCEDC8),
-                programTextColor: const Color(0xFF2E7D32),
-                startTime: '08:00',
-                endTime: '08:05',
-                duration: '5 min',
-                startHour: 8.0,
-                endHour: 8.0833,
-                startReason: 'Scheduled Start',
-                endReason: 'Temperature Reached',
-              ),
-            ],
-          ),
-          ProgramScheduleData(
-            id: '2',
-            title: 'Program 2',
-            headerColor: const Color(0xFFFFEBEE),
-            cardHeaderBg: const Color(0xFFFFCDD2),
-            barColor: const Color(0xFFE53935),
-            labelColor: const Color(0xFFC62828),
-            items: [],
-          ),
-          ProgramScheduleData(
-            id: '3',
-            title: 'Program 3',
-            headerColor: const Color(0xFFFFF8E1),
-            cardHeaderBg: const Color(0xFFFFF9C4),
-            barColor: const Color(0xFFFB8C00),
-            labelColor: const Color(0xFFEF6C00),
-            items: [
-              ScheduleItem(
-                no: 10,
-                dateStr: '10 Sep 2026 (Thu)',
-                programTitle: 'Program 3',
-                programColor: const Color(0xFFFFF9C4),
-                programTextColor: const Color(0xFFEF6C00),
-                startTime: '14:00',
-                endTime: '14:20',
-                duration: '20 min',
-                startHour: 14.0,
-                endHour: 14.3333,
-                startReason: 'Scheduled Start',
-                endReason: 'User Stop',
-              ),
-            ],
-          ),
-          ProgramScheduleData(
-            id: '4',
-            title: 'Program 4',
-            headerColor: const Color(0xFFF3E5F5),
-            cardHeaderBg: const Color(0xFFE1BEE7),
-            barColor: const Color(0xFF8E24AA),
-            labelColor: const Color(0xFF6A1B9A),
-            items: [
-              ScheduleItem(
-                no: 11,
-                dateStr: '10 Sep 2026 (Thu)',
-                programTitle: 'Program 4',
-                programColor: const Color(0xFFE1BEE7),
-                programTextColor: const Color(0xFF6A1B9A),
-                startTime: '16:45',
-                endTime: '17:00',
-                duration: '15 min',
-                startHour: 16.75,
-                endHour: 17.0,
-                startReason: 'Auto Start',
-                endReason: 'Sensor Off',
-              ),
-            ],
-          ),
-        ],
-      ),
+  void _parseZoneApiResponse(Map<String, dynamic> responseData) {
+    // 1. Build Sequence SNo -> Name Mapping and Program SNo -> Name Mapping
+    Map<String, String> sequenceNameMap = {};
+    Map<int, String> programNameMap = {};
+
+    if (responseData['default'] != null) {
+      var defaultObj = responseData['default'];
+
+      if (defaultObj['sequence'] != null && defaultObj['sequence'] is List) {
+        for (var seq in defaultObj['sequence']) {
+          if (seq is Map) {
+            var sNo = seq['sNo'];
+            String name =
+                seq['name'] ?? seq['seqName'] ?? seq['sequenceName'] ?? '';
+            if (sNo != null && name.isNotEmpty) {
+              sequenceNameMap[sNo.toString()] = name;
+              if (sNo is num) {
+                sequenceNameMap[sNo.toString()] = name;
+                sequenceNameMap[sNo.toInt().toString()] = name;
+                sequenceNameMap[sNo.toDouble().toString()] = name;
+              }
+            }
+          }
+        }
+      }
+
+      if (defaultObj['zone'] != null && defaultObj['zone'] is List) {
+        for (var z in defaultObj['zone']) {
+          if (z is Map) {
+            var sNo = z['sNo'];
+            String name = z['name'] ?? z['zoneName'] ?? '';
+            if (sNo != null && name.isNotEmpty) {
+              sequenceNameMap.putIfAbsent(sNo.toString(), () => name);
+            }
+          }
+        }
+      }
+
+      if (defaultObj['program'] != null && defaultObj['program'] is List) {
+        for (var p in defaultObj['program']) {
+          if (p is Map) {
+            int sNo = p['sNo'] is int
+                ? p['sNo']
+                : int.tryParse(p['sNo'].toString()) ?? 0;
+            String name = p['name'] ?? 'Program $sNo';
+            programNameMap[sNo] = name;
+          }
+        }
+      }
+    }
+
+    Set<String> uniqueProgNames = {'All Programs'};
+
+    List<DailyTimelineData> parsedDailyTimelines = [];
+    int itemGlobalNo = 1;
+
+    // 2. Parse log entries date-wise (Grouped by rawLogDate so multiple runs on the same date appear together)
+    if (responseData['log'] != null && responseData['log'] is List) {
+      List logs = responseData['log'];
+
+      Map<String, Map<String, List<ScheduleItem>>> dateProgramItemsMap = {};
+      Map<String, Map<String, int>> dateProgramSNoMap = {};
+      Map<String, DateTime> dateParsedMap = {};
+
+      for (var logEntry in logs) {
+        String rawLogDate = logEntry['logDate'] ?? '';
+        if (rawLogDate.isEmpty) continue;
+
+        DateTime parsedDate;
+        try {
+          parsedDate = DateFormat('yyyy-MM-dd').parse(rawLogDate);
+        } catch (_) {
+          parsedDate = DateTime.now();
+        }
+        dateParsedMap[rawLogDate] = parsedDate;
+
+        var irrigation = logEntry['irrigation'];
+        if (irrigation == null) continue;
+
+        List programSNos = irrigation['ProgramS_No'] ?? [];
+        List zoneSNos = irrigation['ZoneS_No'] ?? [];
+        List headUnits = irrigation['HeadUnit'] ?? [];
+        List pumps = irrigation['Pump'] ?? [];
+        List actualStopTimes = irrigation['ActualStopTime'] ?? [];
+        List actualStartTimes = irrigation['ActualStartTime'] ?? [];
+        List actualStartReasons = irrigation['ActualStartReason'] ?? [];
+        List actualStopReasons = irrigation['ActualStopReason'] ?? [];
+
+        int lengthToUse = actualStopTimes.isNotEmpty
+            ? actualStopTimes.length
+            : (actualStartTimes.isNotEmpty
+                ? actualStartTimes.length
+                : (zoneSNos.isNotEmpty ? zoneSNos.length : programSNos.length));
+
+        for (int i = 0; i < lengthToUse; i++) {
+          int pSNo = (i < programSNos.length)
+              ? (programSNos[i] is int
+                  ? programSNos[i]
+                  : int.tryParse(programSNos[i].toString()) ?? (i + 1))
+              : (i + 1);
+
+          String progName = programNameMap[pSNo] ?? 'Program $pSNo';
+
+          var zVal = (i < zoneSNos.length) ? zoneSNos[i] : null;
+          String seqName = '';
+          if (zVal != null) {
+            String zStr = zVal.toString();
+            if (sequenceNameMap.containsKey(zStr) &&
+                sequenceNameMap[zStr]!.isNotEmpty) {
+              seqName = sequenceNameMap[zStr]!;
+            } else {
+              double? zDouble = double.tryParse(zStr);
+              if (zDouble != null) {
+                if (sequenceNameMap.containsKey(zDouble.toString()) &&
+                    sequenceNameMap[zDouble.toString()]!.isNotEmpty) {
+                  seqName = sequenceNameMap[zDouble.toString()]!;
+                } else {
+                  int zInt = zDouble.toInt();
+                  if (sequenceNameMap.containsKey(zInt.toString()) &&
+                      sequenceNameMap[zInt.toString()]!.isNotEmpty) {
+                    seqName = sequenceNameMap[zInt.toString()]!;
+                  } else if (programNameMap.containsKey(zInt) &&
+                      programNameMap[zInt]!.isNotEmpty) {
+                    seqName = programNameMap[zInt]!;
+                  }
+                }
+              }
+            }
+          }
+
+          if (seqName.isEmpty &&
+              sequenceNameMap.containsKey(pSNo.toString()) &&
+              sequenceNameMap[pSNo.toString()]!.isNotEmpty) {
+            seqName = sequenceNameMap[pSNo.toString()]!;
+          }
+
+          if (seqName.isEmpty) {
+            seqName = progName;
+          }
+
+          String headUnitStr = (i < headUnits.length && headUnits[i] != null)
+              ? headUnits[i].toString()
+              : '-';
+          String pumpStr = (i < pumps.length && pumps[i] != null)
+              ? pumps[i].toString()
+              : '-';
+
+          uniqueProgNames.add(progName);
+
+          String stopTimeStr =
+              (i < actualStopTimes.length && actualStopTimes[i] != null)
+                  ? actualStopTimes[i].toString()
+                  : '';
+          String startTimeStr =
+              (i < actualStartTimes.length && actualStartTimes[i] != null)
+                  ? actualStartTimes[i].toString()
+                  : '';
+
+          if (stopTimeStr.isEmpty && startTimeStr.isEmpty) continue;
+
+          double stopHour = 12.0;
+          int stopH = 12, stopM = 0, stopS = 0;
+          if (stopTimeStr.isNotEmpty) {
+            try {
+              var parts = stopTimeStr.split(':');
+              stopH = int.parse(parts[0]);
+              stopM = int.parse(parts[1]);
+              if (parts.length > 2) stopS = int.parse(parts[2]);
+              stopHour = stopH + (stopM / 60.0) + (stopS / 3600.0);
+            } catch (_) {}
+          }
+
+          double startHour = 11.0;
+          int startH = 11, startM = 0;
+          if (startTimeStr.isNotEmpty) {
+            try {
+              var parts = startTimeStr.split(':');
+              startH = int.parse(parts[0]);
+              startM = int.parse(parts[1]);
+              double startS = parts.length > 2 ? double.parse(parts[2]) : 0;
+              startHour = startH + (startM / 60.0) + (startS / 3600.0);
+            } catch (_) {
+              startHour = stopHour - (10 / 60.0);
+            }
+          } else {
+            startM = stopM - 10;
+            startH = stopH;
+            if (startM < 0) {
+              startM += 60;
+              startH = (startH - 1 + 24) % 24;
+            }
+            startTimeStr =
+                "${startH.toString().padLeft(2, '0')}:${startM.toString().padLeft(2, '0')}";
+            startHour = startH + (startM / 60.0);
+          }
+
+          if (stopTimeStr.isEmpty) {
+            double calcStop = startHour + (10 / 60.0);
+            stopH = calcStop.floor();
+            stopM = ((calcStop - stopH) * 60).round();
+            stopTimeStr =
+                "${stopH.toString().padLeft(2, '0')}:${stopM.toString().padLeft(2, '0')}";
+            stopHour = calcStop;
+          }
+
+          String durationStr = "10 min";
+          try {
+            int diffSec = (stopH * 3600 + stopM * 60 + stopS) -
+                (startHour * 3600).round();
+            if (diffSec > 0) {
+              int min = diffSec ~/ 60;
+              durationStr = "$min min";
+            }
+          } catch (_) {}
+
+          String startReasonStr = (i < actualStartReasons.length &&
+                  actualStartReasons[i] != null &&
+                  actualStartReasons[i].toString().isNotEmpty)
+              ? actualStartReasons[i].toString()
+              : 'Scheduled Start';
+
+          String stopReasonStr = (i < actualStopReasons.length &&
+                  actualStopReasons[i] != null &&
+                  actualStopReasons[i].toString().isNotEmpty)
+              ? actualStopReasons[i].toString()
+              : 'User Stop';
+
+          int colorIdx = pSNo;
+          String dateHeaderStr = DateFormat('dd MMM yyyy (E)').format(parsedDate);
+
+          ScheduleItem item = ScheduleItem(
+            no: itemGlobalNo++,
+            dateStr: dateHeaderStr,
+            programTitle: progName,
+            sequenceTitle: seqName,
+            headUnit: headUnitStr,
+            pump: pumpStr,
+            programColor: _getProgramColor(colorIdx),
+            programTextColor: _getProgramTextColor(colorIdx),
+            startTime: startTimeStr,
+            endTime: stopTimeStr,
+            duration: durationStr,
+            startHour: startHour,
+            endHour: stopHour,
+            startReason: startReasonStr,
+            endReason: stopReasonStr,
+          );
+
+          dateProgramItemsMap
+              .putIfAbsent(rawLogDate, () => {})
+              .putIfAbsent(progName, () => [])
+              .add(item);
+          dateProgramSNoMap
+              .putIfAbsent(rawLogDate, () => {})[progName] = colorIdx;
+        }
+      }
+
+      dateProgramItemsMap.forEach((rawDate, progMap) {
+        DateTime pDate = dateParsedMap[rawDate] ?? DateTime.now();
+        String dateHeader = DateFormat('dd MMM yyyy (E)').format(pDate);
+
+        List<ProgramScheduleData> programListForDay = [];
+        progMap.forEach((progTitle, itemsList) {
+          int colorIdx =
+              dateProgramSNoMap[rawDate]?[progTitle] ?? progTitle.hashCode.abs();
+          programListForDay.add(
+            ProgramScheduleData(
+              id: colorIdx.toString(),
+              title: progTitle,
+              headerColor: _getProgramColor(colorIdx),
+              cardHeaderBg: _getProgramColor(colorIdx),
+              barColor: _getProgramBarColor(colorIdx),
+              labelColor: _getProgramTextColor(colorIdx),
+              items: itemsList,
+            ),
+          );
+        });
+
+        if (programListForDay.isNotEmpty) {
+          parsedDailyTimelines.add(
+            DailyTimelineData(
+              dateHeader: dateHeader,
+              date: pDate,
+              programs: programListForDay,
+            ),
+          );
+        }
+      });
+    }
+
+    // Sort dates chronologically so timeline always shows in correct order
+    parsedDailyTimelines.sort((a, b) => a.date.compareTo(b.date));
+
+    if (parsedDailyTimelines.isNotEmpty) {
+      setState(() {
+        _dailyTimelines = parsedDailyTimelines;
+        _programDropdownOptions = uniqueProgNames.toList();
+      });
+    }
+  }
+
+  Color _getProgramColor(int sNo) {
+    List<Color> colors = [
+      const Color(0xFFDCEDC8),
+      const Color(0xFFFFCDD2),
+      const Color(0xFFFFF9C4),
+      const Color(0xFFE1BEE7),
+      const Color(0xFFB2EBF2),
+      const Color(0xFFFFE0B2),
+      const Color(0xFFD1C4E9),
     ];
+    return colors[(sNo - 1) % colors.length];
+  }
+
+  Color _getProgramBarColor(int sNo) {
+    List<Color> colors = [
+      const Color(0xFF4CAF50),
+      const Color(0xFFE53935),
+      const Color(0xFFFB8C00),
+      const Color(0xFF8E24AA),
+      const Color(0xFF00ACC1),
+      const Color(0xFFF57C00),
+      const Color(0xFF5E35B1),
+    ];
+    return colors[(sNo - 1) % colors.length];
+  }
+
+  Color _getProgramTextColor(int sNo) {
+    List<Color> colors = [
+      const Color(0xFF2E7D32),
+      const Color(0xFFC62828),
+      const Color(0xFFEF6C00),
+      const Color(0xFF6A1B9A),
+      const Color(0xFF006064),
+      const Color(0xFFE65100),
+      const Color(0xFF4527A0),
+    ];
+    return colors[(sNo - 1) % colors.length];
   }
 
   List<ScheduleItem> _getFilteredScheduleRecords() {
     List<ScheduleItem> records = [];
+    String filterToApply = _selectedProgramTitle ?? _selectedProgramFilter;
+
     for (var daily in _dailyTimelines) {
-      if (daily.date.isBefore(_fromDate) ||
-          daily.date.isAfter(_toDate.add(const Duration(days: 1)))) {
+      DateTime dailyDay =
+          DateTime(daily.date.year, daily.date.month, daily.date.day);
+      DateTime startDay =
+          DateTime(_fromDate.year, _fromDate.month, _fromDate.day);
+      DateTime endDay =
+          DateTime(_toDate.year, _toDate.month, _toDate.day, 23, 59, 59);
+
+      if (dailyDay.isBefore(startDay) || dailyDay.isAfter(endDay)) {
         continue;
       }
+
       for (var prog in daily.programs) {
-        String filterToApply = _selectedProgramTitle ?? _selectedProgramFilter;
-        if (filterToApply != 'All Programs' && prog.title != filterToApply) {
-          continue;
+        for (var item in prog.items) {
+          if (filterToApply != 'All Programs') {
+            bool matches = (prog.title == filterToApply) ||
+                (item.programTitle == filterToApply) ||
+                (item.sequenceTitle == filterToApply);
+            if (!matches) continue;
+          }
+          records.add(item);
         }
-        records.addAll(prog.items);
       }
     }
     return records;
@@ -475,14 +541,13 @@ class _ZoneLogState extends State<ZoneLog> {
       body: SafeArea(
         child: Column(
           children: [
-            _buildTopAppBar(context),
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(12.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildFilterCard(context),
+                    Center(child: _buildFilterCard(context)),
                     const SizedBox(height: 14),
                     _buildTimelineSection(context),
                   ],
@@ -491,127 +556,6 @@ class _ZoneLogState extends State<ZoneLog> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildTopAppBar(BuildContext context) {
-    String dateRangeStr =
-        "${DateFormat('dd MMM yyyy').format(_fromDate)} - ${DateFormat('dd MMM yyyy').format(_toDate)}";
-    final theme = Theme.of(context);
-    final primaryDark = theme.primaryColorDark;
-    final primary = theme.primaryColor;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: BoxDecoration(
-        color: primaryDark,
-        gradient: LinearGradient(
-          colors: [primaryDark, primary],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-        ),
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 4,
-            offset: Offset(0, 2),
-          )
-        ],
-      ),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          bool isMobile = constraints.maxWidth < 650;
-          if (isMobile) {
-            return Column(
-              children: [
-                Row(
-                  children: [
-                    const Icon(Icons.settings, color: Colors.white, size: 24),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          Text(
-                            "Program Time Schedule",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            "View and monitor program running history",
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 11,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildHeaderBadge(Icons.calendar_today, dateRangeStr),
-                  ],
-                ),
-              ],
-            );
-          }
-
-          return Row(
-            children: [
-              const Icon(Icons.settings, color: Colors.white, size: 26),
-              const SizedBox(width: 10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text(
-                    "Program Time Schedule",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              const Spacer(),
-              _buildHeaderBadge(Icons.calendar_today, dateRangeStr),
-            ],
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildHeaderBadge(IconData icon, String text) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: const Color(0x26FFFFFF),
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: Colors.white24),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: Colors.white, size: 14),
-          const SizedBox(width: 6),
-          Text(
-            text,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -739,15 +683,12 @@ class _ZoneLogState extends State<ZoneLog> {
                     ),
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<String>(
-                        value: _selectedProgramFilter,
+                        value: _programDropdownOptions
+                                .contains(_selectedProgramFilter)
+                            ? _selectedProgramFilter
+                            : 'All Programs',
                         isDense: true,
-                        items: [
-                          'All Programs',
-                          'Program 1',
-                          'Program 2',
-                          'Program 3',
-                          'Program 4'
-                        ]
+                        items: _programDropdownOptions
                             .map((e) => DropdownMenuItem(
                                 value: e,
                                 child: Text(e,
@@ -768,47 +709,54 @@ class _ZoneLogState extends State<ZoneLog> {
                   ),
                 ],
               ),
-              ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1E88E5),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6)),
-                ),
-                onPressed: () {
-                  setState(() {});
-                  fetchZoneLogApi();
-                },
-                icon: const Icon(Icons.filter_alt_outlined,
-                    size: 16, color: Colors.white),
-                label: const Text("Apply",
-                    style: TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold)),
-              ),
-              OutlinedButton.icon(
-                style: OutlinedButton.styleFrom(
-                  backgroundColor: const Color(0xFFF8FAFC),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  side: const BorderSide(color: Color(0xFFCBD5E1)),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6)),
-                ),
-                onPressed: () {
-                  setState(() {
-                    _fromDate = DateTime(2026, 9, 8);
-                    _toDate = DateTime(2026, 9, 10);
-                    _selectedProgramFilter = 'All Programs';
-                    _selectedProgramTitle = null;
-                    _selectedItem = null;
-                  });
-                },
-                icon: const Icon(Icons.refresh,
-                    size: 16, color: Color(0xFF334155)),
-                label: const Text("Clear",
-                    style: TextStyle(
-                        color: Color(0xFF334155), fontWeight: FontWeight.bold)),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF1E88E5),
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6)),
+                    ),
+                    onPressed: () {
+                      setState(() {});
+                      fetchZoneLogApi();
+                    },
+                    icon: const Icon(Icons.filter_alt_outlined,
+                        size: 16, color: Colors.white),
+                    label: const Text("Apply",
+                        style: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold)),
+                  ),
+                  const SizedBox(width: 8),
+                  OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: const Color(0xFFF8FAFC),
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      side: const BorderSide(color: Color(0xFFCBD5E1)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6)),
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _fromDate = DateTime(2026, 9, 8);
+                        _toDate = DateTime(2026, 9, 10);
+                        _selectedProgramFilter = 'All Programs';
+                        _selectedProgramTitle = null;
+                        _selectedItem = null;
+                      });
+                      fetchZoneLogApi();
+                    },
+                    icon: const Icon(Icons.refresh,
+                        size: 16, color: Color(0xFF334155)),
+                    label: const Text("Clear",
+                        style: TextStyle(
+                            color: Color(0xFF334155), fontWeight: FontWeight.bold)),
+                  ),
+                ],
               ),
             ],
           );
@@ -821,22 +769,14 @@ class _ZoneLogState extends State<ZoneLog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              "Timeline View",
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1E293B),
-              ),
-            ),
-          ],
-        ),
         const SizedBox(height: 10),
-        for (var daily in _dailyTimelines)
-          if (!daily.date.isBefore(_fromDate) && !daily.date.isAfter(_toDate))
+        if (_dailyTimelines.isEmpty)
+          const Padding(
+            padding: EdgeInsets.all(24.0),
+            child: Center(child: CircularProgressIndicator()),
+          )
+        else
+          for (var daily in _dailyTimelines)
             Padding(
               padding: const EdgeInsets.only(bottom: 12.0),
               child: _buildDailyTimelineCard(context, daily),
@@ -845,36 +785,18 @@ class _ZoneLogState extends State<ZoneLog> {
     );
   }
 
-  Widget _buildViewModeButton(String mode) {
-    bool isSelected = _selectedViewMode == mode;
-    return InkWell(
-      onTap: () {
-        setState(() {
-          _selectedViewMode = mode;
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        margin: const EdgeInsets.symmetric(horizontal: 2),
-        decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF1E88E5) : const Color(0xFFE2E8F0),
-          borderRadius: BorderRadius.circular(4),
-        ),
-        child: Text(
-          mode,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            color: isSelected ? Colors.white : const Color(0xFF334155),
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildDailyTimelineCard(
       BuildContext context, DailyTimelineData daily) {
     final primaryDark = Theme.of(context).primaryColorDark;
+
+    var filteredPrograms = daily.programs
+        .where((p) =>
+            _selectedProgramFilter == 'All Programs' ||
+            p.title == _selectedProgramFilter)
+        .toList();
+
+    // Sort programs by title for consistent display order
+    filteredPrograms.sort((a, b) => a.title.compareTo(b.title));
 
     return Container(
       decoration: BoxDecoration(
@@ -892,77 +814,127 @@ class _ZoneLogState extends State<ZoneLog> {
       child: LayoutBuilder(
         builder: (context, constraints) {
           double availableWidth = constraints.maxWidth;
-          double leftColWidth = availableWidth < 600 ? 140 : 160;
+          double leftColWidth = availableWidth < 600 ? 120 : 160;
           double timelineWidth = availableWidth - leftColWidth;
+          double contentWidth = timelineWidth < 1200 ? 1200 : timelineWidth;
 
-          return Column(
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Container(
-                    width: leftColWidth,
-                    height: 36,
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    decoration: BoxDecoration(
-                      color: primaryDark,
-                      borderRadius:
-                          const BorderRadius.only(topLeft: Radius.circular(7)),
-                    ),
-                    child: Row(
-                      children: [
-                        Text(
-                          daily.dateHeader,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            fontSize: 12,
+              // Left Fixed / Sticky Column
+              SizedBox(
+                width: leftColWidth,
+                child: Column(
+                  children: [
+                    // Date Header Badge
+                    Container(
+                      width: leftColWidth,
+                      height: 36,
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      decoration: BoxDecoration(
+                        color: primaryDark,
+                        borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(7)),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              daily.dateHeader,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                fontSize: 11,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
+                          const SizedBox(width: 4),
+                          const Icon(Icons.calendar_today,
+                              size: 13, color: Colors.white),
+                        ],
+                      ),
+                    ),
+                    // Program Left Labels — height matches timeline grid row
+                    for (int i = 0; i < filteredPrograms.length; i++)
+                      _buildProgramLeftLabel(
+                        filteredPrograms[i],
+                        leftColWidth,
+                        i == filteredPrograms.length - 1,
+                        _rowHeightFor(filteredPrograms[i]),
+                      ),
+                  ],
+                ),
+              ),
+              // Right Unified Scrollable Timeline Grid
+              Expanded(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(),
+                  child: SizedBox(
+                    width: contentWidth,
+                    child: Column(
+                      children: [
+                        // Timescale Header
+                        Container(
+                          height: 36,
+                          decoration: BoxDecoration(
+                            color: primaryDark.withAlpha(15),
+                            borderRadius: const BorderRadius.only(
+                                topRight: Radius.circular(7)),
+                            border: Border(
+                              bottom: BorderSide(
+                                  color: primaryDark.withAlpha(30)),
+                            ),
+                          ),
+                          child: _buildTimeScaleHeader(context),
                         ),
-                        const SizedBox(width: 6),
-                        const Icon(Icons.calendar_today,
-                            size: 14, color: Colors.white),
+                        // Program Rows — dynamic height for multiple bars
+                        for (int i = 0; i < filteredPrograms.length; i++)
+                          _buildProgramTimelineGrid(
+                            filteredPrograms[i],
+                            contentWidth,
+                            i == filteredPrograms.length - 1,
+                            _rowHeightFor(filteredPrograms[i]),
+                          ),
                       ],
                     ),
                   ),
-                  Expanded(
-                    child: Container(
-                      height: 36,
-                      decoration: BoxDecoration(
-                        color: primaryDark.withAlpha(15),
-                        borderRadius: const BorderRadius.only(
-                            topRight: Radius.circular(7)),
-                        border: Border(
-                            bottom:
-                                BorderSide(color: primaryDark.withAlpha(30))),
-                      ),
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        physics: timelineWidth < 700
-                            ? const AlwaysScrollableScrollPhysics()
-                            : const NeverScrollableScrollPhysics(),
-                        child: SizedBox(
-                          width: timelineWidth < 700 ? 700 : timelineWidth,
-                          child: _buildTimeScaleHeader(context),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
-              for (int i = 0; i < daily.programs.length; i++)
-                if (_selectedProgramFilter == 'All Programs' ||
-                    daily.programs[i].title == _selectedProgramFilter)
-                  _buildProgramRow(
-                    daily.programs[i],
-                    leftColWidth,
-                    timelineWidth < 700 ? 700 : timelineWidth,
-                    i == daily.programs.length - 1,
-                  ),
             ],
           );
         },
       ),
     );
+  }
+
+  /// Computes row height: 36px per bar slot, minimum 48px.
+  double _rowHeightFor(ProgramScheduleData program) {
+    // Sort items by startHour so we can detect overlapping intervals
+    List<ScheduleItem> sorted = List.of(program.items)
+      ..sort((a, b) => a.startHour.compareTo(b.startHour));
+
+    // Track how many rows we need by greedy interval packing
+    List<double> rowEndHours = []; // earliest end time for each used row
+    for (var item in sorted) {
+      // Find a row where this item fits (starts after that row ends)
+      int slot = -1;
+      for (int r = 0; r < rowEndHours.length; r++) {
+        if (item.startHour >= rowEndHours[r] - 0.01) {
+          slot = r;
+          break;
+        }
+      }
+      if (slot == -1) {
+        rowEndHours.add(item.endHour);
+      } else {
+        rowEndHours[slot] = item.endHour;
+      }
+    }
+    int numRows = rowEndHours.isEmpty ? 1 : rowEndHours.length;
+    double height = (numRows * 38.0).clamp(48.0, double.infinity);
+    return height;
   }
 
   Widget _buildTimeScaleHeader(BuildContext context) {
@@ -1003,16 +975,83 @@ class _ZoneLogState extends State<ZoneLog> {
     );
   }
 
-  Widget _buildProgramRow(
+  Widget _buildProgramLeftLabel(
     ProgramScheduleData program,
     double leftColWidth,
-    double timelineContentWidth,
     bool isLast,
+    double rowHeight,
   ) {
     return InkWell(
       onTap: () => _openRightSideProgramDetails(program.title),
       child: Container(
-        height: 48,
+        height: rowHeight,
+        width: leftColWidth,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          color: program.headerColor,
+          border: Border(
+            right: const BorderSide(color: Color(0xFFE2E8F0)),
+            bottom: isLast
+                ? BorderSide.none
+                : const BorderSide(color: Color(0xFFE2E8F0)),
+          ),
+        ),
+        alignment: Alignment.centerLeft,
+        child: Text(
+          program.title,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: program.labelColor,
+            fontSize: 12,
+          ),
+          overflow: TextOverflow.ellipsis,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProgramTimelineGrid(
+    ProgramScheduleData program,
+    double timelineContentWidth,
+    bool isLast,
+    double rowHeight,
+  ) {
+    // Sort items by startHour for predictable slot assignment
+    List<ScheduleItem> sortedItems = List.of(program.items)
+      ..sort((a, b) => a.startHour.compareTo(b.startHour));
+
+    // Assign each item to a vertical slot using greedy interval packing
+    List<List<ScheduleItem>> slots = [];
+    List<double> slotEndHours = [];
+    Map<ScheduleItem, int> itemSlot = {};
+
+    for (var item in sortedItems) {
+      int slot = -1;
+      for (int r = 0; r < slotEndHours.length; r++) {
+        if (item.startHour >= slotEndHours[r] - 0.01) {
+          slot = r;
+          break;
+        }
+      }
+      if (slot == -1) {
+        slot = slots.length;
+        slots.add([]);
+        slotEndHours.add(item.endHour);
+      } else {
+        slotEndHours[slot] = item.endHour;
+      }
+      slots[slot].add(item);
+      itemSlot[item] = slot;
+    }
+
+    int numSlots = slots.isEmpty ? 1 : slots.length;
+    double slotHeight = rowHeight / numSlots;
+
+    return InkWell(
+      onTap: () => _openRightSideProgramDetails(program.title),
+      child: Container(
+        height: rowHeight,
+        width: timelineContentWidth,
         decoration: BoxDecoration(
           border: Border(
             bottom: isLast
@@ -1020,83 +1059,47 @@ class _ZoneLogState extends State<ZoneLog> {
                 : const BorderSide(color: Color(0xFFE2E8F0)),
           ),
         ),
-        child: Row(
+        child: Stack(
           children: [
-            Container(
-              width: leftColWidth,
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: program.headerColor,
-                border:
-                    const Border(right: BorderSide(color: Color(0xFFE2E8F0))),
-              ),
-              child: Row(
-                children: [
+            // Vertical grid lines
+            Row(
+              children: [
+                for (int i = 0; i < 12; i++)
                   Expanded(
-                    child: Text(
-                      program.title,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: program.labelColor,
-                        fontSize: 13,
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        border: Border(
+                            right: BorderSide(color: Color(0xFFEDF2F7))),
                       ),
-                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                ],
-              ),
+              ],
             ),
-            Expanded(
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                physics: timelineContentWidth > 600
-                    ? const NeverScrollableScrollPhysics()
-                    : const AlwaysScrollableScrollPhysics(),
-                child: SizedBox(
-                  width: timelineContentWidth,
-                  height: 48,
-                  child: Stack(
-                    children: [
-                      Row(
-                        children: [
-                          for (int i = 0; i < 12; i++)
-                            Expanded(
-                              child: Container(
-                                decoration: const BoxDecoration(
-                                  border: Border(
-                                      right:
-                                          BorderSide(color: Color(0xFFEDF2F7))),
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                      Center(
-                        child: Container(
-                          height: 18,
-                          margin: const EdgeInsets.symmetric(horizontal: 4),
-                          decoration: BoxDecoration(
-                            color: const Color(0x99E2E8F0),
-                            borderRadius: BorderRadius.circular(3),
-                          ),
-                        ),
-                      ),
-                      for (var item in program.items)
-                        ScheduleBarWidget(
-                          item: item,
-                          program: program,
-                          isSelected: _selectedItem == item,
-                          totalWidth: timelineContentWidth,
-                          onItemSelected: (selected) {
-                            _openRightSideProgramDetails(program.title,
-                                selectedItem: selected);
-                          },
-                        ),
-                    ],
-                  ),
+            // Center baseline
+            Center(
+              child: Container(
+                height: 18,
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0x99E2E8F0),
+                  borderRadius: BorderRadius.circular(3),
                 ),
               ),
             ),
+            // Bars placed in their respective vertical slots
+            for (var item in sortedItems)
+              ScheduleBarWidget(
+                item: item,
+                program: program,
+                isSelected: _selectedItem == item,
+                totalWidth: timelineContentWidth,
+                slotIndex: itemSlot[item] ?? 0,
+                slotHeight: slotHeight,
+                onItemSelected: (selected) {
+                  _openRightSideProgramDetails(program.title,
+                      selectedItem: selected);
+                },
+              ),
           ],
         ),
       ),
@@ -1159,25 +1162,100 @@ class _ZoneLogState extends State<ZoneLog> {
                               fontSize: 13,
                               color: Color(0xFF334155)),
                         ),
-                        OutlinedButton.icon(
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 6),
-                            side: const BorderSide(color: Color(0xFFCBD5E1)),
-                          ),
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text("Exporting Records to CSV...")),
-                            );
-                          },
-                          icon: const Icon(Icons.download,
-                              size: 14, color: Color(0xFF1E88E5)),
-                          label: const Text("CSV",
-                              style: TextStyle(
-                                  color: Color(0xFF1E88E5),
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold)),
+                        Row(
+                          children: [
+                            OutlinedButton.icon(
+                              style: OutlinedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 6),
+                                side:
+                                    const BorderSide(color: Color(0xFFCBD5E1)),
+                              ),
+                              onPressed: () async {
+                                final messenger = ScaffoldMessenger.of(context);
+                                if (records.isEmpty) {
+                                  messenger.showSnackBar(
+                                    const SnackBar(
+                                        content: Text(
+                                            "No records available to export")),
+                                  );
+                                  return;
+                                }
+                                String sanitizeName =
+                                    (_selectedProgramTitle ?? 'ZoneLog')
+                                        .replaceAll(RegExp(r'[^\w\s\-]'), '_');
+                                String fileName =
+                                    "${sanitizeName}_${DateFormat('yyyyMMdd').format(DateTime.now())}";
+                                String? res =
+                                    await exportZoneLogToCSV(records, fileName);
+                                if (res != null) {
+                                  messenger.showSnackBar(
+                                    SnackBar(
+                                        content: Text(
+                                            "CSV Download Successful: $res")),
+                                  );
+                                } else {
+                                  messenger.showSnackBar(
+                                    const SnackBar(
+                                        content: Text("Failed to export CSV")),
+                                  );
+                                }
+                              },
+                              icon: const Icon(Icons.download,
+                                  size: 14, color: Color(0xFF1E88E5)),
+                              label: const Text("CSV",
+                                  style: TextStyle(
+                                      color: Color(0xFF1E88E5),
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold)),
+                            ),
+                            const SizedBox(width: 8),
+                            OutlinedButton.icon(
+                              style: OutlinedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 6),
+                                side:
+                                    const BorderSide(color: Color(0xFFCBD5E1)),
+                              ),
+                              onPressed: () async {
+                                final messenger = ScaffoldMessenger.of(context);
+                                if (records.isEmpty) {
+                                  messenger.showSnackBar(
+                                    const SnackBar(
+                                        content: Text(
+                                            "No records available to export")),
+                                  );
+                                  return;
+                                }
+                                String sanitizeName =
+                                    (_selectedProgramTitle ?? 'ZoneLog')
+                                        .replaceAll(RegExp(r'[^\w\s\-]'), '_');
+                                String fileName =
+                                    "${sanitizeName}_${DateFormat('yyyyMMdd').format(DateTime.now())}";
+                                String? res =
+                                    await exportZoneLogToPDF(records, fileName);
+                                if (res != null) {
+                                  messenger.showSnackBar(
+                                    SnackBar(
+                                        content: Text(
+                                            "PDF Download Successful: $res")),
+                                  );
+                                } else {
+                                  messenger.showSnackBar(
+                                    const SnackBar(
+                                        content: Text("Failed to export PDF")),
+                                  );
+                                }
+                              },
+                              icon: const Icon(Icons.picture_as_pdf,
+                                  size: 14, color: Color(0xFFD32F2F)),
+                              label: const Text("PDF",
+                                  style: TextStyle(
+                                      color: Color(0xFFD32F2F),
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold)),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -1190,13 +1268,16 @@ class _ZoneLogState extends State<ZoneLog> {
                           border: TableBorder.all(
                               color: const Color(0xFFE2E8F0), width: 1),
                           columnWidths: const {
-                            0: FlexColumnWidth(1.4),
-                            1: FlexColumnWidth(1.1),
-                            2: FlexColumnWidth(1.0),
-                            3: FlexColumnWidth(1.0),
-                            4: FlexColumnWidth(1.0),
-                            5: FlexColumnWidth(1.8),
-                            6: FlexColumnWidth(1.8),
+                            0: FlexColumnWidth(1.2), // Date
+
+                            1: FlexColumnWidth(1.6), // Sequence Name
+                            2: FlexColumnWidth(1.0), // HeadUnit
+                            3: FlexColumnWidth(1.0), // Pump
+                            4: FlexColumnWidth(1.0), // Start
+                            5: FlexColumnWidth(1.0), // End
+                            6: FlexColumnWidth(1.0), // Duration
+                            7: FlexColumnWidth(1.6), // Start Reason
+                            8: FlexColumnWidth(1.6), // End Reason
                           },
                           children: [
                             TableRow(
@@ -1216,7 +1297,27 @@ class _ZoneLogState extends State<ZoneLog> {
                                 Padding(
                                   padding: const EdgeInsets.symmetric(
                                       vertical: 8, horizontal: 4),
-                                  child: Text("Program",
+                                  child: Text("Sequence Name",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
+                                          color: primaryDark)),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 8, horizontal: 4),
+                                  child: Text("HeadUnit",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
+                                          color: primaryDark)),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 8, horizontal: 4),
+                                  child: Text("Pump",
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
                                           fontSize: 10,
@@ -1300,12 +1401,15 @@ class _ZoneLogState extends State<ZoneLog> {
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 6, vertical: 3),
                                         decoration: BoxDecoration(
-                                          color: rec.programColor,
+                                          color: rec.programColor.withAlpha(40),
                                           borderRadius:
                                               BorderRadius.circular(10),
+                                          border: Border.all(
+                                              color: rec.programTextColor
+                                                  .withAlpha(80)),
                                         ),
                                         child: Text(
-                                          rec.programTitle,
+                                          rec.sequenceTitle,
                                           style: TextStyle(
                                               fontSize: 10,
                                               fontWeight: FontWeight.bold,
@@ -1313,6 +1417,26 @@ class _ZoneLogState extends State<ZoneLog> {
                                         ),
                                       ),
                                     ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 8, horizontal: 4),
+                                    child: Text(rec.headUnit,
+                                        textAlign: TextAlign.center,
+                                        style: const TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w600,
+                                            color: Color(0xFF334155))),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 8, horizontal: 4),
+                                    child: Text(rec.pump,
+                                        textAlign: TextAlign.center,
+                                        style: const TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w600,
+                                            color: Color(0xFF334155))),
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
@@ -1381,6 +1505,8 @@ class ScheduleBarWidget extends StatefulWidget {
   final ProgramScheduleData program;
   final bool isSelected;
   final double totalWidth;
+  final int slotIndex;
+  final double slotHeight;
   final Function(ScheduleItem) onItemSelected;
 
   const ScheduleBarWidget({
@@ -1389,6 +1515,8 @@ class ScheduleBarWidget extends StatefulWidget {
     required this.program,
     required this.isSelected,
     required this.totalWidth,
+    required this.slotIndex,
+    required this.slotHeight,
     required this.onItemSelected,
   });
 
@@ -1449,12 +1577,15 @@ class _ScheduleBarWidgetState extends State<ScheduleBarWidget> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        widget.program.title,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
-                          color: Color(0xFF1E293B),
+                      Expanded(
+                        child: Text(
+                          widget.item.programTitle,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                            color: Color(0xFF1E293B),
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
@@ -1485,85 +1616,89 @@ class _ScheduleBarWidgetState extends State<ScheduleBarWidget> {
                       height: 10, thickness: 0.8, color: Color(0xFFB2DFDB)),
                   Row(
                     children: [
-                      const Text(
-                        "Start Reason",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 11,
-                          color: Color(0xFF2E7D32),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      const Text(":",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 11)),
-                      const SizedBox(width: 8),
-                      Expanded(
+                      const SizedBox(
+                        width: 80,
                         child: Text(
-                          widget.item.startReason,
-                          style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF1E3A8A),
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 3),
-                  Row(
-                    children: [
-                      const Text(
-                        "End Reason",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 11,
-                          color: Color(0xFFC62828),
-                        ),
-                      ),
-                      const SizedBox(width: 14),
-                      const Text(":",
+                          "Start Reason",
                           style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 11)),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          widget.item.startReason,
-                          style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF1E3A8A),
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 3),
-                  Row(
-                    children: [
-                      const Text(
-                        "Percentage",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 11,
-                          color: Color(0xFF1565C0),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      const Text(":",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 11)),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          widget.item.percentage,
-                          style: const TextStyle(
-                            fontSize: 11,
                             fontWeight: FontWeight.bold,
+                            fontSize: 11,
+                            color: Color(0xFF2E7D32),
+                          ),
+                        ),
+                      ),
+                      const Text(" : ",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 11)),
+                      Expanded(
+                        child: Text(
+                          widget.item.startReason,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
                             color: Color(0xFF1E3A8A),
                           ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      const SizedBox(
+                        width: 80,
+                        child: Text(
+                          "End Reason",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 11,
+                            color: Color(0xFFC62828),
+                          ),
+                        ),
+                      ),
+                      const Text(" : ",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 11)),
+                      Expanded(
+                        child: Text(
+                          widget.item.endReason,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF1E3A8A),
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      const SizedBox(
+                        width: 80,
+                        child: Text(
+                          "Sequence",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 11,
+                            color: Color(0xFF616161),
+                          ),
+                        ),
+                      ),
+                      const Text(" : ",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 11)),
+                      Expanded(
+                        child: Text(
+                          widget.item.sequenceTitle,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF1E3A8A),
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
@@ -1577,60 +1712,114 @@ class _ScheduleBarWidgetState extends State<ScheduleBarWidget> {
     );
   }
 
+  String _formatShortTime(String timeStr) {
+    if (timeStr.isEmpty) return '';
+    List<String> parts = timeStr.trim().split(':');
+    if (parts.length >= 2) {
+      return "${parts[0].padLeft(2, '0')}:${parts[1].padLeft(2, '0')}";
+    }
+    return timeStr;
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Compute bar geometry
     double leftPosition = (widget.item.startHour / 24.0) * widget.totalWidth;
     double durationHours = widget.item.endHour - widget.item.startHour;
     double calcWidth = (durationHours / 24.0) * widget.totalWidth;
     double barWidth = calcWidth < 18 ? 18 : calcWidth;
 
+    // Clamp bar so the BAR itself never overflows the timeline width
+    double barLeft = leftPosition.clamp(0.0, widget.totalWidth - barWidth);
+
+    // Label floats 82px wide; placed so it's always visible
+    const double labelW = 82.0;
+    double labelLeft;
+    TextAlign labelTextAlign;
+
+    if (barLeft + barWidth > widget.totalWidth - labelW) {
+      // Near right edge: label floats LEFT of/over the bar
+      labelLeft = (barLeft + barWidth - labelW).clamp(0.0, widget.totalWidth - labelW);
+      labelTextAlign = TextAlign.right;
+    } else if (barLeft < labelW / 2) {
+      // Near left edge: label starts at bar left
+      labelLeft = barLeft;
+      labelTextAlign = TextAlign.left;
+    } else {
+      // Center: label centered above bar
+      labelLeft = (barLeft + barWidth / 2 - labelW / 2)
+          .clamp(0.0, widget.totalWidth - labelW);
+      labelTextAlign = TextAlign.center;
+    }
+
+    // Shorten separator to save space: "HH:mm-HH:mm"
+    String displayTimeStr =
+        "${_formatShortTime(widget.item.startTime)}-${_formatShortTime(widget.item.endTime)}";
+
+    // Vertical slot positioning: each slot gets slotHeight pixels
+    double slotTop = widget.slotIndex * widget.slotHeight;
+    double barH = (widget.slotHeight - 14).clamp(14.0, 22.0);
+    double labelTop = slotTop + 1;
+    double barTopInSlot = slotTop + 12;
+
     return Positioned(
-      left: leftPosition.clamp(0, widget.totalWidth - barWidth),
-      top: 4,
-      child: CompositedTransformTarget(
-        link: _layerLink,
-        child: MouseRegion(
-          onEnter: (_) => _showPopup(),
-          onExit: (_) => _hidePopup(),
-          child: GestureDetector(
-            onTap: () {
-              widget.onItemSelected(widget.item);
-            },
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  "${widget.item.startTime} - ${widget.item.endTime}",
+      left: 0,
+      right: 0,
+      top: 0,
+      bottom: 0,
+      child: Stack(
+        children: [
+          // Time label — absolutely positioned relative to timeline container
+          Positioned(
+            left: labelLeft,
+            top: labelTop,
+            width: labelW,
+            child: CompositedTransformTarget(
+              link: _layerLink,
+              child: MouseRegion(
+                onEnter: (_) => _showPopup(),
+                onExit: (_) => _hidePopup(),
+                child: Text(
+                  displayTimeStr,
                   style: TextStyle(
                     fontSize: 9,
                     fontWeight: FontWeight.bold,
                     color: widget.program.barColor,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: labelTextAlign,
                 ),
-                const SizedBox(height: 1),
-                Container(
-                  width: barWidth,
-                  height: 22,
-                  decoration: BoxDecoration(
-                    color: widget.program.barColor,
-                    borderRadius: BorderRadius.circular(3),
-                    border: widget.isSelected
-                        ? Border.all(color: Colors.black, width: 1.5)
-                        : null,
-                    boxShadow: [
-                      BoxShadow(
-                        color: widget.program.barColor.withAlpha(102),
-                        blurRadius: 2,
-                        offset: const Offset(0, 1),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
-        ),
+          // Colored bar — tappable
+          Positioned(
+            left: barLeft,
+            top: barTopInSlot,
+            width: barWidth,
+            height: barH,
+            child: GestureDetector(
+              onTap: () => widget.onItemSelected(widget.item),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: widget.program.barColor,
+                  borderRadius: BorderRadius.circular(3),
+                  border: widget.isSelected
+                      ? Border.all(color: Colors.black, width: 1.5)
+                      : null,
+                  boxShadow: [
+                    BoxShadow(
+                      color: widget.program.barColor.withAlpha(102),
+                      blurRadius: 2,
+                      offset: const Offset(0, 1),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

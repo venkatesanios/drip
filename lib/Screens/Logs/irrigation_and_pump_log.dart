@@ -106,7 +106,7 @@ class _IrrigationAndPumpLogState extends State<IrrigationAndPumpLog>
 
   @override
   Widget build(BuildContext context) {
-    print("irrigation and pump log call");
+    debugPrint("irrigation and pump log call");
     return Scaffold(
       body: SafeArea(
           child: DefaultTabController(
