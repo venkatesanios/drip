@@ -52,6 +52,7 @@ class _ReportPageState extends State<ReportPage> {
   @override
   void initState() {
     super.initState();
+    print("weather Report");
     selectedReportType = widget.initialReportType;
      if (!reportTypes.contains(selectedReportType)) {
       selectedReportType = reportTypes.first;
@@ -79,7 +80,7 @@ class _ReportPageState extends State<ReportPage> {
       });
 
       final jsonData = jsonDecode(getUserDetails.body);
-      print('jsonData  fetch device  ${jsonData['data']['deviceList']}');
+      print('jsonData  fetch device new ${jsonData['data']['deviceList']}');
       print('jsonData  fetch irrigationLine ${jsonData['data']['irrigationLine']}');
       if (jsonData['code'] == 200) {
         setState(() {
