@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:oro_drip_irrigation/modules/config_maker/model/ec_model.dart';
 import 'package:oro_drip_irrigation/modules/config_maker/repository/config_maker_repository.dart';
 import 'package:oro_drip_irrigation/utils/constants.dart';
+import '../model/channel_config_model.dart';
 import '../model/device_model.dart';
 import '../model/device_object_model.dart';
 import '../model/fertigation_model.dart';
@@ -36,6 +37,7 @@ class ConfigMakerProvider extends ChangeNotifier{
     7 : 'Ph Configuration',
     8 : 'Pressure Configuration',
     9 : 'Valve Configuration',
+    10 : 'Channel Configuration',
   };
   int selectedConfigurationTab = 0;
   int rangeStart = -1;
@@ -52,6 +54,7 @@ class ConfigMakerProvider extends ChangeNotifier{
     7 : AppConstants.phObjectId,
     8 : AppConstants.pressureSensorObjectId,
     9 : AppConstants.valveObjectId,
+    10 : AppConstants.channelObjectId,
   };
   SelectionMode selectedSelectionMode = SelectionMode.auto;
   int selectedConnectionNo = 0;
@@ -74,6 +77,7 @@ class ConfigMakerProvider extends ChangeNotifier{
   List<PumpModel> pump = [];
   List<MoistureModel> moisture = [];
   List<ValveConfigModel> valveConfig = [];
+  List<ChannelConfigModel> channelConfig = [];
   List<PressureModel> pressureSensor = [];
   List<EcModel> ec = [];
   List<PhModel> ph = [];
@@ -112,6 +116,7 @@ class ConfigMakerProvider extends ChangeNotifier{
     pump.clear();
     moisture.clear();
     valveConfig.clear();
+    channelConfig.clear();
     pressureSensor.clear();
     ec.clear();
     ph.clear();
@@ -141,6 +146,7 @@ class ConfigMakerProvider extends ChangeNotifier{
     pump.clear();
     moisture.clear();
     valveConfig.clear();
+    channelConfig.clear();
     pressureSensor.clear();
     ec.clear();
     ph.clear();
@@ -410,6 +416,7 @@ class ConfigMakerProvider extends ChangeNotifier{
       pump = (configMakerData['pump'] as List<dynamic>).map((pumpObject) => PumpModel.fromJson(pumpObject)).toList();
       moisture = (configMakerData['moistureSensor'] as List<dynamic>).map((moistureObject) => MoistureModel.fromJson(moistureObject)).toList();
       valveConfig = configMakerData['valve'] != null ? (configMakerData['valve'] as List<dynamic>).map((valveObject) => ValveConfigModel.fromJson(valveObject)).toList() : [];
+      channelConfig = configMakerData['channel'] != null ? (configMakerData['channel'] as List<dynamic>).map((channelObject) => ChannelConfigModel.fromJson(channelObject)).toList() : [];
       pressureSensor = configMakerData['pressureSensor'] != null ? (configMakerData['pressureSensor'] as List<dynamic>).map((pressureObject) => PressureModel.fromJson(pressureObject)).toList() : [];
       if(configMakerData.containsKey('ecSensor')){
         ec = (configMakerData['ecSensor'] as List<dynamic>).map((ecObject) => EcModel.fromJson(ecObject)).toList();
@@ -418,11 +425,20 @@ class ConfigMakerProvider extends ChangeNotifier{
         ph = (configMakerData['phSensor'] as List<dynamic>).map((phObject) => PhModel.fromJson(phObject)).toList();
       }
       line = (configMakerData['irrigationLine'] as List<dynamic>).map((lineObject) => IrrigationLineModel.fromJson(lineObject)).toList();
+      if(listOfGeneratedObject.any((object) => object.objectId == AppConstants.channelObjectId) && channelConfig.isEmpty){
+        for(var i in listOfGeneratedObject){
+          if(i.objectId == AppConstants.channelObjectId){
+            channelConfig.add(
+              ChannelConfigModel(commonDetails: i, dosingMeter: 0.0)
+            );
+          }
+        }
+      }
       if(listOfGeneratedObject.any((object) => object.objectId == AppConstants.valveObjectId) && valveConfig.isEmpty){
         for(var i in listOfGeneratedObject){
           if(i.objectId == AppConstants.valveObjectId){
             valveConfig.add(
-              ValveConfigModel(commonDetails: i, inputPressure: [], lateralPressure: [])
+                ValveConfigModel(commonDetails: i, inputPressure: [], lateralPressure: [])
             );
           }
         }
@@ -541,6 +557,10 @@ class ConfigMakerProvider extends ChangeNotifier{
               valveConfig.add(
                   ValveConfigModel(commonDetails: deviceObjectModel, inputPressure: [], lateralPressure: [])
               );
+            }else if(deviceObjectModel.objectId == AppConstants.channelObjectId){
+              channelConfig.add(
+                  ChannelConfigModel(commonDetails: deviceObjectModel, dosingMeter: 0.0)
+              );
             }else if(deviceObjectModel.objectId == AppConstants.pressureSensorObjectId){
               pressureSensor.add(
                   PressureModel(commonDetails: deviceObjectModel, valves: [], mainValve: [])
@@ -601,6 +621,7 @@ class ConfigMakerProvider extends ChangeNotifier{
           source.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
           moisture.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
           valveConfig.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
+          channelConfig.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
           pressureSensor.removeWhere((e) => filteredList.contains(e.commonDetails.sNo));
           ec.removeWhere((e) => filteredList.contains(e.sNo));
           ph.removeWhere((e) => filteredList.contains(e.sNo));
@@ -624,6 +645,9 @@ class ConfigMakerProvider extends ChangeNotifier{
             ms.updateObjectIdIfDeletedInProductLimit(filteredList);
           }
           for(var v in valveConfig){
+            v.updateObjectIdIfDeletedInProductLimit(filteredList);
+          }
+          for(var v in channelConfig){
             v.updateObjectIdIfDeletedInProductLimit(filteredList);
           }
           for(var ps in pressureSensor){
@@ -1051,6 +1075,16 @@ class ConfigMakerProvider extends ChangeNotifier{
     notifyListeners();
   }
 
+  void assignDosingMeterToChannel(double sNo){
+    for(var c in channelConfig){
+      if(c.commonDetails.sNo == sNo){
+        c.dosingMeter = selectedSno;
+        selectedSno = 0.0;
+      }
+    }
+    notifyListeners();
+  }
+
 
   void updateSelectionInPressure(double sNo, int objectId){
     for(var ps in pressureSensor){
@@ -1106,6 +1140,11 @@ class ConfigMakerProvider extends ChangeNotifier{
         }
       }
       for(var v in valveConfig){
+        if(v.commonDetails.sNo == obj.sNo){
+          v.commonDetails.name = obj.name;
+        }
+      }
+      for(var v in channelConfig){
         if(v.commonDetails.sNo == obj.sNo){
           v.commonDetails.name = obj.name;
         }
@@ -1289,28 +1328,29 @@ class ConfigMakerProvider extends ChangeNotifier{
   String getValveConfigPayload() {
     List<dynamic> valveConfigPayload = [];
     for(var i = 0;i < valveConfig.length;i++){
-      var valve = valveConfig[i];
-      List<double> moistureSno = [];
-      List<double> soilTempSno = [];
-      for(var i in moisture){
-        if(i.valves.contains(valve.commonDetails.sNo) && !moistureSno.contains(i.commonDetails.sNo!)){
-          moistureSno.add(i.commonDetails.sNo!);
-        }
-        if(i.valves.contains(valve.commonDetails.sNo)){
-          for(var j in i.soilTemperature){
-            if(!soilTempSno.contains(j)){
-              soilTempSno.add(j);
+      if(valveConfig[i].commonDetails.controllerId != null){
+        var valve = valveConfig[i];
+        List<double> moistureSno = [];
+        List<double> soilTempSno = [];
+        for(var i in moisture){
+          if(i.valves.contains(valve.commonDetails.sNo) && !moistureSno.contains(i.commonDetails.sNo!)){
+            moistureSno.add(i.commonDetails.sNo!);
+          }
+          if(i.valves.contains(valve.commonDetails.sNo)){
+            for(var j in i.soilTemperature){
+              if(!soilTempSno.contains(j)){
+                soilTempSno.add(j);
+              }
             }
           }
         }
-      }
-      valveConfigPayload.add({
-        "S_No": valve.commonDetails.sNo,
-        "Moisture": moistureSno.join('_'),
-        "SoilTemperature": soilTempSno.join('_'),
-        "ValvePressure": valve.inputPressure.join('_'),
-        "LateralPressure": valve.lateralPressure.join('_'),
-      }.entries.map((e) => e.value).join(","));
+        valveConfigPayload.add({
+          "S_No": valve.commonDetails.sNo,
+          "Moisture": moistureSno.join('_'),
+          "SoilTemperature": soilTempSno.join('_'),
+          "ValvePressure": valve.inputPressure.join('_'),
+          "LateralPressure": valve.lateralPressure.join('_'),
+        }.entries.map((e) => e.value).join(","));      }
     }
     return valveConfigPayload.join(";");
   }

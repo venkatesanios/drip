@@ -647,9 +647,9 @@ class _ConfigWebViewState extends State<ConfigWebView> {
             '106' : configPvd.getFertilizerInjectorPayload(),
           if(gem && !omsGem)
             '107' : configPvd.getIrrigationLinePayload(),
-          if(gem && !omsGem)
+          if(gem && !omsGem && configPvd.valveConfig.any((valve) => !valve.valveModelParameterIsEmpty()))
             '108' : configPvd.getValveConfigPayload(),
-          if(gem && !omsGem)
+          if(gem && !omsGem && configPvd.moisture.any((moisture) => !moisture.isMoistureModelParameterIsEmpty()))
             '109' : configPvd.getMoisturePayload(),
         }
       };

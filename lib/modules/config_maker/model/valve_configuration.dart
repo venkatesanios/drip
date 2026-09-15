@@ -33,4 +33,11 @@ class ValveConfigModel{
     inputPressure = inputPressure.where((objectId) => !objectIdToBeDeleted.contains(objectId)).toList();
     lateralPressure = lateralPressure.where((objectId) => !objectIdToBeDeleted.contains(objectId)).toList();
   }
+
+  bool valveModelParameterIsEmpty(){
+    if(inputPressure.isEmpty && lateralPressure.isEmpty){
+      return true;
+    }
+    return false;
+  }
 }

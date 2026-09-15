@@ -1809,8 +1809,4 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> {
       ),
     );
   }
-
-
-
-
 }

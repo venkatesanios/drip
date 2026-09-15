@@ -905,6 +905,7 @@ class AppConstants {
   static int lightObjectId = 19;
   static int gateObjectId = 43;
   static int flowControlValveObjectId = 45;
+  static int dosingMeterObjectId = 47;
 
   static List<int> smartPlusEcPhModel = [33];
   static List<int> ecModel = [64];

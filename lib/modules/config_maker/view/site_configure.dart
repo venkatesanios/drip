@@ -8,6 +8,7 @@ import 'package:oro_drip_irrigation/modules/config_maker/view/valve_configuratio
 import 'package:oro_drip_irrigation/utils/constants.dart';
 import '../model/device_object_model.dart';
 import '../state_management/config_maker_provider.dart';
+import 'channel_configuration.dart';
 import 'fertilization_configuration.dart';
 import 'filtration_configuration.dart';
 import 'line_configuration.dart';
@@ -64,7 +65,9 @@ class _SiteConfigureState extends State<SiteConfigure> {
                     PhConfiguration(configPvd: widget.configPvd,)
                     : widget.configPvd.selectedConfigurationTab == 8 ?
                     PressureConfiguration(configPvd: widget.configPvd) :
+                    widget.configPvd.selectedConfigurationTab == 9 ?
                     ValveConfiguration(configPvd: widget.configPvd)
+                        : ChannelConfiguration(configPvd: widget.configPvd)
               )
             ],
           ),

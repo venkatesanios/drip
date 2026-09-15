@@ -34,4 +34,10 @@ class PressureModel{
     mainValve = mainValve.where((objectId) => !objectIdToBeDeleted.contains(objectId)).toList();
   }
 
+  bool isPressureModelParameterIsEmpty(){
+    if(valves.isEmpty && mainValve.isEmpty){
+      return true;
+    }
+    return false;
+  }
 }
