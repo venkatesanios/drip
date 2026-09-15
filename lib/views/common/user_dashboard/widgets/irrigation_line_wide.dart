@@ -146,6 +146,8 @@ class IrrigationLineWide extends StatelessWidget {
       ...gateWidgets,
     ];
 
+    print(allItems);
+
     int cFrtChannelCount = 0;
     int lFrtChannelCount = 0;
 
