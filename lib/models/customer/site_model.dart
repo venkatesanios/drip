@@ -1678,6 +1678,7 @@ class ValveModel {
   int status;
   int completePercent;
   bool isOn;
+  String lastRunningDT;
   List<MoistureSensorModel> moistureSensors = [];
   List<SensorModel> soilTemperature = [];
   List<PressureSensor> inputPressure = [];
@@ -1690,6 +1691,7 @@ class ValveModel {
     this.status = 0,
     this.completePercent = 0,
     this.isOn = false,
+    this.lastRunningDT = '0000-00-00 00:00',
   });
 
   factory ValveModel.fromConfigObject(ConfigObject obj, List<WaterSourceModel> ws) {
@@ -1734,12 +1736,16 @@ class MainValveModel {
   int completePercent;
   bool selected;
 
+  String lastRunningDT;
+  List<PressureSensor> inputPressure = [];
+
   MainValveModel({
     required this.sNo,
     required this.name,
     this.status = 0,
     this.completePercent = 0,
     this.selected = false,
+    this.lastRunningDT = '0000-00-00 00:00',
   });
 
   factory MainValveModel.fromConfigObject(ConfigObject obj, List<WaterSourceModel> ws) {
