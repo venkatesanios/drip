@@ -173,6 +173,7 @@ class _SensorHourlyReportPageState extends State<SensorHourlyReportPage> {
             icon: const Icon(Icons.calendar_today),
             onPressed: _selectDate,
           ),
+          SizedBox(width: 10),
         ],
       ),
       body: isLoading
