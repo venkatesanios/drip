@@ -27,7 +27,9 @@ class ValveWidgetMobile extends StatefulWidget {
 
 class _ValveWidgetMobileState extends State<ValveWidgetMobile> {
 
-  void _openSensorsPopover(BuildContext context, {String? section}) {
+  void _openSensorsPopover(BuildContext context,
+      {String? section, bool hasAnySensor = false}) {
+
     showPopover(
       context: context,
       bodyBuilder: (context) => ValveSensorsPopover(
@@ -37,8 +39,8 @@ class _ValveWidgetMobileState extends State<ValveWidgetMobile> {
         initialSection: section,
       ),
       direction: PopoverDirection.bottom,
-      width: 550,
-      height: 340,
+      width: hasAnySensor ? 550 : 270,
+      height: hasAnySensor ? 340 : 70,
       arrowHeight: 15,
       arrowWidth: 30,
       barrierColor: Colors.black54,
@@ -151,9 +153,9 @@ class _ValveWidgetMobileState extends State<ValveWidgetMobile> {
 
           return _buildSensorChip(
             icon: Icons.water_drop,
-            color: MyFunction().getMoistureColor(sensorList) ?? Colors.blue,
+            color: MyFunction().getMoistureColor(sensorList),
             label: 'M',
-            onTap: () => _openSensorsPopover(context, section: 'moisture'),
+            onTap: () => _openSensorsPopover(context, section: 'moisture', hasAnySensor: true),
           );
         },
       ));
@@ -173,7 +175,7 @@ class _ValveWidgetMobileState extends State<ValveWidgetMobile> {
             icon: Icons.speed,
             color: Colors.orange,
             label: 'IP',
-            onTap: () => _openSensorsPopover(context, section: 'inputPressure'),
+            onTap: () => _openSensorsPopover(context, section: 'inputPressure', hasAnySensor: true),
           );
         },
       ));
@@ -193,7 +195,7 @@ class _ValveWidgetMobileState extends State<ValveWidgetMobile> {
             icon: Icons.speed,
             color: Colors.lightBlue,
             label: 'LT',
-            onTap: () => _openSensorsPopover(context, section: 'lateralPressure'),
+            onTap: () => _openSensorsPopover(context, section: 'lateralPressure', hasAnySensor: true),
           );
         },
       ));
@@ -213,7 +215,7 @@ class _ValveWidgetMobileState extends State<ValveWidgetMobile> {
             icon: Icons.thermostat,
             color: Colors.deepOrange,
             label: 'SOT',
-            onTap: () => _openSensorsPopover(context, section: 'soilTemp'),
+            onTap: () => _openSensorsPopover(context, section: 'soilTemp', hasAnySensor: true),
           );
         },
       ));
@@ -275,7 +277,7 @@ class _ValveWidgetMobileState extends State<ValveWidgetMobile> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             GestureDetector(
-              onTap: hasAnySensor ? () => _openSensorsPopover(context) : null,
+              onTap: () => _openSensorsPopover(context),
               child: SizedBox(
                 width: 43,
                 height: 43,
