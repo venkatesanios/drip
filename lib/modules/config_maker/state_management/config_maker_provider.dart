@@ -32,12 +32,12 @@ class ConfigMakerProvider extends ChangeNotifier{
     2 : 'Filtration Configuration',
     3 : 'Fertilization Configuration',
     4 : 'Moisture Configuration',
-    5 : 'Line Configuration',
-    6 : 'Ec Configuration',
-    7 : 'Ph Configuration',
-    8 : 'Pressure Configuration',
-    9 : 'Valve Configuration',
-    10 : 'Channel Configuration',
+    5 : 'Ec Configuration',
+    6 : 'Ph Configuration',
+    7 : 'Pressure Configuration',
+    8 : 'Valve Configuration',
+    9 : 'Channel Configuration',
+    10 : 'Line Configuration',
   };
   int selectedConfigurationTab = 0;
   int rangeStart = -1;
@@ -49,12 +49,12 @@ class ConfigMakerProvider extends ChangeNotifier{
     2 : AppConstants.filterSiteObjectId,
     3 : AppConstants.fertilizerSiteObjectId,
     4 : AppConstants.moistureObjectId,
-    5 : AppConstants.irrigationLineObjectId,
-    6 : AppConstants.ecObjectId,
-    7 : AppConstants.phObjectId,
-    8 : AppConstants.pressureSensorObjectId,
-    9 : AppConstants.valveObjectId,
-    10 : AppConstants.channelObjectId,
+    5 : AppConstants.ecObjectId,
+    6 : AppConstants.phObjectId,
+    7 : AppConstants.pressureSensorObjectId,
+    8 : AppConstants.valveObjectId,
+    9 : AppConstants.channelObjectId,
+    10 : AppConstants.irrigationLineObjectId,
   };
   SelectionMode selectedSelectionMode = SelectionMode.auto;
   int selectedConnectionNo = 0;
@@ -416,7 +416,7 @@ class ConfigMakerProvider extends ChangeNotifier{
       pump = (configMakerData['pump'] as List<dynamic>).map((pumpObject) => PumpModel.fromJson(pumpObject)).toList();
       moisture = (configMakerData['moistureSensor'] as List<dynamic>).map((moistureObject) => MoistureModel.fromJson(moistureObject)).toList();
       valveConfig = configMakerData['valve'] != null ? (configMakerData['valve'] as List<dynamic>).map((valveObject) => ValveConfigModel.fromJson(valveObject)).toList() : [];
-      channelConfig = configMakerData['channel'] != null ? (configMakerData['channel'] as List<dynamic>).map((channelObject) => ChannelConfigModel.fromJson(channelObject)).toList() : [];
+      channelConfig = configMakerData['fertilizerChannel'] != null ? (configMakerData['fertilizerChannel'] as List<dynamic>).map((channelObject) => ChannelConfigModel.fromJson(channelObject)).toList() : [];
       pressureSensor = configMakerData['pressureSensor'] != null ? (configMakerData['pressureSensor'] as List<dynamic>).map((pressureObject) => PressureModel.fromJson(pressureObject)).toList() : [];
       if(configMakerData.containsKey('ecSensor')){
         ec = (configMakerData['ecSensor'] as List<dynamic>).map((ecObject) => EcModel.fromJson(ecObject)).toList();
@@ -429,7 +429,7 @@ class ConfigMakerProvider extends ChangeNotifier{
         for(var i in listOfGeneratedObject){
           if(i.objectId == AppConstants.channelObjectId){
             channelConfig.add(
-              ChannelConfigModel(commonDetails: i, dosingMeter: 0.0)
+              ChannelConfigModel(commonDetails: i, dosingMeter: 0.0, source: [])
             );
           }
         }
@@ -447,7 +447,7 @@ class ConfigMakerProvider extends ChangeNotifier{
         for(var i in listOfGeneratedObject){
           if(i.objectId == AppConstants.pressureSensorObjectId){
             pressureSensor.add(
-                PressureModel(commonDetails: i, valves: [], mainValve: [])
+                PressureModel(commonDetails: i, mainValve: [])
             );
           }
         }
@@ -543,7 +543,7 @@ class ConfigMakerProvider extends ChangeNotifier{
               );
             }else if(deviceObjectModel.objectId == AppConstants.sourceObjectId){
               source.add(
-                  SourceModel(commonDetails: deviceObjectModel, inletPump: [], outletPump: [], aerator: [], valves: [], outletValves: [], channel: [])
+                  SourceModel(commonDetails: deviceObjectModel, inletPump: [], outletPump: [], aerator: [], valves: [], outletValves: [], agitator: [],)
               );
             }else if(deviceObjectModel.objectId == AppConstants.pumpObjectId){
               pump.add(
@@ -559,11 +559,11 @@ class ConfigMakerProvider extends ChangeNotifier{
               );
             }else if(deviceObjectModel.objectId == AppConstants.channelObjectId){
               channelConfig.add(
-                  ChannelConfigModel(commonDetails: deviceObjectModel, dosingMeter: 0.0)
+                  ChannelConfigModel(commonDetails: deviceObjectModel, dosingMeter: 0.0, source: [])
               );
             }else if(deviceObjectModel.objectId == AppConstants.pressureSensorObjectId){
               pressureSensor.add(
-                  PressureModel(commonDetails: deviceObjectModel, valves: [], mainValve: [])
+                  PressureModel(commonDetails: deviceObjectModel, mainValve: [])
               );
             }else if(deviceObjectModel.objectId == AppConstants.ecObjectId){
               ec.add(
@@ -1089,18 +1089,29 @@ class ConfigMakerProvider extends ChangeNotifier{
   void updateSelectionInPressure(double sNo, int objectId){
     for(var ps in pressureSensor){
       if(ps.commonDetails.sNo == sNo){
-        if(objectId == AppConstants.valveObjectId){
-          ps.valves.clear();
-          ps.valves.addAll(listOfSelectedSno);
-        }else{
+        if(objectId == AppConstants.mainValveObjectId){
           ps.mainValve.clear();
           ps.mainValve.addAll(listOfSelectedSno);
+        }
+      }
+        listOfSelectedSno.clear();
+    }
+    notifyListeners();
+  }
+
+  void updateSelectionInChannel(double sNo, int objectId){
+    for(var ch in channelConfig){
+      if(ch.commonDetails.sNo == sNo){
+        if(objectId == AppConstants.sourceObjectId){
+          ch.source.clear();
+          ch.source.addAll(listOfSelectedSno);
         }
         listOfSelectedSno.clear();
       }
     }
     notifyListeners();
   }
+
 
   void updateName(List<DeviceObjectModel> listOfObject){
     for(var obj in listOfObject){

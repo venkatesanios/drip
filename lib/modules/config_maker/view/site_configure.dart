@@ -58,16 +58,16 @@ class _SiteConfigureState extends State<SiteConfigure> {
                     : widget.configPvd.selectedConfigurationTab == 4 
                     ? MoistureConfiguration(configPvd: widget.configPvd)
                     : widget.configPvd.selectedConfigurationTab == 5
-                    ? LineConfiguration(configPvd: widget.configPvd)
-                    : widget.configPvd.selectedConfigurationTab == 6
                     ? EcConfiguration(configPvd: widget.configPvd,)
+                    : widget.configPvd.selectedConfigurationTab == 6
+                    ? PhConfiguration(configPvd: widget.configPvd,)
                     : widget.configPvd.selectedConfigurationTab == 7 ?
-                    PhConfiguration(configPvd: widget.configPvd,)
-                    : widget.configPvd.selectedConfigurationTab == 8 ?
                     PressureConfiguration(configPvd: widget.configPvd) :
+                    widget.configPvd.selectedConfigurationTab == 8 ?
+                    ValveConfiguration(configPvd: widget.configPvd) :
                     widget.configPvd.selectedConfigurationTab == 9 ?
-                    ValveConfiguration(configPvd: widget.configPvd)
-                        : ChannelConfiguration(configPvd: widget.configPvd)
+                    ChannelConfiguration(configPvd: widget.configPvd)
+                        : LineConfiguration(configPvd: widget.configPvd)
               )
             ],
           ),
@@ -134,7 +134,7 @@ class _SiteConfigureState extends State<SiteConfigure> {
   bool showTabForAquaCulture(int tabKey){
     bool isAquaCultureGem = AppConstants.aquacultureModelList.contains(widget.configPvd.masterData['modelId']);
     if(!isAquaCultureGem) return true;
-    List<int> tabKeyNotToShowForAquaCulture = [1, 2, 3, 4, 6, 7, 8];
+    List<int> tabKeyNotToShowForAquaCulture = [1, 2, 3, 4, 5, 6, 7];
     if(tabKeyNotToShowForAquaCulture.contains(tabKey)) {
       print("these tab not to show aqua culture..");
       return false;
