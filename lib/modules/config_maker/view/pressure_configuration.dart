@@ -59,10 +59,6 @@ class _PressureConfigurationState extends State<PressureConfiguration> {
                             ),
                             Padding(
                               padding: const EdgeInsets.all(8.0),
-                              child: getObject(pressureSensor: ps, objectList: ps.valves, objectId: AppConstants.valveObjectId),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
                               child: getObject(pressureSensor: ps, objectList: ps.mainValve, objectId: AppConstants.mainValveObjectId),
                             ),
                           ],
@@ -73,7 +69,6 @@ class _PressureConfigurationState extends State<PressureConfiguration> {
               ],
             ),
           ),
-
         );
       }),
     );
@@ -128,6 +123,4 @@ class _PressureConfigurationState extends State<PressureConfiguration> {
       ),
     );
   }
-
-
 }

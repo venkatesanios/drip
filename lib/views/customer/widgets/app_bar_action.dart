@@ -214,7 +214,9 @@ Widget _buildHelpMenu(
                   );
                 },
               ),
-              !loggedUser.configPermission ? ListTile(
+              (! loggedUser.configPermission && ![...AppConstants.ecoGemModelList,
+                ...AppConstants.shine2V, ...AppConstants.shine4V, ...AppConstants.elite10V]
+                  .contains(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId))  ? ListTile(
                 leading: const Icon(Icons.info_outline),
                 title: const Text('Controller info'),
                 onTap: () async {
@@ -460,44 +462,45 @@ Widget _buildNonGemActions(BuildContext context, dynamic master,
             child: Icon(Icons.question_answer_outlined),
           ),
         ),
-        // if (!kIsWeb && !AppConstants.wlcModelList.contains(master.modelId))
-        //   InkWell(
-        //     onTap: () {
-        //       final Map<String, dynamic> data = {
-        //         'controllerId': master.controllerId,
-        //         'deviceId': master.deviceId,
-        //         'deviceName': master.deviceName,
-        //         'categoryId': master.categoryId,
-        //         'categoryName': master.categoryName,
-        //         'modelId': master.modelId,
-        //         'modelName': master.modelName,
-        //         'InterfaceType': 1,
-        //         'interface': 'GSM',
-        //         'relayOutput': 3,
-        //         'latchOutput': 0,
-        //         'analogInput': 8,
-        //         'digitalInput': 4,
-        //       };
-        //       Navigator.push(
-        //         context,
-        //         MaterialPageRoute(
-        //           builder: (context) => NodeConnectionPage(
-        //             nodeData: data,
-        //             masterData: {
-        //               "userId": loggedInUser.id,
-        //               "customerId": customerId,
-        //               "controllerId": master.controllerId,
-        //             },
-        //             connectMode: ConnectMode.normal,
-        //           ),
-        //         ),
-        //       );
-        //     },
-        //     child: const Padding(
-        //       padding: EdgeInsets.symmetric(horizontal: 8),
-        //       child: Icon(Icons.bluetooth),
-        //     ),
-        //   ),
+        if (!kIsWeb && !AppConstants.wlcModelList.contains(master.modelId)
+            && !AppConstants.omsGemList.contains(master.modelId))
+          InkWell(
+            onTap: () {
+              final Map<String, dynamic> data = {
+                'controllerId': master.controllerId,
+                'deviceId': master.deviceId,
+                'deviceName': master.deviceName,
+                'categoryId': master.categoryId,
+                'categoryName': master.categoryName,
+                'modelId': master.modelId,
+                'modelName': master.modelName,
+                'InterfaceType': 1,
+                'interface': 'GSM',
+                'relayOutput': 3,
+                'latchOutput': 0,
+                'analogInput': 8,
+                'digitalInput': 4,
+              };
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => NodeConnectionPage(
+                    nodeData: data,
+                    masterData: {
+                      "userId": loggedInUser.id,
+                      "customerId": customerId,
+                      "controllerId": master.controllerId,
+                    },
+                    connectMode: ConnectMode.normal,
+                  ),
+                ),
+              );
+            },
+            child: const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8),
+              child: Icon(Icons.bluetooth),
+            ),
+          ),
         InkWell(
           onTap: () {
             Navigator.push(

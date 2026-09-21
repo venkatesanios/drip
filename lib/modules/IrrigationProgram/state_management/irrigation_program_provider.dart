@@ -182,6 +182,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         }
       } else {
         log("HTTP Request failed or received an unexpected response.");
+        throw Exception("Failed to load sequence data");
       }
     } catch (e, stackTrace) {
       log('Error: $e');
@@ -547,8 +548,9 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
           };
         }
         _sampleScheduleModel = SampleScheduleModel.fromJson(convertedJson);
-      }else {
+      } else {
         log("HTTP Request failed or received an unexpected response.");
+        throw Exception("Failed to load schedule data");
       }
     } catch (e) {
       log('Error: $e');
@@ -742,6 +744,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         _sampleConditions = SampleConditions.fromJson(convertedJson);
       } else {
         log("HTTP Request failed or received an unexpected response.");
+        throw Exception("Failed to load condition data");
       }
     } catch (e) {
       log('Error: $e');
@@ -961,6 +964,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         sequenceData = convertedJsonOfWaterAndFert['data']['waterAndFert'];
       } else {
         log("HTTP Request failed or received an unexpected response.");
+        throw Exception("Failed to load water and fert data");
       }
 
       if(getRecipe.statusCode == 200){
@@ -969,6 +973,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         recipe = convertedJsonOfRecipe['data']['fertilizerSet'];
       }else {
         log("HTTP Request failed for recipe.");
+        throw Exception("Failed to load recipe data");
       }
 
       notifyListeners();
@@ -2560,6 +2565,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       _additionalData = AdditionalData.fromJson(jsonData['data']['selection']);
     } catch (e) {
       log('Error: $e');
+      rethrow;
     }
     Future.delayed(Duration.zero, () {
       notifyListeners();
@@ -2586,6 +2592,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         _newAlarmList = NewAlarmList.fromJson(convertedJson);
       } else {
         log("HTTP Request failed or received an unexpected response.");
+        throw Exception("Failed to load alarm data");
       }
     } catch (e) {
       log('Error: $e');
@@ -2661,6 +2668,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         });
       } else {
         log("HTTP Request failed or received an unexpected response.");
+        throw Exception("Failed to load program details");
       }
     } catch (e) {
       log('Error: $e');

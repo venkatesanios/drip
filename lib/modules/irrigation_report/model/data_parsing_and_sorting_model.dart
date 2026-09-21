@@ -2602,6 +2602,7 @@ class IrrigationLogModel {
     List<dynamic> list = [];
     try{
       for(var parameter in channelParameterList){
+        debugPrint("parameter => ${parameter.payloadKey} = ${parameter.show}");
         if(date['irrigation']['${central ? 'Central' : 'Local'}FertOnOff'][howMany] == 1){
           if(parameter.payloadKey == '${central ? 'Central' : 'Local'}FertMethod') {
             if(parameter.show == true){

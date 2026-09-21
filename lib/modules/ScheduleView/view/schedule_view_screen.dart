@@ -705,7 +705,7 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> {
                 _buildIconButton(
                     Icons.edit_note_outlined,
                     (
-                        ([0, 1, 4, 5,2].contains(status.code))
+                        ([0, 1, 4, 5].contains(status.code))
                             || (scheduleDateWithoutTime.isAfter(todayWithoutTime) || scheduleDateWithoutTime.isAtSameMomentAs(todayWithoutTime)))? () {
                       _textController.text = scheduleItem["ScaleFactor"].toString();
                       _showEditSideSheet(scheduleItem, constraints, index);
@@ -1809,8 +1809,4 @@ class _ScheduleViewScreenState extends State<ScheduleViewScreen> {
       ),
     );
   }
-
-
-
-
 }

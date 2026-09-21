@@ -127,11 +127,12 @@ class _ScrollingTableState extends State<ScrollingTable> {
 
   @override
   Widget build(BuildContext context) {
+    print("widget.centralChannel1ColumnData => ${widget.centralChannel1ColumnData}");
     return Expanded(
       child: Container(
         decoration: BoxDecoration(
             color: Colors.green.shade50,
-            borderRadius: BorderRadius.only(bottomRight: Radius.circular(20),bottomLeft: Radius.circular(20))
+            borderRadius: const BorderRadius.only(bottomRight: Radius.circular(20),bottomLeft: Radius.circular(20))
         ),
         margin: const EdgeInsets.only(left: 5,right: 5),
         child: LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
@@ -664,14 +665,14 @@ class _ScrollingTableState extends State<ScrollingTable> {
                                     ],
                                   ),
                                   //TODO : CENTRAL CHANNEL
-                                  getChannnelColumnDataWidget(columnDataList: widget.centralChannel1ColumnData),
-                                  getChannnelColumnDataWidget(columnDataList: widget.centralChannel2ColumnData),
-                                  getChannnelColumnDataWidget(columnDataList: widget.centralChannel3ColumnData),
-                                  getChannnelColumnDataWidget(columnDataList: widget.centralChannel4ColumnData),
-                                  getChannnelColumnDataWidget(columnDataList: widget.centralChannel5ColumnData),
-                                  getChannnelColumnDataWidget(columnDataList: widget.centralChannel6ColumnData),
-                                  getChannnelColumnDataWidget(columnDataList: widget.centralChannel7ColumnData),
-                                  getChannnelColumnDataWidget(columnDataList: widget.centralChannel8ColumnData),
+                                  if(widget.centralChannel1Column.isNotEmpty) getChannnelColumnDataWidget(columnDataList: widget.centralChannel1ColumnData),
+                                  if(widget.centralChannel2Column.isNotEmpty) getChannnelColumnDataWidget(columnDataList: widget.centralChannel2ColumnData),
+                                  if(widget.centralChannel3Column.isNotEmpty) getChannnelColumnDataWidget(columnDataList: widget.centralChannel3ColumnData),
+                                  if(widget.centralChannel4Column.isNotEmpty) getChannnelColumnDataWidget(columnDataList: widget.centralChannel4ColumnData),
+                                  if(widget.centralChannel5Column.isNotEmpty) getChannnelColumnDataWidget(columnDataList: widget.centralChannel5ColumnData),
+                                  if(widget.centralChannel6Column.isNotEmpty) getChannnelColumnDataWidget(columnDataList: widget.centralChannel6ColumnData),
+                                  if(widget.centralChannel7Column.isNotEmpty) getChannnelColumnDataWidget(columnDataList: widget.centralChannel7ColumnData),
+                                  if(widget.centralChannel8Column.isNotEmpty) getChannnelColumnDataWidget(columnDataList: widget.centralChannel8ColumnData),
                                   //TODO : LOCAL ECPH DATA
                                   Column(
                                     children: [
@@ -707,14 +708,14 @@ class _ScrollingTableState extends State<ScrollingTable> {
                                     ],
                                   ),
                                   //TODO : LOCAL CHANNEL
-                                  getChannnelColumnDataWidget(columnDataList: widget.localChannel1ColumnData),
-                                  getChannnelColumnDataWidget(columnDataList: widget.localChannel2ColumnData),
-                                  getChannnelColumnDataWidget(columnDataList: widget.localChannel3ColumnData),
-                                  getChannnelColumnDataWidget(columnDataList: widget.localChannel4ColumnData),
-                                  getChannnelColumnDataWidget(columnDataList: widget.localChannel5ColumnData),
-                                  getChannnelColumnDataWidget(columnDataList: widget.localChannel6ColumnData),
-                                  getChannnelColumnDataWidget(columnDataList: widget.localChannel7ColumnData),
-                                  getChannnelColumnDataWidget(columnDataList: widget.localChannel8ColumnData),
+                                  if(widget.localChannel1Column.isNotEmpty) getChannnelColumnDataWidget(columnDataList: widget.localChannel1ColumnData),
+                                  if(widget.localChannel2Column.isNotEmpty) getChannnelColumnDataWidget(columnDataList: widget.localChannel2ColumnData),
+                                  if(widget.localChannel3Column.isNotEmpty) getChannnelColumnDataWidget(columnDataList: widget.localChannel3ColumnData),
+                                  if(widget.localChannel4Column.isNotEmpty) getChannnelColumnDataWidget(columnDataList: widget.localChannel4ColumnData),
+                                  if(widget.localChannel5Column.isNotEmpty) getChannnelColumnDataWidget(columnDataList: widget.localChannel5ColumnData),
+                                  if(widget.localChannel6Column.isNotEmpty) getChannnelColumnDataWidget(columnDataList: widget.localChannel6ColumnData),
+                                  if(widget.localChannel7Column.isNotEmpty) getChannnelColumnDataWidget(columnDataList: widget.localChannel7ColumnData),
+                                  if(widget.localChannel8Column.isNotEmpty) getChannnelColumnDataWidget(columnDataList: widget.localChannel8ColumnData),
                                 ],
                               ),
                             ),

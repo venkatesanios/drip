@@ -139,7 +139,7 @@ class _SourceConfigurationState extends State<SourceConfiguration> {
                                   child: CustomDropDownButton(
                                       value: getTankCodeToString(source.sourceType),
                                       list: const ['Tank', 'Sump', 'Well', 'Bore',
-                                        // 'Fertilizer Source', 'Fertilizer Tank',
+                                        'Fertilizer Source', 'Fertilizer Tank',
                                         'Others'],
                                       onChanged: (value){
                                         setState(() {
@@ -298,7 +298,7 @@ class _SourceConfigurationState extends State<SourceConfiguration> {
                                   if(![4,5].contains(source.sourceType))
                                     for(var mode in [1,2,3,4,5,6])
                                       getLevelAndFloatSelection(source, mode),
-                                  if([7].contains(source.sourceType))
+                                  if([6,7].contains(source.sourceType))
                                     ...[
                                       Container(
                                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -309,30 +309,30 @@ class _SourceConfigurationState extends State<SourceConfiguration> {
                                         child: Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            SizedImage(imagePath: '${AppConstants.svgObjectPath}objectId_${AppConstants.channelObjectId}.svg', color: Colors.black,),
+                                            SizedImage(imagePath: '${AppConstants.svgObjectPath}objectId_${AppConstants.agitatorObjectId}.svg', color: Colors.black,),
                                             const SizedBox(width: 20,),
-                                            const Text('Channel : ', style: AppProperties.listTileBlackBoldStyle,),
+                                            const Text('Agitator : ', style: AppProperties.listTileBlackBoldStyle,),
                                             Expanded(
                                               child: Center(
-                                                child: Text(source.channel.map((sNo) => getObjectName(sNo, widget.configPvd).name!).join(', '), style: const TextStyle(color: Colors.teal, fontSize: 12, fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis),),
+                                                child: Text(source.agitator.map((sNo) => getObjectName(sNo, widget.configPvd).name!).join(', '), style: const TextStyle(color: Colors.teal, fontSize: 12, fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis),),
                                               ),
                                             ),
                                             IconButton(
                                                 onPressed: (){
                                                   setState(() {
                                                     widget.configPvd.listOfSelectedSno.clear();
-                                                    widget.configPvd.listOfSelectedSno.addAll(source.channel);
+                                                    widget.configPvd.listOfSelectedSno.addAll(source.agitator);
                                                   });
                                                   selectionDialogBox(
                                                       context: context,
-                                                      title: 'Select Channel',
+                                                      title: 'Select Agitator',
                                                       singleSelection: false,
-                                                      listOfObject: widget.configPvd.listOfGeneratedObject.where((object) => (object.objectId == AppConstants.channelObjectId )).toList(),
+                                                      listOfObject: widget.configPvd.listOfGeneratedObject.where((object) => (object.objectId == AppConstants.agitatorObjectId )).toList(),
                                                       onPressed: (){
                                                         setState(() {
-                                                          source.channel.clear();
-                                                          source.channel.addAll(widget.configPvd.listOfSelectedSno);
-                                                          widget.configPvd.updateAssignObject(sNo: source.commonDetails.sNo!, objectId: AppConstants.channelObjectId,listOfSerialNo: widget.configPvd.listOfSelectedSno);
+                                                          source.agitator.clear();
+                                                          source.agitator.addAll(widget.configPvd.listOfSelectedSno);
+                                                          widget.configPvd.updateAssignObject(sNo: source.commonDetails.sNo!, objectId: AppConstants.agitatorObjectId,listOfSerialNo: widget.configPvd.listOfSelectedSno);
                                                           widget.configPvd.listOfSelectedSno.clear();
                                                         });
                                                         Navigator.pop(context);

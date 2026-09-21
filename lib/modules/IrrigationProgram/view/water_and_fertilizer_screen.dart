@@ -752,8 +752,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                                   ),
                                 ),
                               //Todo : level and moisture condition
-                              // if(returnMoistureCondition(programPvd.apiData['moisture']).length!= 1)
-                              //   ListTile(
+                              //    ListTile(
                               //     title: const Text('Moisture Condition',style: TextStyle(color: Colors.black,fontSize: 14),),
                               //     leading: SizedBox(
                               //       width: 30,
@@ -765,7 +764,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                               //     trailing: DropdownButton(
                               //       icon: const Icon(Icons.keyboard_arrow_down,color: Colors.black,size: 15,),
                               //       dropdownColor: Colors.white,
-                              //       value: programPvd.sequenceData[programPvd.selectedGroup]['moistureCondition'],
+                              //       value: programPvd.sequenceData[programPvd.selectedGroup]['moistureCondition'] ?? '',
                               //       underline: Container(),
                               //       items: returnMoistureCondition(programPvd.apiData['moisture']).map((items) {
                               //         return DropdownMenuItem(
@@ -781,6 +780,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                               //       },
                               //     ),
                               //   ),
+
                               // if(returnMoistureCondition(programPvd.apiData['level']).length != 1)
                               //   ListTile(
                               //     title: const Text('Level Condition',style: TextStyle(color: Colors.black,fontSize: 14),),

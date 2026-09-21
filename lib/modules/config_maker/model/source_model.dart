@@ -15,7 +15,7 @@ class SourceModel {
   List<double> aerator;
   List<double> valves;
   List<double> outletValves;
-  List<double> channel;
+  List<double> agitator;
 
   SourceModel({
     required this.commonDetails,
@@ -31,7 +31,7 @@ class SourceModel {
     required this.aerator,
     required this.valves,
     required this.outletValves,
-    required this.channel,
+    required this.agitator,
   });
 
   void updateObjectIdIfDeletedInProductLimit(List<double> objectIdToBeDeleted){
@@ -39,7 +39,7 @@ class SourceModel {
     outletPump = outletPump.where((objectId) => !objectIdToBeDeleted.contains(objectId)).toList();
     valves = valves.where((objectId) => !objectIdToBeDeleted.contains(objectId)).toList();
     outletValves = outletValves.where((objectId) => !objectIdToBeDeleted.contains(objectId)).toList();
-    channel = channel.where((objectId) => !objectIdToBeDeleted.contains(objectId)).toList();
+    agitator = agitator.where((objectId) => !objectIdToBeDeleted.contains(objectId)).toList();
     level = objectIdToBeDeleted.contains(level) ? 0.0 : level;
     outletWaterMeter = objectIdToBeDeleted.contains(outletWaterMeter) ? 0.0 : outletWaterMeter;
     topFloatForInletPump = objectIdToBeDeleted.contains(topFloatForInletPump) ? 0.0 : topFloatForInletPump;
@@ -65,7 +65,7 @@ class SourceModel {
         aerator: data['aerator'] != null ?  (data['aerator'] as List<dynamic>).map((sNo) => sNo as double).toList() : [],
         valves: (data['valves'] as List<dynamic>).map((sNo) => sNo as double).toList(),
         outletValves: data['outletValves'] != null ? (data['outletValves'] as List<dynamic>).map((sNo) => sNo as double).toList() : [],
-        channel: data['channel'] != null ? (data['channel'] as List<dynamic>).map((sNo) => sNo as double).toList() : [],
+        agitator: data['agitator'] != null ? (data['agitator'] as List<dynamic>).map((sNo) => sNo as double).toList() : [],
     );
   }
 
@@ -84,7 +84,7 @@ class SourceModel {
       'aerator' : aerator,
       'valves' : valves,
       'outletValves' : outletValves,
-      'channel' : channel,
+      'agitator' : agitator,
     });
     return commonInfo;
   }
