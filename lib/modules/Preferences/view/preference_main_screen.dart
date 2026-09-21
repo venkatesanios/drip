@@ -807,6 +807,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                                     _buildRtcTimer(categoryIndex, settingIndex, pumpIndex, settingList)
                                   else if(settingList[categoryIndex].setting[settingIndex].title.toUpperCase() == "2 PHASE"
                                       || settingList[categoryIndex].setting[settingIndex].title.toUpperCase() == "AUTO RESTART 2 PHASE"
+                                      || (settingList[categoryIndex].setting[settingIndex].title.toUpperCase() == "AUTO RESTART" && settingList[categoryIndex].setting[settingIndex].serialNumber == 8)
                                       || (isNova && (
                                           settingList[categoryIndex].setting[settingIndex].title.toUpperCase() == "UPPER TANK LINEAR LEVEL SENSOR" ||
                                               settingList[categoryIndex].setting[settingIndex].title.toUpperCase() == "LOWER TANK LINEAR LEVEL SENSOR"
@@ -1102,47 +1103,65 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
   }
 
   Widget _buildTwoPhaseCard(int categoryIndex, int settingIndex, int pumpIndex, List settingList) {
+    bool singlePhaseModel = [
+      ...AppConstants.singlePhasePumpModel,
+      ...AppConstants.singlePhasePumpPlusModel,
+      ...AppConstants.singlePhaseShineModel,
+      ...AppConstants.singlePhaseElitePlusModel,
+      ...AppConstants.singlePhaseEcoGemModel,
+      ...AppConstants.singlePhaseEcoGemPlusModel].contains(widget.masterData['modelId']);
+    bool showTitle = true;
+    bool showPumpList = true;
+    if(singlePhaseModel){
+      showTitle = false;
+      if(settingList[categoryIndex].setting[settingIndex].title.contains("Auto Restart")){
+        showTitle = true;
+        showPumpList = false;
+      }
+    }
     return Column(
       children: [
-        ListTile(
-          leading: Container(
-              decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white
-                // gradient: linearGradientLeading,
-              ),
-              child: CircleAvatar(
-                  backgroundColor: cardColor,
-                  child: Icon(otherSettingsIcons[settingIndex], color: Theme.of(context).primaryColor)
-              )
+        if(showTitle)
+          ListTile(
+            leading: Container(
+                decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white
+                  // gradient: linearGradientLeading,
+                ),
+                child: CircleAvatar(
+                    backgroundColor: cardColor,
+                    child: Icon(otherSettingsIcons[settingIndex], color: Theme.of(context).primaryColor)
+                )
+            ),
+            title: Text(settingList[categoryIndex].setting[settingIndex].title, style: Theme.of(context).textTheme.titleMedium!.copyWith(color: Theme.of(context).primaryColorLight, fontWeight: FontWeight.bold),),
           ),
-          title: Text(settingList[categoryIndex].setting[settingIndex].title, style: Theme.of(context).textTheme.titleMedium!.copyWith(color: Theme.of(context).primaryColorLight, fontWeight: FontWeight.bold),),
-        ),
-        Column(
-          children: [
-            for (int index = 0; index < (isToGem ? preferenceProvider.individualPumpSetting!
-                .where((e) => e.deviceId == preferenceProvider.commonPumpSettings![pumpIndex].deviceId).length : preferenceProvider.individualPumpSetting!.length); index++)
-              SwitchListTile(
-                contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-                  secondary: const SizedBox(
-                    width: 40,
-                    height: 40,
-                  ),
-                  title: Text(isToGem ? preferenceProvider.individualPumpSetting!
-                      .where((e) => e.deviceId == preferenceProvider.commonPumpSettings![pumpIndex].deviceId)
-                      .elementAt(index)
-                      .name : preferenceProvider.individualPumpSetting![index].name),
-                  value: settingList[categoryIndex].setting[settingIndex].value[index],
-                  onChanged: (newValue) {
-                    setState(() {
-                      settingList[categoryIndex].setting[settingIndex].value[index] = newValue;
-                      settingList[categoryIndex].setting[settingIndex].isChanged = true;
-                      settingList[categoryIndex].changed = true;
-                    });
-                  }
-              ),
-          ],
-        )
+        if(showPumpList)
+          Column(
+            children: [
+              for (int index = 0; index < (isToGem ? preferenceProvider.individualPumpSetting!
+                  .where((e) => e.deviceId == preferenceProvider.commonPumpSettings![pumpIndex].deviceId).length : preferenceProvider.individualPumpSetting!.length); index++)
+                SwitchListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+                    secondary: const SizedBox(
+                      width: 40,
+                      height: 40,
+                    ),
+                    title: Text(isToGem ? preferenceProvider.individualPumpSetting!
+                        .where((e) => e.deviceId == preferenceProvider.commonPumpSettings![pumpIndex].deviceId)
+                        .elementAt(index)
+                        .name : preferenceProvider.individualPumpSetting![index].name),
+                    value: settingList[categoryIndex].setting[settingIndex].value[index],
+                    onChanged: (newValue) {
+                      setState(() {
+                        settingList[categoryIndex].setting[settingIndex].value[index] = newValue;
+                        settingList[categoryIndex].setting[settingIndex].isChanged = true;
+                        settingList[categoryIndex].changed = true;
+                      });
+                    }
+                ),
+            ],
+          )
       ],
     );
   }
@@ -2111,6 +2130,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
       } else {
         if (setting.title.toUpperCase() == '2 PHASE'
             || setting.title.toUpperCase() == 'AUTO RESTART 2 PHASE'
+            || (setting.title.toUpperCase() == "AUTO RESTART" && setting.serialNumber == 8)
             || setting.title.toUpperCase() == 'UPPER TANK LINEAR LEVEL SENSOR'
             || setting.title.toUpperCase() == 'LOWER TANK LINEAR LEVEL SENSOR'
         ) {
