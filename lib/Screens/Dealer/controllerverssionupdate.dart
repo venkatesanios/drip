@@ -23,8 +23,10 @@ class ResetVerssion extends StatefulWidget {
       {Key? key,
         required this.userId,
         required this.controllerId,
-        required this.deviceID});
-  final userId, controllerId, deviceID;
+        required this.deviceID,
+        required this.modeID,
+      });
+  final userId, controllerId, deviceID,modeID;
 
   @override
   _ResetVerssionState createState() => _ResetVerssionState();
@@ -262,7 +264,9 @@ class _ResetVerssionState extends State<ResetVerssion> {
                               icon: const Icon(Icons.arrow_circle_right_outlined),
                             ),
                           ),
-                          Padding(
+                    if(![...AppConstants.ecoGemModelList,
+                ...AppConstants.shine2V, ...AppConstants.shine4V, ...AppConstants.elite10V]
+                    .contains(widget.modeID))...[   Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Tooltip(
                               message: "Config Hardware",
@@ -301,7 +305,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
                                 icon: const Icon(Icons.settings_outlined),
                               ),
                             ),
-                          ) ,
+                          ) ,],
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Tooltip(
@@ -457,51 +461,57 @@ class _ResetVerssionState extends State<ResetVerssion> {
                         height: 1,
                         color: Colors.grey,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(0.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            FilledButton(
-                              style: ButtonStyle(
-                                  backgroundColor: checkupdatediable == 0
-                                      ? MaterialStateProperty.all(Colors.red)
-                                      : MaterialStateProperty.all(Colors.grey)),
-                              onPressed: () {
-                                selectindex = index;
-                                checkupdatediable == 0
-                                    ? resetItem(index)
-                                    : _showSnackBar("Please wait ....");
-                              },
-                              child: const Text('Restart'),
-                            ),
-                            const SizedBox(width: 10),
-                            FilledButton(
-                              style: ButtonStyle(
-                                  backgroundColor: checkupdatediable == 0
-                                      ? MaterialStateProperty.all(Colors.green)
-                                      : MaterialStateProperty.all(Colors.grey)),
-                              onPressed: () {
-                                selectindex = index;
-                                checkupdatediable == 0
-                                    ? updateItem(index)
-                                    : _showSnackBar("Please wait ....");
-                              },
-                              child: checkupdatediable == 0
-                                  ? mergedList[index]['currentVersion'] !=
-                                  mergedList[index]['latestVersion']
-                                  ? const BlinkingText(
-                                text: 'Update!', // Provide text here
-                                style: TextStyle(color: Colors.white),
-                                blinkDuration:
-                                Duration(milliseconds: 500),
-                              )
-                                  : const Text("Update")
-                                  : const Text("Update"),
-                            ),
-                          ],
+                      if(![...AppConstants.ecoGemModelList,
+                        ...AppConstants.shine2V, ...AppConstants.shine4V, ...AppConstants.elite10V]
+                          .contains(widget.modeID))...[
+
+                        Padding(
+                          padding: const EdgeInsets.all(0.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              FilledButton(
+                                style: ButtonStyle(
+                                    backgroundColor: checkupdatediable == 0
+                                        ? MaterialStateProperty.all(Colors.red)
+                                        : MaterialStateProperty.all(Colors.grey)),
+                                onPressed: () {
+                                  selectindex = index;
+                                  checkupdatediable == 0
+                                      ? resetItem(index)
+                                      : _showSnackBar("Please wait ....");
+                                },
+                                child: const Text('Restart'),
+                              ),
+                              const SizedBox(width: 10),
+                              FilledButton(
+                                style: ButtonStyle(
+                                    backgroundColor: checkupdatediable == 0
+                                        ? MaterialStateProperty.all(Colors.green)
+                                        : MaterialStateProperty.all(Colors.grey)),
+                                onPressed: () {
+                                  selectindex = index;
+                                  checkupdatediable == 0
+                                      ? updateItem(index)
+                                      : _showSnackBar("Please wait ....");
+                                },
+                                child: checkupdatediable == 0
+                                    ? mergedList[index]['currentVersion'] !=
+                                    mergedList[index]['latestVersion']
+                                    ? const BlinkingText(
+                                  text: 'Update!', // Provide text here
+                                  style: TextStyle(color: Colors.white),
+                                  blinkDuration:
+                                  Duration(milliseconds: 500),
+                                )
+                                    : const Text("Update")
+                                    : const Text("Update"),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
+                      ],
+
                       // SizedBox(height: 10),
                     ],
                   ),
