@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/modules/Preferences/view/preference_main_screen.dart';
 import 'package:provider/provider.dart';
 
 import '../../../Screens/Dealer/controllerverssionupdate.dart';
@@ -223,6 +224,7 @@ Widget _buildHelpMenu(
 
                   Navigator.pop(context);
                     if (loggedInUser.role == UserRole.admin) {
+
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -231,6 +233,7 @@ Widget _buildHelpMenu(
                                       vm.mySiteList.data[vm.sIndex].customerId,
                                   controllerId: master.controllerId,
                                   deviceID: master.deviceId,
+                              modeID: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId,
                                 )),
                       );
                     } else {
@@ -246,6 +249,7 @@ Widget _buildHelpMenu(
                           vm.mySiteList.data[vm.sIndex].customerId,
                           master.controllerId,
                           master.deviceId,
+                          vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId,
                           1);
 
                   }
@@ -277,6 +281,7 @@ Widget _buildHelpMenu(
                           vm.mySiteList.data[vm.sIndex].customerId,
                           master.controllerId,
                           master.deviceId,
+                          vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId,
                           2);
                     }
 
@@ -523,7 +528,7 @@ Widget _buildNonGemActions(BuildContext context, dynamic master,
 }
 
 void showPasswordDialog(BuildContext context, correctPassword, userId,
-    controllerID, imeiNumber, type)
+    controllerID, imeiNumber,modeID, type)
 {
   final TextEditingController passwordController = TextEditingController();
   showDialog(
@@ -567,6 +572,7 @@ void showPasswordDialog(BuildContext context, correctPassword, userId,
                                   userId: userId,
                                   controllerId: controllerID,
                                   deviceID: imeiNumber,
+                              modeID: modeID,
                                 )),
                       );
                     } else if (type == 2) {
