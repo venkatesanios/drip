@@ -32,6 +32,7 @@ import '../../../Widgets/custom_buttons.dart';
 import '../../../Widgets/custom_side_tab.dart';
 import '../../../Widgets/title_with_back_button.dart';
 import '../../../utils/constants.dart';
+import '../../../Constants/dialog_boxes.dart';
 import 'config_base_page.dart';
 import 'config_mobile_view.dart';
 import 'connection.dart';
@@ -551,6 +552,15 @@ class _ConfigWebViewState extends State<ConfigWebView> {
                             });
                           },
                           onTap: (){
+                            String? validationError = configPvd.validateGemConfiguration();
+                            if (validationError != null) {
+                              simpleDialogBox(
+                                context: context,
+                                title: 'Alert',
+                                message: validationError,
+                              );
+                              return;
+                            }
                             setState(() {
                               payloadSendState = PayloadSendState.idle;
                             });
@@ -624,6 +634,8 @@ class _ConfigWebViewState extends State<ConfigWebView> {
   }
 
   void sendToMqtt(){
+    String? validationError = configPvd.validateGemConfiguration();
+    if (validationError != null) return;
     configPvd.updateObjectDetails();
     setState(() {
       listOfPayload.clear();
@@ -809,7 +821,6 @@ class _ConfigWebViewState extends State<ConfigWebView> {
   }
 
   Widget payloadAcknowledgementWidget(HardwareAcknowledgementState state){
-    print('state : ${state.name}');
     late Color color;
     if(state == HardwareAcknowledgementState.notSent){
       color = Colors.grey;
@@ -852,7 +863,8 @@ class _ConfigWebViewState extends State<ConfigWebView> {
   }
 
   void sendToHttp()async{
-    print('sendToHttp called.....');
+    String? validationError = configPvd.validateGemConfiguration();
+    if (validationError != null) return;
     var listOfSampleObjectModel = configPvd.listOfSampleObjectModel.map((object){
       return object.toJson();
     }).toList();

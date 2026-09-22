@@ -127,7 +127,7 @@ class _WeatherScreenNewState extends State<WeatherScreenNew>
 
           if(lines.length > 1){
              return Scaffold(
-              appBar: AppBar(
+              appBar: MediaQuery.of(context).size.width < 500 ? AppBar(
                 title: const Text("Weather"),
                 bottom: TabBar(
                    labelColor: Colors.white,
@@ -150,13 +150,15 @@ class _WeatherScreenNewState extends State<WeatherScreenNew>
                     );
                   },
                 )],
-              ),
-              body: TabBarView(
-                controller: _tabController,
-                children: [
-                  for (final line in lines)
-                    _LineTabView(line: line, vm: vm, isNarrow: widget.isNarrow,customerId: widget.customerId,userId: widget.controllerId,deviceId: widget.deviceID,),
-                ],
+              ) : null,
+              body: SafeArea(
+                child: TabBarView(
+                  controller: _tabController,
+                  children: [
+                    for (final line in lines)
+                      _LineTabView(line: line, vm: vm, isNarrow: widget.isNarrow,customerId: widget.customerId,userId: widget.controllerId,deviceId: widget.deviceID,),
+                  ],
+                ),
               ),
             );
           }else {
