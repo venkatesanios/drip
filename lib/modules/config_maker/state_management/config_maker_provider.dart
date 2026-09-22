@@ -1547,12 +1547,23 @@ class ConfigMakerProvider extends ChangeNotifier{
     }
   }
 
+  void updateObjectDetails(){
+    for(var obj in listOfGeneratedObject){
+      for(var p in pump){
+        if(p.commonDetails.sNo == obj.sNo){
+          p.commonDetails = obj;
+        }
+      }
+    }
+    notifyListeners();
+  }
+
   List<Map<String, dynamic>> getOroPumpPayload() {
     bool isAquaCulture = AppConstants.aquacultureModelList.contains(masterData['modelId']);
     HardwareType hardwareType = AppConstants.gemModelList.contains(masterData['modelId']) ? HardwareType.gem : HardwareType.pump;
     List<Map<String, dynamic>> listOfPumpPayload = [];
-    List<int> modelIdForPump1000 = [5, 6, 7];
-    List<int> modelIdForPump2000 = [8, 9, 10, ...AppConstants.ecoGemModelList, ...AppConstants.wlcModelList, ...AppConstants.aquaculturePumpModelList];
+    List<int> modelIdForPump1000 = [5, 6, 7, ...AppConstants.singlePhasePumpModel];
+    List<int> modelIdForPump2000 = [8, 9, 10, ...AppConstants.singlePhasePumpPlusModel, ...AppConstants.ecoGemModelList, ...AppConstants.wlcModelList, ...AppConstants.aquaculturePumpModelList];
     List<DeviceModel> listOfPump1000 = listOfDeviceModel.where((device) => modelIdForPump1000.contains(device.modelId) && device.masterId != null).toList();
     List<DeviceModel> listOfPump2000 = listOfDeviceModel.where((device) => modelIdForPump2000.contains(device.modelId) && device.masterId != null).toList();
     // int pumpCodeUnderGem = 5900;
@@ -1561,12 +1572,18 @@ class ConfigMakerProvider extends ChangeNotifier{
       int pumpCount = listOfGeneratedObject.where((object) => (object.controllerId == p1000.controllerId && object.objectId == AppConstants.pumpObjectId)).length;
       List<String> findOutHowManySourceAndIrrigationPump = pump.where((pumpModel) => ((pumpModel.commonDetails.controllerId == p1000.controllerId || AppConstants.ecoGemModelList.contains(masterData['modelId'])) && pumpModel.commonDetails.objectId == AppConstants.pumpObjectId))
           .toList()
-          .map((pumpModel) => pumpModel.pumpType.toString()).toList();
+          .map((pumpModel) {
+            print("p1000 :: ${p1000.deviceId} | ${pumpModel.commonDetails.name} :: ${pumpModel.pumpType}");
+            return pumpModel.pumpType.toString();
+      }).toList();
       int loopingLimit = payloadPumpCount - findOutHowManySourceAndIrrigationPump.length;
       for(var pump = 0;pump < loopingLimit;pump++){
         findOutHowManySourceAndIrrigationPump.add('0');
       }
       String joinPump = findOutHowManySourceAndIrrigationPump.join(',');
+      if (kDebugMode) {
+        print("p1000 => ${p1000.deviceId} | $joinPump");
+      }
       var pumpPayload = {"sentSms":"pumpconfig,$pumpCount,${findOutReferenceNumber(p1000)},$joinPump,${hardwareType == HardwareType.gem ? 1 : 0}"};
       int pumpConfigCode = 700;
       var gemPayload = {
@@ -1607,8 +1624,10 @@ class ConfigMakerProvider extends ChangeNotifier{
           .toList()
           .map((pumpModel) {
             if(AppConstants.aquacultureModelList.contains(masterData['modelId'])){
+              print("its a aquacultureModelList");
               return '2';
             }
+            print("pumpModel.pumpType => ${pumpModel.pumpType}");
             return pumpModel.pumpType.toString();
       }).toList();
       int loopingLimit = payloadPumpCount - findOutHowManySourceAndIrrigationPump.length;

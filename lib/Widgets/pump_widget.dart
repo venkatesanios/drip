@@ -47,6 +47,8 @@ class PumpWidget extends StatelessWidget {
         final status = data.item1;
         final other = data.item2;
 
+        print('other:$other');
+
         final statusParts = status?.split(',') ?? [];
         if (statusParts.length > 1) {
           pump.status = int.tryParse(statusParts[1]) ?? 0;
@@ -54,6 +56,7 @@ class PumpWidget extends StatelessWidget {
 
         final otherParts = other?.split(',') ?? [];
         if (otherParts.length >= 8) {
+          print('otherParts[7]:${otherParts[7]}');
           pump.reason = otherParts[1];
           pump.setValue = otherParts[2];
           pump.actualValue = otherParts[3];
@@ -528,6 +531,8 @@ class AeratorWidget extends StatelessWidget {
         final status = data.item1;
         final other = data.item2;
 
+        print('other:$other');
+
         final statusParts = status?.split(',') ?? [];
         if (statusParts.length > 1) {
           pump.status = int.tryParse(statusParts[1]) ?? 0;
@@ -535,6 +540,7 @@ class AeratorWidget extends StatelessWidget {
 
         final otherParts = other?.split(',') ?? [];
         if (otherParts.length >= 8) {
+          print('otherParts[7]:${otherParts[7]}');
           pump.reason = otherParts[1];
           pump.setValue = otherParts[2];
           pump.actualValue = otherParts[3];

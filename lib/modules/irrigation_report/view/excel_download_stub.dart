@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:better_download_saver/better_download_saver.dart';
+import 'package:flutter/cupertino.dart';
 
 import 'excel_builder.dart';
 
@@ -29,17 +30,16 @@ Future<bool> generateExcel(
     );
 
     if (savedPath == null) {
-      print('Excel save failed');
+      debugPrint('Excel save failed');
       return false;
     }
 
-    print('Excel saved successfully: $savedPath');
+    debugPrint('Excel saved successfully: $savedPath');
 
     return true;
   } catch (e, stackTrace) {
-    print('Error generating Excel: $e');
-    print('StackTrace generating Excel: $stackTrace');
-
+    debugPrint('Error generating Excel: $e');
+    debugPrint('StackTrace generating Excel: $stackTrace');
     return false;
   }
 }

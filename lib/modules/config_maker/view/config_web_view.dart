@@ -624,6 +624,7 @@ class _ConfigWebViewState extends State<ConfigWebView> {
   }
 
   void sendToMqtt(){
+    configPvd.updateObjectDetails();
     setState(() {
       listOfPayload.clear();
       listOfPayload.addAll(configPvd.getOroPumpPayload());
