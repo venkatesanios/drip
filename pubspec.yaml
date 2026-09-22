@@ -88,6 +88,7 @@ dependencies:
   dartssh2: ^3.3.0
   better_download_saver: ^0.0.1
   fl_chart: ^1.2.0
+  syncfusion_flutter_pdfviewer: 27.2.5
 #  audioplayers: ^6.5.0
 #  record: ^6.0.0
 
