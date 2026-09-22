@@ -109,6 +109,7 @@ class _GeneralSettingsNarrowState extends State<GeneralSettingsNarrow> {
                           userId: widget.customerId,
                           controllerId: widget.controllerId,
                           deviceID: viewModel.deviceId,
+                          modeID: viewModel.modelId,
                         ),
                       ),
                     );
