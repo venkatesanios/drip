@@ -2193,6 +2193,7 @@ Widget buildCustomListTileWidget({
   required List<TextInputFormatter> inputFormatters,
   required List<String> dataList
 }) {
+  debugPrint("$title == $widgetType ");
   Widget customWidget;
   switch(widgetType) {
     case 1:case 4:
@@ -2204,7 +2205,7 @@ Widget buildCustomListTileWidget({
           initialValue: value is String ? value : "",
           textAlign: TextAlign.center,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          inputFormatters: (widgetType == 1 && AppConstants.gemModelList.contains(modelId)) ? AppProperties.regexForNumbers : inputFormatters,
+          inputFormatters: (widgetType == 1 && AppConstants.gemModelList.contains(modelId)) ? AppProperties.regexForNumbers : AppProperties.regexForDecimal,
           decoration: const InputDecoration(
             hintText: "000",
             isDense: true,
