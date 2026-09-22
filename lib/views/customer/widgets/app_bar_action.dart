@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/modules/Preferences/view/preference_main_screen.dart';
+import 'package:oro_drip_irrigation/views/customer/widgets/user_manual_screen.dart';
 import 'package:provider/provider.dart';
 
 import '../../../Screens/Dealer/controllerverssionupdate.dart';
@@ -211,8 +212,16 @@ Widget _buildHelpMenu(
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (_) => const DashboardHelpPage()),
+                      builder: (_) => const UserManualScreen(
+                        pdfUrl: 'https://your-domain.com/uploads/manuals/user_manual.pdf',
+                      ),
+                    ),
                   );
+                  /*Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => const DashboardHelpPage()),
+                  );*/
                 },
               ),
               (! loggedUser.configPermission/* && ![...AppConstants.ecoGemModelList,
@@ -286,7 +295,7 @@ Widget _buildHelpMenu(
                     }
 
                 },
-              ) : SizedBox(),
+              ) : const SizedBox(),
               const Divider(height: 0),
               ListTile(
                 leading: const Icon(Icons.feedback_outlined),
