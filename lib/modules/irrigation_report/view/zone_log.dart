@@ -125,7 +125,7 @@ class _ZoneLogState extends State<ZoneLog> {
         "HeadUnit",
         "Pump",
         "ActualStartTime",
-        "ActualStopTime",
+        "ActualEndTime",
         "ActualStartReason",
         "ActualStopReason"
       ]
@@ -156,6 +156,7 @@ class _ZoneLogState extends State<ZoneLog> {
     // 1. Build Sequence SNo -> Name Mapping and Program SNo -> Name Mapping
     Map<String, String> sequenceNameMap = {};
     Map<int, String> programNameMap = {};
+    Set<String> uniqueProgNames = {'All Programs'};
 
     if (responseData['default'] != null) {
       var defaultObj = responseData['default'];
@@ -203,8 +204,6 @@ class _ZoneLogState extends State<ZoneLog> {
       }
     }
 
-    Set<String> uniqueProgNames = {'All Programs'};
-
     List<DailyTimelineData> parsedDailyTimelines = [];
     int itemGlobalNo = 1;
 
@@ -235,16 +234,37 @@ class _ZoneLogState extends State<ZoneLog> {
         List zoneSNos = irrigation['ZoneS_No'] ?? [];
         List headUnits = irrigation['HeadUnit'] ?? [];
         List pumps = irrigation['Pump'] ?? [];
-        List actualStopTimes = irrigation['ActualStopTime'] ?? [];
+        List actualStopTimes = irrigation['ActualEndTime'] ?? [];
         List actualStartTimes = irrigation['ActualStartTime'] ?? [];
         List actualStartReasons = irrigation['ActualStartReason'] ?? [];
         List actualStopReasons = irrigation['ActualStopReason'] ?? [];
 
-        int lengthToUse = actualStopTimes.isNotEmpty
-            ? actualStopTimes.length
-            : (actualStartTimes.isNotEmpty
-                ? actualStartTimes.length
-                : (zoneSNos.isNotEmpty ? zoneSNos.length : programSNos.length));
+        int baseLength = zoneSNos.isNotEmpty
+            ? zoneSNos.length
+            : (programSNos.isNotEmpty
+                ? programSNos.length
+                : actualStopTimes.length);
+
+        if (actualStartTimes.length > baseLength &&
+            actualStartTimes.where((e) => e != null).length == baseLength) {
+          actualStartTimes = actualStartTimes.where((e) => e != null).toList();
+        }
+        if (actualStopTimes.length > baseLength &&
+            actualStopTimes.where((e) => e != null).length == baseLength) {
+          actualStopTimes = actualStopTimes.where((e) => e != null).toList();
+        }
+        if (actualStartReasons.length > baseLength &&
+            actualStartReasons.where((e) => e != null).length == baseLength) {
+          actualStartReasons =
+              actualStartReasons.where((e) => e != null).toList();
+        }
+        if (actualStopReasons.length > baseLength &&
+            actualStopReasons.where((e) => e != null).length == baseLength) {
+          actualStopReasons =
+              actualStopReasons.where((e) => e != null).toList();
+        }
+
+        int lengthToUse = baseLength > 0 ? baseLength : actualStartTimes.length;
 
         for (int i = 0; i < lengthToUse; i++) {
           int pSNo = (i < programSNos.length)
@@ -301,112 +321,132 @@ class _ZoneLogState extends State<ZoneLog> {
 
           uniqueProgNames.add(progName);
 
-          String stopTimeStr =
+          // Pre-ensure this program row exists
+          dateProgramItemsMap
+              .putIfAbsent(rawLogDate, () => {})
+              .putIfAbsent(progName, () => []);
+          dateProgramSNoMap.putIfAbsent(rawLogDate, () => {})[progName] = pSNo;
+
+          String stopTimeRaw =
               (i < actualStopTimes.length && actualStopTimes[i] != null)
                   ? actualStopTimes[i].toString()
                   : '';
-          String startTimeStr =
+          String startTimeRaw =
               (i < actualStartTimes.length && actualStartTimes[i] != null)
                   ? actualStartTimes[i].toString()
                   : '';
+          String startReasonRaw =
+              (i < actualStartReasons.length && actualStartReasons[i] != null)
+                  ? actualStartReasons[i].toString()
+                  : '';
+          String stopReasonRaw =
+              (i < actualStopReasons.length && actualStopReasons[i] != null)
+                  ? actualStopReasons[i].toString()
+                  : '';
 
-          if (stopTimeStr.isEmpty && startTimeStr.isEmpty) continue;
+          if (stopTimeRaw.isEmpty && startTimeRaw.isEmpty) continue;
 
-          double stopHour = 12.0;
-          int stopH = 12, stopM = 0, stopS = 0;
-          if (stopTimeStr.isNotEmpty) {
-            try {
-              var parts = stopTimeStr.split(':');
-              stopH = int.parse(parts[0]);
-              stopM = int.parse(parts[1]);
-              if (parts.length > 2) stopS = int.parse(parts[2]);
-              stopHour = stopH + (stopM / 60.0) + (stopS / 3600.0);
-            } catch (_) {}
-          }
+          List<String> subStartTimes =
+              startTimeRaw.isNotEmpty ? startTimeRaw.split('_') : [];
+          List<String> subStopTimes =
+              stopTimeRaw.isNotEmpty ? stopTimeRaw.split('_') : [];
+          List<String> subStartReasons =
+              startReasonRaw.isNotEmpty ? startReasonRaw.split('_') : [];
+          List<String> subStopReasons =
+              stopReasonRaw.isNotEmpty ? stopReasonRaw.split('_') : [];
 
-          double startHour = 11.0;
-          int startH = 11, startM = 0;
-          if (startTimeStr.isNotEmpty) {
-            try {
-              var parts = startTimeStr.split(':');
-              startH = int.parse(parts[0]);
-              startM = int.parse(parts[1]);
-              double startS = parts.length > 2 ? double.parse(parts[2]) : 0;
-              startHour = startH + (startM / 60.0) + (startS / 3600.0);
-            } catch (_) {
-              startHour = stopHour - (10 / 60.0);
+          int subCount = subStartTimes.length;
+          if (subStopTimes.length > subCount) subCount = subStopTimes.length;
+          if (subCount == 0) subCount = 1;
+
+          for (int s = 0; s < subCount; s++) {
+            String startTimeStr =
+                (s < subStartTimes.length) ? subStartTimes[s].trim() : '';
+            String stopTimeStr =
+                (s < subStopTimes.length) ? subStopTimes[s].trim() : '';
+            String startReasonStr = (s < subStartReasons.length)
+                ? subStartReasons[s].trim()
+                : (subStartReasons.isNotEmpty
+                    ? subStartReasons.last.trim()
+                    : '');
+            String stopReasonStr = (s < subStopReasons.length)
+                ? subStopReasons[s].trim()
+                : (subStopReasons.isNotEmpty ? subStopReasons.last.trim() : '');
+
+            if (stopTimeStr.isEmpty && startTimeStr.isEmpty) continue;
+
+            double stopHour = 0.0;
+            int stopH = 0, stopM = 0, stopS = 0;
+            if (stopTimeStr.isNotEmpty) {
+              try {
+                var parts = stopTimeStr.split(':');
+                stopH = int.parse(parts[0]);
+                stopM = int.parse(parts[1]);
+                if (parts.length > 2) stopS = int.parse(parts[2]);
+                stopHour = stopH + (stopM / 60.0) + (stopS / 3600.0);
+              } catch (_) {}
             }
-          } else {
-            startM = stopM - 10;
-            startH = stopH;
-            if (startM < 0) {
-              startM += 60;
-              startH = (startH - 1 + 24) % 24;
+
+            double startHour = 0.0;
+            int startH = 0, startM = 0, startS = 0;
+            if (startTimeStr.isNotEmpty) {
+              try {
+                var parts = startTimeStr.split(':');
+                startH = int.parse(parts[0]);
+                startM = int.parse(parts[1]);
+                if (parts.length > 2) startS = int.parse(parts[2]);
+                startHour = startH + (startM / 60.0) + (startS / 3600.0);
+              } catch (_) {}
             }
-            startTimeStr =
-                "${startH.toString().padLeft(2, '0')}:${startM.toString().padLeft(2, '0')}";
-            startHour = startH + (startM / 60.0);
-          }
 
-          if (stopTimeStr.isEmpty) {
-            double calcStop = startHour + (10 / 60.0);
-            stopH = calcStop.floor();
-            stopM = ((calcStop - stopH) * 60).round();
-            stopTimeStr =
-                "${stopH.toString().padLeft(2, '0')}:${stopM.toString().padLeft(2, '0')}";
-            stopHour = calcStop;
-          }
-
-          String durationStr = "10 min";
-          try {
-            int diffSec = (stopH * 3600 + stopM * 60 + stopS) -
-                (startHour * 3600).round();
-            if (diffSec > 0) {
-              int min = diffSec ~/ 60;
-              durationStr = "$min min";
+            String durationStr = '';
+            if (startTimeStr.isNotEmpty && stopTimeStr.isNotEmpty) {
+              try {
+                int diffSec = (stopH * 3600 + stopM * 60 + stopS) -
+                    (startH * 3600 + startM * 60 + startS);
+                if (diffSec > 0) {
+                  int min = diffSec ~/ 60;
+                  int sec = diffSec % 60;
+                  if (min > 0 && sec > 0) {
+                    durationStr = "$min m $sec s";
+                  } else if (min > 0) {
+                    durationStr = "$min min";
+                  } else {
+                    durationStr = "$sec sec";
+                  }
+                }
+              } catch (_) {}
             }
-          } catch (_) {}
 
-          String startReasonStr = (i < actualStartReasons.length &&
-                  actualStartReasons[i] != null &&
-                  actualStartReasons[i].toString().isNotEmpty)
-              ? actualStartReasons[i].toString()
-              : 'Scheduled Start';
+            int colorIdx = pSNo;
+            String dateHeaderStr =
+                DateFormat('dd MMM yyyy (E)').format(parsedDate);
 
-          String stopReasonStr = (i < actualStopReasons.length &&
-                  actualStopReasons[i] != null &&
-                  actualStopReasons[i].toString().isNotEmpty)
-              ? actualStopReasons[i].toString()
-              : 'User Stop';
+            ScheduleItem item = ScheduleItem(
+              no: itemGlobalNo++,
+              dateStr: dateHeaderStr,
+              programTitle: progName,
+              sequenceTitle: seqName,
+              headUnit: headUnitStr,
+              pump: pumpStr,
+              programColor: _getProgramColor(colorIdx),
+              programTextColor: _getProgramTextColor(colorIdx),
+              startTime: startTimeStr,
+              endTime: stopTimeStr,
+              duration: durationStr,
+              startHour: startHour,
+              endHour: stopHour,
+              startReason: startReasonStr,
+              endReason: stopReasonStr,
+            );
 
-          int colorIdx = pSNo;
-          String dateHeaderStr =
-              DateFormat('dd MMM yyyy (E)').format(parsedDate);
-
-          ScheduleItem item = ScheduleItem(
-            no: itemGlobalNo++,
-            dateStr: dateHeaderStr,
-            programTitle: progName,
-            sequenceTitle: seqName,
-            headUnit: headUnitStr,
-            pump: pumpStr,
-            programColor: _getProgramColor(colorIdx),
-            programTextColor: _getProgramTextColor(colorIdx),
-            startTime: startTimeStr,
-            endTime: stopTimeStr,
-            duration: durationStr,
-            startHour: startHour,
-            endHour: stopHour,
-            startReason: startReasonStr,
-            endReason: stopReasonStr,
-          );
-
-          dateProgramItemsMap
-              .putIfAbsent(rawLogDate, () => {})
-              .putIfAbsent(progName, () => [])
-              .add(item);
-          dateProgramSNoMap.putIfAbsent(rawLogDate, () => {})[progName] =
-              colorIdx;
+            dateProgramItemsMap
+                .putIfAbsent(rawLogDate, () => {})
+                .putIfAbsent(progName, () => [])
+                .add(item);
+            dateProgramSNoMap.putIfAbsent(rawLogDate, () => {})[progName] =
+                colorIdx;
+          }
         }
       }
 
@@ -429,6 +469,14 @@ class _ZoneLogState extends State<ZoneLog> {
               items: itemsList,
             ),
           );
+        });
+
+        // Sort programs by sNo
+        programListForDay.sort((a, b) {
+          int idA = int.tryParse(a.id) ?? 0;
+          int idB = int.tryParse(b.id) ?? 0;
+          if (idA != idB) return idA.compareTo(idB);
+          return a.title.compareTo(b.title);
         });
 
         if (programListForDay.isNotEmpty) {
@@ -464,7 +512,8 @@ class _ZoneLogState extends State<ZoneLog> {
       const Color(0xFFFFE0B2),
       const Color(0xFFD1C4E9),
     ];
-    return colors[(sNo - 1) % colors.length];
+    int idx = sNo <= 0 ? 0 : (sNo - 1) % colors.length;
+    return colors[idx.abs() % colors.length];
   }
 
   Color _getProgramBarColor(int sNo) {
@@ -477,7 +526,8 @@ class _ZoneLogState extends State<ZoneLog> {
       const Color(0xFFF57C00),
       const Color(0xFF5E35B1),
     ];
-    return colors[(sNo - 1) % colors.length];
+    int idx = sNo <= 0 ? 0 : (sNo - 1) % colors.length;
+    return colors[idx.abs() % colors.length];
   }
 
   Color _getProgramTextColor(int sNo) {
@@ -490,7 +540,8 @@ class _ZoneLogState extends State<ZoneLog> {
       const Color(0xFFE65100),
       const Color(0xFF4527A0),
     ];
-    return colors[(sNo - 1) % colors.length];
+    int idx = sNo <= 0 ? 0 : (sNo - 1) % colors.length;
+    return colors[idx.abs() % colors.length];
   }
 
   List<ScheduleItem> _getFilteredScheduleRecords() {
@@ -743,8 +794,8 @@ class _ZoneLogState extends State<ZoneLog> {
                     ),
                     onPressed: () {
                       setState(() {
-                        _fromDate = DateTime(2026, 9, 8);
-                        _toDate = DateTime(2026, 9, 10);
+                        _fromDate = DateTime.now();
+                        _toDate = DateTime.now();
                         _selectedProgramFilter = 'All Programs';
                         _selectedProgramTitle = null;
                         _selectedItem = null;
@@ -797,30 +848,43 @@ class _ZoneLogState extends State<ZoneLog> {
             p.title == _selectedProgramFilter)
         .toList();
 
-    // Sort programs by title for consistent display order
-    filteredPrograms.sort((a, b) => a.title.compareTo(b.title));
+    // Sort programs by sNo for consistent display order
+    filteredPrograms.sort((a, b) {
+      int idA = int.tryParse(a.id) ?? 0;
+      int idB = int.tryParse(b.id) ?? 0;
+      if (idA != idB) return idA.compareTo(idB);
+      return a.title.compareTo(b.title);
+    });
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFFCBD5E1)),
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 3,
-            offset: Offset(0, 1),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        double availableWidth = constraints.maxWidth;
+        bool isMobile = availableWidth < 600;
+
+        // MOBILE VIEW: Display clean, horizontally scrollable full-text table instead of color bars
+        if (isMobile) {
+          return _buildMobileTableCard(context, daily, filteredPrograms);
+        }
+
+        // DESKTOP VIEW: Full 24-Hour Timeline Grid with Sticky Left Column
+        double leftColWidth = 160;
+        double timelineWidth = availableWidth - leftColWidth;
+        double contentWidth = timelineWidth < 1200 ? 1200 : timelineWidth;
+
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: const Color(0xFFCBD5E1)),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black12,
+                blurRadius: 3,
+                offset: Offset(0, 1),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          double availableWidth = constraints.maxWidth;
-          double leftColWidth = availableWidth < 600 ? 120 : 160;
-          double timelineWidth = availableWidth - leftColWidth;
-          double contentWidth = timelineWidth < 1200 ? 1200 : timelineWidth;
-
-          return Row(
+          child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Left Fixed / Sticky Column
@@ -863,7 +927,7 @@ class _ZoneLogState extends State<ZoneLog> {
                         filteredPrograms[i],
                         leftColWidth,
                         i == filteredPrograms.length - 1,
-                        _rowHeightFor(filteredPrograms[i]),
+                        _rowHeightFor(filteredPrograms[i], contentWidth),
                       ),
                   ],
                 ),
@@ -897,7 +961,7 @@ class _ZoneLogState extends State<ZoneLog> {
                             filteredPrograms[i],
                             contentWidth,
                             i == filteredPrograms.length - 1,
-                            _rowHeightFor(filteredPrograms[i]),
+                            _rowHeightFor(filteredPrograms[i], contentWidth),
                           ),
                       ],
                     ),
@@ -905,37 +969,451 @@ class _ZoneLogState extends State<ZoneLog> {
                 ),
               ),
             ],
-          );
-        },
+          ),
+        );
+      },
+    );
+  }
+
+  /// Mobile-optimized Full-Text Scrollable Table Card (No color bars)
+  Widget _buildMobileTableCard(
+    BuildContext context,
+    DailyTimelineData daily,
+    List<ProgramScheduleData> filteredPrograms,
+  ) {
+    final primaryDark = Theme.of(context).primaryColorDark;
+
+    List<ScheduleItem> allItems = [];
+    for (var prog in filteredPrograms) {
+      allItems.addAll(prog.items);
+    }
+
+    var activePrograms =
+        filteredPrograms.where((p) => p.items.isNotEmpty).toList();
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFFCBD5E1)),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 3,
+            offset: Offset(0, 1),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header with Date Badge & Record Count
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: primaryDark,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(7),
+                topRight: Radius.circular(7),
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.calendar_today,
+                        size: 15, color: Colors.white),
+                    const SizedBox(width: 8),
+                    Text(
+                      daily.dateHeader,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withAlpha(50),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    "${allItems.length} ${allItems.length == 1 ? 'record' : 'records'}",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (allItems.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(left: 12, right: 12, top: 8, bottom: 4),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 6),
+                      side: const BorderSide(color: Color(0xFFCBD5E1)),
+                      backgroundColor: Colors.white,
+                    ),
+                    onPressed: () async {
+                      final messenger = ScaffoldMessenger.of(context);
+                      if (allItems.isEmpty) {
+                        messenger.showSnackBar(
+                          const SnackBar(
+                              content: Text("No records available to export")),
+                        );
+                        return;
+                      }
+                      String sanitizeName =
+                          (_selectedProgramFilter != 'All Programs'
+                                  ? _selectedProgramFilter
+                                  : 'ZoneLog_${daily.dateHeader}')
+                              .replaceAll(RegExp(r'[^\w\s\-]'), '_');
+                      String fileName =
+                          "${sanitizeName}_${DateFormat('yyyyMMdd').format(DateTime.now())}";
+                      String? res =
+                          await exportZoneLogToCSV(allItems, fileName);
+                      if (res != null) {
+                        messenger.showSnackBar(
+                          SnackBar(
+                              content:
+                                  Text("Excel Download Successful: $res")),
+                        );
+                      } else {
+                        messenger.showSnackBar(
+                          const SnackBar(
+                              content: Text("Failed to export Excel")),
+                        );
+                      }
+                    },
+                    icon: const Icon(Icons.download,
+                        size: 14, color: Color(0xFF1E88E5)),
+                    label: const Text("Excel",
+                        style: TextStyle(
+                            color: Color(0xFF1E88E5),
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold)),
+                  ),
+                  const SizedBox(width: 8),
+                  OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 6),
+                      side: const BorderSide(color: Color(0xFFCBD5E1)),
+                      backgroundColor: Colors.white,
+                    ),
+                    onPressed: () async {
+                      final messenger = ScaffoldMessenger.of(context);
+                      if (allItems.isEmpty) {
+                        messenger.showSnackBar(
+                          const SnackBar(
+                              content: Text("No records available to export")),
+                        );
+                        return;
+                      }
+                      String sanitizeName =
+                          (_selectedProgramFilter != 'All Programs'
+                                  ? _selectedProgramFilter
+                                  : 'ZoneLog_${daily.dateHeader}')
+                              .replaceAll(RegExp(r'[^\w\s\-]'), '_');
+                      String fileName =
+                          "${sanitizeName}_${DateFormat('yyyyMMdd').format(DateTime.now())}";
+                      String? res =
+                          await exportZoneLogToPDF(allItems, fileName);
+                      if (res != null) {
+                        messenger.showSnackBar(
+                          SnackBar(
+                              content:
+                                  Text("PDF Download Successful: $res")),
+                        );
+                      } else {
+                        messenger.showSnackBar(
+                          const SnackBar(
+                              content: Text("Failed to export PDF")),
+                        );
+                      }
+                    },
+                    icon: const Icon(Icons.picture_as_pdf,
+                        size: 14, color: Color(0xFFD32F2F)),
+                    label: const Text("PDF",
+                        style: TextStyle(
+                            color: Color(0xFFD32F2F),
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold)),
+                  ),
+                ],
+              ),
+            ),
+          if (activePrograms.isEmpty)
+            const Padding(
+              padding: EdgeInsets.all(24.0),
+              child: Center(
+                child: Text(
+                  "No irrigation records for this date",
+                  style: TextStyle(
+                    color: Color(0xFF64748B),
+                    fontStyle: FontStyle.italic,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            )
+          else
+            for (var prog in activePrograms)
+              Theme(
+                data: Theme.of(context).copyWith(
+                  dividerColor: Colors.transparent,
+                  splashColor: Colors.transparent,
+                ),
+                child: Container(
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: ExpansionTile(
+                      initiallyExpanded: true,
+                      collapsedBackgroundColor:
+                          prog.headerColor.withAlpha(50),
+                      backgroundColor: Colors.white,
+                      tilePadding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 2),
+                      childrenPadding: const EdgeInsets.only(bottom: 8),
+                      leading: Container(
+                        width: 10,
+                        height: 10,
+                        decoration: BoxDecoration(
+                          color: prog.barColor,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      title: Row(
+                        children: [
+                          Text(
+                            prog.title,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                              color: prog.labelColor,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: prog.barColor.withAlpha(30),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
+                              "${prog.items.length} ${prog.items.length == 1 ? 'record' : 'records'}",
+                              style: TextStyle(
+                                color: prog.labelColor,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      children: [
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          physics: const BouncingScrollPhysics(),
+                          child: Table(
+                            border: TableBorder.all(
+                              color: const Color(0xFFE2E8F0),
+                              width: 1,
+                            ),
+                            defaultVerticalAlignment:
+                                TableCellVerticalAlignment.middle,
+                            columnWidths: const {
+                              0: FixedColumnWidth(145), // Sequence Name
+                              1: FixedColumnWidth(90),  // HeadUnit
+                              2: FixedColumnWidth(90),  // Pump
+                              3: FixedColumnWidth(100), // Start Time
+                              4: FixedColumnWidth(100), // End Time
+                              5: FixedColumnWidth(95),  // Duration
+                              6: FixedColumnWidth(165), // Start Reason
+                              7: FixedColumnWidth(260), // End Reason
+                            },
+                            children: [
+                              TableRow(
+                                decoration: BoxDecoration(
+                                  color: primaryDark.withAlpha(20),
+                                ),
+                                children: [
+                                  _buildTableHeaderCell(
+                                      "Sequence Name", primaryDark),
+                                  _buildTableHeaderCell(
+                                      "HeadUnit", primaryDark),
+                                  _buildTableHeaderCell("Pump", primaryDark),
+                                  _buildTableHeaderCell(
+                                      "Start Time", primaryDark),
+                                  _buildTableHeaderCell(
+                                      "End Time", primaryDark),
+                                  _buildTableHeaderCell(
+                                      "Duration", primaryDark),
+                                  _buildTableHeaderCell(
+                                      "Start Reason", primaryDark),
+                                  _buildTableHeaderCell(
+                                      "End Reason", primaryDark),
+                                ],
+                              ),
+                              for (var rec in prog.items)
+                                TableRow(
+                                  decoration: BoxDecoration(
+                                    color: _selectedItem == rec
+                                        ? primaryDark.withAlpha(25)
+                                        : Colors.transparent,
+                                  ),
+                                  children: [
+                                    _buildSequenceBadgeCell(rec),
+                                    _buildTableCell(rec.headUnit,
+                                        isSemibold: true),
+                                    _buildTableCell(rec.pump,
+                                        isSemibold: true),
+                                    _buildTableCell(rec.startTime),
+                                    _buildTableCell(rec.endTime),
+                                    _buildTableCell(rec.duration),
+                                    _buildTableCell(rec.startReason),
+                                    _buildTableCell(rec.endReason),
+                                  ],
+                                ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+          const SizedBox(height: 6),
+        ],
       ),
     );
   }
 
-  /// Computes row height: 36px per bar slot, minimum 48px.
-  double _rowHeightFor(ProgramScheduleData program) {
+  Widget _buildTableHeaderCell(String text, Color primaryDark) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        softWrap: false,
+        maxLines: 1,
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.bold,
+          color: primaryDark,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTableCell(
+    String text, {
+    bool isBold = false,
+    bool isSemibold = false,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        softWrap: false,
+        maxLines: 1,
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: isBold
+              ? FontWeight.bold
+              : (isSemibold ? FontWeight.w600 : FontWeight.normal),
+          color: const Color(0xFF334155),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSequenceBadgeCell(ScheduleItem rec) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 6),
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: rec.programColor.withAlpha(40),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: rec.programTextColor.withAlpha(80),
+            ),
+          ),
+          child: Text(
+            rec.sequenceTitle,
+            textAlign: TextAlign.center,
+            softWrap: false,
+            maxLines: 1,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              color: rec.programTextColor,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Computes row height: 38px per bar slot, minimum 48px.
+  double _rowHeightFor(
+      ProgramScheduleData program, double timelineContentWidth) {
+    if (program.items.isEmpty) return 48.0;
+
     // Sort items by startHour so we can detect overlapping intervals
     List<ScheduleItem> sorted = List.of(program.items)
       ..sort((a, b) => a.startHour.compareTo(b.startHour));
 
+    // Label width is ~84px. Calculate visual hour span on timeline
+    double labelHourSpan =
+        (84.0 / (timelineContentWidth > 0 ? timelineContentWidth : 1200.0)) *
+            24.0;
+
     // Track how many rows we need by greedy interval packing
-    List<double> rowEndHours = []; // earliest end time for each used row
+    List<double> slotEndHours = [];
     for (var item in sorted) {
-      // Find a row where this item fits (starts after that row ends)
+      double itemVisualEnd = item.startHour + labelHourSpan;
+      if (item.endHour > itemVisualEnd) itemVisualEnd = item.endHour;
+
       int slot = -1;
-      for (int r = 0; r < rowEndHours.length; r++) {
-        if (item.startHour >= rowEndHours[r] - 0.01) {
+      for (int r = 0; r < slotEndHours.length; r++) {
+        if (item.startHour >= slotEndHours[r] - 0.05) {
           slot = r;
           break;
         }
       }
       if (slot == -1) {
-        rowEndHours.add(item.endHour);
+        slotEndHours.add(itemVisualEnd);
       } else {
-        rowEndHours[slot] = item.endHour;
+        slotEndHours[slot] = itemVisualEnd;
       }
     }
-    int numRows = rowEndHours.isEmpty ? 1 : rowEndHours.length;
-    double height = (numRows * 38.0).clamp(48.0, double.infinity);
+    int numRows = slotEndHours.isEmpty ? 1 : slotEndHours.length;
+    double height = (numRows * 38.0 + 8.0).clamp(48.0, 220.0);
     return height;
   }
 
@@ -1022,15 +1500,22 @@ class _ZoneLogState extends State<ZoneLog> {
     List<ScheduleItem> sortedItems = List.of(program.items)
       ..sort((a, b) => a.startHour.compareTo(b.startHour));
 
+    double labelHourSpan =
+        (84.0 / (timelineContentWidth > 0 ? timelineContentWidth : 1200.0)) *
+            24.0;
+
     // Assign each item to a vertical slot using greedy interval packing
     List<List<ScheduleItem>> slots = [];
     List<double> slotEndHours = [];
     Map<ScheduleItem, int> itemSlot = {};
 
     for (var item in sortedItems) {
+      double itemVisualEnd = item.startHour + labelHourSpan;
+      if (item.endHour > itemVisualEnd) itemVisualEnd = item.endHour;
+
       int slot = -1;
       for (int r = 0; r < slotEndHours.length; r++) {
-        if (item.startHour >= slotEndHours[r] - 0.01) {
+        if (item.startHour >= slotEndHours[r] - 0.05) {
           slot = r;
           break;
         }
@@ -1038,9 +1523,9 @@ class _ZoneLogState extends State<ZoneLog> {
       if (slot == -1) {
         slot = slots.length;
         slots.add([]);
-        slotEndHours.add(item.endHour);
+        slotEndHours.add(itemVisualEnd);
       } else {
-        slotEndHours[slot] = item.endHour;
+        slotEndHours[slot] = itemVisualEnd;
       }
       slots[slot].add(item);
       itemSlot[item] = slot;
@@ -1111,9 +1596,8 @@ class _ZoneLogState extends State<ZoneLog> {
   Widget _buildRightSideDrawer(BuildContext context) {
     List<ScheduleItem> records = _getFilteredScheduleRecords();
     final primaryDark = Theme.of(context).primaryColorDark;
-    double drawerWidth = MediaQuery.of(context).size.width > 800
-        ? 550
-        : MediaQuery.of(context).size.width * 0.85;
+    double screenWidth = MediaQuery.of(context).size.width;
+    double drawerWidth = screenWidth > 800 ? 650 : screenWidth * 0.95;
 
     return Drawer(
       width: drawerWidth,
@@ -1176,7 +1660,7 @@ class _ZoneLogState extends State<ZoneLog> {
                               onPressed: () async {
                                 final messenger = ScaffoldMessenger.of(context);
                                 if (records.isEmpty) {
-                                  messenger.showSnackBar(
+                                   messenger.showSnackBar(
                                     const SnackBar(
                                         content: Text(
                                             "No records available to export")),
@@ -1264,231 +1748,62 @@ class _ZoneLogState extends State<ZoneLog> {
                     const SizedBox(height: 10),
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(minWidth: drawerWidth - 30),
-                        child: Table(
-                          border: TableBorder.all(
-                              color: const Color(0xFFE2E8F0), width: 1),
-                          columnWidths: const {
-                            0: FlexColumnWidth(1.2), // Date
-
-                            1: FlexColumnWidth(1.6), // Sequence Name
-                            2: FlexColumnWidth(1.0), // HeadUnit
-                            3: FlexColumnWidth(1.0), // Pump
-                            4: FlexColumnWidth(1.0), // Start
-                            5: FlexColumnWidth(1.0), // End
-                            6: FlexColumnWidth(1.0), // Duration
-                            7: FlexColumnWidth(1.6), // Start Reason
-                            8: FlexColumnWidth(1.6), // End Reason
-                          },
-                          children: [
+                      physics: const BouncingScrollPhysics(),
+                      child: Table(
+                        border: TableBorder.all(
+                            color: const Color(0xFFE2E8F0), width: 1),
+                        defaultVerticalAlignment:
+                            TableCellVerticalAlignment.middle,
+                        columnWidths: const {
+                          0: FixedColumnWidth(130), // Date
+                          1: FixedColumnWidth(130), // Program Name
+                          2: FixedColumnWidth(145), // Sequence Name
+                          3: FixedColumnWidth(90),  // HeadUnit
+                          4: FixedColumnWidth(90),  // Pump
+                          5: FixedColumnWidth(100), // Start
+                          6: FixedColumnWidth(100), // End
+                          7: FixedColumnWidth(95),  // Duration
+                          8: FixedColumnWidth(165), // Start Reason
+                          9: FixedColumnWidth(260), // End Reason
+                        },
+                        children: [
+                          TableRow(
+                            decoration: BoxDecoration(
+                                color: primaryDark.withAlpha(20)),
+                            children: [
+                              _buildTableHeaderCell("Date", primaryDark),
+                              _buildTableHeaderCell("Program Name", primaryDark),
+                              _buildTableHeaderCell("Sequence Name", primaryDark),
+                              _buildTableHeaderCell("HeadUnit", primaryDark),
+                              _buildTableHeaderCell("Pump", primaryDark),
+                              _buildTableHeaderCell("Start Time", primaryDark),
+                              _buildTableHeaderCell("End Time", primaryDark),
+                              _buildTableHeaderCell("Duration", primaryDark),
+                              _buildTableHeaderCell("Start Reason", primaryDark),
+                              _buildTableHeaderCell("End Reason", primaryDark),
+                            ],
+                          ),
+                          for (var rec in records)
                             TableRow(
                               decoration: BoxDecoration(
-                                  color: primaryDark.withAlpha(20)),
+                                color: _selectedItem == rec
+                                    ? primaryDark.withAlpha(25)
+                                    : Colors.transparent,
+                              ),
                               children: [
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 8, horizontal: 4),
-                                  child: Text("Date",
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold,
-                                          color: primaryDark)),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 8, horizontal: 4),
-                                  child: Text("Sequence Name",
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold,
-                                          color: primaryDark)),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 8, horizontal: 4),
-                                  child: Text("HeadUnit",
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold,
-                                          color: primaryDark)),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 8, horizontal: 4),
-                                  child: Text("Pump",
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold,
-                                          color: primaryDark)),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 8, horizontal: 4),
-                                  child: Text("Start",
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold,
-                                          color: primaryDark)),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 8, horizontal: 4),
-                                  child: Text("End",
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold,
-                                          color: primaryDark)),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 8, horizontal: 4),
-                                  child: Text("Duration",
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold,
-                                          color: primaryDark)),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 8, horizontal: 4),
-                                  child: Text("Start Reason",
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold,
-                                          color: primaryDark)),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 8, horizontal: 4),
-                                  child: Text("End Reason",
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold,
-                                          color: primaryDark)),
-                                ),
+                                _buildTableCell(rec.dateStr),
+                                _buildTableCell(rec.programTitle, isBold: true),
+                                _buildSequenceBadgeCell(rec),
+                                _buildTableCell(rec.headUnit, isSemibold: true),
+                                _buildTableCell(rec.pump, isSemibold: true),
+                                _buildTableCell(rec.startTime),
+                                _buildTableCell(rec.endTime),
+                                _buildTableCell(rec.duration),
+                                _buildTableCell(rec.startReason),
+                                _buildTableCell(rec.endReason),
                               ],
                             ),
-                            for (var rec in records)
-                              TableRow(
-                                decoration: BoxDecoration(
-                                  color: _selectedItem == rec
-                                      ? primaryDark.withAlpha(25)
-                                      : Colors.transparent,
-                                ),
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 8, horizontal: 4),
-                                    child: Text(rec.dateStr,
-                                        textAlign: TextAlign.center,
-                                        style: const TextStyle(
-                                            fontSize: 10,
-                                            color: Color(0xFF334155))),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 4, horizontal: 4),
-                                    child: Center(
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 6, vertical: 3),
-                                        decoration: BoxDecoration(
-                                          color: rec.programColor.withAlpha(40),
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          border: Border.all(
-                                              color: rec.programTextColor
-                                                  .withAlpha(80)),
-                                        ),
-                                        child: Text(
-                                          rec.sequenceTitle,
-                                          style: TextStyle(
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.bold,
-                                              color: rec.programTextColor),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 8, horizontal: 4),
-                                    child: Text(rec.headUnit,
-                                        textAlign: TextAlign.center,
-                                        style: const TextStyle(
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.w600,
-                                            color: Color(0xFF334155))),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 8, horizontal: 4),
-                                    child: Text(rec.pump,
-                                        textAlign: TextAlign.center,
-                                        style: const TextStyle(
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.w600,
-                                            color: Color(0xFF334155))),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 8, horizontal: 4),
-                                    child: Text(rec.startTime,
-                                        textAlign: TextAlign.center,
-                                        style: const TextStyle(
-                                            fontSize: 10,
-                                            color: Color(0xFF334155))),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 8, horizontal: 4),
-                                    child: Text(rec.endTime,
-                                        textAlign: TextAlign.center,
-                                        style: const TextStyle(
-                                            fontSize: 10,
-                                            color: Color(0xFF334155))),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 8, horizontal: 4),
-                                    child: Text(rec.duration,
-                                        textAlign: TextAlign.center,
-                                        style: const TextStyle(
-                                            fontSize: 10,
-                                            color: Color(0xFF334155))),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 8, horizontal: 4),
-                                    child: Text(rec.startReason,
-                                        textAlign: TextAlign.center,
-                                        style: const TextStyle(
-                                            fontSize: 10,
-                                            color: Color(0xFF334155))),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 8, horizontal: 4),
-                                    child: Text(rec.endReason,
-                                        textAlign: TextAlign.center,
-                                        style: const TextStyle(
-                                            fontSize: 10,
-                                            color: Color(0xFF334155))),
-                                  ),
-                                ],
-                              ),
-                          ],
-                        ),
+                        ],
                       ),
                     ),
                   ],
@@ -1761,9 +2076,9 @@ class _ScheduleBarWidgetState extends State<ScheduleBarWidget> {
 
     // Vertical slot positioning: each slot gets slotHeight pixels
     double slotTop = widget.slotIndex * widget.slotHeight;
-    double barH = (widget.slotHeight - 14).clamp(14.0, 22.0);
+    double barH = (widget.slotHeight - 18).clamp(12.0, 18.0);
     double labelTop = slotTop + 1;
-    double barTopInSlot = slotTop + 12;
+    double barTopInSlot = slotTop + 16;
 
     return Positioned(
       left: 0,
@@ -1772,7 +2087,7 @@ class _ScheduleBarWidgetState extends State<ScheduleBarWidget> {
       bottom: 0,
       child: Stack(
         children: [
-          // Time label — absolutely positioned relative to timeline container
+          // Time label badge — absolutely positioned relative to timeline container
           Positioned(
             left: labelLeft,
             top: labelTop,
@@ -1782,16 +2097,35 @@ class _ScheduleBarWidgetState extends State<ScheduleBarWidget> {
               child: MouseRegion(
                 onEnter: (_) => _showPopup(),
                 onExit: (_) => _hidePopup(),
-                child: Text(
-                  displayTimeStr,
-                  style: TextStyle(
-                    fontSize: 9,
-                    fontWeight: FontWeight.bold,
-                    color: widget.program.barColor,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(
+                      color: widget.program.barColor.withAlpha(128),
+                      width: 0.8,
+                    ),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 2,
+                        offset: Offset(0, 1),
+                      ),
+                    ],
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: labelTextAlign,
+                  child: Text(
+                    displayTimeStr,
+                    style: TextStyle(
+                      fontSize: 8.5,
+                      fontWeight: FontWeight.bold,
+                      color: widget.program.barColor,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: labelTextAlign,
+                  ),
                 ),
               ),
             ),
