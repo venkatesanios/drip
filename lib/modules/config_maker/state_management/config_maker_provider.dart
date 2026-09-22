@@ -1852,18 +1852,18 @@ class ConfigMakerProvider extends ChangeNotifier{
     int pumpConfigCode = 50;
 
     for(var device in listOfWeatherMaster){
-      int windDirectionCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.windDirectionObjectId).length;
-      int windSpeedCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.windSpeedObjectId).length;
-      int humidityCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.humidityObjectId).length;
-      int atmosphericPressureCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.atmosphericPressureObjectId).length;
-      int co2Count = listOfGeneratedObject.where((object) => object.objectId == AppConstants.co2ObjectId).length;
-      int ldrCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.ldrObjectId).length;
-      int luxCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.luxObjectId).length;
-      int temperatureSensorCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.temperatureObjectId).length;
-      int soilTemperatureCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.soilTemperatureObjectId).length;
-      int moistureCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.moistureObjectId).length;
-      int rainFallCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.rainFallObjectId).length;
-      int leafWetnessCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.leafWetnessObjectId).length;
+      int windDirectionCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.windDirectionObjectId && object.controllerId == device.controllerId).length;
+      int windSpeedCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.windSpeedObjectId && object.controllerId == device.controllerId).length;
+      int humidityCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.humidityObjectId && object.controllerId == device.controllerId).length;
+      int atmosphericPressureCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.atmosphericPressureObjectId && object.controllerId == device.controllerId).length;
+      int co2Count = listOfGeneratedObject.where((object) => object.objectId == AppConstants.co2ObjectId && object.controllerId == device.controllerId).length;
+      int ldrCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.ldrObjectId && object.controllerId == device.controllerId).length;
+      int luxCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.luxObjectId && object.controllerId == device.controllerId).length;
+      int temperatureSensorCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.temperatureObjectId && object.controllerId == device.controllerId).length;
+      int soilTemperatureCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.soilTemperatureObjectId && object.controllerId == device.controllerId).length;
+      int moistureCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.moistureObjectId && object.controllerId == device.controllerId).length;
+      int rainFallCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.rainFallObjectId && object.controllerId == device.controllerId).length;
+      int leafWetnessCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.leafWetnessObjectId && object.controllerId == device.controllerId).length;
       var payload = {
         "sentSms":"weatherconfig,"
             "$moistureCount,"

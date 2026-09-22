@@ -669,7 +669,6 @@ class _ConfigWebViewState extends State<ConfigWebView> {
         });
       });
     }
-    // MqttManager().topicToPublishAndItsMessage('${Environment.mqttWebPublishTopic}/${configPvd.masterData['deviceId']}', jsonEncode(configMakerPayload));
     debugPrint("listOfPayload ==> $listOfPayload");
     payloadAlertBox();
   }
