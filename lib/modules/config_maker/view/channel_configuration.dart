@@ -8,6 +8,7 @@ import 'package:responsive_grid_list/responsive_grid_list.dart';
 import '../../../Constants/communication_codes.dart';
 import '../../../Constants/dialog_boxes.dart';
 import '../../../Constants/properties.dart';
+import '../model/device_object_model.dart';
 import '../model/pump_model.dart';
 import '../state_management/config_maker_provider.dart';
 import '../../../Widgets/custom_drop_down_button.dart';
@@ -69,6 +70,12 @@ class _ChannelConfigurationState extends State<ChannelConfiguration> {
                                 runSpacing: 20,
                                 children: [
                                   getDosingMeterSelection(channel),
+                                  getObject(
+                                      channel: channel,
+                                      list: channel.source,
+                                      objectId: AppConstants.sourceObjectId,
+                                      listOfObject: widget.configPvd.source.where((src) => ([6,7].contains(src.sourceType))).map((e) => e.commonDetails).toList()
+                                  ),
                                 ],
                               ),
                             ),
@@ -128,22 +135,13 @@ class _ChannelConfigurationState extends State<ChannelConfiguration> {
     );
   }
 
-  Widget getLevelSelection(PumpModel currentPump, int mode){
-    int objectId = AppConstants.levelObjectId;
-    String objectName = mode == 1 ? 'Lower Level' : 'Upper Level';
-    double currentSno = mode == 1 ? currentPump.lowerLevel : currentPump.upperLevel;
-    List<double> sensorToDisplay = [];
-    for(var src in widget.configPvd.source){
-      if(mode == 1){
-        if(src.outletPump.contains(currentPump.commonDetails.sNo) && ![null, 0.0].contains(src.level)){
-          sensorToDisplay.add(src.level);
-        }
-      }else{
-        if(src.inletPump.contains(currentPump.commonDetails.sNo) && ![null, 0.0].contains(src.level)){
-          sensorToDisplay.add(src.level);
-        }
-      }
-    }
+  Widget getObject({
+    required ChannelConfigModel channel,
+    required List<double> list,
+    required List<DeviceObjectModel> listOfObject,
+    required int objectId,
+  }){
+    String name = objectId == AppConstants.dosingMeterObjectId ? 'Dosing Meter' : 'Fertilizer Tank';
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
@@ -153,131 +151,29 @@ class _ChannelConfigurationState extends State<ChannelConfiguration> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedImage(imagePath: '${AppConstants.svgObjectPath}objectId_$objectId.svg', color: Colors.black,),
+          SizedImage(
+            imagePath: '${AppConstants.svgObjectPath}objectId_$objectId.svg',
+            color: Colors.black,
+          ),
           const SizedBox(width: 20,),
-          Text('$objectName : ', style: AppProperties.listTileBlackBoldStyle,),
+          Text('$name : ', style: AppProperties.listTileBlackBoldStyle,),
           Center(
-            child: Text(currentSno == 0.0 ? '-' : getObjectName(currentSno, widget.configPvd).name!, style: TextStyle(color: Colors.teal, fontSize: 12, fontWeight: FontWeight.bold),),
+            child: Text(list.isEmpty ? '-' : list.map((sNo) => getObjectName(sNo, widget.configPvd).name!).join(', '), style: const TextStyle(color: Colors.teal, fontSize: 12, fontWeight: FontWeight.bold),),
           ),
           IconButton(
               onPressed: (){
                 setState(() {
-                  widget.configPvd.selectedSno = currentSno;
+                  widget.configPvd.listOfSelectedSno.clear();
+                  widget.configPvd.listOfSelectedSno.addAll(list);
                 });
                 selectionDialogBox(
                     context: context,
-                    title: 'Select $objectName',
-                    singleSelection: true,
-                    listOfObject: widget.configPvd.listOfGeneratedObject.where((object) => (object.objectId == objectId && sensorToDisplay.contains(object.sNo))).toList(),
+                    title: 'Select $name',
+                    singleSelection: false,
+                    listOfObject: listOfObject,
                     onPressed: (){
                       setState(() {
-                        if(mode == 1){
-                          currentPump.lowerLevel = widget.configPvd.selectedSno;
-                        }else{
-                          currentPump.upperLevel = widget.configPvd.selectedSno;
-                        }
-                        widget.configPvd.selectedSno = 0.0;
-                      });
-                      Navigator.pop(context);
-                    }
-                );
-              },
-              icon: Icon(Icons.touch_app, color: Theme.of(context).primaryColor, size: 20,)
-          )
-        ],
-      ),
-    );
-  }
-
-  Widget getFloatSelection(PumpModel currentPump, int mode){
-    int objectId = AppConstants.floatObjectId;
-    Map<int, String> controlBy = {
-      1 : 'Top Float (Sump)',
-      2 : 'Bottom Float (Sump)',
-      3 : 'Top Float (Tank)',
-      4 : 'Bottom Float (Tank)',
-    };
-    Map<int, double> sNoSelection = {
-      1 : currentPump.topSumpFloat,
-      2 : currentPump.bottomSumpFloat,
-      3 : currentPump.topTankFloat,
-      4 : currentPump.bottomTankFloat,
-    };
-    String objectName = '${controlBy[mode]}';
-    double currentSno = sNoSelection[mode]!;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        color: Theme.of(context).primaryColorLight.withOpacity(0.1),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedImage(imagePath: '${AppConstants.svgObjectPath}objectId_$objectId.svg', color: Colors.black,),
-          const SizedBox(width: 20,),
-          Text('$objectName : ', style: AppProperties.listTileBlackBoldStyle,),
-          Center(
-            child: Text(currentSno == 0.0 ? '-' : getObjectName(currentSno, widget.configPvd).name!, style: TextStyle(color: Colors.teal, fontSize: 12, fontWeight: FontWeight.bold),),
-          ),
-          IconButton(
-              onPressed: (){
-                List<double> validateFloat = [];
-                List<double> topTankFloatSnoForAllSource = [];
-                List<double> bottomTankFloatSnoForAllSource = [];
-                List<double> topSumpFloatSnoForAllSource = [];
-                List<double> bottomSumpFloatSnoForAllSource = [];
-                Map<int, List<double>> validateFloatAvailableInSource = {
-                  1 : topSumpFloatSnoForAllSource,
-                  2 : bottomSumpFloatSnoForAllSource,
-                  3 : topTankFloatSnoForAllSource,
-                  4 : bottomTankFloatSnoForAllSource,
-                };
-                for(var src in widget.configPvd.source){
-                  if(src.outletPump.contains(currentPump.commonDetails.sNo)){
-                    print('take outlet pump');
-                    print("src : ${src.toJson()}");
-                    topSumpFloatSnoForAllSource.add(src.topFloatForOutletPump);
-                    bottomSumpFloatSnoForAllSource.add(src.bottomFloatForOutletPump);
-                  }else if(src.inletPump.contains(currentPump.commonDetails.sNo)){
-                    print('take inlet pump');
-                    print("src : ${src.toJson()}");
-                    topTankFloatSnoForAllSource.add(src.topFloatForInletPump);
-                    bottomTankFloatSnoForAllSource.add(src.bottomFloatForInletPump);
-                  }
-                }
-                // for(var pump in widget.configPvd.pump){
-                //   if(pump.commonDetails.sNo != currentPump.commonDetails.sNo && ){
-                //     Map<int, double> sNoSelectionForPumpFloat = {
-                //       1 : pump.topSumpFloat,
-                //       2 : pump.bottomSumpFloat,
-                //       3 : pump.topTankFloat,
-                //       4 : pump.bottomTankFloat,
-                //     };
-                //     validateFloat.add(sNoSelectionForPumpFloat[mode]!);
-                //   }
-                // }
-                setState(() {
-                  widget.configPvd.selectedSno = currentSno;
-                });
-                print("validateFloatAvailableInSource[mode] $mode: ${validateFloatAvailableInSource[mode]}");
-                selectionDialogBox(
-                    context: context,
-                    title: 'Select $objectName',
-                    singleSelection: true,
-                    listOfObject: widget.configPvd.listOfGeneratedObject.where((object) => (object.objectId == objectId && !validateFloat.contains(object.sNo) && validateFloatAvailableInSource[mode]!.contains(object.sNo))).toList(),
-                    onPressed: (){
-                      setState(() {
-                        if(mode == 1){
-                          currentPump.topSumpFloat = widget.configPvd.selectedSno;
-                        }else if(mode == 2){
-                          currentPump.bottomSumpFloat = widget.configPvd.selectedSno;
-                        }else if(mode == 3){
-                          currentPump.topTankFloat = widget.configPvd.selectedSno;
-                        }else{
-                          currentPump.bottomTankFloat = widget.configPvd.selectedSno;
-                        }
-                        widget.configPvd.selectedSno = 0.0;
+                        widget.configPvd.updateSelectionInChannel(channel.commonDetails.sNo!, objectId);
                       });
                       Navigator.pop(context);
                     }

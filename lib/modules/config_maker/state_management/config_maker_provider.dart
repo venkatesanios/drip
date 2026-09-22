@@ -32,12 +32,12 @@ class ConfigMakerProvider extends ChangeNotifier{
     2 : 'Filtration Configuration',
     3 : 'Fertilization Configuration',
     4 : 'Moisture Configuration',
-    5 : 'Line Configuration',
-    6 : 'Ec Configuration',
-    7 : 'Ph Configuration',
-    8 : 'Pressure Configuration',
-    9 : 'Valve Configuration',
-    10 : 'Channel Configuration',
+    5 : 'Ec Configuration',
+    6 : 'Ph Configuration',
+    7 : 'Pressure Configuration',
+    8 : 'Valve Configuration',
+    9 : 'Channel Configuration',
+    10 : 'Line Configuration',
   };
   int selectedConfigurationTab = 0;
   int rangeStart = -1;
@@ -49,12 +49,12 @@ class ConfigMakerProvider extends ChangeNotifier{
     2 : AppConstants.filterSiteObjectId,
     3 : AppConstants.fertilizerSiteObjectId,
     4 : AppConstants.moistureObjectId,
-    5 : AppConstants.irrigationLineObjectId,
-    6 : AppConstants.ecObjectId,
-    7 : AppConstants.phObjectId,
-    8 : AppConstants.pressureSensorObjectId,
-    9 : AppConstants.valveObjectId,
-    10 : AppConstants.channelObjectId,
+    5 : AppConstants.ecObjectId,
+    6 : AppConstants.phObjectId,
+    7 : AppConstants.pressureSensorObjectId,
+    8 : AppConstants.valveObjectId,
+    9 : AppConstants.channelObjectId,
+    10 : AppConstants.irrigationLineObjectId,
   };
   SelectionMode selectedSelectionMode = SelectionMode.auto;
   int selectedConnectionNo = 0;
@@ -416,7 +416,7 @@ class ConfigMakerProvider extends ChangeNotifier{
       pump = (configMakerData['pump'] as List<dynamic>).map((pumpObject) => PumpModel.fromJson(pumpObject)).toList();
       moisture = (configMakerData['moistureSensor'] as List<dynamic>).map((moistureObject) => MoistureModel.fromJson(moistureObject)).toList();
       valveConfig = configMakerData['valve'] != null ? (configMakerData['valve'] as List<dynamic>).map((valveObject) => ValveConfigModel.fromJson(valveObject)).toList() : [];
-      channelConfig = configMakerData['channel'] != null ? (configMakerData['channel'] as List<dynamic>).map((channelObject) => ChannelConfigModel.fromJson(channelObject)).toList() : [];
+      channelConfig = configMakerData['fertilizerChannel'] != null ? (configMakerData['fertilizerChannel'] as List<dynamic>).map((channelObject) => ChannelConfigModel.fromJson(channelObject)).toList() : [];
       pressureSensor = configMakerData['pressureSensor'] != null ? (configMakerData['pressureSensor'] as List<dynamic>).map((pressureObject) => PressureModel.fromJson(pressureObject)).toList() : [];
       if(configMakerData.containsKey('ecSensor')){
         ec = (configMakerData['ecSensor'] as List<dynamic>).map((ecObject) => EcModel.fromJson(ecObject)).toList();
@@ -429,7 +429,7 @@ class ConfigMakerProvider extends ChangeNotifier{
         for(var i in listOfGeneratedObject){
           if(i.objectId == AppConstants.channelObjectId){
             channelConfig.add(
-              ChannelConfigModel(commonDetails: i, dosingMeter: 0.0)
+              ChannelConfigModel(commonDetails: i, dosingMeter: 0.0, source: [])
             );
           }
         }
@@ -447,7 +447,7 @@ class ConfigMakerProvider extends ChangeNotifier{
         for(var i in listOfGeneratedObject){
           if(i.objectId == AppConstants.pressureSensorObjectId){
             pressureSensor.add(
-                PressureModel(commonDetails: i, valves: [], mainValve: [])
+                PressureModel(commonDetails: i, mainValve: [])
             );
           }
         }
@@ -543,7 +543,7 @@ class ConfigMakerProvider extends ChangeNotifier{
               );
             }else if(deviceObjectModel.objectId == AppConstants.sourceObjectId){
               source.add(
-                  SourceModel(commonDetails: deviceObjectModel, inletPump: [], outletPump: [], aerator: [], valves: [], outletValves: [], channel: [])
+                  SourceModel(commonDetails: deviceObjectModel, inletPump: [], outletPump: [], aerator: [], valves: [], outletValves: [], agitator: [],)
               );
             }else if(deviceObjectModel.objectId == AppConstants.pumpObjectId){
               pump.add(
@@ -559,11 +559,11 @@ class ConfigMakerProvider extends ChangeNotifier{
               );
             }else if(deviceObjectModel.objectId == AppConstants.channelObjectId){
               channelConfig.add(
-                  ChannelConfigModel(commonDetails: deviceObjectModel, dosingMeter: 0.0)
+                  ChannelConfigModel(commonDetails: deviceObjectModel, dosingMeter: 0.0, source: [])
               );
             }else if(deviceObjectModel.objectId == AppConstants.pressureSensorObjectId){
               pressureSensor.add(
-                  PressureModel(commonDetails: deviceObjectModel, valves: [], mainValve: [])
+                  PressureModel(commonDetails: deviceObjectModel, mainValve: [])
               );
             }else if(deviceObjectModel.objectId == AppConstants.ecObjectId){
               ec.add(
@@ -1089,18 +1089,29 @@ class ConfigMakerProvider extends ChangeNotifier{
   void updateSelectionInPressure(double sNo, int objectId){
     for(var ps in pressureSensor){
       if(ps.commonDetails.sNo == sNo){
-        if(objectId == AppConstants.valveObjectId){
-          ps.valves.clear();
-          ps.valves.addAll(listOfSelectedSno);
-        }else{
+        if(objectId == AppConstants.mainValveObjectId){
           ps.mainValve.clear();
           ps.mainValve.addAll(listOfSelectedSno);
+        }
+      }
+        listOfSelectedSno.clear();
+    }
+    notifyListeners();
+  }
+
+  void updateSelectionInChannel(double sNo, int objectId){
+    for(var ch in channelConfig){
+      if(ch.commonDetails.sNo == sNo){
+        if(objectId == AppConstants.sourceObjectId){
+          ch.source.clear();
+          ch.source.addAll(listOfSelectedSno);
         }
         listOfSelectedSno.clear();
       }
     }
     notifyListeners();
   }
+
 
   void updateName(List<DeviceObjectModel> listOfObject){
     for(var obj in listOfObject){
@@ -1536,12 +1547,23 @@ class ConfigMakerProvider extends ChangeNotifier{
     }
   }
 
+  void updateObjectDetails(){
+    for(var obj in listOfGeneratedObject){
+      for(var p in pump){
+        if(p.commonDetails.sNo == obj.sNo){
+          p.commonDetails = obj;
+        }
+      }
+    }
+    notifyListeners();
+  }
+
   List<Map<String, dynamic>> getOroPumpPayload() {
     bool isAquaCulture = AppConstants.aquacultureModelList.contains(masterData['modelId']);
     HardwareType hardwareType = AppConstants.gemModelList.contains(masterData['modelId']) ? HardwareType.gem : HardwareType.pump;
     List<Map<String, dynamic>> listOfPumpPayload = [];
-    List<int> modelIdForPump1000 = [5, 6, 7];
-    List<int> modelIdForPump2000 = [8, 9, 10, ...AppConstants.ecoGemModelList, ...AppConstants.wlcModelList, ...AppConstants.aquaculturePumpModelList];
+    List<int> modelIdForPump1000 = [5, 6, 7, ...AppConstants.singlePhasePumpModel];
+    List<int> modelIdForPump2000 = [8, 9, 10, ...AppConstants.singlePhasePumpPlusModel, ...AppConstants.ecoGemModelList, ...AppConstants.wlcModelList, ...AppConstants.aquaculturePumpModelList];
     List<DeviceModel> listOfPump1000 = listOfDeviceModel.where((device) => modelIdForPump1000.contains(device.modelId) && device.masterId != null).toList();
     List<DeviceModel> listOfPump2000 = listOfDeviceModel.where((device) => modelIdForPump2000.contains(device.modelId) && device.masterId != null).toList();
     // int pumpCodeUnderGem = 5900;
@@ -1550,12 +1572,18 @@ class ConfigMakerProvider extends ChangeNotifier{
       int pumpCount = listOfGeneratedObject.where((object) => (object.controllerId == p1000.controllerId && object.objectId == AppConstants.pumpObjectId)).length;
       List<String> findOutHowManySourceAndIrrigationPump = pump.where((pumpModel) => ((pumpModel.commonDetails.controllerId == p1000.controllerId || AppConstants.ecoGemModelList.contains(masterData['modelId'])) && pumpModel.commonDetails.objectId == AppConstants.pumpObjectId))
           .toList()
-          .map((pumpModel) => pumpModel.pumpType.toString()).toList();
+          .map((pumpModel) {
+            print("p1000 :: ${p1000.deviceId} | ${pumpModel.commonDetails.name} :: ${pumpModel.pumpType}");
+            return pumpModel.pumpType.toString();
+      }).toList();
       int loopingLimit = payloadPumpCount - findOutHowManySourceAndIrrigationPump.length;
       for(var pump = 0;pump < loopingLimit;pump++){
         findOutHowManySourceAndIrrigationPump.add('0');
       }
       String joinPump = findOutHowManySourceAndIrrigationPump.join(',');
+      if (kDebugMode) {
+        print("p1000 => ${p1000.deviceId} | $joinPump");
+      }
       var pumpPayload = {"sentSms":"pumpconfig,$pumpCount,${findOutReferenceNumber(p1000)},$joinPump,${hardwareType == HardwareType.gem ? 1 : 0}"};
       int pumpConfigCode = 700;
       var gemPayload = {
@@ -1596,8 +1624,10 @@ class ConfigMakerProvider extends ChangeNotifier{
           .toList()
           .map((pumpModel) {
             if(AppConstants.aquacultureModelList.contains(masterData['modelId'])){
+              print("its a aquacultureModelList");
               return '2';
             }
+            print("pumpModel.pumpType => ${pumpModel.pumpType}");
             return pumpModel.pumpType.toString();
       }).toList();
       int loopingLimit = payloadPumpCount - findOutHowManySourceAndIrrigationPump.length;
@@ -1822,18 +1852,18 @@ class ConfigMakerProvider extends ChangeNotifier{
     int pumpConfigCode = 50;
 
     for(var device in listOfWeatherMaster){
-      int windDirectionCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.windDirectionObjectId).length;
-      int windSpeedCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.windSpeedObjectId).length;
-      int humidityCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.humidityObjectId).length;
-      int atmosphericPressureCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.atmosphericPressureObjectId).length;
-      int co2Count = listOfGeneratedObject.where((object) => object.objectId == AppConstants.co2ObjectId).length;
-      int ldrCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.ldrObjectId).length;
-      int luxCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.luxObjectId).length;
-      int temperatureSensorCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.temperatureObjectId).length;
-      int soilTemperatureCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.soilTemperatureObjectId).length;
-      int moistureCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.moistureObjectId).length;
-      int rainFallCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.rainFallObjectId).length;
-      int leafWetnessCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.leafWetnessObjectId).length;
+      int windDirectionCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.windDirectionObjectId && object.controllerId == device.controllerId).length;
+      int windSpeedCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.windSpeedObjectId && object.controllerId == device.controllerId).length;
+      int humidityCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.humidityObjectId && object.controllerId == device.controllerId).length;
+      int atmosphericPressureCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.atmosphericPressureObjectId && object.controllerId == device.controllerId).length;
+      int co2Count = listOfGeneratedObject.where((object) => object.objectId == AppConstants.co2ObjectId && object.controllerId == device.controllerId).length;
+      int ldrCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.ldrObjectId && object.controllerId == device.controllerId).length;
+      int luxCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.luxObjectId && object.controllerId == device.controllerId).length;
+      int temperatureSensorCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.temperatureObjectId && object.controllerId == device.controllerId).length;
+      int soilTemperatureCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.soilTemperatureObjectId && object.controllerId == device.controllerId).length;
+      int moistureCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.moistureObjectId && object.controllerId == device.controllerId).length;
+      int rainFallCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.rainFallObjectId && object.controllerId == device.controllerId).length;
+      int leafWetnessCount = listOfGeneratedObject.where((object) => object.objectId == AppConstants.leafWetnessObjectId && object.controllerId == device.controllerId).length;
       var payload = {
         "sentSms":"weatherconfig,"
             "$moistureCount,"

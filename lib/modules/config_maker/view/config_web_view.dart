@@ -15,6 +15,7 @@ import '../../../Widgets/status_box.dart';
 import '../../../flavors.dart';
 import '../../Preferences/view/preference_main_screen.dart';
 import '../../constant/view/constant_base_page.dart';
+import '../model/channel_config_model.dart';
 import '../model/device_model.dart';
 import '../model/ec_model.dart';
 import '../model/fertigation_model.dart';
@@ -623,6 +624,7 @@ class _ConfigWebViewState extends State<ConfigWebView> {
   }
 
   void sendToMqtt(){
+    configPvd.updateObjectDetails();
     setState(() {
       listOfPayload.clear();
       listOfPayload.addAll(configPvd.getOroPumpPayload());
@@ -667,7 +669,6 @@ class _ConfigWebViewState extends State<ConfigWebView> {
         });
       });
     }
-    // MqttManager().topicToPublishAndItsMessage('${Environment.mqttWebPublishTopic}/${configPvd.masterData['deviceId']}', jsonEncode(configMakerPayload));
     debugPrint("listOfPayload ==> $listOfPayload");
     payloadAlertBox();
   }
@@ -882,6 +883,9 @@ class _ConfigWebViewState extends State<ConfigWebView> {
     var valve = configPvd.valveConfig.cast<ValveConfigModel>().map((object){
       return object.toJson();
     }).toList();
+    var channel = configPvd.channelConfig.cast<ChannelConfigModel>().map((object){
+      return object.toJson();
+    }).toList();
     var line = configPvd.line.cast<IrrigationLineModel>().map((object){
       return object.toJson();
     }).toList();
@@ -906,6 +910,7 @@ class _ConfigWebViewState extends State<ConfigWebView> {
       "moistureSensor" : moisture,
       "pressureSensor" : pressure,
       "valve" : valve,
+      "fertilizerChannel" : channel,
       "irrigationLine" : line,
       "ecSensor" : ecSensor,
       "phSensor" : phSensor,

@@ -551,38 +551,38 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                   ],
                 ),
               ),
-              if(![30, 31, 100].contains(pumpItem.reasonCode))
-                Flexible(
-                  child: Container(
-                    // width: double.maxFinite,
-                    // color: pumpItem.reasonCode == 0
-                    //     ? (pumpItem.status == 1
-                    //     ? Colors.green.shade50
-                    //     : Colors.red.shade50)
-                    //     : (pumpItem.reason.contains('on') ? Colors.green.shade50 : Colors.red.shade50),
-                    // // padding: const EdgeInsets.all(8),
-                    margin: const EdgeInsets.symmetric(horizontal: 15),
-                    child: Text(
-                      pumpItem.reasonCode == 0
-                          ? (pumpItem.status == 1 ? "Turned on through the mobile" : "Turned off through the mobile").toUpperCase()
-                          : pumpItem.reason.toUpperCase(),
-                      style: TextStyle(
-
-                          overflow: TextOverflow.ellipsis,
-                          color: pumpItem.reasonCode == 0
-                              ? (pumpItem.status == 1
-                              ? Colors.green.shade700
-                              : Colors.red.shade700)
-                              : (pumpItem.reason.contains('on') ? Colors.green.shade700 : Colors.red.shade700),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12
-                        // fontSize: titleFontSize
-                      ),
-                      textAlign: TextAlign.right,
-                      // overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ),
+              // if(![30, 31, 100].contains(pumpItem.reasonCode))
+              //   Flexible(
+              //     child: Container(
+              //       // width: double.maxFinite,
+              //       // color: pumpItem.reasonCode == 0
+              //       //     ? (pumpItem.status == 1
+              //       //     ? Colors.green.shade50
+              //       //     : Colors.red.shade50)
+              //       //     : (pumpItem.reason.contains('on') ? Colors.green.shade50 : Colors.red.shade50),
+              //       // // padding: const EdgeInsets.all(8),
+              //       margin: const EdgeInsets.symmetric(horizontal: 15),
+              //       child: Text(
+              //         pumpItem.reasonCode == 0
+              //             ? (pumpItem.status == 1 ? "Turned on through the mobile" : "Turned off through the mobile").toUpperCase()
+              //             : pumpItem.reason.toUpperCase(),
+              //         style: TextStyle(
+              //
+              //             overflow: TextOverflow.ellipsis,
+              //             color: pumpItem.reasonCode == 0
+              //                 ? (pumpItem.status == 1
+              //                 ? Colors.green.shade700
+              //                 : Colors.red.shade700)
+              //                 : (pumpItem.reason.contains('on') ? Colors.green.shade700 : Colors.red.shade700),
+              //             fontWeight: FontWeight.bold,
+              //             fontSize: 12
+              //           // fontSize: titleFontSize
+              //         ),
+              //         textAlign: TextAlign.right,
+              //         // overflow: TextOverflow.ellipsis,
+              //       ),
+              //     ),
+              //   ),
             ],
           ),
         ),

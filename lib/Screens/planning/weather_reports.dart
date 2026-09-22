@@ -11,8 +11,7 @@ import '../../services/http_service.dart';
 class ReportPage extends StatefulWidget {
   final String initialReportType;
 
-  const ReportPage(
-      {Key? key,
+  const ReportPage({Key? key,
         required this.initialReportType,
         required this.userId,
         required this.controllerId,

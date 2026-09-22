@@ -609,6 +609,12 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
               ),
               color: Theme.of(context).primaryColor,
               onPressed: () async {
+                final rtcError = validateAllRtcSettings();
+                print("rtcError : ${rtcError}");
+                if (rtcError != null) {
+                  _showRtcErrorDialog(rtcError);
+                  return;
+                }
                 await Future.delayed(Duration.zero, () {
                   setState(() {
                     // oroPumpList.clear();
@@ -801,6 +807,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                                     _buildRtcTimer(categoryIndex, settingIndex, pumpIndex, settingList)
                                   else if(settingList[categoryIndex].setting[settingIndex].title.toUpperCase() == "2 PHASE"
                                       || settingList[categoryIndex].setting[settingIndex].title.toUpperCase() == "AUTO RESTART 2 PHASE"
+                                      || (settingList[categoryIndex].setting[settingIndex].title.toUpperCase() == "AUTO RESTART" && settingList[categoryIndex].setting[settingIndex].serialNumber == 8)
                                       || (isNova && (
                                           settingList[categoryIndex].setting[settingIndex].title.toUpperCase() == "UPPER TANK LINEAR LEVEL SENSOR" ||
                                               settingList[categoryIndex].setting[settingIndex].title.toUpperCase() == "LOWER TANK LINEAR LEVEL SENSOR"
@@ -870,7 +877,136 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
     );
   }
 
+  int _rtcTimeToSeconds(String timeStr) {
+    if (timeStr.isEmpty) return 0;
+    final parts = timeStr.split(':');
+    if (parts.length < 2) return 0;
+    int hours = int.tryParse(parts[0]) ?? 0;
+    int minutes = int.tryParse(parts[1]) ?? 0;
+    int seconds = parts.length > 2 ? (int.tryParse(parts[2]) ?? 0) : 0;
+    return hours * 3600 + minutes * 60 + seconds;
+  }
+
+  String? _validateSingleRtcList(List<RtcTimeSetting> rtcSettings, {String? pumpName, bool isLiveEdit = false}) {
+    int? lastActiveOffTimeSeconds;
+    int? lastActiveIndex;
+
+    for (int i = 0; i < rtcSettings.length; i++) {
+      final rtc = rtcSettings[i];
+      final onSeconds = _rtcTimeToSeconds(rtc.onTime);
+      final offSeconds = _rtcTimeToSeconds(rtc.offTime);
+
+      if (onSeconds == 0 && offSeconds == 0) {
+        continue;
+      }
+
+      final prefix = pumpName != null ? "$pumpName - RTC ${i + 1}" : "RTC ${i + 1}";
+
+      if (offSeconds > 0 || !isLiveEdit) {
+        if (offSeconds <= onSeconds) {
+          return "$prefix: Off time must be greater than On time.";
+        }
+      }
+
+      if (lastActiveOffTimeSeconds != null && onSeconds < lastActiveOffTimeSeconds) {
+        final prevPrefix = "RTC ${lastActiveIndex! + 1}";
+        return "$prefix: On time must be greater than or equal to $prevPrefix Off time.";
+      }
+
+      if (offSeconds > 0) {
+        lastActiveOffTimeSeconds = offSeconds;
+        lastActiveIndex = i;
+      }
+    }
+    return null;
+  }
+
+  void _showRtcErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Row(
+            children: [
+              Icon(Icons.warning_amber_rounded, color: Colors.red),
+              SizedBox(width: 8),
+              Text("Invalid RTC Setting"),
+            ],
+          ),
+          content: Text(message),
+          actions: [
+            FilledButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  String? validateAllRtcSettings() {
+    if (preferenceProvider.individualPumpSetting != null) {
+      for (var individualPump in preferenceProvider.individualPumpSetting!) {
+        final pumpName = preferenceProvider.individualPumpSetting!.length > 1 ? individualPump.name : null;
+        for (var settingCategory in individualPump.settingList) {
+          if (AppConstants.timerSetting.contains(settingCategory.type)) {
+            bool isRtcEnabled = true;
+            List<RtcTimeSetting>? rtcSettings;
+
+            for (var setting in settingCategory.setting) {
+              if (setting.title.toUpperCase() == "RTC") {
+                isRtcEnabled = setting.value == true;
+              }
+              if (setting.title.toUpperCase() == "RTC TIMER" && setting.rtcSettings != null) {
+                rtcSettings = setting.rtcSettings;
+              }
+            }
+
+            if (isRtcEnabled && rtcSettings != null) {
+              final error = _validateSingleRtcList(rtcSettings, pumpName: pumpName);
+              if (error != null) {
+                return error;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    if (preferenceProvider.commonPumpSettings != null) {
+      for (var commonSetting in preferenceProvider.commonPumpSettings!) {
+        for (var settingCategory in commonSetting.settingList) {
+          if (AppConstants.timerSetting.contains(settingCategory.type)) {
+            bool isRtcEnabled = true;
+            List<RtcTimeSetting>? rtcSettings;
+
+            for (var setting in settingCategory.setting) {
+              if (setting.title.toUpperCase() == "RTC") {
+                isRtcEnabled = setting.value == true;
+              }
+              if (setting.title.toUpperCase() == "RTC TIMER" && setting.rtcSettings != null) {
+                rtcSettings = setting.rtcSettings;
+              }
+            }
+
+            if (isRtcEnabled && rtcSettings != null) {
+              final error = _validateSingleRtcList(rtcSettings);
+              if (error != null) {
+                return error;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return null;
+  }
+
   Widget _buildRtcTimer(int categoryIndex, int settingIndex, int pumpIndex, List settingList) {
+    final rtcSettings = settingList[categoryIndex].setting[settingIndex].rtcSettings as List<RtcTimeSetting>?;
+
     return CustomAnimatedSwitcher(
       condition: (conditions['rtc'] ?? false),
       child: Column(
@@ -886,8 +1022,8 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
           const SizedBox(height: 20,),
           Column(
             children: [
-              if (settingList[categoryIndex].setting[settingIndex].rtcSettings != null)
-                ...settingList[categoryIndex].setting[settingIndex].rtcSettings!.asMap().entries.map((entry) {
+              if (rtcSettings != null)
+                ...rtcSettings.asMap().entries.map((entry) {
                   final int rtcIndex = entry.key;
                   final rtcSetting = entry.value;
 
@@ -909,12 +1045,21 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                               child: CustomNativeTimePicker(
                                 initialValue: rtcSetting.onTime.isNotEmpty ? rtcSetting.onTime : "00:00:00",
                                 onChanged: (newTime) {
-                                  setState(() {
-                                    settingList[categoryIndex].setting[settingIndex].isChanged = true;
-                                    settingList[categoryIndex].changed = true;
-                                    rtcSetting.onTime = newTime;
-                                  });
-                                  // print(settingList[categoryIndex].changed);
+                                  final oldTime = rtcSetting.onTime;
+                                  rtcSetting.onTime = newTime;
+                                  final error = _validateSingleRtcList(rtcSettings, isLiveEdit: true);
+                                  if (error != null) {
+                                    rtcSetting.onTime = oldTime;
+                                    Future.delayed(const Duration(milliseconds: 100), () {
+                                      if (mounted) _showRtcErrorDialog(error);
+                                    });
+                                    setState(() {});
+                                  } else {
+                                    setState(() {
+                                      settingList[categoryIndex].setting[settingIndex].isChanged = true;
+                                      settingList[categoryIndex].changed = true;
+                                    });
+                                  }
                                 },
                                 is24HourMode: true, modelId: 1,
                               ),
@@ -925,10 +1070,20 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                               child: CustomNativeTimePicker(
                                 initialValue: rtcSetting.offTime.isNotEmpty ? rtcSetting.offTime : "00:00:00",
                                 onChanged: (newTime) {
-                                  setState(() {
-                                    settingList[categoryIndex].changed = true;
-                                    rtcSetting.offTime = newTime;
-                                  });
+                                  final oldTime = rtcSetting.offTime;
+                                  rtcSetting.offTime = newTime;
+                                  final error = _validateSingleRtcList(rtcSettings, isLiveEdit: true);
+                                  if (error != null) {
+                                    rtcSetting.offTime = oldTime;
+                                    Future.delayed(const Duration(milliseconds: 100), () {
+                                      if (mounted) _showRtcErrorDialog(error);
+                                    });
+                                    setState(() {});
+                                  } else {
+                                    setState(() {
+                                      settingList[categoryIndex].changed = true;
+                                    });
+                                  }
                                 },
                                 is24HourMode: true, modelId: 1,
                               ),
@@ -939,7 +1094,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                       const SizedBox(height: 15),
                     ],
                   );
-                })
+                }),
             ],
           )
         ],
@@ -948,47 +1103,65 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
   }
 
   Widget _buildTwoPhaseCard(int categoryIndex, int settingIndex, int pumpIndex, List settingList) {
+    bool singlePhaseModel = [
+      ...AppConstants.singlePhasePumpModel,
+      ...AppConstants.singlePhasePumpPlusModel,
+      ...AppConstants.singlePhaseShineModel,
+      ...AppConstants.singlePhaseElitePlusModel,
+      ...AppConstants.singlePhaseEcoGemModel,
+      ...AppConstants.singlePhaseEcoGemPlusModel].contains(widget.masterData['modelId']);
+    bool showTitle = true;
+    bool showPumpList = true;
+    if(singlePhaseModel){
+      showTitle = false;
+      if(settingList[categoryIndex].setting[settingIndex].title.contains("Auto Restart")){
+        showTitle = true;
+        showPumpList = false;
+      }
+    }
     return Column(
       children: [
-        ListTile(
-          leading: Container(
-              decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white
-                // gradient: linearGradientLeading,
-              ),
-              child: CircleAvatar(
-                  backgroundColor: cardColor,
-                  child: Icon(otherSettingsIcons[settingIndex], color: Theme.of(context).primaryColor)
-              )
+        if(showTitle)
+          ListTile(
+            leading: Container(
+                decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white
+                  // gradient: linearGradientLeading,
+                ),
+                child: CircleAvatar(
+                    backgroundColor: cardColor,
+                    child: Icon(otherSettingsIcons[settingIndex], color: Theme.of(context).primaryColor)
+                )
+            ),
+            title: Text(settingList[categoryIndex].setting[settingIndex].title, style: Theme.of(context).textTheme.titleMedium!.copyWith(color: Theme.of(context).primaryColorLight, fontWeight: FontWeight.bold),),
           ),
-          title: Text(settingList[categoryIndex].setting[settingIndex].title, style: Theme.of(context).textTheme.titleMedium!.copyWith(color: Theme.of(context).primaryColorLight, fontWeight: FontWeight.bold),),
-        ),
-        Column(
-          children: [
-            for (int index = 0; index < (isToGem ? preferenceProvider.individualPumpSetting!
-                .where((e) => e.deviceId == preferenceProvider.commonPumpSettings![pumpIndex].deviceId).length : preferenceProvider.individualPumpSetting!.length); index++)
-              SwitchListTile(
-                contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-                  secondary: const SizedBox(
-                    width: 40,
-                    height: 40,
-                  ),
-                  title: Text(isToGem ? preferenceProvider.individualPumpSetting!
-                      .where((e) => e.deviceId == preferenceProvider.commonPumpSettings![pumpIndex].deviceId)
-                      .elementAt(index)
-                      .name : preferenceProvider.individualPumpSetting![index].name),
-                  value: settingList[categoryIndex].setting[settingIndex].value[index],
-                  onChanged: (newValue) {
-                    setState(() {
-                      settingList[categoryIndex].setting[settingIndex].value[index] = newValue;
-                      settingList[categoryIndex].setting[settingIndex].isChanged = true;
-                      settingList[categoryIndex].changed = true;
-                    });
-                  }
-              ),
-          ],
-        )
+        if(showPumpList)
+          Column(
+            children: [
+              for (int index = 0; index < (isToGem ? preferenceProvider.individualPumpSetting!
+                  .where((e) => e.deviceId == preferenceProvider.commonPumpSettings![pumpIndex].deviceId).length : preferenceProvider.individualPumpSetting!.length); index++)
+                SwitchListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+                    secondary: const SizedBox(
+                      width: 40,
+                      height: 40,
+                    ),
+                    title: Text(isToGem ? preferenceProvider.individualPumpSetting!
+                        .where((e) => e.deviceId == preferenceProvider.commonPumpSettings![pumpIndex].deviceId)
+                        .elementAt(index)
+                        .name : preferenceProvider.individualPumpSetting![index].name),
+                    value: settingList[categoryIndex].setting[settingIndex].value[index],
+                    onChanged: (newValue) {
+                      setState(() {
+                        settingList[categoryIndex].setting[settingIndex].value[index] = newValue;
+                        settingList[categoryIndex].setting[settingIndex].isChanged = true;
+                        settingList[categoryIndex].changed = true;
+                      });
+                    }
+                ),
+            ],
+          )
       ],
     );
   }
@@ -1333,6 +1506,12 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
   };
 
   Future<void> sendFunction() async {
+    final rtcError = validateAllRtcSettings();
+    debugPrint("rtcError : $rtcError");
+    if (rtcError != null) {
+      _showRtcErrorDialog(rtcError);
+      return;
+    }
     // mqttPayloadProvider.preferencePayload = {};
     breakLoop = false;
     Map<String, dynamic> userData = {
@@ -1951,6 +2130,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
       } else {
         if (setting.title.toUpperCase() == '2 PHASE'
             || setting.title.toUpperCase() == 'AUTO RESTART 2 PHASE'
+            || (setting.title.toUpperCase() == "AUTO RESTART" && setting.serialNumber == 8)
             || setting.title.toUpperCase() == 'UPPER TANK LINEAR LEVEL SENSOR'
             || setting.title.toUpperCase() == 'LOWER TANK LINEAR LEVEL SENSOR'
         ) {
