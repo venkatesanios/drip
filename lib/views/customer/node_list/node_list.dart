@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/models/customer/site_model.dart';
 import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/view/node_connection_page.dart';
 import 'package:oro_drip_irrigation/services/http_service.dart';
+import 'package:oro_drip_irrigation/utils/Theme/agritel_theme.dart';
 import 'package:oro_drip_irrigation/utils/helpers/mc_permission_helper.dart';
 import 'package:oro_drip_irrigation/views/customer/widgets/relay_status_avatar.dart';
 import 'package:provider/provider.dart';
@@ -82,7 +83,11 @@ class NodeList extends StatelessWidget {
               buildHeader(context),
               const Divider(height: 0, thickness: 0.4),
               buildStatusHeaderRow(context, vm, isNova ? true:false),
-              const Divider(height: 0),
+
+              if (!isNova) ...[
+                const Divider(height: 0),
+              ],
+
 
               if (isNova) ...[
                 _buildRelayGrid(masterData.ioConnection, vm),
@@ -402,47 +407,51 @@ class NodeList extends StatelessWidget {
   }
 
   Widget _buildRelayGrid(List<RelayStatus> rlyStatus, NodeListViewModel vm) {
-    return SizedBox(
+    return Container(
+      color: Colors.grey.shade100,
       width: double.infinity,
       height: vm.calculateGridHeight(rlyStatus.length),
-      child: GridView.builder(
-        itemCount: rlyStatus.length,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 5,
-          crossAxisSpacing: 5.0,
-          mainAxisSpacing: 5.0,
-          childAspectRatio: 1.47,
-        ),
-        itemBuilder: (BuildContext context, int indexGv) {
-          final rly = rlyStatus[indexGv];
-          return Column(
-            children: [
-              Selector<MqttPayloadProvider, String?>(
-                selector: (_, provider) => provider.getSensorUpdatedValve(rly.sNo!.toString()),
-                builder: (_, status, __) {
-                  final statusParts = status?.split(',') ?? [];
-                  if (statusParts.isNotEmpty) {
-                    if(rly.sNo!.toString().startsWith('23.')){
-                      rly.status = (int.tryParse(statusParts[1]) ?? 0) == 1 ? 0 : 1;
-                    }else{
-                      rly.status = int.tryParse(statusParts[1]) ?? 0;
+      child: Padding(
+        padding: const EdgeInsets.only(top: 12),
+        child: GridView.builder(
+          itemCount: rlyStatus.length,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 5,
+            crossAxisSpacing: 5.0,
+            mainAxisSpacing: 5.0,
+            childAspectRatio: 1.47,
+          ),
+          itemBuilder: (BuildContext context, int indexGv) {
+            final rly = rlyStatus[indexGv];
+            return Column(
+              children: [
+                Selector<MqttPayloadProvider, String?>(
+                  selector: (_, provider) => provider.getSensorUpdatedValve(rly.sNo!.toString()),
+                  builder: (_, status, __) {
+                    final statusParts = status?.split(',') ?? [];
+                    if (statusParts.isNotEmpty) {
+                      if(rly.sNo!.toString().startsWith('23.')){
+                        rly.status = (int.tryParse(statusParts[1]) ?? 0) == 1 ? 0 : 1;
+                      }else{
+                        rly.status = int.tryParse(statusParts[1]) ?? 0;
+                      }
                     }
-                  }
 
-                  return RelayStatusAvatar(
-                    status: rly.status,
-                    rlyNo: rly.rlyNo,
-                    objType: rly.objType,
-                    sNo: rly.sNo!,
-                  );
-                },
-              ),
-              Text((rly.swName?.isNotEmpty ?? false ? rly.swName : rly.name).toString(),
-                style: const TextStyle(color: Colors.black, fontSize: 9),
-              ),
-            ],
-          );
-        },
+                    return RelayStatusAvatar(
+                      status: rly.status,
+                      rlyNo: rly.rlyNo,
+                      objType: rly.objType,
+                      sNo: rly.sNo!,
+                    );
+                  },
+                ),
+                Text((rly.swName?.isNotEmpty ?? false ? rly.swName : rly.name).toString(),
+                  style: const TextStyle(color: Colors.black, fontSize: 9),
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }

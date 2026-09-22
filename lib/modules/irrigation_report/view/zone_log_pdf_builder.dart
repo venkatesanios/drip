@@ -23,7 +23,8 @@ Uint8List generateZoneLogPdfBytes(List<dynamic> records, String fileName) {
 
   int totalRecords = records.length;
   int recordsPerPage = 25;
-  int numPages = (totalRecords == 0) ? 1 : (totalRecords / recordsPerPage).ceil();
+  int numPages =
+      (totalRecords == 0) ? 1 : (totalRecords / recordsPerPage).ceil();
 
   // Standard Objects:
   // Obj 1: Catalog
@@ -43,13 +44,16 @@ Uint8List generateZoneLogPdfBytes(List<dynamic> records, String fileName) {
     int pageObjId = 6 + i * 2;
     kidsBuf.write("$pageObjId 0 R ");
   }
-  writeString("<< /Type /Pages /Kids [ ${kidsBuf.toString().trim()} ] /Count $numPages >>\nendobj\n");
+  writeString(
+      "<< /Type /Pages /Kids [ ${kidsBuf.toString().trim()} ] /Count $numPages >>\nendobj\n");
 
   startObj(3);
-  writeString("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>\nendobj\n");
+  writeString(
+      "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>\nendobj\n");
 
   startObj(4);
-  writeString("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n");
+  writeString(
+      "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n");
 
   startObj(5);
   writeString("<< /Type /Font /Subtype /Type1 /BaseFont /Courier >>\nendobj\n");
@@ -71,16 +75,19 @@ Uint8List generateZoneLogPdfBytes(List<dynamic> records, String fileName) {
 
     // Page Obj
     startObj(pageObjId);
-    writeString("<< /Type /Page /Parent 2 0 R /MediaBox [ 0 0 842 595 ] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents $contentObjId 0 R >>\nendobj\n");
+    writeString(
+        "<< /Type /Page /Parent 2 0 R /MediaBox [ 0 0 842 595 ] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents $contentObjId 0 R >>\nendobj\n");
 
     // Stream Content
     StringBuffer streamBuf = StringBuffer();
 
     // Document Title
     streamBuf.write("0.12 0.23 0.37 rg\n");
-    streamBuf.write("BT /F1 15 Tf 40 555 Td (${sanitizePdfText("ZONE LOG REPORT - $fileName")}) Tj ET\n");
+    streamBuf.write(
+        "BT /F1 15 Tf 40 555 Td (${sanitizePdfText("ZONE LOG REPORT - $fileName")}) Tj ET\n");
     streamBuf.write("0.4 0.4 0.4 rg\n");
-    streamBuf.write("BT /F2 9 Tf 40 538 Td (${sanitizePdfText("Generated on: $nowStr")}) Tj ET\n");
+    streamBuf.write(
+        "BT /F2 9 Tf 40 538 Td (${sanitizePdfText("Generated on: $nowStr")}) Tj ET\n");
 
     // Table Header Background
     streamBuf.write("0.90 0.93 0.96 rg 40 508 762 22 re f\n");
@@ -109,7 +116,9 @@ Uint8List generateZoneLogPdfBytes(List<dynamic> records, String fileName) {
 
     // Rows
     int startIdx = p * recordsPerPage;
-    int endIdx = (startIdx + recordsPerPage < totalRecords) ? startIdx + recordsPerPage : totalRecords;
+    int endIdx = (startIdx + recordsPerPage < totalRecords)
+        ? startIdx + recordsPerPage
+        : totalRecords;
 
     double currentY = 488;
     for (int r = startIdx; r < endIdx; r++) {
@@ -118,7 +127,8 @@ Uint8List generateZoneLogPdfBytes(List<dynamic> records, String fileName) {
       if (isEven) {
         streamBuf.write("0.97 0.98 0.99 rg 40 ${currentY - 4} 762 17 re f\n");
       }
-      streamBuf.write("0.88 0.90 0.92 RG 0.5 w 40 ${currentY - 4} 762 17 re S\n");
+      streamBuf
+          .write("0.88 0.90 0.92 RG 0.5 w 40 ${currentY - 4} 762 17 re S\n");
 
       streamBuf.write("0.15 0.15 0.15 rg\n");
 
@@ -151,8 +161,9 @@ Uint8List generateZoneLogPdfBytes(List<dynamic> records, String fileName) {
 
     // Footer
     streamBuf.write("0.5 0.5 0.5 rg\n");
-    streamBuf.write("BT /F2 8 Tf 40 20 Td (${sanitizePdfText("Page ${p + 1} of $numPages")}) Tj ET\n");
-    streamBuf.write("BT /F2 8 Tf 680 20 Td (${sanitizePdfText("Drip Irrigation System")}) Tj ET\n");
+    streamBuf.write(
+        "BT /F2 8 Tf 40 20 Td (${sanitizePdfText("Page ${p + 1} of $numPages")}) Tj ET\n");
+    // streamBuf.write("BT /F2 8 Tf 680 20 Td (${sanitizePdfText("Drip Irrigation System")}) Tj ET\n");
 
     List<int> streamBytes = utf8.encode(streamBuf.toString());
 
@@ -174,7 +185,8 @@ Uint8List generateZoneLogPdfBytes(List<dynamic> records, String fileName) {
   }
 
   // Trailer
-  writeString("trailer\n<< /Size $totalObjects /Root 1 0 R >>\nstartxref\n$xrefOffset\n%%EOF\n");
+  writeString(
+      "trailer\n<< /Size $totalObjects /Root 1 0 R >>\nstartxref\n$xrefOffset\n%%EOF\n");
 
   return Uint8List.fromList(pdfBytes);
 }

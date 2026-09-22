@@ -239,11 +239,9 @@ class _ZoneLogState extends State<ZoneLog> {
         List actualStartReasons = irrigation['ActualStartReason'] ?? [];
         List actualStopReasons = irrigation['ActualStopReason'] ?? [];
 
-        int baseLength = zoneSNos.isNotEmpty
-            ? zoneSNos.length
-            : (programSNos.isNotEmpty
-                ? programSNos.length
-                : actualStopTimes.length);
+        int baseLength = programSNos.isNotEmpty
+            ? programSNos.length
+            : (zoneSNos.isNotEmpty ? zoneSNos.length : actualStopTimes.length);
 
         if (actualStartTimes.length > baseLength &&
             actualStartTimes.where((e) => e != null).length == baseLength) {
@@ -312,12 +310,16 @@ class _ZoneLogState extends State<ZoneLog> {
             seqName = progName;
           }
 
-          String headUnitStr = (i < headUnits.length && headUnits[i] != null)
+          String headUnitStr = (i < headUnits.length &&
+                  headUnits[i] != null &&
+                  headUnits[i].toString().isNotEmpty)
               ? headUnits[i].toString()
-              : '-';
-          String pumpStr = (i < pumps.length && pumps[i] != null)
+              : '--';
+          String pumpStr = (i < pumps.length &&
+                  pumps[i] != null &&
+                  pumps[i].toString().isNotEmpty)
               ? pumps[i].toString()
-              : '-';
+              : '--';
 
           uniqueProgNames.add(progName);
 
@@ -343,8 +345,6 @@ class _ZoneLogState extends State<ZoneLog> {
               (i < actualStopReasons.length && actualStopReasons[i] != null)
                   ? actualStopReasons[i].toString()
                   : '';
-
-          if (stopTimeRaw.isEmpty && startTimeRaw.isEmpty) continue;
 
           List<String> subStartTimes =
               startTimeRaw.isNotEmpty ? startTimeRaw.split('_') : [];
@@ -372,8 +372,6 @@ class _ZoneLogState extends State<ZoneLog> {
             String stopReasonStr = (s < subStopReasons.length)
                 ? subStopReasons[s].trim()
                 : (subStopReasons.isNotEmpty ? subStopReasons.last.trim() : '');
-
-            if (stopTimeStr.isEmpty && startTimeStr.isEmpty) continue;
 
             double stopHour = 0.0;
             int stopH = 0, stopM = 0, stopS = 0;
@@ -427,17 +425,17 @@ class _ZoneLogState extends State<ZoneLog> {
               dateStr: dateHeaderStr,
               programTitle: progName,
               sequenceTitle: seqName,
-              headUnit: headUnitStr,
-              pump: pumpStr,
+              headUnit: headUnitStr.isNotEmpty ? headUnitStr : '--',
+              pump: pumpStr.isNotEmpty ? pumpStr : '--',
               programColor: _getProgramColor(colorIdx),
               programTextColor: _getProgramTextColor(colorIdx),
-              startTime: startTimeStr,
-              endTime: stopTimeStr,
-              duration: durationStr,
+              startTime: startTimeStr.isNotEmpty ? startTimeStr : '--',
+              endTime: stopTimeStr.isNotEmpty ? stopTimeStr : '--',
+              duration: durationStr.isNotEmpty ? durationStr : '--',
               startHour: startHour,
               endHour: stopHour,
-              startReason: startReasonStr,
-              endReason: stopReasonStr,
+              startReason: startReasonStr.isNotEmpty ? startReasonStr : '--',
+              endReason: stopReasonStr.isNotEmpty ? stopReasonStr : '--',
             );
 
             dateProgramItemsMap
@@ -588,7 +586,7 @@ class _ZoneLogState extends State<ZoneLog> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      endDrawer: _buildRightSideDrawer(context),
+      // endDrawer: _buildRightSideDrawer(context),
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
@@ -840,8 +838,6 @@ class _ZoneLogState extends State<ZoneLog> {
 
   Widget _buildDailyTimelineCard(
       BuildContext context, DailyTimelineData daily) {
-    final primaryDark = Theme.of(context).primaryColorDark;
-
     var filteredPrograms = daily.programs
         .where((p) =>
             _selectedProgramFilter == 'All Programs' ||
@@ -856,123 +852,7 @@ class _ZoneLogState extends State<ZoneLog> {
       return a.title.compareTo(b.title);
     });
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        double availableWidth = constraints.maxWidth;
-        bool isMobile = availableWidth < 600;
-
-        // MOBILE VIEW: Display clean, horizontally scrollable full-text table instead of color bars
-        if (isMobile) {
-          return _buildMobileTableCard(context, daily, filteredPrograms);
-        }
-
-        // DESKTOP VIEW: Full 24-Hour Timeline Grid with Sticky Left Column
-        double leftColWidth = 160;
-        double timelineWidth = availableWidth - leftColWidth;
-        double contentWidth = timelineWidth < 1200 ? 1200 : timelineWidth;
-
-        return Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: const Color(0xFFCBD5E1)),
-            boxShadow: const [
-              BoxShadow(
-                color: Colors.black12,
-                blurRadius: 3,
-                offset: Offset(0, 1),
-              ),
-            ],
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Left Fixed / Sticky Column
-              SizedBox(
-                width: leftColWidth,
-                child: Column(
-                  children: [
-                    // Date Header Badge
-                    Container(
-                      width: leftColWidth,
-                      height: 36,
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      decoration: BoxDecoration(
-                        color: primaryDark,
-                        borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(7)),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              daily.dateHeader,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                fontSize: 11,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          const SizedBox(width: 4),
-                          const Icon(Icons.calendar_today,
-                              size: 13, color: Colors.white),
-                        ],
-                      ),
-                    ),
-                    // Program Left Labels — height matches timeline grid row
-                    for (int i = 0; i < filteredPrograms.length; i++)
-                      _buildProgramLeftLabel(
-                        filteredPrograms[i],
-                        leftColWidth,
-                        i == filteredPrograms.length - 1,
-                        _rowHeightFor(filteredPrograms[i], contentWidth),
-                      ),
-                  ],
-                ),
-              ),
-              // Right Unified Scrollable Timeline Grid
-              Expanded(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  physics: const BouncingScrollPhysics(),
-                  child: SizedBox(
-                    width: contentWidth,
-                    child: Column(
-                      children: [
-                        // Timescale Header
-                        Container(
-                          height: 36,
-                          decoration: BoxDecoration(
-                            color: primaryDark.withAlpha(15),
-                            borderRadius: const BorderRadius.only(
-                                topRight: Radius.circular(7)),
-                            border: Border(
-                              bottom:
-                                  BorderSide(color: primaryDark.withAlpha(30)),
-                            ),
-                          ),
-                          child: _buildTimeScaleHeader(context),
-                        ),
-                        // Program Rows — dynamic height for multiple bars
-                        for (int i = 0; i < filteredPrograms.length; i++)
-                          _buildProgramTimelineGrid(
-                            filteredPrograms[i],
-                            contentWidth,
-                            i == filteredPrograms.length - 1,
-                            _rowHeightFor(filteredPrograms[i], contentWidth),
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
+    return _buildMobileTableCard(context, daily, filteredPrograms);
   }
 
   /// Mobile-optimized Full-Text Scrollable Table Card (No color bars)
@@ -1056,7 +936,8 @@ class _ZoneLogState extends State<ZoneLog> {
           ),
           if (allItems.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.only(left: 12, right: 12, top: 8, bottom: 4),
+              padding:
+                  const EdgeInsets.only(left: 12, right: 12, top: 8, bottom: 4),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -1088,8 +969,7 @@ class _ZoneLogState extends State<ZoneLog> {
                       if (res != null) {
                         messenger.showSnackBar(
                           SnackBar(
-                              content:
-                                  Text("Excel Download Successful: $res")),
+                              content: Text("Excel Download Successful: $res")),
                         );
                       } else {
                         messenger.showSnackBar(
@@ -1135,13 +1015,11 @@ class _ZoneLogState extends State<ZoneLog> {
                       if (res != null) {
                         messenger.showSnackBar(
                           SnackBar(
-                              content:
-                                  Text("PDF Download Successful: $res")),
+                              content: Text("PDF Download Successful: $res")),
                         );
                       } else {
                         messenger.showSnackBar(
-                          const SnackBar(
-                              content: Text("Failed to export PDF")),
+                          const SnackBar(content: Text("Failed to export PDF")),
                         );
                       }
                     },
@@ -1189,8 +1067,7 @@ class _ZoneLogState extends State<ZoneLog> {
                     borderRadius: BorderRadius.circular(8),
                     child: ExpansionTile(
                       initiallyExpanded: true,
-                      collapsedBackgroundColor:
-                          prog.headerColor.withAlpha(50),
+                      collapsedBackgroundColor: prog.headerColor.withAlpha(50),
                       backgroundColor: Colors.white,
                       tilePadding: const EdgeInsets.symmetric(
                           horizontal: 12, vertical: 2),
@@ -1233,71 +1110,85 @@ class _ZoneLogState extends State<ZoneLog> {
                         ],
                       ),
                       children: [
-                        SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          physics: const BouncingScrollPhysics(),
-                          child: Table(
-                            border: TableBorder.all(
-                              color: const Color(0xFFE2E8F0),
-                              width: 1,
-                            ),
-                            defaultVerticalAlignment:
-                                TableCellVerticalAlignment.middle,
-                            columnWidths: const {
-                              0: FixedColumnWidth(145), // Sequence Name
-                              1: FixedColumnWidth(90),  // HeadUnit
-                              2: FixedColumnWidth(90),  // Pump
-                              3: FixedColumnWidth(100), // Start Time
-                              4: FixedColumnWidth(100), // End Time
-                              5: FixedColumnWidth(95),  // Duration
-                              6: FixedColumnWidth(165), // Start Reason
-                              7: FixedColumnWidth(260), // End Reason
-                            },
-                            children: [
-                              TableRow(
-                                decoration: BoxDecoration(
-                                  color: primaryDark.withAlpha(20),
-                                ),
-                                children: [
-                                  _buildTableHeaderCell(
-                                      "Sequence Name", primaryDark),
-                                  _buildTableHeaderCell(
-                                      "HeadUnit", primaryDark),
-                                  _buildTableHeaderCell("Pump", primaryDark),
-                                  _buildTableHeaderCell(
-                                      "Start Time", primaryDark),
-                                  _buildTableHeaderCell(
-                                      "End Time", primaryDark),
-                                  _buildTableHeaderCell(
-                                      "Duration", primaryDark),
-                                  _buildTableHeaderCell(
-                                      "Start Reason", primaryDark),
-                                  _buildTableHeaderCell(
-                                      "End Reason", primaryDark),
-                                ],
-                              ),
-                              for (var rec in prog.items)
-                                TableRow(
-                                  decoration: BoxDecoration(
-                                    color: _selectedItem == rec
-                                        ? primaryDark.withAlpha(25)
-                                        : Colors.transparent,
+                        LayoutBuilder(
+                          builder: (context, constraints) {
+                            double availableWidth = constraints.maxWidth;
+                            double minTableWidth = 1045;
+                            double tableWidth = availableWidth > minTableWidth
+                                ? availableWidth
+                                : minTableWidth;
+
+                            return SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              physics: const BouncingScrollPhysics(),
+                              child: SizedBox(
+                                width: tableWidth,
+                                child: Table(
+                                  border: TableBorder.all(
+                                    color: const Color(0xFFE2E8F0),
+                                    width: 1,
                                   ),
+                                  defaultVerticalAlignment:
+                                      TableCellVerticalAlignment.middle,
+                                  columnWidths: const {
+                                    0: FlexColumnWidth(1.45), // Sequence Name
+                                    1: FlexColumnWidth(0.9), // HeadUnit
+                                    2: FlexColumnWidth(0.9), // Pump
+                                    3: FlexColumnWidth(1.0), // Start Time
+                                    4: FlexColumnWidth(1.0), // End Time
+                                    5: FlexColumnWidth(0.95), // Duration
+                                    6: FlexColumnWidth(1.65), // Start Reason
+                                    7: FlexColumnWidth(2.6), // End Reason
+                                  },
                                   children: [
-                                    _buildSequenceBadgeCell(rec),
-                                    _buildTableCell(rec.headUnit,
-                                        isSemibold: true),
-                                    _buildTableCell(rec.pump,
-                                        isSemibold: true),
-                                    _buildTableCell(rec.startTime),
-                                    _buildTableCell(rec.endTime),
-                                    _buildTableCell(rec.duration),
-                                    _buildTableCell(rec.startReason),
-                                    _buildTableCell(rec.endReason),
+                                    TableRow(
+                                      decoration: BoxDecoration(
+                                        color: primaryDark.withAlpha(20),
+                                      ),
+                                      children: [
+                                        _buildTableHeaderCell(
+                                            "Sequence Name", primaryDark),
+                                        _buildTableHeaderCell(
+                                            "HeadUnit", primaryDark),
+                                        _buildTableHeaderCell(
+                                            "Pump", primaryDark),
+                                        _buildTableHeaderCell(
+                                            "Start Time", primaryDark),
+                                        _buildTableHeaderCell(
+                                            "End Time", primaryDark),
+                                        _buildTableHeaderCell(
+                                            "Duration", primaryDark),
+                                        _buildTableHeaderCell(
+                                            "Start Reason", primaryDark),
+                                        _buildTableHeaderCell(
+                                            "End Reason", primaryDark),
+                                      ],
+                                    ),
+                                    for (var rec in prog.items)
+                                      TableRow(
+                                        decoration: BoxDecoration(
+                                          color: _selectedItem == rec
+                                              ? primaryDark.withAlpha(25)
+                                              : Colors.transparent,
+                                        ),
+                                        children: [
+                                          _buildSequenceBadgeCell(rec),
+                                          _buildTableCell(rec.headUnit,
+                                              isSemibold: true),
+                                          _buildTableCell(rec.pump,
+                                              isSemibold: true),
+                                          _buildTableCell(rec.startTime),
+                                          _buildTableCell(rec.endTime),
+                                          _buildTableCell(rec.duration),
+                                          _buildTableCell(rec.startReason),
+                                          _buildTableCell(rec.endReason),
+                                        ],
+                                      ),
                                   ],
                                 ),
-                            ],
-                          ),
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),
@@ -1354,240 +1245,31 @@ class _ZoneLogState extends State<ZoneLog> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 6),
       child: Center(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: BoxDecoration(
-            color: rec.programColor.withAlpha(40),
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: rec.programTextColor.withAlpha(80),
+        child: InkWell(
+          onTap: () =>
+              _openRightSideProgramDetails(rec.programTitle, selectedItem: rec),
+          borderRadius: BorderRadius.circular(10),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: rec.programColor.withAlpha(40),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: rec.programTextColor.withAlpha(80),
+              ),
             ),
-          ),
-          child: Text(
-            rec.sequenceTitle,
-            textAlign: TextAlign.center,
-            softWrap: false,
-            maxLines: 1,
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.bold,
-              color: rec.programTextColor,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// Computes row height: 38px per bar slot, minimum 48px.
-  double _rowHeightFor(
-      ProgramScheduleData program, double timelineContentWidth) {
-    if (program.items.isEmpty) return 48.0;
-
-    // Sort items by startHour so we can detect overlapping intervals
-    List<ScheduleItem> sorted = List.of(program.items)
-      ..sort((a, b) => a.startHour.compareTo(b.startHour));
-
-    // Label width is ~84px. Calculate visual hour span on timeline
-    double labelHourSpan =
-        (84.0 / (timelineContentWidth > 0 ? timelineContentWidth : 1200.0)) *
-            24.0;
-
-    // Track how many rows we need by greedy interval packing
-    List<double> slotEndHours = [];
-    for (var item in sorted) {
-      double itemVisualEnd = item.startHour + labelHourSpan;
-      if (item.endHour > itemVisualEnd) itemVisualEnd = item.endHour;
-
-      int slot = -1;
-      for (int r = 0; r < slotEndHours.length; r++) {
-        if (item.startHour >= slotEndHours[r] - 0.05) {
-          slot = r;
-          break;
-        }
-      }
-      if (slot == -1) {
-        slotEndHours.add(itemVisualEnd);
-      } else {
-        slotEndHours[slot] = itemVisualEnd;
-      }
-    }
-    int numRows = slotEndHours.isEmpty ? 1 : slotEndHours.length;
-    double height = (numRows * 38.0 + 8.0).clamp(48.0, 220.0);
-    return height;
-  }
-
-  Widget _buildTimeScaleHeader(BuildContext context) {
-    List<String> timeLabels = [
-      "00:00",
-      "02:00",
-      "04:00",
-      "06:00",
-      "08:00",
-      "10:00",
-      "12:00",
-      "14:00",
-      "16:00",
-      "18:00",
-      "20:00",
-      "22:00",
-      "24:00"
-    ];
-    final primaryDark = Theme.of(context).primaryColorDark;
-
-    return Row(
-      children: [
-        for (int i = 0; i < timeLabels.length; i++)
-          Expanded(
-            child: Container(
-              alignment: Alignment.center,
-              child: Text(
-                timeLabels[i],
-                style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  color: primaryDark,
-                ),
+            child: Text(
+              rec.sequenceTitle,
+              textAlign: TextAlign.center,
+              softWrap: false,
+              maxLines: 1,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                color: rec.programTextColor,
               ),
             ),
           ),
-      ],
-    );
-  }
-
-  Widget _buildProgramLeftLabel(
-    ProgramScheduleData program,
-    double leftColWidth,
-    bool isLast,
-    double rowHeight,
-  ) {
-    return InkWell(
-      onTap: () => _openRightSideProgramDetails(program.title),
-      child: Container(
-        height: rowHeight,
-        width: leftColWidth,
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        decoration: BoxDecoration(
-          color: program.headerColor,
-          border: Border(
-            right: const BorderSide(color: Color(0xFFE2E8F0)),
-            bottom: isLast
-                ? BorderSide.none
-                : const BorderSide(color: Color(0xFFE2E8F0)),
-          ),
-        ),
-        alignment: Alignment.centerLeft,
-        child: Text(
-          program.title,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: program.labelColor,
-            fontSize: 12,
-          ),
-          overflow: TextOverflow.ellipsis,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildProgramTimelineGrid(
-    ProgramScheduleData program,
-    double timelineContentWidth,
-    bool isLast,
-    double rowHeight,
-  ) {
-    // Sort items by startHour for predictable slot assignment
-    List<ScheduleItem> sortedItems = List.of(program.items)
-      ..sort((a, b) => a.startHour.compareTo(b.startHour));
-
-    double labelHourSpan =
-        (84.0 / (timelineContentWidth > 0 ? timelineContentWidth : 1200.0)) *
-            24.0;
-
-    // Assign each item to a vertical slot using greedy interval packing
-    List<List<ScheduleItem>> slots = [];
-    List<double> slotEndHours = [];
-    Map<ScheduleItem, int> itemSlot = {};
-
-    for (var item in sortedItems) {
-      double itemVisualEnd = item.startHour + labelHourSpan;
-      if (item.endHour > itemVisualEnd) itemVisualEnd = item.endHour;
-
-      int slot = -1;
-      for (int r = 0; r < slotEndHours.length; r++) {
-        if (item.startHour >= slotEndHours[r] - 0.05) {
-          slot = r;
-          break;
-        }
-      }
-      if (slot == -1) {
-        slot = slots.length;
-        slots.add([]);
-        slotEndHours.add(itemVisualEnd);
-      } else {
-        slotEndHours[slot] = itemVisualEnd;
-      }
-      slots[slot].add(item);
-      itemSlot[item] = slot;
-    }
-
-    int numSlots = slots.isEmpty ? 1 : slots.length;
-    double slotHeight = rowHeight / numSlots;
-
-    return InkWell(
-      onTap: () => _openRightSideProgramDetails(program.title),
-      child: Container(
-        height: rowHeight,
-        width: timelineContentWidth,
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: isLast
-                ? BorderSide.none
-                : const BorderSide(color: Color(0xFFE2E8F0)),
-          ),
-        ),
-        child: Stack(
-          children: [
-            // Vertical grid lines
-            Row(
-              children: [
-                for (int i = 0; i < 12; i++)
-                  Expanded(
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        border:
-                            Border(right: BorderSide(color: Color(0xFFEDF2F7))),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-            // Center baseline
-            Center(
-              child: Container(
-                height: 18,
-                margin: const EdgeInsets.symmetric(horizontal: 4),
-                decoration: BoxDecoration(
-                  color: const Color(0x99E2E8F0),
-                  borderRadius: BorderRadius.circular(3),
-                ),
-              ),
-            ),
-            // Bars placed in their respective vertical slots
-            for (var item in sortedItems)
-              ScheduleBarWidget(
-                item: item,
-                program: program,
-                isSelected: _selectedItem == item,
-                totalWidth: timelineContentWidth,
-                slotIndex: itemSlot[item] ?? 0,
-                slotHeight: slotHeight,
-                onItemSelected: (selected) {
-                  _openRightSideProgramDetails(program.title,
-                      selectedItem: selected);
-                },
-              ),
-          ],
         ),
       ),
     );
@@ -1660,7 +1342,7 @@ class _ZoneLogState extends State<ZoneLog> {
                               onPressed: () async {
                                 final messenger = ScaffoldMessenger.of(context);
                                 if (records.isEmpty) {
-                                   messenger.showSnackBar(
+                                  messenger.showSnackBar(
                                     const SnackBar(
                                         content: Text(
                                             "No records available to export")),
@@ -1677,19 +1359,20 @@ class _ZoneLogState extends State<ZoneLog> {
                                 if (res != null) {
                                   messenger.showSnackBar(
                                     SnackBar(
-                                        content: Text(
-                                            "CSV Download Successful: $res")),
+                                        content:
+                                            Text("Excel Downloaded: $res")),
                                   );
                                 } else {
                                   messenger.showSnackBar(
                                     const SnackBar(
-                                        content: Text("Failed to export CSV")),
+                                        content:
+                                            Text("Failed to export Excel")),
                                   );
                                 }
                               },
                               icon: const Icon(Icons.download,
                                   size: 14, color: Color(0xFF1E88E5)),
-                              label: const Text("CSV",
+                              label: const Text("Excel",
                                   style: TextStyle(
                                       color: Color(0xFF1E88E5),
                                       fontSize: 11,
@@ -1758,28 +1441,31 @@ class _ZoneLogState extends State<ZoneLog> {
                           0: FixedColumnWidth(130), // Date
                           1: FixedColumnWidth(130), // Program Name
                           2: FixedColumnWidth(145), // Sequence Name
-                          3: FixedColumnWidth(90),  // HeadUnit
-                          4: FixedColumnWidth(90),  // Pump
+                          3: FixedColumnWidth(90), // HeadUnit
+                          4: FixedColumnWidth(90), // Pump
                           5: FixedColumnWidth(100), // Start
                           6: FixedColumnWidth(100), // End
-                          7: FixedColumnWidth(95),  // Duration
+                          7: FixedColumnWidth(95), // Duration
                           8: FixedColumnWidth(165), // Start Reason
                           9: FixedColumnWidth(260), // End Reason
                         },
                         children: [
                           TableRow(
-                            decoration: BoxDecoration(
-                                color: primaryDark.withAlpha(20)),
+                            decoration:
+                                BoxDecoration(color: primaryDark.withAlpha(20)),
                             children: [
                               _buildTableHeaderCell("Date", primaryDark),
-                              _buildTableHeaderCell("Program Name", primaryDark),
-                              _buildTableHeaderCell("Sequence Name", primaryDark),
+                              _buildTableHeaderCell(
+                                  "Program Name", primaryDark),
+                              _buildTableHeaderCell(
+                                  "Sequence Name", primaryDark),
                               _buildTableHeaderCell("HeadUnit", primaryDark),
                               _buildTableHeaderCell("Pump", primaryDark),
                               _buildTableHeaderCell("Start Time", primaryDark),
                               _buildTableHeaderCell("End Time", primaryDark),
                               _buildTableHeaderCell("Duration", primaryDark),
-                              _buildTableHeaderCell("Start Reason", primaryDark),
+                              _buildTableHeaderCell(
+                                  "Start Reason", primaryDark),
                               _buildTableHeaderCell("End Reason", primaryDark),
                             ],
                           ),
