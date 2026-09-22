@@ -1113,9 +1113,8 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
     bool showTitle = true;
     bool showPumpList = true;
     if(singlePhaseModel){
-      showTitle = false;
-      if(settingList[categoryIndex].setting[settingIndex].title.contains("Auto Restart")){
-        showTitle = true;
+      if(settingList[categoryIndex].setting[settingIndex].title.contains("2 Phase")){
+        showTitle = false;
         showPumpList = false;
       }
     }
