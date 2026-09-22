@@ -398,11 +398,13 @@ class _ResetVerssionState extends State<ResetVerssion> {
                         const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 10),
-                      Text(
+                    if(![...AppConstants.ecoGemModelList,
+                ...AppConstants.shine2V, ...AppConstants.shine4V, ...AppConstants.elite10V]
+                    .contains(widget.modeID))...[ Text(
                         'Server version:${mergedList[index]['latestVersion']!}',
                         style:
                         const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                      ),
+                      ),],
                       const SizedBox(height: 10),
                       imeicheck != mergedList[index]['deviceId']!
                           ? mergedList[index]['status'] != 'Status'
@@ -416,13 +418,15 @@ class _ResetVerssionState extends State<ResetVerssion> {
                       )
                           : Container()
                           : Container(),
-                      imeicheck != mergedList[index]['deviceId']!
+                    if(![...AppConstants.ecoGemModelList,
+                ...AppConstants.shine2V, ...AppConstants.shine4V, ...AppConstants.elite10V]
+                    .contains(widget.modeID))...[  imeicheck != mergedList[index]['deviceId']!
                           ? Text(
                         '${mergedList[index]['status']}',
                         style: const TextStyle(
                             fontSize: 14, fontWeight: FontWeight.bold),
                       )
-                          : const Text('Status'),
+                          : const Text('Status'),],
 
                       mergedList[index]['status'] != 'Status'
                           ?  Padding(
