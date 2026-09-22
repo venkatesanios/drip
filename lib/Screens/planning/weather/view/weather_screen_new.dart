@@ -126,7 +126,7 @@ class _WeatherScreenNewState extends State<WeatherScreenNew>
           );
 
           if(lines.length > 1){
-             return Scaffold(
+             return MediaQuery.sizeOf(context).width < 600 ? Scaffold(
               appBar: AppBar(
                 title: const Text("Weather"),
                 bottom: TabBar(
@@ -158,7 +158,14 @@ class _WeatherScreenNewState extends State<WeatherScreenNew>
                     _LineTabView(line: line, vm: vm, isNarrow: widget.isNarrow,customerId: widget.customerId,userId: widget.controllerId,deviceId: widget.deviceID,),
                 ],
               ),
-            );
+            ) : Scaffold(  body: TabBarView(
+               controller: _tabController,
+               children: [
+                 for (final line in lines)
+                   _LineTabView(line: line, vm: vm, isNarrow: widget.isNarrow,customerId: widget.customerId,userId: widget.controllerId,deviceId: widget.deviceID,),
+               ],
+             ),);
+
           }else {
              return Scaffold(
                body: _LineTabView(line: lines[0], vm: vm, isNarrow: widget.isNarrow,customerId: widget.customerId,userId: widget.controllerId,deviceId: widget.deviceID,),
@@ -246,6 +253,9 @@ class _LineTabViewState extends State<_LineTabView> {
     final humidityText =
     humidity == null ? "No Data" : "${humidity.value.toStringAsFixed(1)} %";
 
+    print("line.stations.length${line.stations.length}");
+
+
     return Column(
       children: [
         Padding(
@@ -259,6 +269,7 @@ class _LineTabViewState extends State<_LineTabView> {
               spacing: 8,
               runSpacing: 8,
               children: List.generate(line.stations.length, (i) {
+                print("i:$i,line.stations.length${line.stations.length}");
                 final d = line.stations[i].device;
                 return ChoiceChip(
                   label: Text(d.deviceName),
@@ -289,6 +300,8 @@ class _LineTabViewState extends State<_LineTabView> {
       String humidityText,
       )
   {
+    print("_buildWideLayout call station.sensors:${station.sensors}");
+
     return Row(
       children: [
         Padding(
@@ -338,6 +351,7 @@ class _LineTabViewState extends State<_LineTabView> {
                     spacing: 12,
                     runSpacing: 12,
                     children: station.sensors.map<Widget>((s) {
+                      print("station.sensors name check:${s.name}");
                       return GestureDetector(
                         onTap: (){
                           // AppLog.log('deviceID ->${station.device[selectedStationIndex].deviceId}');
