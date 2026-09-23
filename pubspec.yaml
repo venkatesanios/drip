@@ -128,7 +128,6 @@ flutter:
     - assets/smartcomm_playstore.png
     - assets/smartcomm_launcher.png
     - assets/.env
-    - assets/localfile/Testing
     - assets/splash/oro_production.png
     - assets/splash/smart_comm.png
     - assets/splash/transparent.png

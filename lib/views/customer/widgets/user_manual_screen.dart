@@ -25,6 +25,8 @@ class _UserManualScreenState extends State<UserManualScreen> {
       body: SfPdfViewer.network(
         widget.pdfUrl,
         controller: _pdfViewerController,
+        canShowScrollHead: true,
+        canShowScrollStatus: true,
         onDocumentLoaded: (details) {
           debugPrint('PDF loaded successfully');
         },
