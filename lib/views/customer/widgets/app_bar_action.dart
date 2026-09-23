@@ -216,7 +216,7 @@ Widget _buildHelpMenu(
                       context,
                       MaterialPageRoute(
                         builder: (_) => const UserManualScreen(
-                          pdfUrl: 'https://smartcomm-wms.com:5000/userManual/nova.pdf',
+                          //pdfUrl: 'https://smartcomm-wms.com:5000/userManual/shine.pdf',
                         ),
                       ),
                     );
