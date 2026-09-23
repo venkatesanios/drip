@@ -224,9 +224,8 @@ Widget _buildHelpMenu(
                   );*/
                 },
               ),
-              (! loggedUser.configPermission/* && ![...AppConstants.ecoGemModelList,
-                ...AppConstants.shine2V, ...AppConstants.shine4V, ...AppConstants.elite10V]
-                  .contains(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId)*/)  ? ListTile(
+              (! loggedUser.configPermission  && ![...AppConstants.shine2V, ...AppConstants.shine4V, ...AppConstants.elite10V, ...AppConstants.pumpList]
+                  .contains(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId))  ? ListTile(
                 leading: const Icon(Icons.info_outline),
                 title: const Text('Controller info'),
                 onTap: () async {
