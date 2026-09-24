@@ -19,6 +19,7 @@ class UserManualScreen extends StatelessWidget {
         params: const PdfViewerParams(
           margin: 16,
           backgroundColor: Colors.grey,
+          enableTextSelection: false,
         ),
       ),
     );
