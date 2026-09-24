@@ -4,19 +4,21 @@ import 'package:pdfrx/pdfrx.dart';
 
 
 class UserManualScreen extends StatelessWidget {
-  const UserManualScreen({super.key});
+  const UserManualScreen({super.key, required this.pdfUrl});
+  final String pdfUrl;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('flutter_cached_pdfview Demo'),
+        title: const Text('User Manual'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: PdfViewer.uri(
-          Uri.parse('https://smartcomm-wms.com:5000/userManual/nova.pdf'),
+      body: PdfViewer.uri(
+        Uri.parse(pdfUrl),
+        params: const PdfViewerParams(
+          margin: 16,
+          backgroundColor: Colors.grey,
         ),
       ),
     );

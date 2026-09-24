@@ -75,6 +75,8 @@ class MasterControllerModel {
   final String analogInput;
   final String digitalInput;
 
+  final String? userManualLink;
+
   int? communicationMode;
   List<ConfigObject> configObjects;
   List<NodeListModel> nodeList;
@@ -116,6 +118,7 @@ class MasterControllerModel {
     required this.configObjects,
     required this.ioConnection,
     required this.isSubUser,
+    required this.userManualLink,
 
     required this.ecSensors,
     required this.phSensors,
@@ -322,6 +325,7 @@ class MasterControllerModel {
       isSubUser: isSubUser,
       ecSensors: ecSensors,
       phSensors: phSensors,
+      userManualLink: json['userManualLink'] as String?,
     );
   }
 }
