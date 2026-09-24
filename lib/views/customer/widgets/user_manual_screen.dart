@@ -1,38 +1,25 @@
+
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+import 'package:pdfrx/pdfrx.dart';
 
-class UserManualScreen extends StatefulWidget {
+
+class UserManualScreen extends StatelessWidget {
+  const UserManualScreen({super.key, required this.pdfUrl});
   final String pdfUrl;
-
-  const UserManualScreen({
-    super.key,
-    required this.pdfUrl,
-  });
-
-  @override
-  State<UserManualScreen> createState() => _UserManualScreenState();
-}
-
-class _UserManualScreenState extends State<UserManualScreen> {
-  final PdfViewerController _pdfViewerController = PdfViewerController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('User Manual'),
       ),
-      body: SfPdfViewer.network(
-        widget.pdfUrl,
-        controller: _pdfViewerController,
-        onDocumentLoaded: (details) {
-          debugPrint('PDF loaded successfully');
-        },
-        onDocumentLoadFailed: (details) {
-          debugPrint('PDF load failed');
-          debugPrint('Error: ${details.error}');
-          debugPrint('Description: ${details.description}');
-        },
+      body: PdfViewer.uri(
+        Uri.parse(pdfUrl),
+        params: const PdfViewerParams(
+          margin: 16,
+          backgroundColor: Colors.grey,
+        ),
       ),
     );
   }

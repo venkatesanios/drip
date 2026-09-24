@@ -50,37 +50,27 @@ class _ResetVerssionState extends State<ResetVerssion> {
 
   valAssing(List<dynamic> data) {
     mergedList = [];
-    for (var group in data) {
-      var userGroupId = group['userGroupId'];
-      var groupName = group['groupName'];
-      var active = group['active'];
-      var masterList = group['master'];
-
-      for (var device in masterList) {
-        mergedList.add({
-          'userGroupId': userGroupId,
-          'groupName': groupName,
-          'active': active,
-          'controllerId': device['controllerId'],
-          'deviceId': device['deviceId'],
-          'deviceName': device['deviceName'],
-          'categoryId': device['categoryId'],
-          'categoryName': device['categoryName'],
-          'modelId': device['modelId'],
-          'modelName': device['modelName'],
-          'loraFrequency': device['loraFrequency'],
-          'latestVersion': device['latestVersion'] ?? '',
-          'currentVersion': device['currentVersion'] ?? '',
-          'status': 'Status',
-        });
-      }
+    for (var device in data) {
+      mergedList.add({
+        'controllerId': device['controllerId'],
+        'deviceId': device['deviceId'],
+        'deviceName': device['deviceName'],
+        'categoryId': device['categoryId'],
+        'categoryName': device['categoryName'],
+        'modelId': device['modelId'],
+        'modelName': device['modelName'],
+        'loraFrequency': device['loraFrequency'],
+        'latestVersion': device['latestVersion'] ?? '',
+        'currentVersion': device['currentVersion'] ?? '',
+        'status': 'Status',
+      });
     }
   }
 
   Future<void> fetchData() async {
     try{
       final Repository repository = Repository(HttpService());
-      var response = await repository.getUserDeviceFirmwareDetails({"userId": widget.userId});
+      var response = await repository.getUserDeviceFirmwareDetails({"userId": widget.userId,"controllerId": widget.controllerId});
       if (response.statusCode == 200) {
         setState(() {
           AppLog.log("widget.userId:${widget.userId}");
@@ -106,7 +96,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    mqttPayloadProvider =
+     mqttPayloadProvider =
         Provider.of<MqttPayloadProvider>(context, listen: false);
     fetchData();
     checkrole().then((role) {
@@ -378,12 +368,12 @@ class _ResetVerssionState extends State<ResetVerssion> {
                         style:
                         const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
 
-                      const SizedBox(height: 10),
-                      Text(
-                        'SiteName:${mergedList[index]['groupName'] ?? ''}',
-                        style:
-                        const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                      ),
+                      // const SizedBox(height: 10),
+                      // Text(
+                      //   'SiteName:${mergedList[index]['groupName'] ?? ''}',
+                      //   style:
+                      //   const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                      // ),
 
                       const SizedBox(height: 10),
                       Text(

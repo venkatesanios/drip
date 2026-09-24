@@ -185,7 +185,7 @@ Widget _buildHelpMenu(
     CustomerScreenControllerViewModel vm,
     dynamic loggedInUser,
     dynamic viewedCustomer,
-    dynamic master) {
+    MasterControllerModel master) {
 
   final loggedUser = Provider.of<UserProvider>(context, listen: false).loggedInUser;
 
@@ -209,24 +209,30 @@ Widget _buildHelpMenu(
                 title: const Text('Help & support'),
                 onTap: () {
                   Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const UserManualScreen(
-                        pdfUrl: 'https://your-domain.com/uploads/manuals/user_manual.pdf',
-                      ),
-                    ),
-                  );
-                  /*Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => const DashboardHelpPage()),
-                  );*/
+
+                  if (master.userManualLink?.isNotEmpty == true) {
+                    final pdfUrl = AppConstants.buildUserManualUrl(master.userManualLink);
+
+                    if (pdfUrl.isNotEmpty) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => UserManualScreen(pdfUrl: pdfUrl),
+                        ),
+                      );
+                    }
+                  } else {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const DashboardHelpPage()),
+                    );
+                  }
+
                 },
               ),
-              (! loggedUser.configPermission/* && ![...AppConstants.ecoGemModelList,
-                ...AppConstants.shine2V, ...AppConstants.shine4V, ...AppConstants.elite10V]
-                  .contains(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId)*/)  ? ListTile(
+              (! loggedUser.configPermission  && ![...AppConstants.shine2V, ...AppConstants.shine4V, ...AppConstants.elite10V, ...AppConstants.pumpList]
+                  .contains(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId))  ? ListTile(
                 leading: const Icon(Icons.info_outline),
                 title: const Text('Controller info'),
                 onTap: () async {
