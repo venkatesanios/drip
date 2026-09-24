@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/Screens/Logs/sensor_graph_log.dart';
 import 'package:oro_drip_irrigation/modules/irrigation_report/view/motor_cyclic_log.dart';
 import 'package:oro_drip_irrigation/modules/irrigation_report/view/oms_log.dart';
 import 'package:oro_drip_irrigation/utils/constants.dart';
@@ -44,12 +45,9 @@ class _IrrigationAndPumpLogState extends State<IrrigationAndPumpLog> with Ticker
 
     if (AppConstants.ecoGemAndPlusModelList
         .contains(widget.masterData.modelId)) {
-
       // Motor + Zone
       length = 2;
-
     } else {
-
       // Irrigation + Standalone
       length = 2;
     }
@@ -59,13 +57,18 @@ class _IrrigationAndPumpLogState extends State<IrrigationAndPumpLog> with Ticker
         .contains(widget.masterData.modelId)
         ? pumpList.isNotEmpty
         : true) {
-
       length += 1;
     }
 
     if(AppConstants.omsGemList.contains(widget.masterData.modelId)){
       length = 1;
     }
+    
+    // Sensor Graph Log for Gem Model
+    if (AppConstants.gemModelList.contains(widget.masterData.modelId)) {
+      length += 1;
+    }
+    
     return length;
   }
 
@@ -131,6 +134,8 @@ class _IrrigationAndPumpLogState extends State<IrrigationAndPumpLog> with Ticker
                           ],
                         if(!AppConstants.ecoGemAndPlusModelList.contains(widget.masterData.modelId) ? pumpList.isNotEmpty : true)
                           const Tab(text: "Pump Log",),
+                        if(AppConstants.gemModelList.contains(widget.masterData.modelId))
+                          const Tab(text: "Sensor Graph Log",),
                       ]
                   ),
                   // SizedBox(height: 10,),
@@ -157,6 +162,10 @@ class _IrrigationAndPumpLogState extends State<IrrigationAndPumpLog> with Ticker
                                   userData: widget.userData,
                                 )
                               ],
+                            if(AppConstants.gemModelList.contains(widget.masterData.modelId))
+                              ...[
+                                const SensorGraphLog(),
+                              ]
                           ]
                       )
                   )
