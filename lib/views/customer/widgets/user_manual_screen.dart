@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 class UserManualScreen extends StatefulWidget {
   final String pdfUrl;
@@ -14,7 +13,7 @@ class UserManualScreen extends StatefulWidget {
 }
 
 class _UserManualScreenState extends State<UserManualScreen> {
-  final PdfViewerController _pdfViewerController = PdfViewerController();
+  // final PdfViewerController _pdfViewerController = PdfViewerController();
 
   @override
   Widget build(BuildContext context) {
@@ -22,18 +21,18 @@ class _UserManualScreenState extends State<UserManualScreen> {
       appBar: AppBar(
         title: const Text('User Manual'),
       ),
-      body: SfPdfViewer.network(
-        widget.pdfUrl,
-        controller: _pdfViewerController,
-        onDocumentLoaded: (details) {
-          debugPrint('PDF loaded successfully');
-        },
-        onDocumentLoadFailed: (details) {
-          debugPrint('PDF load failed');
-          debugPrint('Error: ${details.error}');
-          debugPrint('Description: ${details.description}');
-        },
-      ),
+      // body: SfPdfViewer.network(
+      //   widget.pdfUrl,
+      //   controller: _pdfViewerController,
+      //   onDocumentLoaded: (details) {
+      //     debugPrint('PDF loaded successfully');
+      //   },
+      //   onDocumentLoadFailed: (details) {
+      //     debugPrint('PDF load failed');
+      //     debugPrint('Error: ${details.error}');
+      //     debugPrint('Description: ${details.description}');
+      //   },
+      // ),
     );
   }
 }

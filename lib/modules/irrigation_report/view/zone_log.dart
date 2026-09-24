@@ -98,6 +98,7 @@ class _ZoneLogState extends State<ZoneLog> {
   String? _selectedProgramTitle;
   ScheduleItem? _selectedItem;
 
+  bool _isLoading = false;
   List<DailyTimelineData> _dailyTimelines = [];
   List<String> _programDropdownOptions = ['All Programs'];
 
@@ -109,6 +110,12 @@ class _ZoneLogState extends State<ZoneLog> {
   }
 
   Future<void> fetchZoneLogApi() async {
+    if (mounted) {
+      setState(() {
+        _isLoading = true;
+      });
+    }
+
     String fromDateStr = DateFormat('yyyy-MM-dd').format(_fromDate);
     String toDateStr = DateFormat('yyyy-MM-dd').format(_toDate);
 
@@ -145,10 +152,27 @@ class _ZoneLogState extends State<ZoneLog> {
       if (jsonData['code'] == 200 && jsonData['data'] != null) {
         debugPrint('ZONE LOG DATA FETCH SUCCESS: ${jsonData['data']}');
         _parseZoneApiResponse(jsonData['data']);
+      } else {
+        if (mounted) {
+          setState(() {
+            _dailyTimelines = [];
+          });
+        }
       }
     } catch (e, stackTrace) {
       debugPrint('Error in Zone Log API: ${e.toString()}');
       debugPrint('Stack trace: $stackTrace');
+      if (mounted) {
+        setState(() {
+          _dailyTimelines = [];
+        });
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -492,7 +516,7 @@ class _ZoneLogState extends State<ZoneLog> {
     // Sort dates chronologically so timeline always shows in correct order
     parsedDailyTimelines.sort((a, b) => a.date.compareTo(b.date));
 
-    if (parsedDailyTimelines.isNotEmpty) {
+    if (mounted) {
       setState(() {
         _dailyTimelines = parsedDailyTimelines;
         _programDropdownOptions = uniqueProgNames.toList();
@@ -586,7 +610,7 @@ class _ZoneLogState extends State<ZoneLog> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      // endDrawer: _buildRightSideDrawer(context),
+      endDrawer: _buildRightSideDrawer(context),
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
@@ -821,10 +845,24 @@ class _ZoneLogState extends State<ZoneLog> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 10),
-        if (_dailyTimelines.isEmpty)
+        if (_isLoading)
           const Padding(
-            padding: EdgeInsets.all(24.0),
+            padding: EdgeInsets.all(32.0),
             child: Center(child: CircularProgressIndicator()),
+          )
+        else if (_dailyTimelines.isEmpty)
+          const Padding(
+            padding: EdgeInsets.all(40.0),
+            child: Center(
+              child: Text(
+                "No data",
+                style: TextStyle(
+                  color: Color(0xFF64748B),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
           )
         else
           for (var daily in _dailyTimelines)
@@ -934,106 +972,106 @@ class _ZoneLogState extends State<ZoneLog> {
               ],
             ),
           ),
-          if (allItems.isNotEmpty)
-            Padding(
-              padding:
-                  const EdgeInsets.only(left: 12, right: 12, top: 8, bottom: 4),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 6),
-                      side: const BorderSide(color: Color(0xFFCBD5E1)),
-                      backgroundColor: Colors.white,
-                    ),
-                    onPressed: () async {
-                      final messenger = ScaffoldMessenger.of(context);
-                      if (allItems.isEmpty) {
-                        messenger.showSnackBar(
-                          const SnackBar(
-                              content: Text("No records available to export")),
-                        );
-                        return;
-                      }
-                      String sanitizeName =
-                          (_selectedProgramFilter != 'All Programs'
-                                  ? _selectedProgramFilter
-                                  : 'ZoneLog_${daily.dateHeader}')
-                              .replaceAll(RegExp(r'[^\w\s\-]'), '_');
-                      String fileName =
-                          "${sanitizeName}_${DateFormat('yyyyMMdd').format(DateTime.now())}";
-                      String? res =
-                          await exportZoneLogToCSV(allItems, fileName);
-                      if (res != null) {
-                        messenger.showSnackBar(
-                          SnackBar(
-                              content: Text("Excel Download Successful: $res")),
-                        );
-                      } else {
-                        messenger.showSnackBar(
-                          const SnackBar(
-                              content: Text("Failed to export Excel")),
-                        );
-                      }
-                    },
-                    icon: const Icon(Icons.download,
-                        size: 14, color: Color(0xFF1E88E5)),
-                    label: const Text("Excel",
-                        style: TextStyle(
-                            color: Color(0xFF1E88E5),
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold)),
-                  ),
-                  const SizedBox(width: 8),
-                  OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 6),
-                      side: const BorderSide(color: Color(0xFFCBD5E1)),
-                      backgroundColor: Colors.white,
-                    ),
-                    onPressed: () async {
-                      final messenger = ScaffoldMessenger.of(context);
-                      if (allItems.isEmpty) {
-                        messenger.showSnackBar(
-                          const SnackBar(
-                              content: Text("No records available to export")),
-                        );
-                        return;
-                      }
-                      String sanitizeName =
-                          (_selectedProgramFilter != 'All Programs'
-                                  ? _selectedProgramFilter
-                                  : 'ZoneLog_${daily.dateHeader}')
-                              .replaceAll(RegExp(r'[^\w\s\-]'), '_');
-                      String fileName =
-                          "${sanitizeName}_${DateFormat('yyyyMMdd').format(DateTime.now())}";
-                      String? res =
-                          await exportZoneLogToPDF(allItems, fileName);
-                      if (res != null) {
-                        messenger.showSnackBar(
-                          SnackBar(
-                              content: Text("PDF Download Successful: $res")),
-                        );
-                      } else {
-                        messenger.showSnackBar(
-                          const SnackBar(content: Text("Failed to export PDF")),
-                        );
-                      }
-                    },
-                    icon: const Icon(Icons.picture_as_pdf,
-                        size: 14, color: Color(0xFFD32F2F)),
-                    label: const Text("PDF",
-                        style: TextStyle(
-                            color: Color(0xFFD32F2F),
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold)),
-                  ),
-                ],
-              ),
-            ),
+          // if (allItems.isNotEmpty)
+          //   Padding(
+          //     padding:
+          //         const EdgeInsets.only(left: 12, right: 12, top: 8, bottom: 4),
+          //     child: Row(
+          //       mainAxisAlignment: MainAxisAlignment.end,
+          //       children: [
+          //         OutlinedButton.icon(
+          //           style: OutlinedButton.styleFrom(
+          //             padding: const EdgeInsets.symmetric(
+          //                 horizontal: 10, vertical: 6),
+          //             side: const BorderSide(color: Color(0xFFCBD5E1)),
+          //             backgroundColor: Colors.white,
+          //           ),
+          //           onPressed: () async {
+          //             final messenger = ScaffoldMessenger.of(context);
+          //             if (allItems.isEmpty) {
+          //               messenger.showSnackBar(
+          //                 const SnackBar(
+          //                     content: Text("No records available to export")),
+          //               );
+          //               return;
+          //             }
+          //             String sanitizeName =
+          //                 (_selectedProgramFilter != 'All Programs'
+          //                         ? _selectedProgramFilter
+          //                         : 'ZoneLog_${daily.dateHeader}')
+          //                     .replaceAll(RegExp(r'[^\w\s\-]'), '_');
+          //             String fileName =
+          //                 "${sanitizeName}_${DateFormat('yyyyMMdd').format(DateTime.now())}";
+          //             String? res =
+          //                 await exportZoneLogToCSV(allItems, fileName);
+          //             if (res != null) {
+          //               messenger.showSnackBar(
+          //                 SnackBar(
+          //                     content: Text("Excel Download Successful: $res")),
+          //               );
+          //             } else {
+          //               messenger.showSnackBar(
+          //                 const SnackBar(
+          //                     content: Text("Failed to export Excel")),
+          //               );
+          //             }
+          //           },
+          //           icon: const Icon(Icons.download,
+          //               size: 14, color: Color(0xFF1E88E5)),
+          //           label: const Text("Excel",
+          //               style: TextStyle(
+          //                   color: Color(0xFF1E88E5),
+          //                   fontSize: 11,
+          //                   fontWeight: FontWeight.bold)),
+          //         ),
+          //         const SizedBox(width: 8),
+          //         OutlinedButton.icon(
+          //           style: OutlinedButton.styleFrom(
+          //             padding: const EdgeInsets.symmetric(
+          //                 horizontal: 10, vertical: 6),
+          //             side: const BorderSide(color: Color(0xFFCBD5E1)),
+          //             backgroundColor: Colors.white,
+          //           ),
+          //           onPressed: () async {
+          //             final messenger = ScaffoldMessenger.of(context);
+          //             if (allItems.isEmpty) {
+          //               messenger.showSnackBar(
+          //                 const SnackBar(
+          //                     content: Text("No records available to export")),
+          //               );
+          //               return;
+          //             }
+          //             String sanitizeName =
+          //                 (_selectedProgramFilter != 'All Programs'
+          //                         ? _selectedProgramFilter
+          //                         : 'ZoneLog_${daily.dateHeader}')
+          //                     .replaceAll(RegExp(r'[^\w\s\-]'), '_');
+          //             String fileName =
+          //                 "${sanitizeName}_${DateFormat('yyyyMMdd').format(DateTime.now())}";
+          //             String? res =
+          //                 await exportZoneLogToPDF(allItems, fileName);
+          //             if (res != null) {
+          //               messenger.showSnackBar(
+          //                 SnackBar(
+          //                     content: Text("PDF Download Successful: $res")),
+          //               );
+          //             } else {
+          //               messenger.showSnackBar(
+          //                 const SnackBar(content: Text("Failed to export PDF")),
+          //               );
+          //             }
+          //           },
+          //           icon: const Icon(Icons.picture_as_pdf,
+          //               size: 14, color: Color(0xFFD32F2F)),
+          //           label: const Text("PDF",
+          //               style: TextStyle(
+          //                   color: Color(0xFFD32F2F),
+          //                   fontSize: 11,
+          //                   fontWeight: FontWeight.bold)),
+          //         ),
+          //       ],
+          //     ),
+          //   ),
           if (activePrograms.isEmpty)
             const Padding(
               padding: EdgeInsets.all(24.0),
