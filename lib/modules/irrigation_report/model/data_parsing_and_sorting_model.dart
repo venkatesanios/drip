@@ -2949,10 +2949,10 @@ GraphData getGraphData({required method, required planned, required actualDurati
   var plannedInLiters = finalMethod == 1 ? (plannedSeconds * flowRateForPerSec) : planned;
   var actualInLiters =  finalMethod == 1 ? (actualSeconds * flowRateForPerSec) : actualLiters;
   if(plannedInLiters is String){
-    plannedInLiters = int.parse(plannedInLiters);
+    plannedInLiters = double.parse(plannedInLiters).toInt();
   }
   if(actualInLiters is String){
-    actualInLiters = int.parse(actualInLiters);
+    actualInLiters = double.parse(actualInLiters).toInt();
   }
   dynamic preFrom = 0;
   dynamic preTo = 0;

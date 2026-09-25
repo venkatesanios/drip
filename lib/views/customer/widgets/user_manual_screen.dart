@@ -1,7 +1,5 @@
-
 import 'package:flutter/material.dart';
 import 'package:pdfrx/pdfrx.dart';
-
 
 class UserManualScreen extends StatelessWidget {
   const UserManualScreen({super.key, required this.pdfUrl});
