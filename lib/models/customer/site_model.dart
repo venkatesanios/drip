@@ -213,6 +213,8 @@ class MasterControllerModel {
     final moistureSensorRaw = config['moistureSensor'] as List? ?? [];
     final valveRaw = config['valve'] as List? ?? [];
 
+    final pumpRaw = (config['pump'] as List?) ?? [];
+
     List<ConfigObject> configObjectsR = json["config"] != null &&
         json["config"] is Map<String, dynamic> &&
         json["config"]['configObject'] != null
@@ -226,7 +228,7 @@ class MasterControllerModel {
         .toList();
 
     List<WaterSourceModel> waterSources = waterSourcesRaw
-        .map((item) => WaterSourceModel.fromJson(item, configObjects))
+        .map((item) => WaterSourceModel.fromJson(item, configObjects, pumpRaw))
         .toList();
     WaterSourceModel.assignFloatSwitchesToWaterSources(waterSources, config, configObjects);
 
@@ -363,22 +365,40 @@ class WaterSourceModel {
     required this.floatSwitches,
   });
 
-  factory WaterSourceModel.fromJson(Map<String, dynamic> json, List<ConfigObject> configObjects) {
+  factory WaterSourceModel.fromJson(Map<String, dynamic> json,
+      List<ConfigObject> configObjects, List<dynamic> pumpRaw,) {
+
+    final pumpRawBySNo = <double, Map<String, dynamic>>{
+      for (var raw in pumpRaw)
+        if (raw is Map && raw['sNo'] != null)
+          (raw['sNo'] as num).toDouble(): raw as Map<String, dynamic>
+    };
 
     final inletPumps = ((json['inletPump'] as List?) ?? []).map((e) => e).toSet();
+
     final iPumps = configObjects.where((obj) => inletPumps.contains(obj.sNo))
-        .map(PumpModel.fromConfigObject)
+        .map((obj) => PumpModel.fromConfigObject(obj, configObjects, pumpRawBySNo[obj.sNo]))
         .toList();
+
+    /*final iPumps = configObjects.where((obj) => inletPumps.contains(obj.sNo))
+        .map(PumpModel.fromConfigObject)
+        .toList();*/
 
     final outletPumps = ((json['outletPump'] as List?) ?? []).map((e) => e).toSet();
     final oPumps = configObjects.where((obj) => outletPumps.contains(obj.sNo))
-        .map(PumpModel.fromConfigObject)
+        .map((obj) => PumpModel.fromConfigObject(obj, configObjects, pumpRawBySNo[obj.sNo]))
         .toList();
+    /*final oPumps = configObjects.where((obj) => outletPumps.contains(obj.sNo))
+        .map(PumpModel.fromConfigObject)
+        .toList();*/
 
     final aeratorPumps = ((json['aerator'] as List?) ?? []).map((e) => e).toSet();
     final aPumps = configObjects.where((obj) => aeratorPumps.contains(obj.sNo))
-        .map(PumpModel.fromConfigObject)
+        .map((obj) => PumpModel.fromConfigObject(obj, configObjects, pumpRawBySNo[obj.sNo]))
         .toList();
+    /*final aPumps = configObjects.where((obj) => aeratorPumps.contains(obj.sNo))
+        .map(PumpModel.fromConfigObject, )
+        .toList();*/
 
     final levelSNoSet = (json['level'] is List)
         ? (json['level'] as List).map((e) => (e as num).toDouble()).toSet()
@@ -991,9 +1011,12 @@ class PumpModel {
   String actualValue;
   String phase;
 
+  final List<SensorModel> waterMeter;
+
   PumpModel({
     required this.sNo,
     required this.name,
+    required this.waterMeter,
     this.status=0,
     this.selected=false,
     this.onDelayLeft='00:00:00',
@@ -1005,14 +1028,42 @@ class PumpModel {
     this.phase='0',
   });
 
-  factory PumpModel.fromConfigObject(ConfigObject obj) {
+  factory PumpModel.fromConfigObject(
+      ConfigObject obj,
+      List<ConfigObject> allConfigObjects,
+      Map<String, dynamic>? pumpRaw, // this pump's entry from config['pump']
+      ) {
+    List<SensorModel> waterMeter = [];
+
+    final waterMeterSNo = (pumpRaw?['waterMeter'] as num?)?.toDouble() ?? 0;
+
+    if (waterMeterSNo != 0) {
+      final match = allConfigObjects.firstWhere(
+            (c) => c.sNo == waterMeterSNo,
+        orElse: () => ConfigObject.empty(),
+      );
+      if (match.sNo != 0) {
+        waterMeter = [SensorModel.fromConfigObject(match)];
+      }
+    }
+
     return PumpModel(
       sNo: obj.sNo,
       name: obj.name,
+      waterMeter: waterMeter,
     );
   }
-
 }
+
+  /*factory PumpModel.fromConfigObject(ConfigObject obj) {
+
+    return PumpModel(
+      sNo: obj.sNo,
+      name: obj.name,
+      waterMeter: waterMeter,
+    );
+  }
+}*/
 
 class FilterSiteModel {
   final double sNo;
