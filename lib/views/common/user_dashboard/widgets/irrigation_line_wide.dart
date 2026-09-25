@@ -195,7 +195,94 @@ class IrrigationLineWide extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildWaterSource(BuildContext context, List<WaterSourceModel> waterSources,
+  List<Widget> _buildWaterSource(
+      BuildContext context,
+      List<WaterSourceModel> waterSources,
+      bool isAvailInlet,
+      bool isInlet,
+      bool isAvailFertilizer,
+      ) {
+    final List<Widget> gridItems = [];
+
+    for (int index = 0; index < waterSources.length; index++) {
+      final source = waterSources[index];
+
+      // --------------------------------------------------
+      // WATER SOURCE
+      // --------------------------------------------------
+      gridItems.add(
+        Padding(
+          padding: EdgeInsets.only(
+            top: isAvailFertilizer ? 38.5 : 8,
+          ),
+          child: SourceColumnWidget(
+            source: source,
+            isInletSource: isInlet,
+            isAvailInlet: isAvailInlet,
+            index: index,
+            total: waterSources.length,
+            popoverUpdateNotifier: popoverUpdateNotifier,
+            deviceId: deviceId,
+            customerId: customerId,
+            controllerId: controllerId,
+            modelId: modelId,
+            isMobile: false,
+            isAvailFrtSite:
+            (cFertilizerSite.isNotEmpty || lFertilizerSite.isNotEmpty),
+          ),
+        ),
+      );
+
+      // --------------------------------------------------
+      // PUMP + WATER METER
+      // --------------------------------------------------
+      for (final pump in source.outletPump) {
+        gridItems.add(
+          Padding(
+            padding: EdgeInsets.only(
+              top: isAvailFertilizer ? 38.5 : 8,
+            ),
+            child: PumpWidget(
+              pump: pump,
+              isSourcePump: isInlet,
+              deviceId: deviceId,
+              customerId: customerId,
+              controllerId: controllerId,
+              isMobile: false,
+              modelId: modelId,
+              pumpPosition: 'First',
+              isNova: false,
+              isAvailFrtSite:
+              (cFertilizerSite.isNotEmpty || lFertilizerSite.isNotEmpty),
+            ),
+          ),
+        );
+
+        // Water Meter — only if this pump actually has one
+        if (pump.waterMeter.isNotEmpty) {
+          gridItems.add(
+            Padding(
+              padding: EdgeInsets.only(
+                top: isAvailFertilizer ? 30.5 : 8,
+              ),
+              child: SensorWidget(
+                sensor: pump.waterMeter.first,
+                sensorType: 'Water Meter',
+                imagePath: 'assets/png/water_meter_wj.png',
+                customerId: customerId,
+                controllerId: controllerId,
+              ),
+            ),
+          );
+        }
+      }
+
+    }
+
+    return gridItems;
+  }
+
+ /* List<Widget> _buildWaterSource(BuildContext context, List<WaterSourceModel> waterSources,
       bool isAvailInlet, bool isInlet, bool isAvailFertilizer) {
 
     final List<Widget> gridItems = [];
@@ -235,7 +322,7 @@ class IrrigationLineWide extends StatelessWidget {
       )));
     }
     return gridItems;
-  }
+  }*/
 
   List<Widget> _buildSensorItems(List<SensorModel> sensors, String type, String imagePath) {
     return sensors.map((sensor) {
