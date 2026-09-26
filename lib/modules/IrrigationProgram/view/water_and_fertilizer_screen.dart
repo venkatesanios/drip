@@ -1310,27 +1310,63 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                                             ),
                                           ),
                                           SizedBox(
-                                            width: 100,
+                                            width: 140,
                                             height: 40,
                                             child: Center(
-                                                child: DropdownButton(
-                                                  isExpanded: true,
-                                                  dropdownColor: Colors.white,
-                                                  value: programPvd.sequenceData[programPvd.selectedGroup][programPvd.segmentedControlCentralLocal == 0 ? 'centralDosing' : 'localDosing'][0]['fertilizer'][index]['method'],
-                                                  underline: Container(),
-                                                  items: [
-                                                    'Time',
-                                                    'Quantity'
-                                                  ].map((String items) {
-                                                    return DropdownMenuItem(
-                                                      value: items,
-                                                      child: Text(items,style: const TextStyle(fontSize: 12,color: Colors.black),),
-                                                    );
-                                                  }).toList(),
-                                                  onChanged: (value) {
-                                                    programPvd.editParticularChannelDetails('method', programPvd.segmentedControlCentralLocal == 0 ? 'centralDosing' : 'localDosing', value,index);
-                                                  },
-                                                )
+                                              child: DropdownButton<dynamic>(
+                                                isExpanded: true,
+                                                dropdownColor: Colors.white,
+
+                                                value: (
+                                                    programPvd.sequenceData[programPvd.selectedGroup]
+                                                    [programPvd.segmentedControlCentralLocal == 0
+                                                        ? 'centralDosing'
+                                                        : 'localDosing'][0]
+                                                    ['fertilizer'][index]['source'] as List?
+                                                )?.isNotEmpty == true
+                                                    ? programPvd.sequenceData[programPvd.selectedGroup]
+                                                [programPvd.segmentedControlCentralLocal == 0
+                                                    ? 'centralDosing'
+                                                    : 'localDosing'][0]
+                                                ['fertilizer'][index]['source'][0]
+                                                    : null,
+
+                                                underline: Container(),
+
+                                                hint: const Text(
+                                                  'Select Tank',
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: Colors.black,
+                                                  ),
+                                                ),
+
+                                                items: (programPvd.tank ?? []).map((tankItem) {
+                                                  return DropdownMenuItem<dynamic>(
+                                                    value: tankItem.tank.sNo,
+                                                    child: Text(
+                                                      tankItem.tank.name ?? '',
+                                                      overflow: TextOverflow.ellipsis,
+                                                      style: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: Colors.black,
+                                                      ),
+                                                    ),
+                                                  );
+                                                }).toList(),
+
+                                                onChanged: (value) {
+                                                  programPvd.editParticularChannelDetails(
+                                                    'source',
+                                                    programPvd.segmentedControlCentralLocal == 0
+                                                        ? 'centralDosing'
+                                                        : 'localDosing',
+                                                    value,
+                                                    index,
+                                                  );
+                                                  print('value : $value');
+                                                },
+                                              ),
                                             ),
                                           ),
                                         ],

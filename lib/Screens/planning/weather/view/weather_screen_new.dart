@@ -1,9 +1,7 @@
 import 'dart:convert';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../../../../StateManagement/customer_provider.dart';
 import '../../../../repository/repository.dart';
 import '../../../../services/http_service.dart';
@@ -13,12 +11,13 @@ import '../../../../utils/formatters.dart';
 import '../../../../views/common/widgets/build_loading_indicator.dart';
 import '../model/weather_model.dart';
 import '../view_model/weather_view_model.dart';
-import '../weather_report_page.dart';
+import '../weather_report_monthly.dart';
 import '../widgets/info_box.dart';
 import '../widgets/sensor_chip.dart';
 import '../widgets/sun_time_card.dart';
 import '../widgets/time_of_day_icon_new.dart';
 import 'package:oro_drip_irrigation/utils/helpers/log_print.dart';
+import 'dart:async';
 
 Color sensorStatusColor(int code) {
   if (code == 255) return Colors.green.shade700;
@@ -55,11 +54,31 @@ class _WeatherScreenNewState extends State<WeatherScreenNew>
     with TickerProviderStateMixin {
   TabController? _tabController;
   final MqttService manager = MqttService();
+  Timer? _autoRefreshTimer;
 
   @override
   void dispose() {
     _tabController?.dispose();
+    _autoRefreshTimer?.cancel();
     super.dispose();
+  }
+  @override
+  void initState() {
+    super.initState();
+    // _startAutoRefresh();
+  }
+
+  void _startAutoRefresh() {
+    _autoRefreshTimer?.cancel();
+    _autoRefreshTimer = Timer.periodic(const Duration(minutes: 1), (timer) {
+      if (mounted) {
+        Request();
+        Provider.of<WeatherViewModel>(context, listen: false).fetchWeatherData(
+          widget.customerId,
+          widget.controllerId,
+        );
+      }
+    });
   }
 
   Request() {
@@ -358,6 +377,16 @@ class _LineTabViewState extends State<_LineTabView> {
                           AppLog.log('device ->${station.device.controllerId}');
                           AppLog.log('deviceID ->${station}');
                            // AppLog.log('userId ->${widget.userId} customerId ->${widget.customerId}');
+                          // Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(
+                          //     builder: (_) => SensorHourlyReportPage(
+                          //       deviceSrNo: '${station.device.serialNumber}',
+                          //       sensorSrNo: s.sNo.toString(), sensorName: s.name, userId: '${widget.customerId}', controllerId: "${widget.userId}" ,unit:unit(s.name),
+                          //     ),
+                          //   ),
+                          // );
+
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -367,6 +396,8 @@ class _LineTabViewState extends State<_LineTabView> {
                               ),
                             ),
                           );
+
+
                         },
                         child: SensorChip(
                           sensor: s,

@@ -1,11 +1,8 @@
-
-
+import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-
 import '../../../../services/mqtt_service.dart';
 import '../../../../utils/environment.dart';
 import '../weather_report_page.dart';
@@ -34,8 +31,27 @@ class WeatherGsm extends StatefulWidget {
 
 class _WeatherGsmState extends State<WeatherGsm> {
   final MqttService manager = MqttService();
+  Timer? _autoRefreshTimer;
 
+  @override
+  void initState() {
+    super.initState();
+    _startAutoRefresh();
+  }
+  @override
+  void dispose() {
+     _autoRefreshTimer?.cancel();
+    super.dispose();
+  }
+  void _startAutoRefresh() {
+    _autoRefreshTimer?.cancel();
+    _autoRefreshTimer = Timer.periodic(const Duration(minutes: 1), (timer) {
+      if (mounted) {
+        Request();
 
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
