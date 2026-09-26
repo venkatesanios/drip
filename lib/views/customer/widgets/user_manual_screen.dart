@@ -1,38 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:pdfrx/pdfrx.dart';
 
-class UserManualScreen extends StatefulWidget {
-  final String pdfUrl;
-
-  const UserManualScreen({
-    super.key,
-    required this.pdfUrl,
-  });
-
-  @override
-  State<UserManualScreen> createState() => _UserManualScreenState();
-}
-
-class _UserManualScreenState extends State<UserManualScreen> {
-  // final PdfViewerController _pdfViewerController = PdfViewerController();
+class UserManualScreen extends StatelessWidget {
+  const UserManualScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('User Manual'),
+        title: const Text('flutter_cached_pdfview Demo'),
       ),
-      // body: SfPdfViewer.network(
-      //   widget.pdfUrl,
-      //   controller: _pdfViewerController,
-      //   onDocumentLoaded: (details) {
-      //     debugPrint('PDF loaded successfully');
-      //   },
-      //   onDocumentLoadFailed: (details) {
-      //     debugPrint('PDF load failed');
-      //     debugPrint('Error: ${details.error}');
-      //     debugPrint('Description: ${details.description}');
-      //   },
-      // ),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: PdfViewer.uri(
+          Uri.parse('https://smartcomm-wms.com:5000/userManual/nova.pdf'),
+        ),
+      ),
     );
   }
 }

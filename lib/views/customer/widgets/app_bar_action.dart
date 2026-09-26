@@ -209,24 +209,29 @@ Widget _buildHelpMenu(
                 title: const Text('Help & support'),
                 onTap: () {
                   Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const UserManualScreen(
-                        pdfUrl: 'https://your-domain.com/uploads/manuals/user_manual.pdf',
+
+                  if([...AppConstants.ecoGemModelList].contains(master.modelId)) {
+
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const UserManualScreen(
+                          //pdfUrl: 'https://smartcomm-wms.com:5000/userManual/shine.pdf',
+                        ),
                       ),
-                    ),
-                  );
-                  /*Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => const DashboardHelpPage()),
-                  );*/
+                    );
+                  }else{
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const DashboardHelpPage()),
+                    );
+                  }
+
                 },
               ),
-              (! loggedUser.configPermission/* && ![...AppConstants.ecoGemModelList,
-                ...AppConstants.shine2V, ...AppConstants.shine4V, ...AppConstants.elite10V]
-                  .contains(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId)*/)  ? ListTile(
+              (! loggedUser.configPermission  && ![...AppConstants.shine2V, ...AppConstants.shine4V, ...AppConstants.elite10V, ...AppConstants.pumpList]
+                  .contains(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId))  ? ListTile(
                 leading: const Icon(Icons.info_outline),
                 title: const Text('Controller info'),
                 onTap: () async {
