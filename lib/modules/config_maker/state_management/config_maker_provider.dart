@@ -1892,4 +1892,56 @@ class ConfigMakerProvider extends ChangeNotifier{
     }
     return listOfWeatherPayload;
   }
+
+  bool get isAllProductLimitCountEmpty {
+    if (listOfSampleObjectModel.isEmpty) return true;
+    return listOfSampleObjectModel.every(
+      (object) => object.count == null || object.count == '' || object.count == '0',
+    );
+  }
+
+  String? validateGemConfiguration() {
+    if (isAllProductLimitCountEmpty) {
+      return 'At least one object count must be provided in Product Limit.';
+    }
+
+    if (!AppConstants.gemModelList.contains(masterData['modelId'])) {
+      return null;
+    }
+
+    // 1) In device list, at least one node is connected to the gem
+    bool hasConnectedNode = listOfDeviceModel.any((node) => node.masterId != null && node.controllerId != masterData['controllerId']);
+    if (!hasConnectedNode) {
+      return 'In device list, at least one node must be connected to the Gem.';
+    }
+
+    // 2) If any irrigation line model has all parameters empty
+    for (var lineModel in line) {
+      if (lineModel.isLineModelParameterIsEmpty()) {
+        String lineName = lineModel.commonDetails.name ?? lineModel.commonDetails.objectName;
+        return "Line '$lineName' is not configured yet.";
+      }
+    }
+
+    // 3) If there are any filter site and fertilizer site, the site needs to be assigned to at least one irrigation line
+    for (var filterSite in filtration) {
+      bool isAssigned = line.any((irrigationLine) =>
+        [irrigationLine.centralFiltration, irrigationLine.localFiltration].contains(filterSite.commonDetails.sNo));
+      if (!isAssigned) {
+        String siteName = filterSite.commonDetails.name ?? filterSite.commonDetails.objectName;
+        return "Filter site '$siteName' is not configured to any irrigation line. If it is not needed, please delete it.";
+      }
+    }
+
+    for (var fertilizerSite in fertilization) {
+      bool isAssigned = line.any((irrigationLine) =>
+        [irrigationLine.centralFertilization, irrigationLine.localFertilization].contains(fertilizerSite.commonDetails.sNo));
+      if (!isAssigned) {
+        String siteName = fertilizerSite.commonDetails.name ?? fertilizerSite.commonDetails.objectName;
+        return "Fertilizer site '$siteName' is not configured to any irrigation line. If it is not needed, please delete it.";
+      }
+    }
+
+    return null;
+  }
 }

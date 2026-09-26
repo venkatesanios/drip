@@ -6,6 +6,8 @@ class AppConstants {
   static String apiUrl = Environment.apiUrl;
   static const int timeoutDuration = 30;
   static String mqttUrlMobile = Environment.mqttMobileUrl;
+  static String userManualBaseUrl = Environment.userManualBaseUrl;
+
 
   static String mqttUrl = Environment.mqttWebUrl;
   static int mqttWebPort = Environment.mqttWebPort;
@@ -40,6 +42,9 @@ class AppConstants {
 
   static const String boreWellFirst = "dp_bore_well_first.png";
   static const String boreWellCenter = "dp_bore_well_center.png";
+
+  static const String tankFirst = "dp_tank_first.png";
+  static const String tankCenter = "dp_tank_center.png";
 
   static const String mobileBoreWellFirst = "m_bore_well_first.png";
   static const String mobileBoreWellCenter= "m_bore_well_center.png";
@@ -359,11 +364,11 @@ class AppConstants {
   static String _getSourceImagePath(int type, String position) {
     switch (position) {
       case 'First':
-        return type==4 ? boreWellFirst : type==3 ? wellFirst : sumpFirst;
+        return type==4 ? boreWellFirst : type==3 ? wellFirst : type==1 ? tankFirst : sumpFirst;
       case 'Center':
-        return type==4 ? boreWellCenter : type==3 ? wellCenter : sumpCenter;
+        return type==4 ? boreWellCenter : type==3 ? wellCenter : type==1 ? tankCenter : sumpCenter;
       case 'Last':
-        return type==3 ? wellLast : sumpLast;
+        return type==4 ? boreWellCenter : type==3 ? wellLast :  type==1 ? tankCenter : sumpLast;
       case 'After Valve':
         return sumpFirstCWS;
       default:
@@ -378,7 +383,7 @@ class AppConstants {
       case 'Center':
         return type==4 ? mobileBoreWellCenter : type==3 ? mobileWellCenter : mobileSumpCenter;
       case 'Last':
-        return type==3 ? mobileWellCenter : mobileSumpCenter;
+        return type==4 ? mobileBoreWellCenter : type==3 ? mobileWellCenter : mobileSumpCenter;
       case 'After Valve':
         return sumpFirstCWS;
       default:
@@ -837,6 +842,13 @@ class AppConstants {
     }else{
       return sNo;
     }
+  }
+
+  static String buildUserManualUrl(String? link) {
+    if (link == null || link.isEmpty) return '';
+    if (link.startsWith('http')) return link;
+    if (userManualBaseUrl.isEmpty) return link;
+    return '$userManualBaseUrl/${link.replaceFirst(RegExp(r'^/+'), '')}';
   }
 
   static Color outputColor = const Color(0xff14AE5C);

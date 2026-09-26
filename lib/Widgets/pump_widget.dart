@@ -47,8 +47,6 @@ class PumpWidget extends StatelessWidget {
         final status = data.item1;
         final other = data.item2;
 
-        print('other:$other');
-
         final statusParts = status?.split(',') ?? [];
         if (statusParts.length > 1) {
           pump.status = int.tryParse(statusParts[1]) ?? 0;
@@ -56,7 +54,6 @@ class PumpWidget extends StatelessWidget {
 
         final otherParts = other?.split(',') ?? [];
         if (otherParts.length >= 8) {
-          print('otherParts[7]:${otherParts[7]}');
           pump.reason = otherParts[1];
           pump.setValue = otherParts[2];
           pump.actualValue = otherParts[3];
@@ -149,36 +146,6 @@ class PumpWidget extends StatelessWidget {
                 ],
               ),
             ),
-
-            /*if (pump.onDelayLeft != '00:00:00' && Formatters().isValidTimeFormat(pump.onDelayLeft))
-              Positioned(
-                top: isMobile? 20:40,
-                left: 7.5,
-                child: Container(
-                  width: 55,
-                  decoration: BoxDecoration(
-                    color: Colors.greenAccent,
-                    borderRadius: const BorderRadius.all(Radius.circular(2)),
-                    border: Border.all(color: Colors.green, width: 0.5),
-                  ),
-                  child: ChangeNotifierProvider(
-                    create: (_) => DecreaseDurationNotifier(pump.onDelayLeft),
-                    child: Consumer<DecreaseDurationNotifier>(
-                      builder: (context, notifier, _) {
-                        return Center(
-                          child: Column(
-                            children: [
-                              const Text("On delay", style: TextStyle(fontSize: 10, color: Colors.black)),
-                              const Divider(height: 0, color: Colors.grey),
-                              Text(notifier.onDelayLeft, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 10)),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-              ),*/
 
             if (pump.onDelayLeft != '00:00:00' && Formatters().isValidTimeFormat(pump.onDelayLeft))
               Positioned(

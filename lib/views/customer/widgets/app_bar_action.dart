@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/modules/Preferences/view/preference_main_screen.dart';
+import 'package:oro_drip_irrigation/views/customer/widgets/user_manual_screen.dart';
 import 'package:provider/provider.dart';
 
 import '../../../Screens/Dealer/controllerverssionupdate.dart';
@@ -184,7 +185,7 @@ Widget _buildHelpMenu(
     CustomerScreenControllerViewModel vm,
     dynamic loggedInUser,
     dynamic viewedCustomer,
-    dynamic master) {
+    MasterControllerModel master) {
 
   final loggedUser = Provider.of<UserProvider>(context, listen: false).loggedInUser;
 
@@ -208,16 +209,30 @@ Widget _buildHelpMenu(
                 title: const Text('Help & support'),
                 onTap: () {
                   Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => const DashboardHelpPage()),
-                  );
+
+                  if (master.userManualLink?.isNotEmpty == true) {
+                    final pdfUrl = AppConstants.buildUserManualUrl(master.userManualLink);
+
+                    if (pdfUrl.isNotEmpty) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => UserManualScreen(pdfUrl: pdfUrl),
+                        ),
+                      );
+                    }
+                  } else {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const DashboardHelpPage()),
+                    );
+                  }
+
                 },
               ),
-              (! loggedUser.configPermission/* && ![...AppConstants.ecoGemModelList,
-                ...AppConstants.shine2V, ...AppConstants.shine4V, ...AppConstants.elite10V]
-                  .contains(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId)*/)  ? ListTile(
+              (! loggedUser.configPermission  && ![...AppConstants.shine2V, ...AppConstants.shine4V, ...AppConstants.elite10V, ...AppConstants.pumpList]
+                  .contains(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId))  ? ListTile(
                 leading: const Icon(Icons.info_outline),
                 title: const Text('Controller info'),
                 onTap: () async {
@@ -286,7 +301,7 @@ Widget _buildHelpMenu(
                     }
 
                 },
-              ) : SizedBox(),
+              ) : const SizedBox(),
               const Divider(height: 0),
               ListTile(
                 leading: const Icon(Icons.feedback_outlined),
