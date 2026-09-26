@@ -1,8 +1,17 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+import '../../services/http_service.dart';
 
 class SensorGraphLog extends StatefulWidget {
-  const SensorGraphLog({super.key});
+  final int userId;
+  final int controllerId;
+
+  const SensorGraphLog({
+    super.key,
+    required this.userId,
+    required this.controllerId,
+  });
 
   @override
   State<SensorGraphLog> createState() => _SensorGraphLogState();
@@ -12,7 +21,6 @@ enum GraphType { area, line, bar }
 
 class SensorDataInfo {
   final String name;
-  final String category;
   final String unit;
   final IconData icon;
   final List<List<ChartData>> multiData;
@@ -22,12 +30,8 @@ class SensorDataInfo {
   final List<double> phaseMinValues;
   final List<double> phaseLastActiveValues;
 
-  final String overallStatus;
-  final Color statusColor;
-
   SensorDataInfo({
     required this.name,
-    required this.category,
     required this.unit,
     required this.icon,
     required this.multiData,
@@ -36,8 +40,6 @@ class SensorDataInfo {
     required this.phaseMaxValues,
     required this.phaseMinValues,
     required this.phaseLastActiveValues,
-    required this.overallStatus,
-    required this.statusColor,
   });
 }
 
@@ -66,82 +68,115 @@ class _SensorGraphLogState extends State<SensorGraphLog> with SingleTickerProvid
     Color(0xFFE3F2FD), // Light Blue tint
   ];
 
+  DateTime _fromDate = DateTime.now();
+  DateTime _toDate = DateTime.now();
+  bool _isLoading = true;
+  String? _errorMessage;
+
   @override
   void initState() {
     super.initState();
-    _loadSampleData();
+    _fetchData();
   }
 
-  void _loadSampleData() {
-    // 1. Mock Config Data properly structured based on the real API JSON
-    final Map<String, dynamic> configJson = {
-      "data": {
-        "configObject": [
-          { "sNo": 5.002, "name": "Pump 2", "objectName": "Pump" },
-          { "sNo": 25.001, "name": "Moisture Sensor 1", "objectName": "Moisture Sensor" },
-          { "sNo": 30.001, "name": "Soil Temperature Sensor 1", "objectName": "Soil Temperature Sensor" },
-          { "sNo": 26.001, "name": "Level Sensor 1", "objectName": "Level Sensor" },
-          { "sNo": 24.001, "name": "Pressure Sensor 1", "objectName": "Pressure Sensor" },
-          { "sNo": 27.001, "name": "EC Sensor 1", "objectName": "EC Sensor" },
-          { "sNo": 28.001, "name": "PH Sensor 1", "objectName": "PH Sensor" },
-        ]
-      }
-    };
+  String _apiDate(DateTime date) {
+    final yyyy = date.year;
+    final mm = date.month.toString().padLeft(2, '0');
+    final dd = date.day.toString().padLeft(2, '0');
+    return '$yyyy-$mm-$dd';
+  }
 
-    // 2. Mock Log Data mimicking the exact structure for these sensors
-    final Map<String, dynamic> logJson = {
-      "data": {
-        "log": [
-          {
-            "irrigation": {
-              "396": {
-                // Pump Voltage (3-phase)
-                "5.002_-1": [
-                  "08:15:00,220_218_222", "09:15:00,225_220_223",
-                  "10:15:00,230_225_228", "11:15:51,230_228_232"
-                ],
-                // Pump Current (3-phase)
-                "5.002_-2": [
-                  "08:15:00,1:12.5_2:12.0_3:12.8", "09:15:00,1:13.0_2:12.5_3:13.2",
-                  "10:15:00,1:14.2_2:13.8_3:14.5", "11:15:51,1:14.0_2:13.9_3:14.2"
-                ],
-                // Moisture Sensor
-                "25.001_-1": [
-                  "08:15:00,1:45.0", "09:15:00,1:42.0",
-                  "10:15:00,1:38.0", "11:15:51,1:35.5"
-                ],
-                // Soil Temperature
-                "30.001_-1": [
-                  "08:15:00,1:22.5", "09:15:00,1:24.0",
-                  "10:15:00,1:26.5", "11:15:51,1:28.0"
-                ],
-                // Level Sensor
-                "26.001_-1": [
-                  "08:15:00,1:80.0", "09:15:00,1:75.0",
-                  "10:15:00,1:60.0", "11:15:51,1:55.0"
-                ],
-                // Pressure Sensor
-                "24.001_-1": [
-                  "08:15:00,1:2.5", "09:15:00,1:2.6",
-                  "10:15:00,1:2.4", "11:15:51,1:2.5"
-                ],
-                // EC Sensor
-                "27.001_-1": [
-                  "08:15:00,1:1.2", "09:15:00,1:1.3",
-                  "10:15:00,1:1.5", "11:15:51,1:1.4"
-                ],
-                // PH Sensor
-                "28.001_-1": [
-                  "08:15:00,1:6.5", "09:15:00,1:6.7",
-                  "10:15:00,1:6.6", "11:15:51,1:6.5"
-                ]
-              }
-            }
-          }
-        ]
-      }
-    };
+  String _displayDate(DateTime date) {
+    const monthNames = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    return '${date.day.toString().padLeft(2, '0')} ${monthNames[date.month - 1]} ${date.year}';
+  }
 
+  Future<void> _pickFromDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _fromDate,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null && picked != _fromDate) {
+      setState(() {
+        _fromDate = picked;
+        if (_fromDate.isAfter(_toDate)) {
+          _toDate = _fromDate;
+        }
+      });
+      _fetchData();
+    }
+  }
+
+  Future<void> _pickToDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _toDate,
+      firstDate: _fromDate,
+      lastDate: DateTime.now(),
+    );
+    if (picked != null && picked != _toDate) {
+      setState(() {
+        _toDate = picked;
+      });
+      _fetchData();
+    }
+  }
+
+  Future<void> _fetchData() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final fromDateStr = _apiDate(_fromDate);
+      final toDateStr = _apiDate(_toDate);
+      final body = {
+        "userId": widget.userId,
+        "controllerId": widget.controllerId,
+      };
+      
+      final logBody = {
+        ...body,
+        "fromDate": fromDateStr,
+        "toDate": toDateStr,
+      };
+
+      final configRes = await HttpService().postRequest('/user/configMaker/getAsDefault', body);
+      final logRes = await HttpService().postRequest('/user/log/scheduleSensor/get', logBody);
+
+      if (configRes.statusCode == 200 && logRes.statusCode == 200) {
+        final configJson = jsonDecode(configRes.body);
+        final logJson = jsonDecode(logRes.body);
+        if (configJson['code'] == 200 && logJson['code'] == 200) {
+          _parseData(configJson, logJson);
+        } else {
+          setState(() {
+            _errorMessage = ''
+                '${logJson['message']}';
+            _isLoading = false;
+          });
+        }
+      } else {
+        setState(() {
+          _errorMessage = 'Server Error: ${configRes.statusCode} / ${logRes.statusCode}';
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Error loading data: ${e.toString()}';
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _parseData(Map<String, dynamic> configJson, Map<String, dynamic> logJson) {
     // 3. Mapping sNo to Sensor Metadata from Config
     Map<String, Map<String, String>> sNoMetadata = {};
     if (configJson['data'] != null && configJson['data']['configObject'] != null) {
@@ -158,16 +193,34 @@ class _SensorGraphLogState extends State<SensorGraphLog> with SingleTickerProvid
     List<SensorDataInfo> parsedSensors = [];
     if (logJson['data'] != null && logJson['data']['log'] != null) {
       for (var logEntry in logJson['data']['log']) {
-        if (logEntry['irrigation'] != null) {
-          Map<String, dynamic> irrigation = logEntry['irrigation'];
-          if (irrigation.isNotEmpty) {
-            String firstProgram = irrigation.keys.first;
-            Map<String, dynamic> sensorsLog = irrigation[firstProgram];
+        
+        // Handle both "scheduleSensor" (new API format) and "irrigation" (old mock format)
+        Map<String, dynamic>? dataGroup;
+        if (logEntry['scheduleSensor'] != null) {
+          dataGroup = logEntry['scheduleSensor'];
+        } else if (logEntry['irrigation'] != null) {
+          dataGroup = logEntry['irrigation'];
+        }
 
+        if (dataGroup != null && dataGroup.isNotEmpty) {
+          // Aggregate all sensor data across multiple schedule IDs (410, 411, 412, etc.)
+          Map<String, List<String>> aggregatedSensorsLog = {};
+          
+          dataGroup.forEach((scheduleId, sensorsLog) {
             sensorsLog.forEach((sensorKey, valuesList) {
-              List<String> keyParts = sensorKey.split('_');
-              String sNo = keyParts[0];
-              String subParam = keyParts.length > 1 ? keyParts[1] : '';
+              if (!aggregatedSensorsLog.containsKey(sensorKey)) {
+                aggregatedSensorsLog[sensorKey] = [];
+              }
+              // Add all timestamps from this schedule segment to the master list for this sensor
+              aggregatedSensorsLog[sensorKey]!.addAll(List<String>.from(valuesList));
+            });
+          });
+
+          // Now parse the aggregated time-series data for each sensor
+          aggregatedSensorsLog.forEach((sensorKey, valuesList) {
+            List<String> keyParts = sensorKey.split('_');
+            String sNo = keyParts[0];
+            String subParam = keyParts.length > 1 ? keyParts[1] : '';
               
               var meta = sNoMetadata[sNo] ?? {'name': 'Sensor $sNo', 'objectName': ''};
               String sensorName = meta['name']!;
@@ -175,80 +228,43 @@ class _SensorGraphLogState extends State<SensorGraphLog> with SingleTickerProvid
               
               String unit = '';
               IconData icon = Icons.sensors_rounded;
-              String category = '';
-              String farmerTip = '';
-              String insightOptimal = 'Dynamically parsed from the backend API sample JSON.';
-              String overallStatus = 'Normal';
-              Color statusColor = const Color(0xFF2E7D32);
 
               // Assign properties based on the STRICT objectName from the backend
               switch (objectType) {
                 case 'Moisture Sensor':
                   unit = '%';
                   icon = Icons.water_drop_rounded;
-                  category = 'Field Moisture Level';
-                  farmerTip = '🌱 Farmer Guide: Soil moisture is actively tracked. Keep between 30% and 50% for optimal root health.';
-                  overallStatus = 'Optimal Moisture';
-                  statusColor = const Color(0xFF00897B);
                   break;
                 case 'Soil Temperature Sensor':
                 case 'Temperature Sensor':
                   unit = '°C';
                   icon = Icons.thermostat_rounded;
-                  category = 'Soil Temperature';
-                  farmerTip = '🌡️ Farmer Guide: Monitors ground temperature. Protect crops if it drops below 10°C.';
-                  overallStatus = 'Temp Normal';
-                  statusColor = Colors.orange.shade600;
                   break;
                 case 'Level Sensor':
                   unit = '%';
                   icon = Icons.waves_rounded;
-                  category = 'Tank Level';
-                  farmerTip = '💧 Farmer Guide: Tank water level reserve. Refill if below 20%.';
-                  overallStatus = 'Level Good';
-                  statusColor = Colors.blue.shade600;
                   break;
                 case 'Pressure Sensor':
                   unit = 'bar';
                   icon = Icons.speed_rounded;
-                  category = 'Pipe Pressure';
-                  farmerTip = '⏱️ Farmer Guide: System pressure monitoring. High pressure indicates a blockage.';
-                  overallStatus = 'Pressure Safe';
-                  statusColor = Colors.indigo.shade500;
                   break;
                 case 'EC Sensor':
                   unit = 'dS/m';
                   icon = Icons.science_rounded;
-                  category = 'Electrical Conductivity';
-                  farmerTip = '🧪 Farmer Guide: Fertilizer salt concentration in soil. 1.0 - 2.0 is ideal for most crops.';
-                  overallStatus = 'EC Balanced';
-                  statusColor = Colors.teal.shade600;
                   break;
                 case 'PH Sensor':
                   unit = 'pH';
                   icon = Icons.opacity_rounded;
-                  category = 'Soil/Water Acidity';
-                  farmerTip = '🧪 Farmer Guide: Monitor pH to ensure plants absorb nutrients. 6.0 to 7.0 is best.';
-                  overallStatus = 'pH Balanced';
-                  statusColor = Colors.purple.shade500;
                   break;
                 case 'Pump':
                   if (subParam == '-1') {
                     sensorName += ' (Voltage)';
                     unit = 'V';
                     icon = Icons.bolt_rounded;
-                    category = '3-Phase Power Supply (Voltage)';
-                    farmerTip = '💡 Farmer Guide: All 3 wires (Red, Yellow, Blue) have stable voltage (~220V - 240V). Safe to run.';
-                    overallStatus = '3-Phase Healthy';
-                    statusColor = const Color(0xFF2E7D32);
                   } else if (subParam == '-2') {
                     sensorName += ' (Current)';
                     unit = 'A';
                     icon = Icons.electric_meter_rounded;
-                    category = '3-Phase Motor Load (Current)';
-                    farmerTip = '💡 Farmer Guide: Motor current draw shows the pump is actively pushing water steadily.';
-                    overallStatus = 'Motor Load Normal';
-                    statusColor = const Color(0xFF1976D2);
                   } else {
                     icon = Icons.water_damage_rounded;
                   }
@@ -256,9 +272,6 @@ class _SensorGraphLogState extends State<SensorGraphLog> with SingleTickerProvid
                 default:
                   unit = '';
                   icon = Icons.analytics_rounded;
-                  category = 'General Sensor Data';
-                  farmerTip = '📊 Farmer Guide: Raw telemetry from the device.';
-                  overallStatus = 'Online';
               }
 
               List<List<ChartData>> multiData = [[], [], []];
@@ -323,17 +336,6 @@ class _SensorGraphLogState extends State<SensorGraphLog> with SingleTickerProvid
               List<String> phaseNames = [];
               if (phaseCount == 3) {
                 phaseNames = ['R Phase (Red)', 'Y Phase (Yellow)', 'B Phase (Blue)'];
-                
-                // Override status if voltages/currents are 0
-                if (latestValues.every((v) => v == 0)) {
-                  if (subParam == '-1') {
-                    overallStatus = 'Motor Off (0 V)';
-                    statusColor = Colors.orange.shade800;
-                  } else if (subParam == '-2') {
-                    overallStatus = 'Motor Stopped (0 A)';
-                    statusColor = Colors.orange.shade800;
-                  }
-                }
               } else {
                 phaseNames = List.generate(phaseCount, (i) => 'Phase ${i + 1}');
               }
@@ -341,7 +343,6 @@ class _SensorGraphLogState extends State<SensorGraphLog> with SingleTickerProvid
               parsedSensors.add(
                 SensorDataInfo(
                   name: sensorName,
-                  category: category,
                   unit: unit,
                   icon: icon,
                   multiData: multiData,
@@ -350,21 +351,21 @@ class _SensorGraphLogState extends State<SensorGraphLog> with SingleTickerProvid
                   phaseMaxValues: maxValues,
                   phaseMinValues: minValues,
                   phaseLastActiveValues: lastActiveValues,
-                  overallStatus: overallStatus,
-                  statusColor: statusColor,
                 )
               );
             });
           }
         }
-      }
     }
 
-    if (parsedSensors.isNotEmpty) {
+    setState(() {
       _sensors = parsedSensors;
-      _visiblePhases.clear();
-      _visiblePhases.addAll(List.generate(_sensors[0].multiData.length, (i) => i));
-    }
+      if (_sensors.isNotEmpty) {
+        _visiblePhases.clear();
+        _visiblePhases.addAll(List.generate(_sensors[0].multiData.length, (i) => i));
+      }
+      _isLoading = false;
+    });
   }
 
   void _onSensorSelected(int index) {
@@ -394,36 +395,153 @@ class _SensorGraphLogState extends State<SensorGraphLog> with SingleTickerProvid
     final backgroundColor = theme.scaffoldBackgroundColor;
     final textColor = theme.textTheme.bodyLarge?.color ?? Colors.black87;
 
-    if (_sensors.isEmpty) {
-      return Scaffold(
-        backgroundColor: backgroundColor,
-        body: const Center(child: CircularProgressIndicator()),
-      );
-    }
-
-    final selectedSensor = _sensors[_selectedSensorIndex];
-
     return Scaffold(
       backgroundColor: backgroundColor,
       body: SafeArea(
         child: Column(
           children: [
-            // Top App Bar & Screen Title
-            // _buildTopAppBar(primaryColor, textColor, selectedSensor),
+            _buildDateSelector(),
+            Expanded(child: _buildBody(primaryColor, backgroundColor, textColor)),
+          ],
+        ),
+      ),
+    );
+  }
 
-            // Horizontal Sensor Selector Pills
-            _buildSensorSelector(primaryColor, textColor),
-
-            Expanded(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildDateSelector() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      child: Row(
+        children: [
+          Expanded(
+            child: InkWell(
+              onTap: _pickFromDate,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey.shade300),
+                ),
+                child: Row(
                   children: [
-                    // Prominent R Phase, Y Phase, B Phase Interactive Cards
-                    _buildPhaseCardsSection(primaryColor, textColor, selectedSensor),
-                    const SizedBox(height: 20),
+                    const Icon(Icons.event, size: 18, color: Colors.teal),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        _displayDate(_fromDate),
+                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const Icon(Icons.keyboard_arrow_down, size: 18, color: Colors.grey),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: InkWell(
+              onTap: _pickToDate,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey.shade300),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.event, size: 18, color: Colors.teal),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        _displayDate(_toDate),
+                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const Icon(Icons.keyboard_arrow_down, size: 18, color: Colors.grey),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBody(Color primaryColor, Color backgroundColor, Color textColor) {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_errorMessage != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 48, color: Colors.redAccent),
+            const SizedBox(height: 16),
+            Text(_errorMessage!, style: const TextStyle(color: Colors.redAccent)),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _fetchData,
+              child: const Text('Retry'),
+            )
+          ],
+        ),
+      );
+    }
+
+    if (_sensors.isEmpty) {
+      String dateText = _fromDate.isAtSameMomentAs(_toDate)
+          ? _displayDate(_fromDate)
+          : '${_displayDate(_fromDate)} - ${_displayDate(_toDate)}';
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.analytics_outlined, size: 64, color: textColor.withValues(alpha: 0.2)),
+            const SizedBox(height: 16),
+            Text(
+              'No Sensor Data Available',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: textColor.withValues(alpha: 0.5),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'No logs found for $dateText',
+              style: TextStyle(
+                fontSize: 12,
+                color: textColor.withValues(alpha: 0.4),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final selectedSensor = _sensors[_selectedSensorIndex];
+
+    return Column(
+      children: [
+        _buildSensorSelector(primaryColor, textColor),
+        Expanded(
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Prominent R Phase, Y Phase, B Phase Interactive Cards
+                _buildPhaseCardsSection(primaryColor, textColor, selectedSensor),
+                const SizedBox(height: 20),
 
                     // Graph Header & Graph Controls (Area / Line / Bar)
                     Row(
@@ -485,9 +603,7 @@ class _SensorGraphLogState extends State<SensorGraphLog> with SingleTickerProvid
                 ),
               ),
             ),
-          ],
-        ),
-      ),
+      ],
     );
   }
 
@@ -858,21 +974,6 @@ class _SensorGraphLogState extends State<SensorGraphLog> with SingleTickerProvid
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: primaryColor,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    sensor.overallStatus,
-                    style: const TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
                 const SizedBox(height: 12),
                 Text(
                   'Max: $maxV ${sensor.unit}',

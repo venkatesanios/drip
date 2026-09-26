@@ -24,6 +24,7 @@ import 'excel_download_stub.dart' if (dart.library.html) 'excel_download_web.dar
 import '../model/data_parsing_and_sorting_model.dart';
 import '../model/general_parameter_model.dart';
 import '../repository/irrigation_repository.dart';
+import 'package:oro_drip_irrigation/Screens/Logs/sensor_graph_log.dart';
 
 class LogHome extends StatefulWidget {
   final dynamic serverData;
@@ -839,7 +840,49 @@ class _LogHomeState extends State<LogHome> {
                               localChannel8Column: dataToShow['localChannel8Column'],
                               localChannel8ColumnData: filterDataByPages(data: dataToShow['localChannel8ColumnData']),
                               graphData: dataToShow['graphData'],
-
+                              onSequenceClicked: (sequenceName) {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return Dialog(
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                      child: SizedBox(
+                                        width: MediaQuery.of(context).size.width > 600 ? 600 : MediaQuery.of(context).size.width * 0.9,
+                                        height: MediaQuery.of(context).size.height > 800 ? 800 : MediaQuery.of(context).size.height * 0.9,
+                                        child: Column(
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                Padding(
+                                                  padding: const EdgeInsets.only(left: 16.0),
+                                                  child: Text(
+                                                    'Sensor Log',
+                                                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                                  ),
+                                                ),
+                                                IconButton(
+                                                  icon: Icon(Icons.close),
+                                                  onPressed: () => Navigator.pop(context),
+                                                ),
+                                              ],
+                                            ),
+                                            Expanded(
+                                              child: ClipRRect(
+                                                borderRadius: BorderRadius.only(bottomLeft: Radius.circular(16), bottomRight: Radius.circular(16)),
+                                                child: SensorGraphLog(
+                                                  userId: widget.userData['customerId'],
+                                                  controllerId: widget.userData['controllerId'],
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
                             ),
                         ],
                       ),

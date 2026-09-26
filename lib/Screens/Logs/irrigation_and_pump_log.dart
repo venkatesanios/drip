@@ -64,11 +64,6 @@ class _IrrigationAndPumpLogState extends State<IrrigationAndPumpLog> with Ticker
       length = 1;
     }
     
-    // Sensor Graph Log for Gem Model
-    if (AppConstants.gemModelList.contains(widget.masterData.modelId)) {
-      length += 1;
-    }
-    
     return length;
   }
 
@@ -134,8 +129,6 @@ class _IrrigationAndPumpLogState extends State<IrrigationAndPumpLog> with Ticker
                           ],
                         if(!AppConstants.ecoGemAndPlusModelList.contains(widget.masterData.modelId) ? pumpList.isNotEmpty : true)
                           const Tab(text: "Pump Log",),
-                        if(AppConstants.gemModelList.contains(widget.masterData.modelId))
-                          const Tab(text: "Sensor Graph Log",),
                       ]
                   ),
                   // SizedBox(height: 10,),
@@ -162,10 +155,6 @@ class _IrrigationAndPumpLogState extends State<IrrigationAndPumpLog> with Ticker
                                   userData: widget.userData,
                                 )
                               ],
-                            if(AppConstants.gemModelList.contains(widget.masterData.modelId))
-                              ...[
-                                const SensorGraphLog(),
-                              ]
                           ]
                       )
                   )

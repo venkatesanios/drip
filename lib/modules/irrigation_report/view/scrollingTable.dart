@@ -51,6 +51,7 @@ class ScrollingTable extends StatefulWidget {
   final List<dynamic> localChannel8Column;
   final List<dynamic> localChannel8ColumnData;
   final List<dynamic> graphData;
+  final void Function(String sequenceName)? onSequenceClicked;
 
   ScrollingTable({super.key,
     required this.fixedColumn,
@@ -99,7 +100,8 @@ class ScrollingTable extends StatefulWidget {
     required this.localChannel7ColumnData,
     required this.localChannel8Column,
     required this.localChannel8ColumnData,
-    required this.graphData
+    required this.graphData,
+    this.onSequenceClicked,
   });
 
   @override
@@ -501,6 +503,36 @@ class _ScrollingTableState extends State<ScrollingTable> {
                                                           message: '${widget.generalColumnData[i][j]}',
                                                           child: Text(widget.generalColumnData[i][j],textAlign: TextAlign.center,style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold,color: getStatus(widget.generalColumnData[i][j])['textColor']),overflow: TextOverflow.ellipsis,),
                                                         )
+                                                    ),
+                                                  )
+                                                else if(widget.generalColumn[j] == 'Sequence' || widget.generalColumn[j] == 'SequenceData' || widget.generalColumn[j] == 'Valve')
+                                                  InkWell(
+                                                    onTap: () {
+                                                      if (widget.onSequenceClicked != null) {
+                                                        widget.onSequenceClicked!('${widget.generalColumnData[i][j] ?? ''}');
+                                                      }
+                                                    },
+                                                    child: Container(
+                                                      decoration: BoxDecoration(
+                                                        border: seperatingLength(i) ? const Border(bottom: BorderSide(width: 1)) : null,
+                                                      ),
+                                                      padding: const EdgeInsets.only(left: 8),
+                                                      width: 100,
+                                                      height: getBoxHeight(widget.filterColumnData, i),
+                                                      alignment: Alignment.centerLeft,
+                                                      child: Tooltip(
+                                                        message: '${widget.generalColumnData[i][j] ?? '-'}',
+                                                        child: Text(
+                                                          '${widget.generalColumnData[i][j] ?? '-'}',
+                                                          style: const TextStyle(
+                                                            fontSize: 12, 
+                                                            fontWeight: FontWeight.bold, 
+                                                            color: Colors.blue, 
+                                                            decoration: TextDecoration.underline
+                                                          ),
+                                                          overflow: TextOverflow.ellipsis,
+                                                        ),
+                                                      ),
                                                     ),
                                                   )
                                                 else
