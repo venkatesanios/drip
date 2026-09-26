@@ -6,6 +6,8 @@ class AppConstants {
   static String apiUrl = Environment.apiUrl;
   static const int timeoutDuration = 30;
   static String mqttUrlMobile = Environment.mqttMobileUrl;
+  static String userManualBaseUrl = Environment.userManualBaseUrl;
+
 
   static String mqttUrl = Environment.mqttWebUrl;
   static int mqttWebPort = Environment.mqttWebPort;
@@ -840,6 +842,13 @@ class AppConstants {
     }else{
       return sNo;
     }
+  }
+
+  static String buildUserManualUrl(String? link) {
+    if (link == null || link.isEmpty) return '';
+    if (link.startsWith('http')) return link;
+    if (userManualBaseUrl.isEmpty) return link;
+    return '$userManualBaseUrl/${link.replaceFirst(RegExp(r'^/+'), '')}';
   }
 
   static Color outputColor = const Color(0xff14AE5C);

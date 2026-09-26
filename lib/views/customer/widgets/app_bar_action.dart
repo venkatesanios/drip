@@ -185,7 +185,7 @@ Widget _buildHelpMenu(
     CustomerScreenControllerViewModel vm,
     dynamic loggedInUser,
     dynamic viewedCustomer,
-    dynamic master) {
+    MasterControllerModel master) {
 
   final loggedUser = Provider.of<UserProvider>(context, listen: false).loggedInUser;
 
@@ -210,17 +210,18 @@ Widget _buildHelpMenu(
                 onTap: () {
                   Navigator.pop(context);
 
-                  if([...AppConstants.ecoGemModelList].contains(master.modelId)) {
+                  if (master.userManualLink?.isNotEmpty == true) {
+                    final pdfUrl = AppConstants.buildUserManualUrl(master.userManualLink);
 
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const UserManualScreen(
-                          //pdfUrl: 'https://smartcomm-wms.com:5000/userManual/shine.pdf',
+                    if (pdfUrl.isNotEmpty) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => UserManualScreen(pdfUrl: pdfUrl),
                         ),
-                      ),
-                    );
-                  }else{
+                      );
+                    }
+                  } else {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
