@@ -21,7 +21,8 @@ import 'package:provider/provider.dart';
 class NodeConnectionPage extends StatefulWidget {
   final Map<String, dynamic> nodeData;
   final Map<String, dynamic> masterData;
-  const NodeConnectionPage({super.key, required this.nodeData, required this.masterData});
+  final ConnectMode connectMode;
+  const NodeConnectionPage({super.key, required this.nodeData, required this.masterData, required this.connectMode});
 
   @override
   State<NodeConnectionPage> createState() => _NodeConnectionPageState();
@@ -84,7 +85,7 @@ class _NodeConnectionPageState extends State<NodeConnectionPage> {
       return;
     }
     if(bleService.bleNodeState != BleNodeState.deviceFound){
-      bleService.autoScanAndFoundDevice(macAddressToConnect: widget.nodeData['deviceId'], modelIdToUpdate: widget.nodeData['modelId']);
+      bleService.autoScanAndFoundDevice(macAddressToConnect: widget.nodeData['deviceId'], modelIdToUpdate: widget.nodeData['modelId'], connectMode: widget.connectMode);
     }
   }
 
@@ -302,7 +303,7 @@ class _NodeConnectionPageState extends State<NodeConnectionPage> {
           icon: const Icon(Icons.bluetooth_rounded),
           label: const Text('Scan Again'),
           onPressed: () {
-            bleService.autoScanAndFoundDevice(macAddressToConnect: widget.nodeData['deviceId'], modelIdToUpdate: widget.nodeData['modelId']);
+            bleService.autoScanAndFoundDevice(macAddressToConnect: widget.nodeData['deviceId'], modelIdToUpdate: widget.nodeData['modelId'], connectMode: widget.connectMode);
           },
           style: FilledButton.styleFrom(
             backgroundColor: Theme.of(context).primaryColor,

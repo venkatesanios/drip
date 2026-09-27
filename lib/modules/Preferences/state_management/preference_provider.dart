@@ -107,8 +107,8 @@ class PreferenceProvider extends ChangeNotifier {
         calibrationSetting = List.from(result['data'].map((json) => CommonPumpSetting.fromJson(json)));
       }
     } catch(error, stackTrace) {
-      print("Error parsing setting data: $error");
-      print("Stack trace setting data: $stackTrace");
+      debugPrint("Error parsing setting data: $error");
+      debugPrint("Stack trace setting data: $stackTrace");
     }
     notifyListeners();
   }

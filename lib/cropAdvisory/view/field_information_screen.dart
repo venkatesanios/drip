@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -349,8 +350,6 @@ class _FieldInformationScreenState extends State<FieldInformationScreen> {
 
                 const SizedBox(height: 30),
 
-
-
                 CropContinueButton(
                   onTap: () async {
                     _model.mulchingUsed = _mulchingValue.toString();
@@ -442,22 +441,37 @@ class _FieldInformationScreenState extends State<FieldInformationScreen> {
                              ),
                           ),
                          );
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'Failed to save crop: $responseBody',
+                        if (mounted) {
+                          Navigator.push(
+                            context,
+                            CupertinoPageRoute(
+                              builder: (context) => CropAdvisoryMainScreen(
+                                userId: widget.userId,
+                                controllerId: widget.controllerId, cropModel: _model,
+                              ),
                             ),
-                          ),
-                        );
+                          );
+                        }
+                      } else {
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'Failed to save crop: $responseBody',
+                              ),
+                            ),
+                          );
+                        }
                       }
                     } catch (e) {
                       print("Error : $e");
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Error: $e'),
-                        ),
-                      );
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Error: $e'),
+                          ),
+                        );
+                      }
                     }
                   },
                 ),
@@ -469,5 +483,6 @@ class _FieldInformationScreenState extends State<FieldInformationScreen> {
         ),
       ),
     );
+
   }
 }

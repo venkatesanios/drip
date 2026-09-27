@@ -37,8 +37,13 @@ class SettingsScreenFactory {
     switch (title) {
       case 'General':
         if(isNarrow){
-          return GeneralSettingsNarrow(controllerId: ctx.controllerId, customerId: ctx.customerId,
-              isSubUser: ctx.isSubUser, userId: ctx.userId);
+          return GeneralSettingsNarrow(
+              controllerId: ctx.controllerId,
+              customerId: ctx.customerId,
+              isSubUser: ctx.isSubUser,
+              userId: ctx.userId,
+            ctx: ctx,
+          );
         }else{
           return GeneralSettingWide(
             customerId: ctx.customerId,

@@ -66,6 +66,8 @@ class WidgetSetting {
   dynamic value;
   List<RtcTimeSetting>? rtcSettings;
   bool hidden;
+  bool display;
+  int payloadIndex;
   bool isChanged;
 
   WidgetSetting({
@@ -76,11 +78,13 @@ class WidgetSetting {
     this.value,
     this.rtcSettings,
     required this.hidden,
+    required this.display,
+    required this.payloadIndex,
     required this.isChanged,
     required this.serialNumber
   });
 
-  factory WidgetSetting.fromJson(Map<String, dynamic> json, bool isNova, bool isAquaCulture) {
+  factory WidgetSetting.fromJson(Map<String, dynamic> json, bool isNova, bool isAquaCulture, bool singlePhase) {
     final rtcData = json['value'];
     List<RtcTimeSetting>? rtcSettings;
     if (rtcData is List<dynamic> && json['title'].toString().toUpperCase() == "RTC TIMER") {
@@ -92,13 +96,14 @@ class WidgetSetting {
     dynamic value;
     if (json['title'].toString().toUpperCase() == "2 PHASE"
         || json['title'].toString().toUpperCase() == "AUTO RESTART 2 PHASE"
+        || (json['title'].toString().toUpperCase() == "AUTO RESTART" && json['sNo'] == 8)
         || (isNova && (
             json['title'].toString().toUpperCase() == "UPPER TANK LINEAR LEVEL SENSOR" ||
                 json['title'].toString().toUpperCase() == "LOWER TANK LINEAR LEVEL SENSOR"
         ))
     )  {
       int noOfPumpLimit = isAquaCulture ? 4 : 3;
-      value = json['value'] is bool ? List<bool>.filled(noOfPumpLimit, false) : json['value'];
+      value = json['value'] is bool ? List<bool>.filled(noOfPumpLimit, singlePhase ? true : false) : json['value'];
     } else {
       switch (json['widgetTypeId']) {
         case 1:
@@ -124,6 +129,8 @@ class WidgetSetting {
       value: value,
       rtcSettings: rtcSettings,
       hidden: json['hidden'],
+      display: json['display'] ?? true,
+      payloadIndex: json['payloadIndex'] ?? json['sNo'] ?? 0,
       isChanged: false,
     );
   }
@@ -160,11 +167,11 @@ class SettingList {
     required this.setting,
   });
 
-  factory SettingList.fromJson(Map<String, dynamic> json, {bool isNova = false, bool isAquaCulture = false}) {
+  factory SettingList.fromJson(Map<String, dynamic> json, {bool isNova = false, bool isAquaCulture = false, bool singlePhase = false}) {
     final settingsData = json['setting'] as List;
 
     final settings = settingsData.map((setting) {
-      return WidgetSetting.fromJson(setting, isNova, isAquaCulture);
+      return WidgetSetting.fromJson(setting, isNova, isAquaCulture, singlePhase);
     }).toList();
 
     return SettingList(
@@ -189,7 +196,7 @@ class SettingList {
   List gemPayload(pumpType) {
     List<String> result = [];
 
-    if ([202].contains(type)) {
+    if ([202, 602].contains(type)) {
       var value1 = setting.firstWhere((element) => element.serialNumber == 1).value;
       var value2 = setting.firstWhere((element) => element.serialNumber == 12).value == true ? 1 : 0;
       var value3 = setting.firstWhere((element) => element.serialNumber == 13).rtcSettings!.map((e) => e.onTime).toList().join('_');
@@ -198,12 +205,12 @@ class SettingList {
       result.add("$value2");
       result.add(value3);
       result.add(value4);
-    } else if ([205].contains(type)) {
+    } else if ([205, 605].contains(type)) {
       var value1 = pumpType != 2 ? (setting.firstWhere((element) => element.serialNumber == 1).value == true ? 1 : 0) : 0;
       var value2 = pumpType != 2 ? (setting.firstWhere((element) => element.serialNumber == 2).value == true ? 1 : 0) : 0;
       result.add("$value1");
       result.add("$value2");
-    } else if (type == 207) {
+    } else if ([207, 607].contains(type)) {
       var value1 = setting.firstWhere((element) => element.serialNumber == 1).value;
       var value2 = setting.firstWhere((element) => element.serialNumber == 2).value;
       var value3 = setting.firstWhere((element) => element.serialNumber == 3).value;
@@ -312,7 +319,19 @@ class CommonPumpSetting {
   factory CommonPumpSetting.fromJson(Map<String, dynamic> json) {
     // print("json in the common settings ==> $json");
     final settingsDats = json['settingList'] as List<dynamic>;
-    final settingsList = settingsDats.map((element) => SettingList.fromJson(element, isNova: AppConstants.ecoGemAndPlusModelList.contains(json['modelId']), isAquaCulture: AppConstants.aquaculturePumpModelList.contains(json['modelId']))).toList();
+    final settingsList = settingsDats.map((element) => SettingList.fromJson(
+        element,
+        isNova: AppConstants.ecoGemAndPlusModelList.contains(json['modelId']),
+        isAquaCulture: AppConstants.aquaculturePumpModelList.contains(json['modelId']),
+      singlePhase: [
+        ...AppConstants.singlePhasePumpModel,
+        ...AppConstants.singlePhasePumpPlusModel,
+        ...AppConstants.singlePhaseShineModel,
+        ...AppConstants.singlePhaseElitePlusModel,
+        ...AppConstants.singlePhaseEcoGemModel,
+        ...AppConstants.singlePhaseEcoGemPlusModel
+      ].contains(json['modelId'])
+    )).toList();
     return CommonPumpSetting(
         controllerId: json["controllerId"],
         categoryId: json["categoryId"] ?? 0,

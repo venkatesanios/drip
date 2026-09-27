@@ -17,6 +17,7 @@ class CurrentProgramViewModel extends ChangeNotifier {
   void updateSchedule(List<String> newSchedule, bool isOMS) {
     currentSchedule = List.from(newSchedule);
     payloadProvider.currentSchedule.clear();
+    payloadProvider.currentSchedule.addAll(newSchedule); // Make sure to update the provider too
     notifyListeners();
     startTimer(isOMS);
   }
@@ -36,27 +37,33 @@ class CurrentProgramViewModel extends ChangeNotifier {
       for (int i = 0; i < currentSchedule.length; i++) {
         List<String> values = currentSchedule[i].split(',');
 
-        if (isOMS ? values.length <= 11 || values[10] != '1' :
-          values.length <= 17 || values[17] != '1') {
-          continue;
-        }
+        if (values.length <= 11) continue;
 
-        //"8204": "4,1,1.2,1,1,00:18:23,01:05,0,0,3,1,;"
-
-        if(isOMS){
-          if (values[5].contains(':')) {
-            values[5] = _updateTime(values[5]);
-          } else {
-            values[5] = _updateFlow(values[4], values[16]);
+        if (isOMS) {
+          // Check if program is running (status = 1)
+          if (values[4].trim() != '1') {
+            continue;
           }
-        }else{
+
+          // Update based on irrigation method
+          if (values[3].trim() == '1') {
+            // Time-based: update RemTime (index 5)
+            values[5] = _updateTime(values[5]);
+          } else if (values[3].trim() == '2') {
+            // Flow-based: update Rem Flow (index 7) using Average Flow Rate (index 11)
+            values[7] = _updateFlow(values[7], values[11]);
+          }
+        } else {
+          // Original program format handling
+          if (values.length <= 17 || values[17] != '1') {
+            continue;
+          }
           if (values[4].contains(':')) {
             values[4] = _updateTime(values[4]);
           } else {
             values[4] = _updateFlow(values[4], values[16]);
           }
         }
-
 
         currentSchedule[i] = values.join(',');
         allOnDelayLeftZero = false;
@@ -66,7 +73,12 @@ class CurrentProgramViewModel extends ChangeNotifier {
       print("Error in updateDurationQtyLeft: $e");
     }
 
-    if (didUpdate) notifyListeners();
+    if (didUpdate) {
+      // Update the provider as well
+      payloadProvider.currentSchedule.clear();
+      payloadProvider.currentSchedule.addAll(currentSchedule);
+      notifyListeners();
+    }
     if (allOnDelayLeftZero) _timer?.cancel();
   }
 

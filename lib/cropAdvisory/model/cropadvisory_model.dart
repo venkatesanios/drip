@@ -2,14 +2,16 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 
 class CropAdvisoryModel extends ChangeNotifier {
+  // Singleton instance for the "current" active crop (e.g., being edited or viewed)
   static final CropAdvisoryModel instance = CropAdvisoryModel._internal();
 
   factory CropAdvisoryModel() {
     return instance;
   }
 
+  // ✅ FIX: Use _internal() here to return a NEW instance for each list item
   factory CropAdvisoryModel.fromJson(Map<String, dynamic> json) {
-    return CropAdvisoryModel()
+    return CropAdvisoryModel._internal()
       ..cropId = json['cropId']
       ..userId = json['userId']
       ..controllerId = json['controllerId']
@@ -31,6 +33,7 @@ class CropAdvisoryModel extends ChangeNotifier {
       ..farmName = json['farmName']?.toString()
       ..cropImageUrl = json['cropImageUrl'];
    }
+
   CropAdvisoryModel._internal();
 
   // User Information
@@ -57,6 +60,7 @@ class CropAdvisoryModel extends ChangeNotifier {
   // Field Information
   String? mulchingUsed;
   String? soilType;
+  
   String get soilTypeName {
     switch (soilType) {
       case '1':
@@ -73,6 +77,7 @@ class CropAdvisoryModel extends ChangeNotifier {
         return soilType ?? 'Loam';
     }
   }
+
   String? previousCrop;
   String? cropImage;
   Uint8List? cropImageBytes;
@@ -134,6 +139,7 @@ class CropAdvisoryModel extends ChangeNotifier {
     };
   }
 
+  // Method to update the existing singleton instance from another model/json
   void fromJson(Map<String, dynamic> json) {
     cropId = json['cropId'];
     userId = json['userId'];

@@ -7,9 +7,11 @@ import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:oro_drip_irrigation/utils/helpers/log_print.dart';
+import 'package:oro_drip_irrigation/utils/constants.dart';
 
 import '../../../repository/repository.dart';
 import '../../../services/http_service.dart';
+import '../../../views/common/user_dashboard/widgets/valve_status_legend.dart';
 import '../MapDeviceList.dart';
 import 'map_conection_objects.dart';
 
@@ -168,7 +170,7 @@ class _MapScreenOroState extends State<MapScreenOro> {
               final centerPoint = _getPolygonCenter(points);
 
               final labelIcon = await _getLabelIcon(
-                "${obj["name"] ?? obj["objectName"]} ($per%)",
+                "${obj["name"] ?? obj["objectName"]} ($per%)",areaColor
               );
 
               newMarkers.add(
@@ -342,7 +344,7 @@ class _MapScreenOroState extends State<MapScreenOro> {
     return LatLng(lat / points.length, lng / points.length);
   }
 
-  Future<BitmapDescriptor> _getLabelIcon(String text) async {
+  Future<BitmapDescriptor> _getLabelIcon(String text,Color labelColor) async {
     // Use device pixel ratio for high-resolution markers on mobile
     final double ratio = ui.PlatformDispatcher.instance.views.isNotEmpty
         ? ui.PlatformDispatcher.instance.views.first.devicePixelRatio
@@ -370,7 +372,7 @@ class _MapScreenOroState extends State<MapScreenOro> {
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
 
-    final paint = Paint()..color = Colors.white;
+    final paint = Paint()..color = labelColor;
     final border = Paint()
       ..color = Colors.black
       ..style = PaintingStyle.stroke
@@ -461,6 +463,7 @@ class _MapScreenOroState extends State<MapScreenOro> {
   @override
   Widget build(BuildContext context) {
     // AppLog.log("build center:$center");
+    final bool isAquaculture = [...AppConstants.aquacultureModelList].contains(widget.modelId);
 
     return Scaffold(
       appBar: (widget.isCheckDashboard || kIsWeb) ? null : AppBar(title: const Text(" Geography"),
@@ -544,6 +547,12 @@ class _MapScreenOroState extends State<MapScreenOro> {
                 ],
               ),
             ),
+          ),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: buildValveStatusLegend(false),
           ),
         ],
       ),

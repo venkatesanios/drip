@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:oro_drip_irrigation/app.dart';
 import 'package:oro_drip_irrigation/modules/config_maker/model/fertigation_model.dart';
 import 'package:oro_drip_irrigation/modules/config_maker/model/pump_model.dart';
 import 'package:oro_drip_irrigation/modules/config_maker/view/site_configure.dart';
@@ -94,9 +95,10 @@ class _LineConfigurationState extends State<LineConfiguration> {
                                                 );
                                               }
                                           );
-                                        }, icon: const Icon(Icons.dataset)
+                                        },
+                                        icon: const Icon(Icons.dataset)
                                     ),
-                                    if(availability(AppConstants.sourceObjectId))
+                                    if(availability(AppConstants.sourceObjectId) && !AppConstants.aquacultureModelList.contains(widget.configPvd.masterData['modelId']))
                                       getLineParameter(
                                           line: selectedIrrigationLine,
                                           currentParameterValue: selectedIrrigationLine.waterSource,
@@ -104,13 +106,6 @@ class _LineConfigurationState extends State<LineConfiguration> {
                                           objectId: AppConstants.sourceObjectId,
                                           objectName: 'Source only for monitoring',
                                           listOfObject: widget.configPvd.listOfGeneratedObject.where((object){
-                                            // bool sourceThatOnlyForMonitoring = false;
-                                            // for(var src in widget.configPvd.source){
-                                            //   if(src.commonDetails.sNo == object.sNo && src.inletPump.isEmpty && src.outletPump.isEmpty && src.valves.isEmpty){
-                                            //     sourceThatOnlyForMonitoring = true;
-                                            //   }
-                                            // }
-                                            // return sourceThatOnlyForMonitoring;
                                             return object.objectId == AppConstants.sourceObjectId;
                                           }).toList(),
                                           validateAllLine: false
@@ -190,8 +185,8 @@ class _LineConfigurationState extends State<LineConfiguration> {
                                               .toList()),
                                     if(availability(AppConstants.pressureSensorObjectId))
                                       getLineParameter(line: selectedIrrigationLine, currentParameterValue: [selectedIrrigationLine.pressureOut], parameterType: LineParameter.pressureOut, objectId: AppConstants.pressureSensorObjectId, objectName: 'Pressure Out', validateAllLine: true, singleSelection: true,
-                                          listOfObject: widget.configPvd.listOfGeneratedObject.where((object) => (object.objectId == AppConstants.pressureSensorObjectId && !widget.configPvd.pump.any((pump) => [pump.pressureIn,pump.pressureOut].contains(object.sNo)) && object.sNo != selectedIrrigationLine.pressureIn))
-                                              .where((object) => (!widget.configPvd.filtration.any((filterSite) => [filterSite.pressureIn,filterSite.pressureOut].contains(object.sNo)) && object.sNo != selectedIrrigationLine.pressureIn))
+                                          listOfObject: widget.configPvd.listOfGeneratedObject
+                                              .where((object) => (object.objectId == AppConstants.pressureSensorObjectId && object.sNo != selectedIrrigationLine.pressureIn))                                              // .where((object) => (!widget.configPvd.filtration.any((filterSite) => [filterSite.pressureIn,filterSite.pressureOut].contains(object.sNo)) && object.sNo != selectedIrrigationLine.pressureIn))
                                               .where((object) => (!widget.configPvd.line.any((line) => line.commonDetails.sNo != selectedIrrigationLine.commonDetails.sNo && [line.pressureIn,line.pressureOut].contains(object.sNo)) && object.sNo != selectedIrrigationLine.pressureIn))
                                               .toList()),
                                     if(availability(AppConstants.fertilizerSiteObjectId))

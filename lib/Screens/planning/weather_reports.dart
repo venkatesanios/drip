@@ -11,8 +11,7 @@ import '../../services/http_service.dart';
 class ReportPage extends StatefulWidget {
   final String initialReportType;
 
-  const ReportPage(
-      {Key? key,
+  const ReportPage({Key? key,
         required this.initialReportType,
         required this.userId,
         required this.controllerId,
@@ -52,8 +51,9 @@ class _ReportPageState extends State<ReportPage> {
   @override
   void initState() {
     super.initState();
+    print("weather Report");
     selectedReportType = widget.initialReportType;
-     if (!reportTypes.contains(selectedReportType)) {
+    if (!reportTypes.contains(selectedReportType)) {
       selectedReportType = reportTypes.first;
     }
     fetchHourlyData(selectedDate, selectedReportType);
@@ -79,17 +79,17 @@ class _ReportPageState extends State<ReportPage> {
       });
 
       final jsonData = jsonDecode(getUserDetails.body);
-      print('jsonData  fetch device  ${jsonData['data']['deviceList']}');
+      print('jsonData  fetch device new ${jsonData['data']['deviceList']}');
       print('jsonData  fetch irrigationLine ${jsonData['data']['irrigationLine']}');
       if (jsonData['code'] == 200) {
         setState(() {
           {
-               print("---hourly data----$jsonData");
-              Map<String, dynamic> data = jsonData;
-               dayData = data[0];
-               isLoading = false;
-           }
-         });
+            print("---hourly data----$jsonData");
+            Map<String, dynamic> data = jsonData;
+            dayData = data[0];
+            isLoading = false;
+          }
+        });
       }
     } catch (e, stackTrace) {
       print(' trace overAll getData  => ${stackTrace}');

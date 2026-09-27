@@ -33,4 +33,8 @@ class IrrigationRepository{
   Future<http.Response> getNovaLogDateWise(body) async {
     return await httpService.postRequest('/user/log/nova/get', body);
   }
+
+  Future<http.Response> getOmsLog(body) async {
+    return await httpService.postRequest('/user/log/oms/get', body);
+  }
 }

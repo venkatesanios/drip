@@ -129,7 +129,8 @@ enum PumpReasonCode {
   sumpCableDisconnected(38,'Motor off due to sump cable disconnected'),
   tankCableDisconnected(39,'Motor off due to tank cable disconnected'),
   sumpFloatFailed(40,'Motor off due to sump float failed'),
-  tankFloatFailed(41,'Motor off due to tank float failed');
+  tankFloatFailed(41,'Motor off due to tank float failed'),
+  motorOffCyclicTimeCompleted(42, 'Motor off due to cycle completed');
 
   final int code;
   final String content;

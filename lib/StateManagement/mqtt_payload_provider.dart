@@ -153,6 +153,26 @@ class MqttPayloadProvider with ChangeNotifier {
    int traceLogSize = 0;
    int totalTraceLogSize = 0;
 
+   String? _wifiUpdateMessage;
+   bool _wifiUpdateSuccess = false;
+
+   String? get wifiUpdateMessage => _wifiUpdateMessage;
+   bool get wifiUpdateSuccess => _wifiUpdateSuccess;
+
+   void showWifiUpdateResult(String message, bool success) {
+     _wifiUpdateMessage = message;
+     _wifiUpdateSuccess = success;
+     notifyListeners();
+
+     // Auto-hide after 6 seconds (the UI will handle showing it)
+   }
+
+   void hideWifiUpdateResult() {
+     _wifiUpdateMessage = null;
+     _wifiUpdateSuccess = false;
+     notifyListeners();
+   }
+
    CropAdvisoryModel cropAdvisoryModelInstance = CropAdvisoryModel();
 
 
@@ -755,12 +775,27 @@ class MqttPayloadProvider with ChangeNotifier {
 
           notifyListeners();
         }
+        //OMS----------
         else if(data['mC']=='8200'){
 
           updateNodeLiveMessage(data['cM']['8201'].split(";"));
           updateValveStatus(data['cM']['8202'].split(";"));
           updateSensorValue(data['cM']['8203'].split(";"));
-          updateCurrentProgram(data['cM']['8204'].split(";"));
+
+          final scheduleData = data['cM']['8204'] as String?;
+          if (scheduleData != null && scheduleData.isNotEmpty) {
+            final scheduleRows = scheduleData.split(';')
+                .where((row) => row.trim().isNotEmpty)
+                .toList();
+            updateCurrentProgram(scheduleRows);
+          }
+
+          final alarmData = data['cM']['8205'] as String?;
+          if (alarmData != null && alarmData.isNotEmpty) {
+            updateAlarm(alarmData.split(';').where((e) => e.trim().isNotEmpty).toList(),);
+          } else {
+            updateAlarm([]);
+          }
 
         }
         else if(data.containsKey('3600') && data['3600'] != null && data['3600'].isNotEmpty){
@@ -867,13 +902,18 @@ class MqttPayloadProvider with ChangeNotifier {
         }
 
         if (data["mC"] == "PRGVIEW") {
-          _programPreview = data["cM"];
-          notifyListeners();
+          if (data["cM"] is String && (data["cM"] as String).isNotEmpty) {
+            _programPreview = data["cM"] as String;
+            notifyListeners();
+          }
+
         }
 
         if (data["mC"] == "SEQVIEW") {
-          _sequencePreview = data["cM"];
-          notifyListeners();
+          if (data["cM"] is String && (data["cM"] as String).isNotEmpty) {
+            _sequencePreview = data["cM"] as String;
+            notifyListeners();
+          }
         }
 
       } catch (e, stackTrace) {
@@ -900,12 +940,10 @@ class MqttPayloadProvider with ChangeNotifier {
     updateLocalFiltrationSite();
   }
 
-   void updatetracelog(status){
-
+   void updateTraceLogs(status){
      traceLog = status;
      notifyListeners();
    }
-
 
   void updateNodeLiveMessage(List<String> message) {
     nodeLiveMessage = message;

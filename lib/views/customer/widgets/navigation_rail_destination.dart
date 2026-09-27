@@ -23,7 +23,7 @@ class NavigationDestinationsBuilder {
         selectedIcon: Icon(Icons.question_answer, color: Colors.white),
         label: Text(''),
       ),
-      if ([...AppConstants.gemModelList, ...AppConstants.ecoGemModelList].contains(master.modelId))
+      if ([...AppConstants.gemModelList, ...AppConstants.ecoGemModelList, ...AppConstants.omsGemList].contains(master.modelId))
         const NavigationRailDestination(
           icon: Tooltip(message: 'Controller Logs', child: Icon(Icons.receipt_outlined)),
           selectedIcon: Icon(Icons.receipt, color: Colors.white),

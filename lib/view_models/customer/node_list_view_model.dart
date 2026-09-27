@@ -32,20 +32,20 @@ class NodeListViewModel extends ChangeNotifier {
         newRelayStatus.join() != _previousRelayStatus.join();
   }
 
-  void onLivePayloadReceived(List<String> nodeLiveMeg, List<String> inputOutputStatus) {
+  void onLivePayloadReceived(List<String> nodeLiveMeg, List<String> inputOutputStatus, bool isOMs) {
 
     try {
       for (String group in nodeLiveMeg) {
         List<String> values = group.split(",");
-        if (values.length < 5) continue;
+        if (isOMs ? values.length < 3 : values.length < 5) continue;
 
         int? sNo = int.tryParse(values[0]);
         double? sVolt = double.tryParse(values[1]);
         double? batVolt = double.tryParse(values[2]);
-        int? status = int.tryParse(values[3]);
-        String lastFeedback = values[4];
+        int? status = isOMs ? 0 : int.tryParse(values[3]);
+        String lastFeedback = isOMs ? values[3] : values[4];
         String version = values.length > 5 ? values[5] : '0.0.0';
-        String missedCommunication = values[6];
+        String missedCommunication = isOMs ? '0': values[6];
 
         if (sNo == null || sVolt == null || batVolt == null || status == null) continue;
 
@@ -108,7 +108,7 @@ class NodeListViewModel extends ChangeNotifier {
 
   double calculateGridHeight(int itemCount) {
     int rows = (itemCount / 5).ceil();
-    return rows * 53;
+    return rows * 60;
   }
 
   String formatDateTime(String? dateTimeString) {

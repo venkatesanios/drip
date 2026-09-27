@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
- import '../../../Screens/Dealer/sevicecustomer.dart';
+import 'package:oro_drip_irrigation/modules/irrigation_report/view/oms_log.dart';
+import '../../../Screens/Dealer/sevicecustomer.dart';
 import '../../../Screens/Logs/irrigation_and_pump_log.dart';
 import '../../../Screens/Map/oro_map/map_areator.dart';
 import '../../../Screens/Map/oro_map/map_oro.dart';
@@ -24,8 +25,7 @@ Widget buildCustomerMainScreen({required int index, required UserRole role, requ
   final isGem = [...AppConstants.gemModelList].contains(cMaster.modelId);
   final isNova = [...AppConstants.ecoGemModelList].contains(cMaster.modelId);
   final isOms = [...AppConstants.omsGemList].contains(cMaster.modelId);
-  final isAquaculture = [...AppConstants.aquacultureModelList].contains(
-      cMaster.modelId);
+  final isAquaculture = [...AppConstants.aquacultureModelList].contains(cMaster.modelId);
   final isGsmWeather = [...AppConstants.weatherModelList].contains(cMaster.modelId);
 
    switch (index) {
@@ -60,7 +60,6 @@ Widget buildCustomerMainScreen({required int index, required UserRole role, requ
         controllerId: cMaster.controllerId,
         isWide: true,
       );
-
     case 3:
       return (isGem || isNova) ? IrrigationAndPumpLog(
         userData: {
@@ -69,7 +68,11 @@ Widget buildCustomerMainScreen({required int index, required UserRole role, requ
           'customerId': cSite.customerId,
         },
         masterData: cMaster,
-      ) :
+      ) : isOms ? OmsLog(
+          userId: cSite.customerId,
+          controllerId: cMaster.controllerId,
+          nodeControllerId: 0
+      ):
       ControllerSettingWide(
         userId: userId,
         customerId: cSite.customerId,
@@ -77,7 +80,7 @@ Widget buildCustomerMainScreen({required int index, required UserRole role, requ
       );
 
     case 4:
-      return (isGem || isNova) ? ControllerSettingWide(
+      return (isGem || isNova || isOms) ? ControllerSettingWide(
         userId: userId,
         customerId: cSite.customerId,
         masterController: cMaster,
@@ -91,7 +94,7 @@ Widget buildCustomerMainScreen({required int index, required UserRole role, requ
       );
 
     case 5:
-      return (isGem || isNova) ? SiteConfig(
+      return (isGem || isNova || isOms) ? SiteConfig(
         userId: userId,
         customerId: cSite.customerId,
         customerName: cSite.customerName,
@@ -102,13 +105,11 @@ Widget buildCustomerMainScreen({required int index, required UserRole role, requ
         userId: cSite.customerId,
         controllerId: cMaster.controllerId,
       );
-
     case 6:
       return TicketHomePage(
         userId: cSite.customerId,
         controllerId: cMaster.controllerId,
       );
-
     case 7:
       return isAquaculture ? MapScreenValve(customerId: cSite.customerId,
         controllerId: cMaster.controllerId,
@@ -137,10 +138,9 @@ Widget buildCustomerMainScreen({required int index, required UserRole role, requ
 
 Map<String, dynamic> dashboardToWeatherFormat(
     MasterControllerModel dashboard) {
-  final deviceList = <Map<String, dynamic>>[];
 
-  final configList =
-  dashboard.configObjects.map((e) => e.toJson()).toList();
+  final deviceList = <Map<String, dynamic>>[];
+  final configList = dashboard.configObjects.map((e) => e.toJson()).toList();
 
   deviceList.add({
     "controllerId": dashboard.controllerId,
@@ -155,4 +155,3 @@ Map<String, dynamic> dashboardToWeatherFormat(
     "configObject": configList,
   };
 }
-

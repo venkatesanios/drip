@@ -3,6 +3,7 @@ import 'package:oro_drip_irrigation/utils/helpers/mc_permission_helper.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../models/customer/site_model.dart';
+import '../../../../providers/user_provider.dart';
 import '../../../../utils/constants.dart';
 import '../../../../view_models/customer/customer_screen_controller_view_model.dart';
 import '../../../customer/home_sub_classes/current_program.dart';
@@ -19,6 +20,7 @@ class CustomerHomeMiddle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
+    final userData = context.read<UserProvider>().loggedInUser;
     final viewModel = Provider.of<CustomerScreenControllerViewModel>(context);
     int customerId = viewModel.mySiteList.data[viewModel.sIndex].customerId;
     final cM = viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex];
@@ -35,7 +37,7 @@ class CustomerHomeMiddle extends StatelessWidget {
         ? irrigationLines.where((line) => line.name != viewModel.myCurrentIrrLine).toList()
         : irrigationLines.where((line) => line.name == viewModel.myCurrentIrrLine).toList();
 
-    return _buildWebLayout(context, customerId, cM.controllerId, cM.modelId, cM.deviceId,
+    return _buildWebLayout(context, userData.id, customerId, cM.controllerId, cM.modelId, cM.deviceId,
         linesToDisplay, scheduledProgram, viewModel, isNova, isAquaculture);
   }
 
@@ -51,7 +53,7 @@ class CustomerHomeMiddle extends StatelessWidget {
     );
   }
 
-  Widget _buildWebLayout(BuildContext context, int customerId, int controllerId, int modelId,
+  Widget _buildWebLayout(BuildContext context, int userId, int customerId, int controllerId, int modelId,
       String deviceId, List<IrrigationLineModel> irrigationLine,
       scheduledProgram, CustomerScreenControllerViewModel viewModel, bool isNova, bool isAquaculture) {
 
@@ -157,7 +159,7 @@ class CustomerHomeMiddle extends StatelessWidget {
 
                     if (scheduledProgram.isNotEmpty)
                       ScheduledProgramWide(
-                        userId: customerId,
+                        userId: userId,
                         scheduledPrograms: scheduledProgram,
                         controllerId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].controllerId,
                         deviceId: viewModel.mySiteList.data[viewModel.sIndex].master[viewModel.mIndex].deviceId,

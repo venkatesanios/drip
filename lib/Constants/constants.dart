@@ -28,10 +28,11 @@ class Constants {
         for(var site in data[globalKey]){
           dynamic siteFormation = site;
           for(var siteKey in site.keys){
-            if(!['objectId', 'sNo', 'name', 'objectName', 'connectionNo', 'type', 'controllerId', 'count', 'siteMode', 'pumpType', 'connectedObject', 'location'].contains(siteKey)){
+            if(!['objectId', 'sNo', 'name', 'objectName', 'connectionNo', 'type', 'controllerId', 'count', 'siteMode', 'pumpType', 'connectedObject', 'location', 'assignedObject', 'weatherStation'].contains(siteKey)){
               siteFormation[siteKey] = siteFormation[siteKey] is List<dynamic>
                   ? (siteFormation[siteKey] as List<dynamic>).map((element) {
                 if(element is double){
+                  print("element : ${element}");
                   return configObject.firstWhere((object) => object['sNo'] == element);
                 }else{
                   var object = configObject.firstWhere((object) => object['sNo'] == element['sNo']);
@@ -134,7 +135,6 @@ class Constants {
       return null; // CRC mismatch
     }
   }
-
 
   static List<Map<String, dynamic>> dataConversionForScheduleView(Map<String, dynamic> payload) {
     List<Map<String, dynamic>> convertedListInside = [];
@@ -253,5 +253,4 @@ class Constants {
     List<String> list = time.split(':');
     return list.length > 1 ? '${list[0]}:${list[1]}${AppConstants.ecoGemModelList.contains(modelId) ? '' :':${list[2]}'}' : time;
   }
-
 }

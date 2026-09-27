@@ -53,7 +53,7 @@ class _ViewConfigState extends State<ViewConfig> {
       15: "scheduleconfig1",
     };
 
-    if (pumpConfig == 2) {
+    if (pumpConfig >= 2) {
       indexToName.addAll({
         7: "currentconfig2",
         10: "delayconfig2",
@@ -61,12 +61,20 @@ class _ViewConfigState extends State<ViewConfig> {
         16: "scheduleconfig2",
       });
     }
-    if (pumpConfig == 3) {
+    if (pumpConfig >= 3) {
       indexToName.addAll({
         8: "currentconfig3",
         11: "delayconfig3",
         14: "rtcconfig3",
         17: "scheduleconfig3",
+      });
+    }
+    if (pumpConfig >= 4) {
+      indexToName.addAll({
+        18: "currentconfig4",
+        19: "delayconfig4",
+        20: "rtcconfig4",
+        21: "scheduleconfig4",
       });
     }
 
@@ -142,7 +150,9 @@ class _ViewConfigState extends State<ViewConfig> {
 
   void updateViewPayloads(String pumpConfigValue) {
     int numberOfPumps = int.tryParse(pumpConfigValue) ?? 1;
+    print("numberOfPumps : ${numberOfPumps}");
     configs = generateDynamicConfigs(numberOfPumps);
+    print("configs => $configs");
     setState(() {});
   }
 
@@ -546,7 +556,7 @@ class _ViewConfigState extends State<ViewConfig> {
             children: [
               ...(!_hasPayload('calibration', provider, deviceId)
                   ? settings.map((setting) {
-                if ([206].contains(setting.type) && _hasPayload('ctconfig', provider, deviceId)) {
+                if (AppConstants.otherSetting.contains(setting.type) && _hasPayload('ctconfig', provider, deviceId)) {
                   final values = widget.isLora
                       ? provider.viewSetting['cM'].first['ctconfig'].split(',')
                       : '${jsonDecode(provider.viewSettingsList[0])[1]['ctconfig']}'.split(',');
@@ -556,7 +566,7 @@ class _ViewConfigState extends State<ViewConfig> {
                       _buildSettingCard(setting, values, titles: titles),
                     ],
                   );
-                } else if ([204].contains(setting.type) && _hasPayload('voltageconfig', provider, deviceId)) {
+                } else if (AppConstants.voltageSetting.contains(setting.type) && _hasPayload('voltageconfig', provider, deviceId)) {
                   final values = widget.isLora
                       ? provider.viewSetting['cM'].first['voltageconfig'].split(',')
                       : '${jsonDecode(provider.viewSettingsList[0])[2]['voltageconfig']}'.split(',');
@@ -566,15 +576,15 @@ class _ViewConfigState extends State<ViewConfig> {
               }).toList()
                   : calibrationSettings != null
                   ? calibrationSettings.map((setting) {
-                if ([208, 209, 210].contains(setting.type)) {
+                if ([...AppConstants.voltageCalibration, ...AppConstants.currentCalibration, ...AppConstants.otherCalibration].contains(setting.type)) {
                   final List<String> values = widget.isLora
                       ? provider.viewSetting['cM'].first['calibration'].split(',')
                       : '${jsonDecode(provider.viewSettingsList[0])[3]['calibration']}'.split(',');
                   return _buildSettingCard(
                     setting,
-                    setting.type == 208
+                    AppConstants.voltageCalibration.contains(setting.type)
                         ? values
-                        : setting.type == 209
+                        : AppConstants.currentCalibration.contains(setting.type)
                         ? values.skip(3).toList()
                         : values.skip(6).toList(),
                   );
@@ -590,8 +600,8 @@ class _ViewConfigState extends State<ViewConfig> {
   }
 
   Widget _buildSettingCard(SettingList setting, List<String> values, {List<String> titles = const []}) {
-    print("values => ${values}");
-    print([208, 209, 210].contains(setting.type));
+    print("setting.setting.length => ${setting.setting.length}   ||    values.length => ${values.length}");
+    int range = setting.setting.length < values.length ? setting.setting.length : values.length;
     return SizedBox(
       width: MediaQuery.of(context).size.width <= 500 ? MediaQuery.of(context).size.width : 400,
       child: Column(
@@ -631,10 +641,11 @@ class _ViewConfigState extends State<ViewConfig> {
                 children: [
                   if(titles.isEmpty)
                     ...List.generate(
-                      [204, 208, 209, 210].contains(setting.type) ? setting.setting.length : values.length,
+                      // [...AppConstants.voltageSetting, ...AppConstants.voltageCalibration, ...AppConstants.currentCalibration, ...AppConstants.otherCalibration].contains(setting.type) ? setting.setting.length : values.length,
+                      range,
                           (i) {
                         print("${i} = ${setting.setting[i].title}    ${setting.setting.length}  ${setting.type}");
-                            if(i < values.length){
+                            if(i < values.length && i < setting.setting.length){
                               return _buildListTile(setting.setting[i].title, values[i]);
                             }else{
                               return const SizedBox();
@@ -671,16 +682,16 @@ class _ViewConfigState extends State<ViewConfig> {
             runAlignment: WrapAlignment.spaceBetween,
             children: pumps.isNotEmpty
                 ? pumps[0].settingList.map((setting) {
-              if ([23, 203].contains(setting.type) && _hasPayload('currentconfig', provider, deviceId)) {
+              if ([23, ...AppConstants.currentSetting].contains(setting.type) && _hasPayload('currentconfig', provider, deviceId)) {
                 return _buildConfigCard(provider, setting, pumps, 'currentconfig');
               }
-              if ([22, 202].contains(setting.type) &&
+              if ([22, ...AppConstants.timerSetting].contains(setting.type) &&
                   (_hasPayload('rtcconfig', provider, deviceId) || _hasPayload('delayconfig', provider, deviceId))) {
                 return _hasPayload('rtcconfig', provider, deviceId)
                     ? _buildRTCConfigCard(provider, setting, pumps)
                     : _buildDelayConfigCard(provider, setting, pumps);
               }
-              if ([25, 205].contains(setting.type) && _hasPayload('scheduleconfig', provider, deviceId)) {
+              if ([25, ...AppConstants.additionalSetting].contains(setting.type) && _hasPayload('scheduleconfig', provider, deviceId)) {
                 return _buildConfigCard(provider, setting, pumps, 'scheduleconfig');
               }
               return Container();
@@ -693,6 +704,7 @@ class _ViewConfigState extends State<ViewConfig> {
   }
 
   Widget _buildConfigCard(MqttPayloadProvider provider, dynamic setting, List pumps, String configType) {
+    print("pumps ::: $pumps");
     final values = _getConfigValues(provider, configType);
     final pumpName = _getPumpName(pumps, configType);
     return _buildSettingCardWithTitle(pumpName, setting, values, offset: widget.isLora ? 1 : 0);
@@ -830,6 +842,8 @@ class _ViewConfigState extends State<ViewConfig> {
         ? 2
         : selectedPayload.contains('${configType}3')
         ? 3
+        : selectedPayload.contains('${configType}4')
+        ? 4
         : 1;
   }
 
@@ -919,15 +933,6 @@ class _ViewConfigState extends State<ViewConfig> {
                     return Container();
                   },
                 ),
-                /*...List.generate(
-                  [208,209,210].contains(setting.type) ? setting.setting.length : values.length,
-                      (i) {
-                    print("setting.setting.length :: ${setting.setting.length}");
-                    print("values.length :: ${values.length}");
-                    return Text('${i}');
-                    // return _buildListTile(setting.setting[i].title, values[i + offset]);
-                      },
-                ),*/
               ],
             ),
           )

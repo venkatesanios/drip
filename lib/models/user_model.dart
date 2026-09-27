@@ -37,6 +37,18 @@ class UserModel {
     );
   }
 
+  Map<String, dynamic> toJson() => {
+    "id": id,
+    "name": name,
+    "email": email,
+    "mobileNo": mobileNo,
+    "countryCode": countryCode,
+    "role": role,
+    "token": token,
+    "configPermission": configPermission,
+    "password": password,
+  };
+
   static UserRole _mapRole(String? userType) {
     switch (userType) {
       case '1':

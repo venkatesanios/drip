@@ -8,7 +8,6 @@ import '../../../Widgets/custom_buttons.dart';
 import '../repository/irrigation_repository.dart';
 import 'log_home.dart';
 
-
 class ZoneCyclicLog extends StatefulWidget {
   final Map<String, dynamic> userData;
   const ZoneCyclicLog({super.key, required this.userData});
@@ -24,6 +23,9 @@ class _ZoneCyclicLogState extends State<ZoneCyclicLog> {
   String _range = '';
   String _rangeCount = '';
   DateRange? selectedDateRange;
+
+  DateTime _pickerStartDate = DateTime.now();
+  DateTime _pickerEndDate = DateTime.now();
 
   Map<String, dynamic> data = {};
 
@@ -94,12 +96,25 @@ class _ZoneCyclicLogState extends State<ZoneCyclicLog> {
     debugPrint('args : $args');
     setState(() {
       if (args.value is PickerDateRange) {
-        _selectedDate  = '${DateFormat('dd/MM/yyyy').format(args.value.startDate)} -'
-            ' ${DateFormat('dd/MM/yyyy').format(args.value.endDate ?? args.value.startDate)}';
+        final PickerDateRange range = args.value as PickerDateRange;
+        final DateTime start = range.startDate ?? DateTime.now();
+        // If the user has only tapped a single date, endDate will be
+        // null. Fall back to start so it's treated as a one-day range
+        // instead of silently reverting to today's date.
+        final DateTime end = range.endDate ?? start;
+
+        _pickerStartDate = start;
+        _pickerEndDate = end;
+
+        _selectedDate = '${DateFormat('dd/MM/yyyy').format(start)} -'
+            ' ${DateFormat('dd/MM/yyyy').format(end)}';
 
         debugPrint('_selectedDate : $_selectedDate');
       } else if (args.value is DateTime) {
-        _selectedDate = args.value.toString();
+        final DateTime picked = args.value as DateTime;
+        _pickerStartDate = picked;
+        _pickerEndDate = picked;
+        _selectedDate = picked.toString();
       } else if (args.value is List<DateTime>) {
         _dateCount = args.value.length.toString();
       } else {
@@ -125,11 +140,11 @@ class _ZoneCyclicLogState extends State<ZoneCyclicLog> {
                     child:SfDateRangePicker(
                       onSelectionChanged:  _onSelectionChanged,
                       selectionMode: DateRangePickerSelectionMode.range,
+                      // Use the last-selected dates instead of hardcoding
+                      // DateTime.now() every time the dialog is opened.
                       initialSelectedRange: PickerDateRange(
-                        // DateTime.now().subtract(const Duration(days: 4)),
-                        // DateTime.now().add(const Duration(days: 3))
-                          DateTime.now(),
-                          DateTime.now()
+                        _pickerStartDate,
+                        _pickerEndDate,
                       ),
                     ),
                   );
@@ -139,6 +154,9 @@ class _ZoneCyclicLogState extends State<ZoneCyclicLog> {
                 CustomMaterialButton(
                   title: 'Cancel',
                   outlined: true,
+                  onPressed: (){
+                    Navigator.pop(context);
+                  },
                 ),
                 CustomMaterialButton(
                   onPressed: ()async{

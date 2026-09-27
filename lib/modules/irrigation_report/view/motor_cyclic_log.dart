@@ -25,6 +25,12 @@ class _MotorCyclicLogState extends State<MotorCyclicLog> {
   String _rangeCount = '';
   DateRange? selectedDateRange;
 
+  // Keep track of the actual selected start/end dates so the picker
+  // remembers the last selection instead of resetting to "today"
+  // every time the dialog is reopened.
+  DateTime _pickerStartDate = DateTime.now();
+  DateTime _pickerEndDate = DateTime.now();
+
   Map<String, dynamic> data = {};
 
   @override
@@ -93,12 +99,25 @@ class _MotorCyclicLogState extends State<MotorCyclicLog> {
   void _onSelectionChanged(DateRangePickerSelectionChangedArgs args) {
     setState(() {
       if (args.value is PickerDateRange) {
-        _selectedDate  = '${DateFormat('dd/MM/yyyy').format(args.value.startDate)} -'
-            ' ${DateFormat('dd/MM/yyyy').format(args.value.endDate ?? args.value.startDate)}';
+        final PickerDateRange range = args.value as PickerDateRange;
+        final DateTime start = range.startDate ?? DateTime.now();
+        // If the user has only tapped a single date, endDate will be
+        // null. Fall back to start so it's treated as a one-day range
+        // instead of silently reverting to today's date.
+        final DateTime end = range.endDate ?? start;
+
+        _pickerStartDate = start;
+        _pickerEndDate = end;
+
+        _selectedDate = '${DateFormat('dd/MM/yyyy').format(start)} -'
+            ' ${DateFormat('dd/MM/yyyy').format(end)}';
 
         print('_selectedDate : $_selectedDate');
       } else if (args.value is DateTime) {
-        _selectedDate = args.value.toString();
+        final DateTime picked = args.value as DateTime;
+        _pickerStartDate = picked;
+        _pickerEndDate = picked;
+        _selectedDate = picked.toString();
       } else if (args.value is List<DateTime>) {
         _dateCount = args.value.length.toString();
       } else {
@@ -125,11 +144,11 @@ class _MotorCyclicLogState extends State<MotorCyclicLog> {
                     child:SfDateRangePicker(
                       onSelectionChanged:  _onSelectionChanged,
                       selectionMode: DateRangePickerSelectionMode.range,
+                      // Use the last-selected dates instead of hardcoding
+                      // DateTime.now() every time the dialog is opened.
                       initialSelectedRange: PickerDateRange(
-                        // DateTime.now().subtract(const Duration(days: 4)),
-                        // DateTime.now().add(const Duration(days: 3))
-                          DateTime.now(),
-                          DateTime.now()
+                        _pickerStartDate,
+                        _pickerEndDate,
                       ),
                     ),
                   );
@@ -139,6 +158,9 @@ class _MotorCyclicLogState extends State<MotorCyclicLog> {
                 CustomMaterialButton(
                   title: 'Cancel',
                   outlined: true,
+                  onPressed: (){
+                    Navigator.pop(context);
+                  },
                 ),
                 CustomMaterialButton(
                   onPressed: ()async{

@@ -731,6 +731,11 @@ class _SequenceScreenState extends State<SequenceScreen> {
         : isMainValve
         ? sequence[indexToShow]['mainValve']?.any((e) => e['sNo'] == item.sNo) ?? false
         : sequence[indexToShow]['valve']?.any((e) => e['sNo'] == item.sNo) ?? false;
+    for(var i in sequence[indexToShow]['mainValve']){
+      print('flow valve => ${i}');
+    }
+    print("sequence[indexToShow]['selectedGroup'] : ${sequence[indexToShow]['selectedGroup']}");
+
     print("isSelected:$isSelected");
     print("mainValve:$isMainValve");
 

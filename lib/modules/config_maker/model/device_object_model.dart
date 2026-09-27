@@ -11,7 +11,7 @@ class DeviceObjectModel {
   int? controllerId;
   String? count;
   int? connectedObject;
-  List<double> assignObject;
+  List<dynamic> assignObject;
   int? siteMode;
   double? location;
 
@@ -41,7 +41,7 @@ class DeviceObjectModel {
       controllerId: data['controllerId'],
       count: data['count'],
       connectedObject: data['connectedObject'],
-      assignObject: data['assignObject'] == null ? [] : (data['assignObject'] as List<dynamic>).map((sNo) => sNo as double).toList(),
+      assignObject: data['assignObject'] ?? [],
       siteMode: data['siteMode'],
       location: (data['location'] == 0 ? 0.0 : data['location']) ?? 0.00,
     );

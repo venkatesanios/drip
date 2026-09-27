@@ -39,7 +39,6 @@ class PumpControllerProvider extends ChangeNotifier {
       "toDate": DateFormat("yyyy-MM-dd").format(selectedDate),
     };
 
-    // print("data from getUserPumpLog :: $data");
     try {
       isLoading = true;
       final getPumpController = await repository.getUserPumpLog(data, nodeControllerId != 0);
@@ -52,6 +51,7 @@ class PumpControllerProvider extends ChangeNotifier {
         if (response['data'] is List) {
           pumpLogData = (response['data'] as List).map((i) => PumpLogData.fromJson(i)).toList();
           for (var i = 0; i < pumpLogData.length; i++) {
+            print(pumpLogData[i].motor1);
             if (pumpLogData[i].motor1.isNotEmpty) {
               segments.addAll({0: "Motor 1"});
             }

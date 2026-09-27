@@ -53,6 +53,10 @@ class _PayloadProgressDialogState extends State<PayloadProgressDialog> {
     "300-3": "Delay settings for pump 3",
     "500-3": "RTC settings for pump 3",
     "600-3": "Schedule config for pump 3",
+    "400-4": "Current settings for pump 4",
+    "300-4": "Delay settings for pump 4",
+    "500-4": "RTC settings for pump 4",
+    "600-4": "Schedule config for pump 4",
     "900": "Calibration settings",
     "55": "Valve settings",
     "57": "Moisture settings",
@@ -245,6 +249,7 @@ class _PayloadProgressDialogState extends State<PayloadProgressDialog> {
               itemBuilder: (context, index) {
                 var status = payloadStatuses[index];
                 String? key = status['key'];
+                print("key : $key");
                 String message = statusMessages[key] ?? "Unknown setting";
 
                 return CheckboxListTile(

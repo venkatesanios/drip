@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../../../StateManagement/customer_provider.dart';
 import '../../../providers/user_provider.dart';
 import '../../../utils/constants.dart';
@@ -35,6 +34,8 @@ class _CustomerScreenWideState
 
     final userProvider = context.read<UserProvider>();
     final loggedInUser = userProvider.loggedInUser;
+    print("loggedInUser => ${loggedInUser.toJson()}");
+
 
     final vm = context.watch<CustomerScreenControllerViewModel>();
     final navRail = context.watch<NavRailViewModel>();

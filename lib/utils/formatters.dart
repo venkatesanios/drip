@@ -92,4 +92,17 @@ class Formatters {
     });
   }
 
+  String formatDateDMY(String? dateTime) {
+    if (dateTime == null || dateTime.trim().isEmpty) {
+      return "--";
+    }
+
+    try {
+      final DateTime date = DateTime.parse(dateTime);
+      return DateFormat('dd MMMM yyyy hh:mm a').format(date);
+    } catch (e) {
+      return "--";
+    }
+  }
+
 }

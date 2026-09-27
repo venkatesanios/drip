@@ -23,8 +23,10 @@ class ResetVerssion extends StatefulWidget {
       {Key? key,
         required this.userId,
         required this.controllerId,
-        required this.deviceID});
-  final userId, controllerId, deviceID;
+        required this.deviceID,
+        required this.modeID,
+      });
+  final userId, controllerId, deviceID,modeID;
 
   @override
   _ResetVerssionState createState() => _ResetVerssionState();
@@ -48,37 +50,27 @@ class _ResetVerssionState extends State<ResetVerssion> {
 
   valAssing(List<dynamic> data) {
     mergedList = [];
-    for (var group in data) {
-      var userGroupId = group['userGroupId'];
-      var groupName = group['groupName'];
-      var active = group['active'];
-      var masterList = group['master'];
-
-      for (var device in masterList) {
-        mergedList.add({
-          'userGroupId': userGroupId,
-          'groupName': groupName,
-          'active': active,
-          'controllerId': device['controllerId'],
-          'deviceId': device['deviceId'],
-          'deviceName': device['deviceName'],
-          'categoryId': device['categoryId'],
-          'categoryName': device['categoryName'],
-          'modelId': device['modelId'],
-          'modelName': device['modelName'],
-          'loraFrequency': device['loraFrequency'],
-          'latestVersion': device['latestVersion'] ?? '',
-          'currentVersion': device['currentVersion'] ?? '',
-          'status': 'Status',
-        });
-      }
+    for (var device in data) {
+      mergedList.add({
+        'controllerId': device['controllerId'],
+        'deviceId': device['deviceId'],
+        'deviceName': device['deviceName'],
+        'categoryId': device['categoryId'],
+        'categoryName': device['categoryName'],
+        'modelId': device['modelId'],
+        'modelName': device['modelName'],
+        'loraFrequency': device['loraFrequency'],
+        'latestVersion': device['latestVersion'] ?? '',
+        'currentVersion': device['currentVersion'] ?? '',
+        'status': 'Status',
+      });
     }
   }
 
   Future<void> fetchData() async {
     try{
       final Repository repository = Repository(HttpService());
-      var response = await repository.getUserDeviceFirmwareDetails({"userId": widget.userId});
+      var response = await repository.getUserDeviceFirmwareDetails({"userId": widget.userId,"controllerId": widget.controllerId});
       if (response.statusCode == 200) {
         setState(() {
           AppLog.log("widget.userId:${widget.userId}");
@@ -104,7 +96,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    mqttPayloadProvider =
+     mqttPayloadProvider =
         Provider.of<MqttPayloadProvider>(context, listen: false);
     fetchData();
     checkrole().then((role) {
@@ -262,7 +254,9 @@ class _ResetVerssionState extends State<ResetVerssion> {
                               icon: const Icon(Icons.arrow_circle_right_outlined),
                             ),
                           ),
-                          Padding(
+                    if(![...AppConstants.ecoGemModelList,
+                ...AppConstants.shine2V, ...AppConstants.shine4V, ...AppConstants.elite10V]
+                    .contains(widget.modeID))...[   Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Tooltip(
                               message: "Config Hardware",
@@ -301,7 +295,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
                                 icon: const Icon(Icons.settings_outlined),
                               ),
                             ),
-                          ) ,
+                          ) ,],
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Tooltip(
@@ -374,12 +368,12 @@ class _ResetVerssionState extends State<ResetVerssion> {
                         style:
                         const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
 
-                      const SizedBox(height: 10),
-                      Text(
-                        'SiteName:${mergedList[index]['groupName'] ?? ''}',
-                        style:
-                        const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                      ),
+                      // const SizedBox(height: 10),
+                      // Text(
+                      //   'SiteName:${mergedList[index]['groupName'] ?? ''}',
+                      //   style:
+                      //   const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                      // ),
 
                       const SizedBox(height: 10),
                       Text(
@@ -394,11 +388,13 @@ class _ResetVerssionState extends State<ResetVerssion> {
                         const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 10),
-                      Text(
+                    if(![...AppConstants.ecoGemModelList,
+                ...AppConstants.shine2V, ...AppConstants.shine4V, ...AppConstants.elite10V]
+                    .contains(widget.modeID))...[ Text(
                         'Server version:${mergedList[index]['latestVersion']!}',
                         style:
                         const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                      ),
+                      ),],
                       const SizedBox(height: 10),
                       imeicheck != mergedList[index]['deviceId']!
                           ? mergedList[index]['status'] != 'Status'
@@ -412,13 +408,15 @@ class _ResetVerssionState extends State<ResetVerssion> {
                       )
                           : Container()
                           : Container(),
-                      imeicheck != mergedList[index]['deviceId']!
+                    if(![...AppConstants.ecoGemModelList,
+                ...AppConstants.shine2V, ...AppConstants.shine4V, ...AppConstants.elite10V]
+                    .contains(widget.modeID))...[  imeicheck != mergedList[index]['deviceId']!
                           ? Text(
                         '${mergedList[index]['status']}',
                         style: const TextStyle(
                             fontSize: 14, fontWeight: FontWeight.bold),
                       )
-                          : const Text('Status'),
+                          : const Text('Status'),],
 
                       mergedList[index]['status'] != 'Status'
                           ?  Padding(
@@ -457,51 +455,57 @@ class _ResetVerssionState extends State<ResetVerssion> {
                         height: 1,
                         color: Colors.grey,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(0.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            FilledButton(
-                              style: ButtonStyle(
-                                  backgroundColor: checkupdatediable == 0
-                                      ? MaterialStateProperty.all(Colors.red)
-                                      : MaterialStateProperty.all(Colors.grey)),
-                              onPressed: () {
-                                selectindex = index;
-                                checkupdatediable == 0
-                                    ? resetItem(index)
-                                    : _showSnackBar("Please wait ....");
-                              },
-                              child: const Text('Restart'),
-                            ),
-                            const SizedBox(width: 10),
-                            FilledButton(
-                              style: ButtonStyle(
-                                  backgroundColor: checkupdatediable == 0
-                                      ? MaterialStateProperty.all(Colors.green)
-                                      : MaterialStateProperty.all(Colors.grey)),
-                              onPressed: () {
-                                selectindex = index;
-                                checkupdatediable == 0
-                                    ? updateItem(index)
-                                    : _showSnackBar("Please wait ....");
-                              },
-                              child: checkupdatediable == 0
-                                  ? mergedList[index]['currentVersion'] !=
-                                  mergedList[index]['latestVersion']
-                                  ? const BlinkingText(
-                                text: 'Update!', // Provide text here
-                                style: TextStyle(color: Colors.white),
-                                blinkDuration:
-                                Duration(milliseconds: 500),
-                              )
-                                  : const Text("Update")
-                                  : const Text("Update"),
-                            ),
-                          ],
+                      if(![...AppConstants.ecoGemModelList,
+                        ...AppConstants.shine2V, ...AppConstants.shine4V, ...AppConstants.elite10V]
+                          .contains(widget.modeID))...[
+
+                        Padding(
+                          padding: const EdgeInsets.all(0.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              FilledButton(
+                                style: ButtonStyle(
+                                    backgroundColor: checkupdatediable == 0
+                                        ? MaterialStateProperty.all(Colors.red)
+                                        : MaterialStateProperty.all(Colors.grey)),
+                                onPressed: () {
+                                  selectindex = index;
+                                  checkupdatediable == 0
+                                      ? resetItem(index)
+                                      : _showSnackBar("Please wait ....");
+                                },
+                                child: const Text('Restart'),
+                              ),
+                              const SizedBox(width: 10),
+                              FilledButton(
+                                style: ButtonStyle(
+                                    backgroundColor: checkupdatediable == 0
+                                        ? MaterialStateProperty.all(Colors.green)
+                                        : MaterialStateProperty.all(Colors.grey)),
+                                onPressed: () {
+                                  selectindex = index;
+                                  checkupdatediable == 0
+                                      ? updateItem(index)
+                                      : _showSnackBar("Please wait ....");
+                                },
+                                child: checkupdatediable == 0
+                                    ? mergedList[index]['currentVersion'] !=
+                                    mergedList[index]['latestVersion']
+                                    ? const BlinkingText(
+                                  text: 'Update!', // Provide text here
+                                  style: TextStyle(color: Colors.white),
+                                  blinkDuration:
+                                  Duration(milliseconds: 500),
+                                )
+                                    : const Text("Update")
+                                    : const Text("Update"),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
+                      ],
+
                       // SizedBox(height: 10),
                     ],
                   ),

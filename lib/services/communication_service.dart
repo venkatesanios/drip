@@ -75,7 +75,9 @@ class CommunicationService {
       } else{
         debugPrint("bluetooth not connected...");
       }
+
       print("bleService.isConnected : ${bleService.isConnected}");
+
       if (bleService.isConnected) {
         debugPrint("bluetooth connected...");
         try {
@@ -87,44 +89,6 @@ class CommunicationService {
         }
       }
 
-      /*if (mqttService.isConnected) {
-        try {
-          final topic = '${AppConstants.publishTopic}/${customerProvider.deviceId}';
-          debugPrint('Publishing to topic: $topic with payload: $payload');
-          await mqttService.topicToPublishAndItsMessage(payload, topic);
-          result['mqtt'] = true;
-        } catch (e) {
-          debugPrint('Failed to send via MQTT: $e');
-        }
-      }
-
-      if (NetworkUtils.isOnline && serverMsg.isNotEmpty) {
-        try {
-          await sendCommandToServer(serverMsg, payload);
-          result['http'] = true;
-        } catch (e) {
-          debugPrint('Failed to send via HTTP: $e');
-        }
-      }
-
-
-      if (blueService.isConnected) {
-        try {
-          blueService.write(payload);
-          result['bluetooth'] = true;
-        } catch (e) {
-          debugPrint('Failed to send via Bluetooth: $e');
-        }
-      }
-
-      if (bleService.isConnected) {
-        try {
-          await bleService.write(payload);
-          result['bluetooth'] = true;
-        } catch (e) {
-          debugPrint('Failed to send via BLE: $e');
-        }
-      }*/
     } catch (e) {
       debugPrint('Unexpected error during sending command: $e');
     }

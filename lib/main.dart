@@ -35,7 +35,6 @@ import 'StateManagement/mqtt_payload_provider.dart';
 import 'StateManagement/overall_use.dart';
 import 'modules/constant/state_management/constant_provider.dart';
 
-
 // Initialize local notifications plugin
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -78,7 +77,6 @@ FutureOr<void> main() async {
   // CRITICAL: Initialize binding FIRST, before any other setup
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Set up error handling AFTER binding initialization
   FlutterError.onError = (FlutterErrorDetails details) {
     print('Flutter Error: ${details.exception}');
     print('Stack trace: ${details.stack}');

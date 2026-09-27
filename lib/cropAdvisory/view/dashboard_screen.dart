@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import '../model/cropadvisory_model.dart';
 import 'package:intl/intl.dart';
@@ -13,6 +15,7 @@ class DashboardScreen extends StatefulWidget {
   final String? windspeed;
   final bool isInsideMain;
   final int userID, controllerId;
+  final Function(int)? onTabChanged;
   final CropAdvisoryModel model;
 
   const DashboardScreen({
@@ -23,14 +26,13 @@ class DashboardScreen extends StatefulWidget {
     this.isInsideMain = false,
     required this.userID,
     required this.controllerId,
+    this.onTabChanged,
     required this.model,
   });
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
-
-
 
 class _DashboardScreenState extends State<DashboardScreen> {
   late CropAdvisoryModel _model;
@@ -41,121 +43,118 @@ class _DashboardScreenState extends State<DashboardScreen> {
     super.initState();
     _model = widget.model;
   }
+
   String _formatAddress(String? raw) {
     if (raw == null || raw.trim().isEmpty) return '';
-
     final parts = raw.split(',').map((e) => e.trim()).toList();
-
     final filtered = parts
-        .where((part) => !part.contains('+')) // remove Plus Code segment
-        .map((part) => part.replaceAll(RegExp(r'\s*\d{4,6}$'), '').trim()) // strip pincode
+        .where((part) => !part.contains('+'))
+        .map((part) => part.replaceAll(RegExp(r'\s*\d{4,6}$'), '').trim())
         .where((part) => part.isNotEmpty)
         .toList();
-
     return filtered.join(', ');
   }
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FBFF),
-      appBar: _selectedIndex == 0
+      appBar: widget.isInsideMain
           ? AppBar(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              toolbarHeight: 70,
-              leading: Padding(
-                padding: const EdgeInsets.only(left: 8.0),
-                child: IconButton(
-                  icon: const Icon(Icons.menu, color: Colors.black, size: 28),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => CropListScreen(
-                              userId: widget.userID,
-                              controllerId: widget.controllerId)),
-                    );
-                  },
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        toolbarHeight: 70,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 8.0),
+          child: IconButton(
+            icon: const Icon(Icons.menu, color: Colors.black, size: 28),
+            onPressed: () {
+              // ✅ FIXED: Navigation now keeps the bottom bar
+              PersistentNavBarNavigator.pushNewScreen(
+                context,
+                screen: CropListScreen(
+                  userId: widget.userID,
+                  controllerId: widget.controllerId,
+                  // isInsideTabs: true, // Tell CropList it's inside tabs
                 ),
+                withNavBar: true, 
+                pageTransitionAnimation: PageTransitionAnimation.cupertino,
+              );
+            },
+          ),
+        ),
+        title: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(25),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
+              )
+            ],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.location_on_outlined, size: 18, color: Colors.grey),
+              const SizedBox(width: 6),
+              Text(
+                _formatAddress(_model.address ?? _model.areaName).isEmpty
+                    ? 'Tamil nadu'
+                    : _formatAddress(_model.address ?? _model.areaName),
+                style: GoogleFonts.poppins(
+                  fontSize: 13,
+                  color: Colors.black87,
+                  fontWeight: FontWeight.w400
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.fade,
               ),
-              title: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(25),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 2),
-                    )
-                  ],
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.location_on_outlined,
-                        size: 18, color: Colors.grey),
-                    const SizedBox(width: 6),
-                    Text(
-                      _formatAddress(_model.address ?? _model.areaName).isEmpty
-                          ? 'Tamil Nadu'
-                          : _formatAddress(_model.address ?? _model.areaName),
-                      style: GoogleFonts.poppins(
-                        fontSize: 13,
-                        color: Colors.black87,
-                        fontWeight: FontWeight.w400,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.fade,
-                    ),
-                  ],
-                ),
-              ),
-              centerTitle: true,
-              actions: [
-                Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: IconButton(
-                    icon: const Icon(Icons.notifications_none,
-                        color: Colors.black, size: 28),
-                    onPressed: () {},
-                  ),
-                ),
-              ],
-            )
+            ],
+          ),
+        ),
+        centerTitle: true,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: IconButton(
+              icon: const Icon(Icons.notifications_none, color: Colors.black, size: 28),
+              onPressed: () {},
+            ),
+          ),
+        ],
+      )
           : null,
       body: _buildHomeBody(),
-      floatingActionButton: _selectedIndex == 0
+      floatingActionButton: widget.isInsideMain
           ? Padding(
-              padding: const EdgeInsets.only(bottom: 10.0),
-              child: SizedBox(
-                height: 85,
-                width: 85,
-                child: FloatingActionButton(
-                  onPressed: () {},
-                  backgroundColor: const Color(0xFF1B7F8A),
-                  elevation: 4,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(45),
-                      topRight: Radius.circular(45),
-                      bottomLeft: Radius.circular(45),
-                      bottomRight: Radius.circular(2),
-                    ),
-                  ),
-                  child: Image.asset(
-                    'assets/Images/CropAdvisory/chatbot_icon.png',
-                    fit: BoxFit.contain,
-                  ),
-                ),
+        padding: const EdgeInsets.only(bottom: 10.0),
+        child: SizedBox(
+          height: 85,
+          width: 85,
+          child: FloatingActionButton(
+            onPressed: () {},
+            backgroundColor: const Color(0xFF1B7F8A),
+            elevation: 4,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(45),
+                topRight: Radius.circular(45),
+                bottomLeft: Radius.circular(45),
+                bottomRight: Radius.circular(2),
               ),
-            )
+            ),
+            child: Image.asset(
+              'assets/Images/CropAdvisory/chatbot_icon.png',
+              fit: BoxFit.contain,
+            ),
+          ),
+        ),
+      )
           : null,
-      // bottomNavigationBar: _buildBottomNavigationBar(),
     );
   }
 
@@ -197,7 +196,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
             Text(
-              "${_model.farmName ?? 'Farm '}",
+              _model.cropName ?? 'Farm ',
               style: GoogleFonts.poppins(
                 fontSize: 26,
                 fontWeight: FontWeight.w600,
@@ -223,8 +222,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     color: Colors.black87,
                   ),
                 ),
-                const Icon(Icons.keyboard_arrow_down,
-                    size: 16, color: Colors.black54),
+                const Icon(Icons.keyboard_arrow_down, size: 16, color: Colors.black54),
               ],
             ),
             const SizedBox(height: 8),
@@ -266,12 +264,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
       case 'Volcanic soil':
         return 'assets/Images/CropAdvisory/Volcanic_soil.png';
       default:
-        return ''; // Or a default image
+        return '';
     }
   }
 
   Widget _buildCropHealthCard() {
-     String soilImg = _getSoilImage(_model.soilType);
+    String soilImg = _getSoilImage(_model.soilType);
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -303,8 +301,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 6),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                       decoration: BoxDecoration(
                         color: const Color(0xFFFFEBEE),
                         borderRadius: BorderRadius.circular(15),
@@ -328,14 +325,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       flex: 3,
                       child: Column(
                         children: [
-                          _buildInfoRow(Icons.water_drop, 'Variety',
-                              _model.cropVariety ?? 'Hybrid'),
+                          _buildInfoRow(Icons.water_drop, 'Variety', _model.cropVariety ?? 'Hybrid'),
                           const SizedBox(height: 12),
-                          _buildInfoRow(Icons.water_drop, 'Crop Type',
-                              _model.cropType ?? 'Open Field'),
+                          _buildInfoRow(Icons.water_drop, 'Crop Type', _model.cropType ?? 'Open Field'),
                           const SizedBox(height: 12),
-                          _buildInfoRow(
-                              Icons.water_drop, 'Soil Type', _model.soilTypeName),
+                          _buildInfoRow(Icons.water_drop, 'Soil Type', _model.soilTypeName),
                         ],
                       ),
                     ),
@@ -346,8 +340,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         height: 100,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                              color: const Color(0xFF1B7F8A), width: 1.5),
+                          border: Border.all(color: const Color(0xFF1B7F8A), width: 1.5),
                         ),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(10),
@@ -362,6 +355,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         child: CircularProgressIndicator());
                                   },
                                   errorBuilder: (context, error, stackTrace) {
+                                    print('image error $error $stackTrace');
                                     return soilImg.isNotEmpty
                                         ? Image.asset(soilImg,
                                             fit: BoxFit.cover)
@@ -413,17 +407,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                const IrrigationFertigationScreen()),
-                      );
+                      if (widget.onTabChanged != null) {
+                        widget.onTabChanged!(2);
+                      }
                     },
                     style: OutlinedButton.styleFrom(
                       foregroundColor: const Color(0xFF1B7F8A),
-                      side: const BorderSide(
-                          color: Color(0xFF1B7F8A), width: 1.5),
+                      side: const BorderSide(color: Color(0xFF1B7F8A), width: 1.5),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -450,22 +440,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Row(
       children: [
         Icon(icon, size: 20, color: Colors.black),
-        const SizedBox(width: 12),
-        RichText(
-          text: TextSpan(
-            style: GoogleFonts.poppins(fontSize: 14, color: Colors.black),
-            children: [
-              TextSpan(
-                text: '$label : ',
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
-              TextSpan(
-                text: value,
-                style: const TextStyle(fontWeight: FontWeight.w400),
-              ),
-            ],
+        const SizedBox(width: 5),
+        Expanded(
+          child: Text.rich(
+            TextSpan(
+              children: [
+                TextSpan(
+                  text: '$label : ',
+                  style: const TextStyle(fontWeight: FontWeight.w800),
+                ),
+                TextSpan(text: value,style: const TextStyle(fontStyle: FontStyle.normal),),
+              ],
+            ),
+            // overflow: TextOverflow.ellipsis,
+            softWrap: true,
           ),
-        ),
+        )
       ],
     );
   }
@@ -476,12 +466,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       children: [
         GestureDetector(
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) =>  CropWeatherscreen( userId: widget.userID,
-                    controllerId: widget.controllerId,)),
-            );
+            if (widget.onTabChanged != null) {
+              widget.onTabChanged!(1);
+            }
           },
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -501,34 +488,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
         const SizedBox(height: 16),
         Row(
           children: [
-            _buildWeatherItem(
-              'Temperature',
-              widget.temperature ?? '32°C',
-              Icons.wb_sunny_outlined,
-              true,
-            ),
+            _buildWeatherItem('Temperature', widget.temperature ?? '32°C', Icons.wb_sunny_outlined, true),
             const SizedBox(width: 12),
-            _buildWeatherItem(
-              'Humidity',
-              widget.humidity ?? '88%',
-              Icons.water_drop,
-              true,
-            ),
+            _buildWeatherItem('Humidity', widget.humidity ?? '88%', Icons.water_drop, true),
             const SizedBox(width: 12),
-            _buildWeatherItem(
-              'Wind Speed',
-              widget.windspeed ?? '14 km/h',
-              Icons.air,
-              false,
-            ),
+            _buildWeatherItem('Wind Speed', widget.windspeed ?? '14 km/h', Icons.air, false),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildWeatherItem(
-      String label, String value, IconData icon, bool showTrend) {
+  Widget _buildWeatherItem(String label, String value, IconData icon, bool showTrend) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(12),
@@ -543,8 +514,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Icon(icon, color: Colors.black87, size: 22),
-                if (showTrend)
-                  const Icon(Icons.north, color: Color(0xFF1B7F8A), size: 18),
+                if (showTrend) const Icon(Icons.north, color: Color(0xFF1B7F8A), size: 18),
               ],
             ),
             const SizedBox(height: 12),

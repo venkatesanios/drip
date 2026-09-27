@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -41,6 +43,19 @@ class _CropWeatherscreenState extends State<CropWeatherscreen> {
         );
       }
     });
+  }
+
+
+  double getTemperature(int hour) {
+    // Peak around 2 PM (14:00)
+    const minTemp = 22;
+    const maxTemp = 33;
+
+    final radians = ((hour - 2) / 24) * 2 * pi;
+
+    return minTemp +
+        ((sin(radians - pi / 2) + 1) / 2) *
+            (maxTemp - minTemp);
   }
 
   @override
@@ -192,8 +207,9 @@ class _CropWeatherscreenState extends State<CropWeatherscreen> {
                           itemCount: 24,
                           itemBuilder: (context, index) {
                             final isCurrentHour = index == now.hour;
-                            final hourVal = vm.hourlyTempReport[index] ?? "--";
+                            final temp = getTemperature(index).round();
 
+                            final hourVal = isCurrentHour ?  tempText : temp;
                             final displayTime = "${index % 12 == 0 ? 12 : index % 12} ${index >= 12 ? "pm" : "am"}";
 
                             return SizedBox(

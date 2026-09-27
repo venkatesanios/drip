@@ -31,7 +31,7 @@ class AirQualityCard extends StatelessWidget {
           Spacer(),
 
           const Text(
-            "\"Air quality is great!\nPerfect for outdoor activities.\"",
+            "\"Air quality is great! Perfect for outdoor activities.\"",
           ),
         ],
       ),

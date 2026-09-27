@@ -23,7 +23,7 @@ class WeatherInfoCard extends StatelessWidget {
           Column(
             children: [
               Text(
-                "${humm}%",
+                "${humm}",
                 style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -49,7 +49,7 @@ class WeatherInfoCard extends StatelessWidget {
           Column(
             children: [
               Text(
-                "${wind} mph/s",
+                "${wind}",
                 style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,

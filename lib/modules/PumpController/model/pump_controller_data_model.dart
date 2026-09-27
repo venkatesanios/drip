@@ -11,6 +11,7 @@ class PumpControllerData {
   String numberOfPumps;
   int dataFetchingStatus;
   String manualMode;
+  String changeOverMode;
 
   PumpControllerData({
     required this.pumps,
@@ -25,10 +26,11 @@ class PumpControllerData {
     required this.power,
     required this.dataFetchingStatus,
     this.manualMode = '0',
+    this.changeOverMode = '0',
   });
 
   factory PumpControllerData.fromJson(Map<String, dynamic> json, String key, int dataFetchingStatus) {
-    // print("json in the PumpControllerData :: $json");
+    print("json in the PumpControllerData :: $json");
     List<dynamic> pumpsJson = json[key] ?? [];
     dynamic lastElement = {};
 
@@ -60,7 +62,8 @@ class PumpControllerData {
       batteryStrength: lastElement['B'] ?? "",
       numberOfPumps: lastElement['NP'] ?? "0",
       dataFetchingStatus: dataFetchingStatus,
-      manualMode: lastElement['MM'] ?? '0'
+      manualMode: lastElement['MM'] ?? '0',
+      changeOverMode: lastElement['COM'] ?? '0'
     );
   }
 }
@@ -107,7 +110,6 @@ class IndividualPumpData {
   });
 
   factory IndividualPumpData.fromJson(Map<String, dynamic> json) {
-    print("json :: $json");
     final value = json["CF"] ?? "-";
     int firstIndex = 0;
     if (value != "-") {
@@ -172,6 +174,8 @@ class IndividualPumpData {
           : reason == 44 ? "$motorOff tank cable disconnected"
           : reason == 45 ? "$motorOff sump float failed"
           : reason == 46 ? "$motorOff tank float failed"
+          : reason == 47 ? "$motorOn Auto On Power On"
+          : reason == 48 ? "$motorOff Auto Off Power On"
           : "Unknown",
       waterMeter: json["WM"] ?? "",
       cumulativeFlow: value != "-" ? value.substring(firstIndex) : "-",

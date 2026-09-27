@@ -11,12 +11,12 @@ import '../widgets/custom_lShape_divider.dart';
 import '../widgets/custom_section_title.dart';
 import 'conditions_screen.dart';
 
-final purpleLight = const Color(0xff8833FF).withOpacity(0.05);
-final purpleDark = const Color(0xff8833FF).withOpacity(0.35);
-final redLight = const Color(0xffFFF7E5).withOpacity(0.5);
-final redDark = const Color(0xffFF857D).withOpacity(0.35);
-final greenLight = const Color(0xffECF5EF).withOpacity(0.5);
-final greenDark = const Color(0xff10E196).withOpacity(0.35);
+final purpleLight = const Color(0xff8833FF).withValues(alpha: 0.05);
+final purpleDark = const Color(0xff8833FF).withValues(alpha: 0.35);
+final redLight = const Color(0xffFFF7E5).withValues(alpha: 0.5);
+final redDark = const Color(0xffFF857D).withValues(alpha: 0.35);
+final greenLight = const Color(0xffECF5EF).withValues(alpha: 0.5);
+final greenDark = const Color(0xff10E196).withValues(alpha: 0.35);
 const yellowLight = Color(0xffFFF7E5);
 const yellowDark = Color(0xfffdce7f);
 final primaryColorLight = const Color(0xffE3FFF5).withOpacity(0.5);
@@ -194,7 +194,7 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                       darkColor: redDark,
                     )
                 ),
-                if(!isEcoGem)
+                // if(!isEcoGem)
                   buildSection(
                     title: "Head Units",
                     dataList: !irrigationProgramProvider.isPumpStationMode
@@ -679,10 +679,11 @@ class _SelectionScreenState extends State<SelectionScreen> with SingleTickerProv
                       toggleSelection(data[index].objectId, siteMode!, index, data);
                     } else {
                       if (irrigationProgramProvider.selectedObjects!.any((element) => element.sNo == data[index].sNo)) {
-                        irrigationProgramProvider.selectedObjects!.removeWhere((element) => element.sNo == data[index].sNo);
+                        irrigationProgramProvider.selectedObjects!.removeWhere((element) => (element.sNo == data[index].sNo));
                       } else {
                         irrigationProgramProvider.selectedObjects!.add(data[index]);
                       }
+                      irrigationProgramProvider.selectedObjects!.removeWhere((element) => (element.objectId == 2 && element.sNo != data[index].sNo));
                     }
                   },
                   selected: irrigationProgramProvider.selectedObjects!.any((element) => element.sNo == data[index].sNo),

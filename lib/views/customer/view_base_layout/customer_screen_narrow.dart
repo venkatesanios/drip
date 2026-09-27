@@ -38,9 +38,9 @@ class _CustomerScreenNarrowState extends BaseCustomerScreenState<CustomerScreenN
 
   @override
   Widget build(BuildContext context) {
-
     final userProvider = context.read<UserProvider>();
     final loggedInUser = userProvider.loggedInUser;
+    print("loggedInUser => $loggedInUser");
     final viewedCustomer = userProvider.viewedCustomer;
 
     final navModel = context.watch<BottomNavViewModel>();

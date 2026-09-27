@@ -96,7 +96,7 @@ class SourceColumnWidget extends StatelessWidget {
   List<Widget> _buildLevelWidgets(BuildContext context) {
     return [
       Positioned(
-        top: 53,
+        top: 55,
         left: 2,
         right: 2,
         child: Consumer<MqttPayloadProvider>(
@@ -109,9 +109,9 @@ class SourceColumnWidget extends StatelessWidget {
         ),
       ),
       Positioned(
-        top: 15,
-        left: 18,
-        right: 18,
+        top: 41,
+        left: 21,
+        right: 21,
         child: Consumer<MqttPayloadProvider>(
           builder: (_, provider, __) {
             final sensorUpdate = provider.getSensorUpdatedValve(source.level[0].sNo.toString());
@@ -125,7 +125,7 @@ class SourceColumnWidget extends StatelessWidget {
   }
 
   Widget _buildLevelDisplay(BuildContext context, String value) => Container(
-    height: 17,
+    height: 15,
     decoration: BoxDecoration(
       color: Colors.yellow,
       borderRadius: BorderRadius.circular(2),
@@ -134,20 +134,20 @@ class SourceColumnWidget extends StatelessWidget {
     child: Center(
       child: Text(
         MyFunction().getUnitByParameter(context, 'Level Sensor', value) ?? '',
-        style: const TextStyle(color: Colors.black, fontSize: 10, fontWeight: FontWeight.bold),
+        style: const TextStyle(color: Colors.black, fontSize: 9, fontWeight: FontWeight.bold),
       ),
     ),
   );
 
   Widget _buildPercentageDisplay(String value) => Container(
-    height: 17,
+    height: 15,
     decoration: BoxDecoration(
       color: Colors.yellow,
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(2),
       border: Border.all(color: Colors.grey, width: 0.5),
     ),
     child: Center(
-      child: Text('$value%', style: const TextStyle(color: Colors.black, fontSize: 10, fontWeight: FontWeight.bold)),
+      child: Text('$value%', style: const TextStyle(color: Colors.black, fontSize: 9, fontWeight: FontWeight.bold)),
     ),
   );
 }

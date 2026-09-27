@@ -1,7 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/modules/irrigation_report/view/motor_cyclic_log.dart';
+import 'package:oro_drip_irrigation/modules/irrigation_report/view/oms_log.dart';
 import 'package:oro_drip_irrigation/utils/constants.dart';
+import 'package:provider/provider.dart';
+import '../../StateManagement/customer_provider.dart';
 import '../../models/customer/site_model.dart';
 import '../../modules/Logs/repository/log_repos.dart';
 import '../../modules/Logs/view/pump_list.dart';
@@ -60,6 +63,9 @@ class _IrrigationAndPumpLogState extends State<IrrigationAndPumpLog> with Ticker
       length += 1;
     }
 
+    if(AppConstants.omsGemList.contains(widget.masterData.modelId)){
+      length = 1;
+    }
     return length;
   }
 
@@ -103,8 +109,8 @@ class _IrrigationAndPumpLogState extends State<IrrigationAndPumpLog> with Ticker
 
   @override
   Widget build(BuildContext context) {
-    print("irrigation and pump log call");
     return Scaffold(
+      key: ValueKey(Provider.of<CustomerProvider>(context).controllerId),
       body: SafeArea(
           child: DefaultTabController(
               length: tabController.length,
@@ -113,7 +119,7 @@ class _IrrigationAndPumpLogState extends State<IrrigationAndPumpLog> with Ticker
                   TabBar(
                       controller: tabController,
                       tabs: [
-                        if(AppConstants.ecoGemAndPlusModelList.contains(widget.masterData.modelId))
+                        if(AppConstants.ecoGemAndPlusModelList.contains(widget.masterData.modelId) )
                           ...[
                             const Tab(text: "Motor Cyclic Log",),
                             const Tab(text: "Zone Cyclic Log",)
@@ -124,7 +130,7 @@ class _IrrigationAndPumpLogState extends State<IrrigationAndPumpLog> with Ticker
                             const Tab(text: "Standalone Log",),
                           ],
                         if(!AppConstants.ecoGemAndPlusModelList.contains(widget.masterData.modelId) ? pumpList.isNotEmpty : true)
-                          const Tab(text: "Pump Log",)
+                          const Tab(text: "Pump Log",),
                       ]
                   ),
                   // SizedBox(height: 10,),
@@ -139,18 +145,18 @@ class _IrrigationAndPumpLogState extends State<IrrigationAndPumpLog> with Ticker
                               ]
                             else
                               ...[
-                                ListOfLogConfig(userData: widget.userData,),
+                                ListOfLogConfig(userData: widget.userData, masterData: widget.masterData,),
                                 StandaloneLog(userData: widget.userData,),
                               ],
                             if(!AppConstants.ecoGemAndPlusModelList.contains(widget.masterData.modelId) ? pumpList.isNotEmpty : true)
                               ...[
-                                PumpList(
-                                pumpList: pumpList,
-                                userId: widget.userData['customerId'],
-                                masterData: widget.masterData,
-                                userData: widget.userData,
-                              )
-    ],
+                                  PumpList(
+                                  pumpList: pumpList,
+                                  userId: widget.userData['customerId'],
+                                  masterData: widget.masterData,
+                                  userData: widget.userData,
+                                )
+                              ],
                           ]
                       )
                   )
