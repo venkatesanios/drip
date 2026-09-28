@@ -125,6 +125,7 @@ if [[ "$CONFIGURATION" == "Debug" ]]; then
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/permission_handler_apple/permission_handler_apple_privacy.bundle"
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/pointer_interceptor_ios/pointer_interceptor_ios_privacy.bundle"
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/shared_preferences_foundation/shared_preferences_foundation_privacy.bundle"
+  install_resource "${PODS_CONFIGURATION_BUILD_DIR}/sqflite_darwin/sqflite_darwin_privacy.bundle"
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/url_launcher_ios/url_launcher_ios_privacy.bundle"
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/webview_flutter_wkwebview/webview_flutter_wkwebview_privacy.bundle"
 fi
@@ -157,6 +158,7 @@ if [[ "$CONFIGURATION" == "Debug-oro" ]]; then
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/permission_handler_apple/permission_handler_apple_privacy.bundle"
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/pointer_interceptor_ios/pointer_interceptor_ios_privacy.bundle"
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/shared_preferences_foundation/shared_preferences_foundation_privacy.bundle"
+  install_resource "${PODS_CONFIGURATION_BUILD_DIR}/sqflite_darwin/sqflite_darwin_privacy.bundle"
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/url_launcher_ios/url_launcher_ios_privacy.bundle"
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/webview_flutter_wkwebview/webview_flutter_wkwebview_privacy.bundle"
 fi
@@ -189,6 +191,7 @@ if [[ "$CONFIGURATION" == "Debug-smartcomm" ]]; then
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/permission_handler_apple/permission_handler_apple_privacy.bundle"
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/pointer_interceptor_ios/pointer_interceptor_ios_privacy.bundle"
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/shared_preferences_foundation/shared_preferences_foundation_privacy.bundle"
+  install_resource "${PODS_CONFIGURATION_BUILD_DIR}/sqflite_darwin/sqflite_darwin_privacy.bundle"
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/url_launcher_ios/url_launcher_ios_privacy.bundle"
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/webview_flutter_wkwebview/webview_flutter_wkwebview_privacy.bundle"
 fi
@@ -221,6 +224,7 @@ if [[ "$CONFIGURATION" == "Release" ]]; then
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/permission_handler_apple/permission_handler_apple_privacy.bundle"
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/pointer_interceptor_ios/pointer_interceptor_ios_privacy.bundle"
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/shared_preferences_foundation/shared_preferences_foundation_privacy.bundle"
+  install_resource "${PODS_CONFIGURATION_BUILD_DIR}/sqflite_darwin/sqflite_darwin_privacy.bundle"
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/url_launcher_ios/url_launcher_ios_privacy.bundle"
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/webview_flutter_wkwebview/webview_flutter_wkwebview_privacy.bundle"
 fi
@@ -253,6 +257,7 @@ if [[ "$CONFIGURATION" == "Release-oro" ]]; then
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/permission_handler_apple/permission_handler_apple_privacy.bundle"
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/pointer_interceptor_ios/pointer_interceptor_ios_privacy.bundle"
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/shared_preferences_foundation/shared_preferences_foundation_privacy.bundle"
+  install_resource "${PODS_CONFIGURATION_BUILD_DIR}/sqflite_darwin/sqflite_darwin_privacy.bundle"
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/url_launcher_ios/url_launcher_ios_privacy.bundle"
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/webview_flutter_wkwebview/webview_flutter_wkwebview_privacy.bundle"
 fi
@@ -285,6 +290,7 @@ if [[ "$CONFIGURATION" == "Release-smartcomm" ]]; then
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/permission_handler_apple/permission_handler_apple_privacy.bundle"
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/pointer_interceptor_ios/pointer_interceptor_ios_privacy.bundle"
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/shared_preferences_foundation/shared_preferences_foundation_privacy.bundle"
+  install_resource "${PODS_CONFIGURATION_BUILD_DIR}/sqflite_darwin/sqflite_darwin_privacy.bundle"
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/url_launcher_ios/url_launcher_ios_privacy.bundle"
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/webview_flutter_wkwebview/webview_flutter_wkwebview_privacy.bundle"
 fi
@@ -317,6 +323,7 @@ if [[ "$CONFIGURATION" == "Profile" ]]; then
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/permission_handler_apple/permission_handler_apple_privacy.bundle"
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/pointer_interceptor_ios/pointer_interceptor_ios_privacy.bundle"
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/shared_preferences_foundation/shared_preferences_foundation_privacy.bundle"
+  install_resource "${PODS_CONFIGURATION_BUILD_DIR}/sqflite_darwin/sqflite_darwin_privacy.bundle"
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/url_launcher_ios/url_launcher_ios_privacy.bundle"
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/webview_flutter_wkwebview/webview_flutter_wkwebview_privacy.bundle"
 fi
@@ -349,6 +356,7 @@ if [[ "$CONFIGURATION" == "Profile-oro" ]]; then
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/permission_handler_apple/permission_handler_apple_privacy.bundle"
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/pointer_interceptor_ios/pointer_interceptor_ios_privacy.bundle"
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/shared_preferences_foundation/shared_preferences_foundation_privacy.bundle"
+  install_resource "${PODS_CONFIGURATION_BUILD_DIR}/sqflite_darwin/sqflite_darwin_privacy.bundle"
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/url_launcher_ios/url_launcher_ios_privacy.bundle"
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/webview_flutter_wkwebview/webview_flutter_wkwebview_privacy.bundle"
 fi
@@ -381,6 +389,7 @@ if [[ "$CONFIGURATION" == "Profile-smartcomm" ]]; then
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/permission_handler_apple/permission_handler_apple_privacy.bundle"
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/pointer_interceptor_ios/pointer_interceptor_ios_privacy.bundle"
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/shared_preferences_foundation/shared_preferences_foundation_privacy.bundle"
+  install_resource "${PODS_CONFIGURATION_BUILD_DIR}/sqflite_darwin/sqflite_darwin_privacy.bundle"
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/url_launcher_ios/url_launcher_ios_privacy.bundle"
   install_resource "${PODS_CONFIGURATION_BUILD_DIR}/webview_flutter_wkwebview/webview_flutter_wkwebview_privacy.bundle"
 fi
