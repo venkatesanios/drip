@@ -88,7 +88,7 @@ dependencies:
   dartssh2: ^3.3.0
   better_download_saver: ^0.0.1
   fl_chart: ^1.2.0
-  pdfrx: ^1.0.0
+  easy_pdf_viewer: ^1.0.8
 #  audioplayers: ^6.5.0
 #  record: ^6.0.0
 
