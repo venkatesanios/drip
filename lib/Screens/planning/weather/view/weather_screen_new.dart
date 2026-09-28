@@ -106,6 +106,7 @@ class _WeatherScreenNewState extends State<WeatherScreenNew>
             return const Center(child: Text("No weather data available"));
           }
 
+
           if (!vm.hasAnyWeatherStation) {
             return  Scaffold(
               body: Center(
