@@ -1,8 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:oro_drip_irrigation/Screens/Logs/sensor_graph_log.dart';
 import 'package:oro_drip_irrigation/modules/irrigation_report/view/motor_cyclic_log.dart';
-import 'package:oro_drip_irrigation/modules/irrigation_report/view/oms_log.dart';
 import 'package:oro_drip_irrigation/utils/constants.dart';
 import 'package:provider/provider.dart';
 import '../../StateManagement/customer_provider.dart';
