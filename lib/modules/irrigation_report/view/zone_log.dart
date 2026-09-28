@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 import '../../../models/customer/site_model.dart';
+import '../../SystemDefinitions/widgets/custom_snack_bar.dart';
 import '../repository/irrigation_repository.dart';
 import 'zone_log_exporter_stub.dart'
     if (dart.library.html) 'zone_log_exporter_web.dart';
@@ -65,8 +66,9 @@ class SequenceDayData {
     this.hasRun = false,
   });
 
-  String get durationQtyStr =>
-      durationQtySeconds > 0 ? _formatSecondsToHMS(durationQtySeconds) : '00:00:00';
+  String get durationQtyStr => durationQtySeconds > 0
+      ? _formatSecondsToHMS(durationQtySeconds)
+      : '00:00:00';
   String get qtyCompletedStr => quantityCompleted.toString();
 
   static String _formatSecondsToHMS(int totalSeconds) {
@@ -113,8 +115,7 @@ class ZoneLog extends StatefulWidget {
   State<ZoneLog> createState() => _ZoneLogState();
 }
 
-class _ZoneLogState extends State<ZoneLog>
-    with AutomaticKeepAliveClientMixin {
+class _ZoneLogState extends State<ZoneLog> with AutomaticKeepAliveClientMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final ScrollController _horizontalScrollController = ScrollController();
   late final LinkedScrollControllerGroup _verticalScrollGroup;
@@ -133,7 +134,6 @@ class _ZoneLogState extends State<ZoneLog>
   List<SequenceRowData> _sequenceRows = [];
   List<DateTime> _dateColumns = [];
   List<String> _programDropdownOptions = ['All Programs'];
-  List<ZoneLogEntry> _allRawEntries = [];
 
   @override
   void initState() {
@@ -260,7 +260,6 @@ class _ZoneLogState extends State<ZoneLog>
           setState(() {
             _sequenceRows = [];
             _dateColumns = [];
-            _allRawEntries = [];
           });
         }
       }
@@ -271,7 +270,6 @@ class _ZoneLogState extends State<ZoneLog>
         setState(() {
           _sequenceRows = [];
           _dateColumns = [];
-          _allRawEntries = [];
         });
       }
     } finally {
@@ -515,10 +513,10 @@ class _ZoneLogState extends State<ZoneLog>
               ? durationCompleteds[i].toString().trim()
               : '00:00:00';
 
-          String qtyCompletedStr = (i < qtyCompleteds.length &&
-                  qtyCompleteds[i] != null)
-              ? qtyCompleteds[i].toString().trim()
-              : '0';
+          String qtyCompletedStr =
+              (i < qtyCompleteds.length && qtyCompleteds[i] != null)
+                  ? qtyCompleteds[i].toString().trim()
+                  : '0';
 
           int durationQtySec = _parseDurationToSeconds(durationQtyStr);
           int durCompletedSec = _parseDurationToSeconds(durationCompletedStr);
@@ -598,7 +596,6 @@ class _ZoneLogState extends State<ZoneLog>
       setState(() {
         _dateColumns = dates;
         _sequenceRows = rows;
-        _allRawEntries = allRawExportEntries;
         _programDropdownOptions = uniqueProgNames.toList();
       });
     }
@@ -643,9 +640,60 @@ class _ZoneLogState extends State<ZoneLog>
     );
   }
 
+  Future<void> _handleExcelExport(BuildContext context) async {
+    final messenger = ScaffoldMessenger.of(context);
+    var filteredRows = _getFilteredSequenceRows();
+    if (_dateColumns.isEmpty || filteredRows.isEmpty) {
+      messenger.showSnackBar(
+        CustomSnackBar(message: "No records available to export"),
+      );
+      return;
+    }
+
+    // Calculate daily total durations
+    Map<String, int> dailyTotals = {};
+    int grandTotalSeconds = 0;
+    for (var d in _dateColumns) {
+      String dKey = DateFormat('yyyy-MM-dd').format(d);
+      int daySum = 0;
+      for (var r in filteredRows) {
+        if (r.dayEntries.containsKey(dKey)) {
+          daySum += r.dayEntries[dKey]!.durationQtySeconds;
+        }
+      }
+      dailyTotals[dKey] = daySum;
+      grandTotalSeconds += daySum;
+    }
+
+    String sanitizeName = (_selectedProgramFilter != 'All Programs'
+            ? _selectedProgramFilter
+            : 'ZoneLog_${DateFormat('yyyyMMdd').format(_fromDate)}_${DateFormat('yyyyMMdd').format(_toDate)}')
+        .replaceAll(RegExp(r'[^\w\s\-]'), '_');
+    String fileName =
+        "${sanitizeName}_${DateFormat('yyyyMMdd').format(DateTime.now())}";
+
+    String? res = await exportZoneLogMatrixToExcel(
+      dateColumns: _dateColumns,
+      rows: filteredRows,
+      dailyTotals: dailyTotals,
+      grandTotalSeconds: grandTotalSeconds,
+      fileName: fileName,
+    );
+
+    if (res != null) {
+      messenger.showSnackBar(
+        CustomSnackBar(message: "Excel downloaded successfully: $res"),
+      );
+    } else {
+      messenger.showSnackBar(
+        CustomSnackBar(message: "Failed to export Excel"),
+      );
+    }
+  }
+
   Widget _buildFilterCard(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
@@ -660,6 +708,234 @@ class _ZoneLogState extends State<ZoneLog>
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
+          final bool isMobile = constraints.maxWidth < 650;
+
+          if (isMobile) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Row 1: From Date & To Date side-by-side
+                Row(
+                  children: [
+                    // From Date
+                    Expanded(
+                      child: Row(
+                        children: [
+                          const Text("From Date",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 12)),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: InkWell(
+                              onTap: () async {
+                                final picked = await showDatePicker(
+                                  context: context,
+                                  initialDate: _fromDate,
+                                  firstDate: DateTime(2025),
+                                  lastDate: DateTime(2030),
+                                );
+                                if (picked != null) {
+                                  setState(() {
+                                    _fromDate = picked;
+                                  });
+                                }
+                              },
+                              child: Container(
+                                height: 36,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 6, vertical: 4),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                      color: const Color(0xFFCBD5E1)),
+                                  borderRadius: BorderRadius.circular(6),
+                                  color: Colors.white,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                        DateFormat('dd MMM yyyy')
+                                            .format(_fromDate),
+                                        style: const TextStyle(fontSize: 11.5)),
+                                    const Icon(Icons.calendar_today,
+                                        size: 14, color: Color(0xFF64748B)),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    // To Date
+                    Expanded(
+                      child: Row(
+                        children: [
+                          const Text("To Date",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 12)),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: InkWell(
+                              onTap: () async {
+                                final picked = await showDatePicker(
+                                  context: context,
+                                  initialDate: _toDate,
+                                  firstDate: DateTime(2025),
+                                  lastDate: DateTime(2030),
+                                );
+                                if (picked != null) {
+                                  setState(() {
+                                    _toDate = picked;
+                                  });
+                                }
+                              },
+                              child: Container(
+                                height: 36,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 6, vertical: 4),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                      color: const Color(0xFFCBD5E1)),
+                                  borderRadius: BorderRadius.circular(6),
+                                  color: Colors.white,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                        DateFormat('dd MMM yyyy')
+                                            .format(_toDate),
+                                        style: const TextStyle(fontSize: 11.5)),
+                                    const Icon(Icons.calendar_today,
+                                        size: 14, color: Color(0xFF64748B)),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                // Row 2: Program Filter & Action Buttons
+                Row(
+                  children: [
+                    // Program Dropdown
+                    Expanded(
+                      child: Row(
+                        children: [
+                          const Text("Program",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 12)),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Container(
+                              height: 36,
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 6),
+                              decoration: BoxDecoration(
+                                border:
+                                    Border.all(color: const Color(0xFFCBD5E1)),
+                                borderRadius: BorderRadius.circular(6),
+                                color: Colors.white,
+                              ),
+                              child: DropdownButtonHideUnderline(
+                                child: DropdownButton<String>(
+                                  value: _programDropdownOptions
+                                          .contains(_selectedProgramFilter)
+                                      ? _selectedProgramFilter
+                                      : 'All Programs',
+                                  isDense: true,
+                                  isExpanded: true,
+                                  items: _programDropdownOptions
+                                      .map((e) => DropdownMenuItem(
+                                          value: e,
+                                          child: Text(e,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: const TextStyle(
+                                                  fontSize: 11.5))))
+                                      .toList(),
+                                  onChanged: (val) {
+                                    if (val != null) {
+                                      setState(() {
+                                        _selectedProgramFilter = val;
+                                      });
+                                    }
+                                  },
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    // Filter Button
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF1E88E5),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 0),
+                        minimumSize: const Size(0, 36),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(6)),
+                      ),
+                      onPressed: () => fetchZoneLogApi(),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.filter_alt_outlined,
+                              size: 14, color: Colors.white),
+                          SizedBox(width: 3),
+                          Text("Filter",
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 11.5)),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+
+                    // Excel Button
+                    OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 0),
+                        minimumSize: const Size(0, 36),
+                        side: const BorderSide(color: Color(0xFF2E7D32)),
+                        backgroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(6)),
+                      ),
+                      onPressed: () => _handleExcelExport(context),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.table_chart,
+                              size: 13, color: Color(0xFF2E7D32)),
+                          SizedBox(width: 3),
+                          Text("Excel",
+                              style: TextStyle(
+                                  color: Color(0xFF2E7D32),
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            );
+          }
+
+          // Desktop / Tablet layout
           return Wrap(
             spacing: 12,
             runSpacing: 10,
@@ -792,7 +1068,8 @@ class _ZoneLogState extends State<ZoneLog>
                   ),
                 ],
               ),
-              // Filter & Clear Buttons
+
+              // Filter Button
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -813,35 +1090,10 @@ class _ZoneLogState extends State<ZoneLog>
                         style: TextStyle(
                             color: Colors.white, fontWeight: FontWeight.bold)),
                   ),
-                  const SizedBox(width: 8),
-                  OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      backgroundColor: const Color(0xFFF8FAFC),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 8),
-                      side: const BorderSide(color: Color(0xFFCBD5E1)),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(6)),
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _fromDate =
-                            DateTime.now().subtract(const Duration(days: 4));
-                        _toDate = DateTime.now();
-                        _selectedProgramFilter = 'All Programs';
-                      });
-                      fetchZoneLogApi();
-                    },
-                    icon: const Icon(Icons.refresh,
-                        size: 16, color: Color(0xFF334155)),
-                    label: const Text("Clear",
-                        style: TextStyle(
-                            color: Color(0xFF334155),
-                            fontWeight: FontWeight.bold)),
-                  ),
                 ],
               ),
-              // Excel & PDF Export Buttons
+
+              // Excel Export Button
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -849,42 +1101,15 @@ class _ZoneLogState extends State<ZoneLog>
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 6),
-                      side: const BorderSide(color: Color(0xFFCBD5E1)),
+                      side: const BorderSide(color: Color(0xFF2E7D32)),
                       backgroundColor: Colors.white,
                     ),
-                    onPressed: () async {
-                      final messenger = ScaffoldMessenger.of(context);
-                      if (_allRawEntries.isEmpty) {
-                        messenger.showSnackBar(
-                          const SnackBar(
-                              content: Text("No records available to export")),
-                        );
-                        return;
-                      }
-                      String sanitizeName = (_selectedProgramFilter !=
-                                  'All Programs'
-                              ? _selectedProgramFilter
-                              : 'ZoneLog_${DateFormat('yyyyMMdd').format(_fromDate)}_${DateFormat('yyyyMMdd').format(_toDate)}')
-                          .replaceAll(RegExp(r'[^\w\s\-]'), '_');
-                      String fileName =
-                          "${sanitizeName}_${DateFormat('yyyyMMdd').format(DateTime.now())}";
-                      String? res =
-                          await exportZoneLogToPDF(_allRawEntries, fileName);
-                      if (res != null) {
-                        messenger.showSnackBar(
-                          SnackBar(content: Text("PDF Downloaded: $res")),
-                        );
-                      } else {
-                        messenger.showSnackBar(
-                          const SnackBar(content: Text("Failed to export PDF")),
-                        );
-                      }
-                    },
-                    icon: const Icon(Icons.picture_as_pdf,
-                        size: 14, color: Color(0xFFD32F2F)),
-                    label: const Text("PDF",
+                    onPressed: () => _handleExcelExport(context),
+                    icon: const Icon(Icons.table_chart,
+                        size: 14, color: Color(0xFF2E7D32)),
+                    label: const Text("Excel",
                         style: TextStyle(
-                            color: Color(0xFFD32F2F),
+                            color: Color(0xFF2E7D32),
                             fontSize: 11,
                             fontWeight: FontWeight.bold)),
                   ),
@@ -909,21 +1134,21 @@ class _ZoneLogState extends State<ZoneLog>
       ),
       padding: const EdgeInsets.symmetric(horizontal: 16),
       alignment: Alignment.center,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.table_chart, size: 16, color: Colors.white),
-          const SizedBox(width: 8),
-          Text(
-            "Zone Log (${DateFormat('dd MMM yyyy').format(_fromDate)} - ${DateFormat('dd MMM yyyy').format(_toDate)})",
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 13,
-            ),
-          ),
-        ],
-      ),
+      // child: Row(
+      //   mainAxisAlignment: MainAxisAlignment.center,
+      //   children: [
+      //     const Icon(Icons.table_chart, size: 16, color: Colors.white),
+      //     const SizedBox(width: 8),
+      //     Text(
+      //       "Zone Log (${DateFormat('dd MMM yyyy').format(_fromDate)} - ${DateFormat('dd MMM yyyy').format(_toDate)})",
+      //       style: const TextStyle(
+      //         color: Colors.white,
+      //         fontWeight: FontWeight.bold,
+      //         fontSize: 13,
+      //       ),
+      //     ),
+      //   ],
+      // ),
     );
   }
 
@@ -977,6 +1202,16 @@ class _ZoneLogState extends State<ZoneLog>
     return LayoutBuilder(
       builder: (context, constraints) {
         final double availableWidth = constraints.maxWidth;
+        final bool isMobile = availableWidth < 650;
+
+        if (isMobile) {
+          return _buildMobileMatrixTable(
+            context,
+            filteredRows,
+            dailyTotals,
+            grandTotalSeconds,
+          );
+        }
 
         // Base Column Widths (Program/Sequence, Duration/Quantity, Quantity Completed, Total)
         const double baseSeqWidth = 160;
@@ -1185,11 +1420,9 @@ class _ZoneLogState extends State<ZoneLog>
                                     dIdx < _dateColumns.length;
                                     dIdx++) ...[
                                   _buildSubHeaderCell(
-                                      "Duration /\nQuantity",
-                                      colDurationQtyWidth),
+                                      "Duration", colDurationQtyWidth),
                                   _buildSubHeaderCell(
-                                      "Quantity\nCompleted",
-                                      colQtyCompletedWidth),
+                                      "Quantity", colQtyCompletedWidth),
                                 ],
                               ],
                             ),
@@ -1355,6 +1588,287 @@ class _ZoneLogState extends State<ZoneLog>
     );
   }
 
+  Widget _buildMobileMatrixTable(
+    BuildContext context,
+    List<SequenceRowData> filteredRows,
+    Map<String, int> dailyTotals,
+    int grandTotalSeconds,
+  ) {
+    const double colSeqWidth = 145;
+    const double colDurationQtyWidth = 115;
+    const double colQtyCompletedWidth = 100;
+    const double colTotalWidth = 105;
+    const double dateBlockWidth = colDurationQtyWidth + colQtyCompletedWidth;
+    final double totalTableWidth =
+        colSeqWidth + (dateBlockWidth * _dateColumns.length) + colTotalWidth;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: const Color(0xFFCBD5E1)),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 2,
+            offset: Offset(0, 1),
+          ),
+        ],
+      ),
+      child: ScrollConfiguration(
+        behavior: ScrollConfiguration.of(context).copyWith(
+          dragDevices: {
+            PointerDeviceKind.touch,
+            PointerDeviceKind.mouse,
+            PointerDeviceKind.trackpad,
+            PointerDeviceKind.stylus,
+          },
+        ),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          physics: const ClampingScrollPhysics(),
+          child: SizedBox(
+            width: totalTableWidth,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              physics: const ClampingScrollPhysics(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 1. TOP HEADER ROW
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: colSeqWidth,
+                        height: 38,
+                        alignment: Alignment.center,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF00695C),
+                          border: Border(
+                            right:
+                                BorderSide(color: Color(0xFFE2E8F0), width: 1),
+                            bottom:
+                                BorderSide(color: Color(0xFFE2E8F0), width: 1),
+                          ),
+                        ),
+                        child: const Text(
+                          "Program / Sequence",
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      for (int dIdx = 0; dIdx < _dateColumns.length; dIdx++)
+                        Container(
+                          width: dateBlockWidth,
+                          height: 38,
+                          alignment: Alignment.center,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFF5B800),
+                            border: Border(
+                              right: BorderSide(
+                                  color: Color(0xFFE2E8F0), width: 1),
+                              bottom: BorderSide(
+                                  color: Color(0xFFE2E8F0), width: 1),
+                            ),
+                          ),
+                          child: Text(
+                            DateFormat('dd/MM/yyyy (E)')
+                                .format(_dateColumns[dIdx]),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF1E293B),
+                            ),
+                          ),
+                        ),
+                      Container(
+                        width: colTotalWidth,
+                        height: 38,
+                        alignment: Alignment.center,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFF97316),
+                          border: Border(
+                            bottom:
+                                BorderSide(color: Color(0xFFE2E8F0), width: 1),
+                          ),
+                        ),
+                        child: const Text(
+                          "Total",
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  // 2. SUB-HEADER ROW
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _buildSubHeaderCell("Program /\nSequence", colSeqWidth),
+                      for (int dIdx = 0;
+                          dIdx < _dateColumns.length;
+                          dIdx++) ...[
+                        _buildSubHeaderCell("Duration", colDurationQtyWidth),
+                        _buildSubHeaderCell("Quantity", colQtyCompletedWidth),
+                      ],
+                      _buildSubHeaderCell("Total\nDuration", colTotalWidth,
+                          isTotalCol: true),
+                    ],
+                  ),
+
+                  // 3. DATA ROWS
+                  for (int rIdx = 0; rIdx < filteredRows.length; rIdx++)
+                    _buildMobileDataRow(
+                      filteredRows[rIdx],
+                      rIdx,
+                      colSeqWidth,
+                      colDurationQtyWidth,
+                      colQtyCompletedWidth,
+                      colTotalWidth,
+                    ),
+
+                  // 4. FOOTER TOTAL ROW
+                  _buildMobileFooterTotalRow(
+                    dailyTotals,
+                    grandTotalSeconds,
+                    colSeqWidth,
+                    dateBlockWidth,
+                    colTotalWidth,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMobileDataRow(
+    SequenceRowData row,
+    int rowIndex,
+    double colSeqWidth,
+    double colDurationQtyWidth,
+    double colQtyCompletedWidth,
+    double colTotalWidth,
+  ) {
+    Color rowBg = rowIndex % 2 == 0 ? Colors.white : const Color(0xFFF8FAFC);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: rowBg,
+        border: const Border(
+          bottom: BorderSide(color: Color(0xFFE2E8F0), width: 1),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildPinnedLeftSequenceDataRow(row, rowIndex, colSeqWidth),
+          for (int dIdx = 0; dIdx < _dateColumns.length; dIdx++)
+            _buildDateSequenceBlock(
+              row,
+              _dateColumns[dIdx],
+              colDurationQtyWidth,
+              colQtyCompletedWidth,
+            ),
+          _buildPinnedTotalDataRow(row, rowIndex, colTotalWidth),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMobileFooterTotalRow(
+    Map<String, int> dailyTotals,
+    int grandTotalSeconds,
+    double colSeqWidth,
+    double dateBlockWidth,
+    double colTotalWidth,
+  ) {
+    return Container(
+      height: 46,
+      decoration: const BoxDecoration(
+        color: Color(0xFFF0FDF4),
+        border: Border(
+          top: BorderSide(color: Color(0xFFCBD5E1), width: 1.5),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: colSeqWidth,
+            height: 46,
+            alignment: Alignment.center,
+            decoration: const BoxDecoration(
+              border: Border(
+                right: BorderSide(color: Color(0xFFCBD5E1), width: 1),
+              ),
+            ),
+            child: const Text(
+              "Total",
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF166534),
+              ),
+            ),
+          ),
+          for (int dIdx = 0; dIdx < _dateColumns.length; dIdx++)
+            Builder(builder: (context) {
+              String dKey = DateFormat('yyyy-MM-dd').format(_dateColumns[dIdx]);
+              int daySumSec = dailyTotals[dKey] ?? 0;
+              String dayTotalFormatted = _formatDuration(daySumSec);
+
+              return Container(
+                width: dateBlockWidth,
+                height: 46,
+                alignment: Alignment.center,
+                decoration: const BoxDecoration(
+                  border: Border(
+                    right: BorderSide(color: Color(0xFFCBD5E1), width: 1),
+                  ),
+                ),
+                child: Text(
+                  dayTotalFormatted,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF166534),
+                  ),
+                ),
+              );
+            }),
+          Container(
+            width: colTotalWidth,
+            height: 46,
+            alignment: Alignment.center,
+            decoration: const BoxDecoration(
+              color: Color(0xFFDCFCE7),
+            ),
+            child: Text(
+              _formatDuration(grandTotalSeconds),
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF15803D),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildSubHeaderCell(String text, double width,
       {bool isTotalCol = false}) {
     return Container(
@@ -1398,6 +1912,7 @@ class _ZoneLogState extends State<ZoneLog>
       decoration: BoxDecoration(
         color: rowBg,
         border: const Border(
+          right: BorderSide(color: Color(0xFFCBD5E1), width: 1),
           bottom: BorderSide(color: Color(0xFFE2E8F0), width: 1),
         ),
       ),
@@ -1494,6 +2009,7 @@ class _ZoneLogState extends State<ZoneLog>
       decoration: BoxDecoration(
         color: rowBg,
         border: const Border(
+          left: BorderSide(color: Color(0xFFCBD5E1), width: 1),
           bottom: BorderSide(color: Color(0xFFE2E8F0), width: 1),
         ),
       ),
@@ -1518,8 +2034,9 @@ class _ZoneLogState extends State<ZoneLog>
     String dKey = DateFormat('yyyy-MM-dd').format(date);
     SequenceDayData? dayData = row.dayEntries[dKey];
 
-    String durationQty =
-        (dayData != null && dayData.hasRun) ? dayData.durationQtyStr : '00:00:00';
+    String durationQty = (dayData != null && dayData.hasRun)
+        ? dayData.durationQtyStr
+        : '00:00:00';
     String qtyCompleted =
         (dayData != null && dayData.hasRun) ? dayData.qtyCompletedStr : '0';
 

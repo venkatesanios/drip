@@ -1,6 +1,8 @@
 import 'dart:io';
+import 'package:better_download_saver/better_download_saver.dart';
 import 'package:excel/excel.dart';
 import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'zone_log_pdf_builder.dart';
 
@@ -8,32 +10,32 @@ Future<Directory> _resolveDownloadDirectory() async {
   Directory? directory;
   try {
     if (!kIsWeb && Platform.isAndroid) {
-      // 1. Try standard Android public Download directory
-      final directDownload = Directory('/storage/emulated/0/Download');
-      if (await directDownload.exists()) {
+      try {
+        directory = await getDownloadsDirectory();
+      } catch (_) {}
+
+      if (directory == null) {
         try {
-          final testFile = File('${directDownload.path}/.test_probe');
-          await testFile.writeAsString('probe');
-          await testFile.delete();
-          return directDownload;
+          final extDirs = await getExternalStorageDirectories(
+              type: StorageDirectory.downloads);
+          if (extDirs != null && extDirs.isNotEmpty) {
+            directory = extDirs.first;
+          }
         } catch (_) {}
       }
 
-      // 2. Try path_provider getDownloadsDirectory
-      directory = await getDownloadsDirectory();
-
-      // 3. Try path_provider getExternalStorageDirectories for downloads
       if (directory == null) {
-        final extDirs = await getExternalStorageDirectories(
-            type: StorageDirectory.downloads);
-        if (extDirs != null && extDirs.isNotEmpty) {
-          directory = extDirs.first;
+        final directDownload = Directory('/storage/emulated/0/Download');
+        if (await directDownload.exists()) {
+          directory = directDownload;
         }
       }
     } else if (!kIsWeb && Platform.isIOS) {
       directory = await getApplicationDocumentsDirectory();
     } else if (!kIsWeb) {
-      directory = await getDownloadsDirectory();
+      try {
+        directory = await getDownloadsDirectory();
+      } catch (_) {}
     }
   } catch (e) {
     debugPrint("Error resolving download directory: $e");
@@ -46,7 +48,6 @@ Future<Directory> _resolveDownloadDirectory() async {
 Future<String?> exportZoneLogToCSV(
     List<dynamic> records, String fileName) async {
   try {
-    // 1. Generate Excel (.xlsx) workbook
     final excel = Excel.createExcel();
     final String defaultSheet = excel.getDefaultSheet() ?? 'Sheet1';
     final Sheet sheet = excel[defaultSheet];
@@ -81,55 +82,28 @@ Future<String?> exportZoneLogToCSV(
 
     final fileBytes = excel.encode();
     if (fileBytes == null) return null;
+    final Uint8List bytes = Uint8List.fromList(fileBytes);
+
+    try {
+      final saver = BetterDownloadSaver();
+      final String? savedPath = await saver.saveToDownloads(
+        fileName: '$fileName.xlsx',
+        bytes: bytes,
+        mimeType:
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      );
+      if (savedPath != null && savedPath.isNotEmpty) {
+        return "$fileName.xlsx";
+      }
+    } catch (e) {
+      debugPrint("BetterDownloadSaver error in exportZoneLogToCSV: $e");
+    }
 
     Directory downloadDir = await _resolveDownloadDirectory();
     String xlsxPath = "${downloadDir.path}/$fileName.xlsx";
     File xlsxFile = File(xlsxPath);
     await xlsxFile.create(recursive: true);
-    await xlsxFile.writeAsBytes(fileBytes);
-
-    // Also write CSV version to Downloads
-    StringBuffer sb = StringBuffer();
-    sb.writeln(
-        'Date,Program Name,Sequence Name,HeadUnit,Pump,Start Time,End Time,Duration,Start Reason,End Reason');
-
-    for (var rec in records) {
-      String dateStr = (rec.dateStr?.toString() ?? '').replaceAll('"', '""');
-      String progStr =
-          (rec.programTitle?.toString() ?? '').replaceAll('"', '""');
-      String seqStr =
-          (rec.sequenceTitle?.toString() ?? '').replaceAll('"', '""');
-      String huStr = (rec.headUnit?.toString() ?? '').replaceAll('"', '""');
-      String pumpStr = (rec.pump?.toString() ?? '').replaceAll('"', '""');
-      String startStr = (rec.startTime?.toString() ?? '').replaceAll('"', '""');
-      String endStr = (rec.endTime?.toString() ?? '').replaceAll('"', '""');
-      String durStr = (rec.duration?.toString() ?? '').replaceAll('"', '""');
-      String startRStr =
-          (rec.startReason?.toString() ?? '').replaceAll('"', '""');
-      String endRStr = (rec.endReason?.toString() ?? '').replaceAll('"', '""');
-
-      sb.writeln(
-          '"$dateStr","$progStr","$seqStr","$huStr","$pumpStr","$startStr","$endStr","$durStr","$startRStr","$endRStr"');
-    }
-
-    String csvPath = "${downloadDir.path}/$fileName.csv";
-    File csvFile = File(csvPath);
-    await csvFile.create(recursive: true);
-    await csvFile.writeAsString(sb.toString());
-
-    // If public Download folder exists on Android, copy there as well for visibility
-    if (!kIsWeb && Platform.isAndroid) {
-      try {
-        final publicDownload = Directory('/storage/emulated/0/Download');
-        if (await publicDownload.exists() &&
-            publicDownload.path != downloadDir.path) {
-          File pubXlsx = File("${publicDownload.path}/$fileName.xlsx");
-          await pubXlsx.writeAsBytes(fileBytes);
-          File pubCsv = File("${publicDownload.path}/$fileName.csv");
-          await pubCsv.writeAsString(sb.toString());
-        }
-      } catch (_) {}
-    }
+    await xlsxFile.writeAsBytes(bytes);
 
     return "$fileName.xlsx";
   } catch (e) {
@@ -142,28 +116,156 @@ Future<String?> exportZoneLogToPDF(
     List<dynamic> records, String fileName) async {
   try {
     final pdfBytes = generateZoneLogPdfBytes(records, fileName);
+    final Uint8List bytes = Uint8List.fromList(pdfBytes);
+
+    try {
+      final saver = BetterDownloadSaver();
+      final String? savedPath = await saver.saveToDownloads(
+        fileName: '$fileName.pdf',
+        bytes: bytes,
+        mimeType: 'application/pdf',
+      );
+      if (savedPath != null && savedPath.isNotEmpty) {
+        return "$fileName.pdf";
+      }
+    } catch (e) {
+      debugPrint("BetterDownloadSaver error in exportZoneLogToPDF: $e");
+    }
 
     Directory downloadDir = await _resolveDownloadDirectory();
     String pdfPath = "${downloadDir.path}/$fileName.pdf";
     File pdfFile = File(pdfPath);
     await pdfFile.create(recursive: true);
-    await pdfFile.writeAsBytes(pdfBytes);
-
-    // If public Download folder exists on Android, copy there as well for visibility
-    if (!kIsWeb && Platform.isAndroid) {
-      try {
-        final publicDownload = Directory('/storage/emulated/0/Download');
-        if (await publicDownload.exists() &&
-            publicDownload.path != downloadDir.path) {
-          File pubPdf = File("${publicDownload.path}/$fileName.pdf");
-          await pubPdf.writeAsBytes(pdfBytes);
-        }
-      } catch (_) {}
-    }
+    await pdfFile.writeAsBytes(bytes);
 
     return "$fileName.pdf";
   } catch (e) {
     debugPrint("Error exporting PDF: $e");
     return null;
   }
+}
+
+Future<String?> exportZoneLogMatrixToExcel({
+  required List<DateTime> dateColumns,
+  required List<dynamic> rows,
+  required Map<String, int> dailyTotals,
+  required int grandTotalSeconds,
+  required String fileName,
+}) async {
+  try {
+    final excel = Excel.createExcel();
+    final String defaultSheet = excel.getDefaultSheet() ?? 'Sheet1';
+    final Sheet sheet = excel[defaultSheet];
+
+    // Header 1: Date Headers
+    List<CellValue> header1 = [TextCellValue('Program / Sequence')];
+    for (var d in dateColumns) {
+      String dateStr = DateFormat('dd/MM/yyyy (E)').format(d);
+      header1.add(TextCellValue(dateStr));
+      header1.add(TextCellValue(''));
+    }
+    header1.add(TextCellValue('Total'));
+    sheet.appendRow(header1);
+
+    // Header 2: Sub-headers
+    List<CellValue> header2 = [TextCellValue('Program / Sequence')];
+    for (var _ in dateColumns) {
+      header2.add(TextCellValue('Duration'));
+      header2.add(TextCellValue('Quantity'));
+    }
+    header2.add(TextCellValue('Total Duration'));
+    sheet.appendRow(header2);
+
+    // Data rows
+    for (var row in rows) {
+      List<CellValue> dataRow = [];
+      String displayName =
+          (row.progName.isNotEmpty && row.progName != row.seqName)
+              ? "${row.progName} - ${row.seqName}"
+              : row.seqName;
+      dataRow.add(TextCellValue(displayName));
+
+      int rowTotalSec = 0;
+      for (var d in dateColumns) {
+        String dKey = DateFormat('yyyy-MM-dd').format(d);
+        var dayData = row.dayEntries[dKey];
+        if (dayData != null && dayData.hasRun) {
+          dataRow.add(TextCellValue(dayData.durationQtyStr));
+          dataRow.add(TextCellValue(dayData.qtyCompletedStr));
+          rowTotalSec += (dayData.durationQtySeconds as int? ?? 0);
+        } else {
+          dataRow.add(TextCellValue('00:00:00'));
+          dataRow.add(TextCellValue('0'));
+        }
+      }
+      dataRow.add(TextCellValue(_formatDurationHelper(rowTotalSec)));
+      sheet.appendRow(dataRow);
+    }
+
+    // Footer Total Row
+    List<CellValue> footerRow = [TextCellValue('Total')];
+    for (var d in dateColumns) {
+      String dKey = DateFormat('yyyy-MM-dd').format(d);
+      int daySec = dailyTotals[dKey] ?? 0;
+      footerRow.add(TextCellValue(_formatDurationHelper(daySec)));
+      footerRow.add(TextCellValue(''));
+    }
+    footerRow.add(TextCellValue(_formatDurationHelper(grandTotalSeconds)));
+    sheet.appendRow(footerRow);
+
+    final fileBytes = excel.encode();
+    if (fileBytes == null) {
+      debugPrint("Excel encode returned null");
+      return null;
+    }
+
+    final Uint8List bytes = Uint8List.fromList(fileBytes);
+
+    // 1. Try BetterDownloadSaver for mobile downloads
+    try {
+      final saver = BetterDownloadSaver();
+      final String? savedPath = await saver.saveToDownloads(
+        fileName: '$fileName.xlsx',
+        bytes: bytes,
+        mimeType:
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      );
+      if (savedPath != null && savedPath.isNotEmpty) {
+        debugPrint(
+            'Excel saved successfully via BetterDownloadSaver: $savedPath');
+        return "$fileName.xlsx";
+      }
+    } catch (e, st) {
+      debugPrint("BetterDownloadSaver error: $e\n$st");
+    }
+
+    // 2. Fallback to path_provider download directory
+    try {
+      Directory downloadDir = await _resolveDownloadDirectory();
+      String xlsxPath = "${downloadDir.path}/$fileName.xlsx";
+      File xlsxFile = File(xlsxPath);
+      await xlsxFile.create(recursive: true);
+      await xlsxFile.writeAsBytes(bytes);
+      debugPrint('Excel saved successfully via File fallback: $xlsxPath');
+      return "$fileName.xlsx";
+    } catch (e, st) {
+      debugPrint("File fallback error: $e\n$st");
+    }
+
+    return null;
+  } catch (e, st) {
+    debugPrint("Error exporting Zone Log matrix to Excel: $e\n$st");
+    return null;
+  }
+}
+
+String _formatDurationHelper(int totalSeconds) {
+  if (totalSeconds <= 0) return "0h 0m";
+  int hours = totalSeconds ~/ 3600;
+  int minutes = (totalSeconds % 3600) ~/ 60;
+  int seconds = totalSeconds % 60;
+  if (seconds > 0) {
+    return "${hours}h ${minutes}m ${seconds}s";
+  }
+  return "${hours}h ${minutes}m";
 }
