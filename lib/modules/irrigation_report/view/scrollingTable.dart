@@ -52,6 +52,7 @@ class ScrollingTable extends StatefulWidget {
   final List<dynamic> localChannel8Column;
   final List<dynamic> localChannel8ColumnData;
   final List<dynamic> graphData;
+  final void Function(String sequenceName)? onSequenceClicked;
 
   ScrollingTable({super.key,
     required this.fixedColumn,
@@ -100,7 +101,8 @@ class ScrollingTable extends StatefulWidget {
     required this.localChannel7ColumnData,
     required this.localChannel8Column,
     required this.localChannel8ColumnData,
-    required this.graphData
+    required this.graphData,
+    this.onSequenceClicked,
   });
 
   @override
@@ -488,17 +490,43 @@ class _ScrollingTableState extends State<ScrollingTable> {
                                                   ),
                                                 )
                                               else if(['Sequence', 'Valves', 'Valve'].contains(widget.generalColumn[j]))
-                                                  Container(
-                                                    padding: const EdgeInsets.only(left: 8),
-                                                    width: 150,
-                                                    height: getBoxHeight(widget.filterColumnData, i, widget.generalColumnData),
-                                                    alignment: Alignment.centerLeft,
-                                                    decoration: BoxDecoration(
-                                                      border: seperatingLength(i) ? const Border(bottom: BorderSide(width: 1)) : null,
-                                                    ),
-                                                    child: Tooltip(
-                                                      message: '${widget.generalColumnData[i][j] ?? '-'}',
-                                                      child: Text('${widget.generalColumnData[i][j] ?? '-'}',style: const TextStyle(fontSize: 12,fontWeight: FontWeight.normal),maxLines: 3,overflow: TextOverflow.ellipsis,),
+                                                  InkWell(
+                                                    onTap: () {
+                                                      if (widget.onSequenceClicked != null) {
+                                                        widget.onSequenceClicked!('${widget.generalColumnData[i][j] ?? ''}');
+                                                      }
+                                                    },
+                                                    child: Container(
+                                                      padding: const EdgeInsets.only(left: 8),
+                                                      width: 150,
+                                                      height: getBoxHeight(widget.filterColumnData, i, widget.generalColumnData),
+                                                      alignment: Alignment.centerLeft,
+                                                      decoration: BoxDecoration(
+                                                        border: seperatingLength(i) ? const Border(bottom: BorderSide(width: 1)) : null,
+                                                      ),
+                                                      child: Tooltip(
+                                                        message: 'Click to view Sensor Graph',
+                                                        child: Row(
+                                                          mainAxisSize: MainAxisSize.min,
+                                                          children: [
+                                                            Flexible(
+                                                              child: Text(
+                                                                '${widget.generalColumnData[i][j] ?? '-'}',
+                                                                style: const TextStyle(
+                                                                  fontSize: 12,
+                                                                  fontWeight: FontWeight.bold,
+                                                                  color: Colors.blue,
+                                                                  decoration: TextDecoration.underline
+                                                                ),
+                                                                maxLines: 3,
+                                                                overflow: TextOverflow.ellipsis,
+                                                              ),
+                                                            ),
+                                                            const SizedBox(width: 4),
+                                                            const Icon(Icons.analytics_outlined, size: 14, color: Colors.blue),
+                                                          ],
+                                                        ),
+                                                      ),
                                                     ),
                                                   )
                                                 else if(['Actual Start Time', 'Actual End Time'].contains(widget.generalColumn[j]))
@@ -525,6 +553,45 @@ class _ScrollingTableState extends State<ScrollingTable> {
                                                           border: seperatingLength(i) ? const Border(bottom: BorderSide(width: 1)) : null,
                                                         ),
                                                         child: reasonCell('${widget.generalColumnData[i][j] ?? '-'}', getBoxHeight(widget.filterColumnData, i, widget.generalColumnData)),
+                                                      )
+                                                    else if(widget.generalColumn[j] == 'Sequence' || widget.generalColumn[j] == 'SequenceData' || widget.generalColumn[j] == 'Valve' || widget.generalColumn[j] == 'Valves')
+                                                      InkWell(
+                                                        onTap: () {
+                                                          if (widget.onSequenceClicked != null) {
+                                                            widget.onSequenceClicked!('${widget.generalColumnData[i][j] ?? ''}');
+                                                          }
+                                                        },
+                                                        child: Container(
+                                                          decoration: BoxDecoration(
+                                                            border: seperatingLength(i) ? const Border(bottom: BorderSide(width: 1)) : null,
+                                                          ),
+                                                          padding: const EdgeInsets.only(left: 8),
+                                                          width: 100,
+                                                          height: getBoxHeight(widget.filterColumnData, i, widget.generalColumnData),
+                                                          alignment: Alignment.centerLeft,
+                                                          child: Tooltip(
+                                                            message: 'Click to view Sensor Graph',
+                                                            child: Row(
+                                                              mainAxisSize: MainAxisSize.min,
+                                                              children: [
+                                                                Flexible(
+                                                                  child: Text(
+                                                                    '${widget.generalColumnData[i][j] ?? '-'}',
+                                                                    style: const TextStyle(
+                                                                      fontSize: 12, 
+                                                                      fontWeight: FontWeight.bold, 
+                                                                      color: Colors.blue, 
+                                                                      decoration: TextDecoration.underline
+                                                                    ),
+                                                                    overflow: TextOverflow.ellipsis,
+                                                                  ),
+                                                                ),
+                                                                const SizedBox(width: 4),
+                                                                const Icon(Icons.analytics_outlined, size: 14, color: Colors.blue),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ),
                                                       )
                                                     else
                                                       Container(

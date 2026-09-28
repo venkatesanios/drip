@@ -212,7 +212,7 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                                 children: [
                                   Text(widget.masterData.deviceName, style: themeData.textTheme.titleMedium!.copyWith(fontWeight: FontWeight.bold),),
                                   Badge(
-                                    alignment: const Alignment(-3.5, -1),
+                                      alignment: const Alignment(-3.1, -1),
                                     smallSize: 0.1,
                                     backgroundColor: Colors.transparent,
                                     label: Text("${snapshot.data?.signalStrength ?? "0"}%", style: const TextStyle(fontSize: 8, color: Colors.red, fontWeight: FontWeight.bold),),
@@ -235,7 +235,7 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                                         decoration: BoxDecoration(
                                             color: const Color(0xffFFFACD),
                                             border: Border.all(color: const Color(0xffEB7C17)),
-                                            borderRadius: BorderRadius.circular(10)
+                                              borderRadius: BorderRadius.circular(10)
                                         ),
                                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                         child: Text('CVS : ${(snapshot.data!.version.toString().split(',').length > 1
@@ -1364,10 +1364,14 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
   }
 
   Widget _buildPumpControlButton({required String label, required Color color, required String command, required int delay, required PumpControllerData pumpData, required int index}) {
+    bool isWlc = AppConstants.wlcModelList.contains(widget.masterData.modelId);
+    bool isAutoMode = pumpData.manualMode.toUpperCase() == '1' || pumpData.manualMode.toUpperCase() == 'AUTO';
+    bool isDisabled = (isWlc && isAutoMode) || pumpData.dataFetchingStatus != 1;
+
     return BounceEffectButton(
       label: label,
       textColor: color,
-      onTap: pumpData.dataFetchingStatus == 1 ? () async {
+      onTap: !isDisabled ? () async {
         setState(() => pumpData.pumps[index].status = 2);
         var data = {
           "userId": widget.customerId,
@@ -1382,7 +1386,7 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
         String? wlcCommand = '*$normalCommand#';
         final result = await context.read<CommunicationService>().sendCommand(
           serverMsg: '',
-          payload: AppConstants.wlcModelList.contains(widget.masterData.modelId) ? wlcCommand : normalCommand,
+          payload: isWlc ? wlcCommand : normalCommand,
         );
         debugPrint("motor on/off result => $result");
         // await mqttService.topicToPublishAndItsMessage(jsonEncode({"sentSms": "motor${index+1}$command"}), "${Environment.mqttPublishTopic}/${widget.masterData.deviceId}",);
