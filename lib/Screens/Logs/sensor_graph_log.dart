@@ -6,11 +6,15 @@ import '../../services/http_service.dart';
 class SensorGraphLog extends StatefulWidget {
   final int userId;
   final int controllerId;
+  final DateTime fromDate;
+  final DateTime toDate;
 
   const SensorGraphLog({
     super.key,
     required this.userId,
     required this.controllerId,
+    required this.fromDate,
+    required this.toDate,
   });
 
   @override
@@ -68,8 +72,6 @@ class _SensorGraphLogState extends State<SensorGraphLog> with SingleTickerProvid
     Color(0xFFE3F2FD), // Light Blue tint
   ];
 
-  DateTime _fromDate = DateTime.now();
-  DateTime _toDate = DateTime.now();
   bool _isLoading = true;
   String? _errorMessage;
 
@@ -94,39 +96,6 @@ class _SensorGraphLogState extends State<SensorGraphLog> with SingleTickerProvid
     return '${date.day.toString().padLeft(2, '0')} ${monthNames[date.month - 1]} ${date.year}';
   }
 
-  Future<void> _pickFromDate() async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _fromDate,
-      firstDate: DateTime(2020),
-      lastDate: DateTime.now(),
-    );
-    if (picked != null && picked != _fromDate) {
-      setState(() {
-        _fromDate = picked;
-        if (_fromDate.isAfter(_toDate)) {
-          _toDate = _fromDate;
-        }
-      });
-      _fetchData();
-    }
-  }
-
-  Future<void> _pickToDate() async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _toDate,
-      firstDate: _fromDate,
-      lastDate: DateTime.now(),
-    );
-    if (picked != null && picked != _toDate) {
-      setState(() {
-        _toDate = picked;
-      });
-      _fetchData();
-    }
-  }
-
   Future<void> _fetchData() async {
     setState(() {
       _isLoading = true;
@@ -134,8 +103,8 @@ class _SensorGraphLogState extends State<SensorGraphLog> with SingleTickerProvid
     });
 
     try {
-      final fromDateStr = _apiDate(_fromDate);
-      final toDateStr = _apiDate(_toDate);
+      final fromDateStr = _apiDate(widget.fromDate);
+      final toDateStr = _apiDate(widget.toDate);
       final body = {
         "userId": widget.userId,
         "controllerId": widget.controllerId,
@@ -400,75 +369,9 @@ class _SensorGraphLogState extends State<SensorGraphLog> with SingleTickerProvid
       body: SafeArea(
         child: Column(
           children: [
-            _buildDateSelector(),
             Expanded(child: _buildBody(primaryColor, backgroundColor, textColor)),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildDateSelector() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-      child: Row(
-        children: [
-          Expanded(
-            child: InkWell(
-              onTap: _pickFromDate,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade300),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.event, size: 18, color: Colors.teal),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        _displayDate(_fromDate),
-                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const Icon(Icons.keyboard_arrow_down, size: 18, color: Colors.grey),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: InkWell(
-              onTap: _pickToDate,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade300),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.event, size: 18, color: Colors.teal),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        _displayDate(_toDate),
-                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const Icon(Icons.keyboard_arrow_down, size: 18, color: Colors.grey),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -497,9 +400,9 @@ class _SensorGraphLogState extends State<SensorGraphLog> with SingleTickerProvid
     }
 
     if (_sensors.isEmpty) {
-      String dateText = _fromDate.isAtSameMomentAs(_toDate)
-          ? _displayDate(_fromDate)
-          : '${_displayDate(_fromDate)} - ${_displayDate(_toDate)}';
+      String dateText = widget.fromDate.isAtSameMomentAs(widget.toDate)
+          ? _displayDate(widget.fromDate)
+          : '${_displayDate(widget.fromDate)} - ${_displayDate(widget.toDate)}';
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

@@ -845,6 +845,19 @@ class _LogHomeState extends State<LogHome> {
                               localChannel8ColumnData: filterDataByPages(data: dataToShow['localChannel8ColumnData']),
                               graphData: dataToShow['graphData'],
                               onSequenceClicked: (sequenceName) {
+                                DateTime date1 = DateTime.now();
+                                DateTime date2 = DateTime.now();
+                                try {
+                                  String dateString1 = _selectedDate.split(' - ')[0];
+                                  String dateString2 = _selectedDate.split(' - ')[1];
+                                  List<String> parts1 = dateString1.split('/');
+                                  List<String> parts2 = dateString2.split('/');
+                                  date1 = DateTime(int.parse(parts1[2]), int.parse(parts1[1]), int.parse(parts1[0]));
+                                  date2 = DateTime(int.parse(parts2[2]), int.parse(parts2[1]), int.parse(parts2[0]));
+                                } catch (e) {
+                                  // Fallback to now if parse fails
+                                }
+
                                 showDialog(
                                   context: context,
                                   builder: (context) {
@@ -858,8 +871,8 @@ class _LogHomeState extends State<LogHome> {
                                             Row(
                                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                               children: [
-                                                Padding(
-                                                  padding: const EdgeInsets.only(left: 16.0),
+                                                const Padding(
+                                                  padding: EdgeInsets.only(left: 16.0),
                                                   child: Text(
                                                     'Sensor Log',
                                                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -877,6 +890,8 @@ class _LogHomeState extends State<LogHome> {
                                                 child: SensorGraphLog(
                                                   userId: widget.userData['customerId'],
                                                   controllerId: widget.userData['controllerId'],
+                                                  fromDate: date1,
+                                                  toDate: date2,
                                                 ),
                                               ),
                                             ),
