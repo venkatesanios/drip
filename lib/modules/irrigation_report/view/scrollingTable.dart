@@ -460,7 +460,16 @@ class _ScrollingTableState extends State<ScrollingTable> {
                                                       ),
                                                       child: Tooltip(
                                                         message: '${getStatus(widget.generalColumnData[i][j])['status']}',
-                                                        child: Text('${getStatus(widget.generalColumnData[i][j])['status']}',textAlign: TextAlign.center,style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold,color: getStatus(widget.generalColumnData[i][j])['textColor']),overflow: TextOverflow.ellipsis,),
+                                                        child: Row(
+                                                          mainAxisSize: MainAxisSize.min,
+                                                          children: [
+                                                            Flexible(
+                                                              child: Text('${getStatus(widget.generalColumnData[i][j])['status']}',textAlign: TextAlign.center,style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold,color: getStatus(widget.generalColumnData[i][j])['textColor']),overflow: TextOverflow.ellipsis,),
+                                                            ),
+                                                            const SizedBox(width: 4),
+                                                            const Icon(Icons.analytics_outlined, size: 14, color: Colors.blue),
+                                                          ],
+                                                        )
                                                       )
                                                   ),
                                                 )
@@ -473,7 +482,14 @@ class _ScrollingTableState extends State<ScrollingTable> {
                                                   decoration: BoxDecoration(
                                                     border: seperatingLength(i) ? const Border(bottom: BorderSide(width: 1)) : null,
                                                   ),
-                                                  child: buildPumpCtCard('${widget.generalColumnData[i][j] ?? '-'}'),
+                                                  child: Row(
+                                                    mainAxisSize: MainAxisSize.min,
+                                                    children: [
+                                                      Flexible(child: buildPumpCtCard('${widget.generalColumnData[i][j] ?? '-'}')),
+                                                      const SizedBox(width: 4),
+                                                      const Icon(Icons.analytics_outlined, size: 14, color: Colors.blue),
+                                                    ],
+                                                  ),
                                                 )
                                               else if(['Pressure Average', 'Pressure Maximum', 'Pressure Minimum', 'PressureAverage', 'PressureMaximum', 'PressureMinimum'].contains(widget.generalColumn[j]))
                                                 Container(
@@ -486,7 +502,16 @@ class _ScrollingTableState extends State<ScrollingTable> {
                                                   ),
                                                   child: Tooltip(
                                                     message: '${widget.generalColumnData[i][j] ?? '-'}',
-                                                    child: Text('${widget.generalColumnData[i][j] ?? '-'}',textAlign: TextAlign.center,style: const TextStyle(fontSize: 12,fontWeight: FontWeight.bold),overflow: TextOverflow.ellipsis,),
+                                                    child: Row(
+                                                      mainAxisSize: MainAxisSize.min,
+                                                      children: [
+                                                        Flexible(
+                                                          child: Text('${widget.generalColumnData[i][j] ?? '-'}',textAlign: TextAlign.center,style: const TextStyle(fontSize: 12,fontWeight: FontWeight.bold),overflow: TextOverflow.ellipsis,),
+                                                        ),
+                                                        const SizedBox(width: 4),
+                                                        const Icon(Icons.analytics_outlined, size: 14, color: Colors.blue),
+                                                      ],
+                                                    ),
                                                   ),
                                                 )
                                               else if(['Sequence', 'Valves', 'Valve'].contains(widget.generalColumn[j]))
@@ -515,8 +540,7 @@ class _ScrollingTableState extends State<ScrollingTable> {
                                                                 style: const TextStyle(
                                                                   fontSize: 12,
                                                                   fontWeight: FontWeight.bold,
-                                                                  color: Colors.blue,
-                                                                  decoration: TextDecoration.underline
+                                                                  color: Colors.black,
                                                                 ),
                                                                 maxLines: 3,
                                                                 overflow: TextOverflow.ellipsis,
@@ -540,7 +564,16 @@ class _ScrollingTableState extends State<ScrollingTable> {
                                                       ),
                                                       child: Tooltip(
                                                         message: '${widget.generalColumnData[i][j] ?? '-'}',
-                                                        child: Text('${widget.generalColumnData[i][j] ?? '-'}',style: const TextStyle(fontSize: 12,fontWeight: FontWeight.w600,color: Color(0xff03464F)),),
+                                                        child: Row(
+                                                          mainAxisSize: MainAxisSize.min,
+                                                          children: [
+                                                            Flexible(
+                                                              child: Text('${widget.generalColumnData[i][j] ?? '-'}',style: const TextStyle(fontSize: 12,fontWeight: FontWeight.w600,color: Color(0xff03464F)),),
+                                                            ),
+                                                            const SizedBox(width: 4),
+                                                            const Icon(Icons.analytics_outlined, size: 14, color: Colors.blue),
+                                                          ],
+                                                        ),
                                                       ),
                                                     )
                                                   else if(['Actual Start Reason', 'Actual Stop Reason'].contains(widget.generalColumn[j]))
@@ -552,7 +585,14 @@ class _ScrollingTableState extends State<ScrollingTable> {
                                                         decoration: BoxDecoration(
                                                           border: seperatingLength(i) ? const Border(bottom: BorderSide(width: 1)) : null,
                                                         ),
-                                                        child: reasonCell('${widget.generalColumnData[i][j] ?? '-'}', getBoxHeight(widget.filterColumnData, i, widget.generalColumnData)),
+                                                        child: Row(
+                                                          mainAxisSize: MainAxisSize.min,
+                                                          children: [
+                                                            Flexible(child: reasonCell('${widget.generalColumnData[i][j] ?? '-'}', getBoxHeight(widget.filterColumnData, i, widget.generalColumnData))),
+                                                            const SizedBox(width: 4),
+                                                            const Icon(Icons.analytics_outlined, size: 14, color: Colors.blue),
+                                                          ],
+                                                        ),
                                                       )
                                                     else if(widget.generalColumn[j] == 'Sequence' || widget.generalColumn[j] == 'SequenceData' || widget.generalColumn[j] == 'Valve' || widget.generalColumn[j] == 'Valves')
                                                       InkWell(
@@ -580,8 +620,7 @@ class _ScrollingTableState extends State<ScrollingTable> {
                                                                     style: const TextStyle(
                                                                       fontSize: 12, 
                                                                       fontWeight: FontWeight.bold, 
-                                                                      color: Colors.blue, 
-                                                                      decoration: TextDecoration.underline
+                                                                      color: Colors.black, 
                                                                     ),
                                                                     overflow: TextOverflow.ellipsis,
                                                                   ),
@@ -604,7 +643,16 @@ class _ScrollingTableState extends State<ScrollingTable> {
                                                         alignment: Alignment.centerLeft,
                                                         child: Tooltip(
                                                           message: '${widget.generalColumnData[i][j] ?? '-'}',
-                                                          child: Text('${widget.generalColumnData[i][j] ?? '-'}',style: TextStyle(fontSize: 12,fontWeight: FontWeight.normal),overflow: TextOverflow.ellipsis,),
+                                                          child: Row(
+                                                            mainAxisSize: MainAxisSize.min,
+                                                            children: [
+                                                              Flexible(
+                                                                child: Text('${widget.generalColumnData[i][j] ?? '-'}', style: const TextStyle(fontSize: 12,fontWeight: FontWeight.normal), overflow: TextOverflow.ellipsis,),
+                                                              ),
+                                                              const SizedBox(width: 4),
+                                                              const Icon(Icons.analytics_outlined, size: 14, color: Colors.blue),
+                                                            ],
+                                                          ),
                                                         ),
                                                       ),
                                             SizedBox(
@@ -638,7 +686,16 @@ class _ScrollingTableState extends State<ScrollingTable> {
                                                 alignment: Alignment.centerLeft,
                                                 child: Tooltip(
                                                   message: '${widget.waterColumnData[i][j] ?? '-'}',
-                                                  child: Text('${widget.waterColumnData[i][j] ?? '-'}',style: TextStyle(fontSize: 12,fontWeight: FontWeight.normal),overflow: TextOverflow.ellipsis,),
+                                                  child: Row(
+                                                    mainAxisSize: MainAxisSize.min,
+                                                    children: [
+                                                      Flexible(
+                                                        child: Text('${widget.waterColumnData[i][j] ?? '-'}', style: const TextStyle(fontSize: 12,fontWeight: FontWeight.normal), overflow: TextOverflow.ellipsis,),
+                                                      ),
+                                                      const SizedBox(width: 4),
+                                                      const Icon(Icons.analytics_outlined, size: 14, color: Colors.blue),
+                                                    ],
+                                                  ),
                                                 ),
                                               ),
                                             SizedBox(
@@ -671,7 +728,16 @@ class _ScrollingTableState extends State<ScrollingTable> {
                                                 alignment: Alignment.centerLeft,
                                                 child: Tooltip(
                                                   message: '${widget.filterColumnData[i][j] ?? '-'}',
-                                                  child: Text('${widget.filterColumnData[i][j] ?? '-'}',style: TextStyle(fontSize: 12,fontWeight: FontWeight.normal),overflow: TextOverflow.ellipsis,),
+                                                  child: Row(
+                                                    mainAxisSize: MainAxisSize.min,
+                                                    children: [
+                                                      Flexible(
+                                                        child: Text('${widget.filterColumnData[i][j] ?? '-'}', style: const TextStyle(fontSize: 12,fontWeight: FontWeight.normal), overflow: TextOverflow.ellipsis,),
+                                                      ),
+                                                      const SizedBox(width: 4),
+                                                      const Icon(Icons.analytics_outlined, size: 14, color: Colors.blue),
+                                                    ],
+                                                  ),
                                                 ),
                                               ),
                                             SizedBox(
@@ -704,7 +770,16 @@ class _ScrollingTableState extends State<ScrollingTable> {
                                                 alignment: Alignment.centerLeft,
                                                 child: Tooltip(
                                                   message: '${widget.prePostColumnData[i][j] ?? '-'}',
-                                                  child: Text('${widget.prePostColumnData[i][j] ?? '-'}',style: TextStyle(fontSize: 12,fontWeight: FontWeight.normal),overflow: TextOverflow.ellipsis,),
+                                                  child: Row(
+                                                    mainAxisSize: MainAxisSize.min,
+                                                    children: [
+                                                      Flexible(
+                                                        child: Text('${widget.prePostColumnData[i][j] ?? '-'}', style: const TextStyle(fontSize: 12,fontWeight: FontWeight.normal), overflow: TextOverflow.ellipsis,),
+                                                      ),
+                                                      const SizedBox(width: 4),
+                                                      const Icon(Icons.analytics_outlined, size: 14, color: Colors.blue),
+                                                    ],
+                                                  ),
                                                 ),
                                               ),
                                             SizedBox(
@@ -738,7 +813,16 @@ class _ScrollingTableState extends State<ScrollingTable> {
                                                 alignment: Alignment.centerLeft,
                                                 child: Tooltip(
                                                   message: '${widget.centralEcPhColumnData[i][j] ?? '-'}',
-                                                  child: Text('${widget.centralEcPhColumnData[i][j] ?? '-'}',style: TextStyle(fontSize: 12,fontWeight: FontWeight.normal),overflow: TextOverflow.ellipsis,),
+                                                  child: Row(
+                                                    mainAxisSize: MainAxisSize.min,
+                                                    children: [
+                                                      Flexible(
+                                                        child: Text('${widget.centralEcPhColumnData[i][j] ?? '-'}', style: const TextStyle(fontSize: 12,fontWeight: FontWeight.normal), overflow: TextOverflow.ellipsis,),
+                                                      ),
+                                                      const SizedBox(width: 4),
+                                                      const Icon(Icons.analytics_outlined, size: 14, color: Colors.blue),
+                                                    ],
+                                                  ),
                                                 ),
                                               ),
                                             SizedBox(
@@ -781,7 +865,16 @@ class _ScrollingTableState extends State<ScrollingTable> {
                                                 alignment: Alignment.centerLeft,
                                                 child: Tooltip(
                                                   message: '${widget.localEcPhColumnData[i][j] ?? '-'}',
-                                                  child: Text('${widget.localEcPhColumnData[i][j] ?? '-'}',style: TextStyle(fontSize: 12,fontWeight: FontWeight.normal),overflow: TextOverflow.ellipsis,),
+                                                  child: Row(
+                                                    mainAxisSize: MainAxisSize.min,
+                                                    children: [
+                                                      Flexible(
+                                                        child: Text('${widget.localEcPhColumnData[i][j] ?? '-'}', style: const TextStyle(fontSize: 12,fontWeight: FontWeight.normal), overflow: TextOverflow.ellipsis,),
+                                                      ),
+                                                      const SizedBox(width: 4),
+                                                      const Icon(Icons.analytics_outlined, size: 14, color: Colors.blue),
+                                                    ],
+                                                  ),
                                                 ),
                                               ),
                                             SizedBox(
@@ -908,7 +1001,16 @@ class _ScrollingTableState extends State<ScrollingTable> {
                   alignment: Alignment.centerLeft,
                   child: Tooltip(
                     message: '${columnDataList[i][j] ?? '-'}',
-                    child: Text('${columnDataList[i][j] ?? '-'}',style: TextStyle(fontSize: 12,fontWeight: FontWeight.normal),overflow: TextOverflow.ellipsis,),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Flexible(
+                          child: Text('${columnDataList[i][j] ?? '-'}', style: const TextStyle(fontSize: 12,fontWeight: FontWeight.normal), overflow: TextOverflow.ellipsis,),
+                        ),
+                        const SizedBox(width: 4),
+                        const Icon(Icons.analytics_outlined, size: 14, color: Colors.blue),
+                      ],
+                    ),
                   ),
                 ),
               SizedBox(

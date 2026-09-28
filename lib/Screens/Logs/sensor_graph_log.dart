@@ -366,6 +366,37 @@ class _SensorGraphLogState extends State<SensorGraphLog> with SingleTickerProvid
 
     return Scaffold(
       backgroundColor: backgroundColor,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: primaryColor.withValues(alpha: 0.05),
+        surfaceTintColor: Colors.transparent,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: primaryColor),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Row(
+          children: [
+            Icon(Icons.query_stats_rounded, color: primaryColor),
+            const SizedBox(width: 8),
+            Text(
+              'Sensor Analytics',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 0.3,
+                color: textColor,
+              ),
+            ),
+          ],
+        ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(
+            color: primaryColor.withValues(alpha: 0.1),
+            height: 1,
+          ),
+        ),
+      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -449,27 +480,38 @@ class _SensorGraphLogState extends State<SensorGraphLog> with SingleTickerProvid
                     // Graph Header & Graph Controls (Area / Line / Bar)
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Today's Trend Graph",
-                              style: TextStyle(
-                                fontSize: 17,
-                                fontWeight: FontWeight.bold,
-                                color: textColor,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(Icons.insights_rounded, color: primaryColor, size: 20),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    "Trend Graph",
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w900,
+                                      color: textColor,
+                                      letterSpacing: 0.2,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              "Tap Phase Cards above to show/hide lines",
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: textColor.withValues(alpha: 0.5),
+                              const SizedBox(height: 4),
+                              Text(
+                                "Swipe to pan • Tap cards to filter",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: textColor.withValues(alpha: 0.5),
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                         _buildGraphTypeToggle(primaryColor, textColor),
                       ],
@@ -481,7 +523,8 @@ class _SensorGraphLogState extends State<SensorGraphLog> with SingleTickerProvid
                       duration: const Duration(milliseconds: 400),
                       child: Container(
                         key: ValueKey('$_selectedSensorIndex-$_selectedGraphType-${_visiblePhases.join(",")}'),
-                        height: 310,
+                        height: MediaQuery.of(context).size.height * (MediaQuery.of(context).size.width > 600 ? 0.5 : 0.45),
+                        constraints: BoxConstraints(minHeight: 280, maxHeight: MediaQuery.of(context).size.width > 600 ? 600 : 400),
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           color: Theme.of(context).cardColor,
@@ -591,7 +634,11 @@ class _SensorGraphLogState extends State<SensorGraphLog> with SingleTickerProvid
 
   Widget _buildSensorSelector(Color primaryColor, Color textColor) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      decoration: BoxDecoration(
+        color: textColor.withValues(alpha: 0.02),
+        border: Border(bottom: BorderSide(color: textColor.withValues(alpha: 0.05), width: 1)),
+      ),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
@@ -603,54 +650,72 @@ class _SensorGraphLogState extends State<SensorGraphLog> with SingleTickerProvid
             return GestureDetector(
               onTap: () => _onSensorSelected(index),
               child: AnimatedContainer(
-                duration: const Duration(milliseconds: 250),
-                margin: const EdgeInsets.only(right: 10),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOutCubic,
+                margin: const EdgeInsets.only(right: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
                 decoration: BoxDecoration(
-                  color: isSelected ? primaryColor : textColor.withValues(alpha: 0.05),
-                  borderRadius: BorderRadius.circular(25),
+                  gradient: isSelected
+                      ? LinearGradient(
+                          colors: [
+                            primaryColor,
+                            primaryColor.withValues(alpha: 0.75),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        )
+                      : null,
+                  color: isSelected ? null : Theme.of(context).cardColor,
+                  borderRadius: BorderRadius.circular(30),
                   border: Border.all(
-                    color: isSelected ? primaryColor : textColor.withValues(alpha: 0.1),
-                    width: 1.5,
+                    color: isSelected ? Colors.transparent : textColor.withValues(alpha: 0.08),
+                    width: 1,
                   ),
                   boxShadow: isSelected
                       ? [
                           BoxShadow(
-                            color: primaryColor.withValues(alpha: 0.3),
-                            blurRadius: 8,
-                            offset: const Offset(0, 3),
+                            color: primaryColor.withValues(alpha: 0.4),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
                           )
                         ]
-                      : [],
+                      : [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.03),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          )
+                        ],
                 ),
                 child: Row(
                   children: [
                     Icon(
                       sensor.icon,
                       color: isSelected ? Colors.white : primaryColor,
-                      size: 18,
+                      size: 20,
                     ),
                     const SizedBox(width: 8),
                     Text(
                       sensor.name,
                       style: TextStyle(
-                        color: isSelected ? Colors.white : textColor,
+                        color: isSelected ? Colors.white : textColor.withValues(alpha: 0.8),
                         fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                        fontSize: 13,
+                        fontSize: 14,
+                        letterSpacing: 0.3,
                       ),
                     ),
                     if (sensor.multiData.length == 3) ...[
-                      const SizedBox(width: 6),
+                      const SizedBox(width: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                         decoration: BoxDecoration(
-                          color: isSelected ? Colors.white.withValues(alpha: 0.2) : primaryColor.withValues(alpha: 0.1),
+                          color: isSelected ? Colors.white.withValues(alpha: 0.25) : primaryColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
                           '3 Phase',
                           style: TextStyle(
-                            fontSize: 10,
+                            fontSize: 9,
                             fontWeight: FontWeight.bold,
                             color: isSelected ? Colors.white : primaryColor,
                           ),
@@ -675,12 +740,14 @@ class _SensorGraphLogState extends State<SensorGraphLog> with SingleTickerProvid
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                '3-Phase Live Values',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                  color: textColor.withValues(alpha: 0.85),
+              Expanded(
+                child: Text(
+                  '3-Phase Live Values',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: textColor.withValues(alpha: 0.85),
+                  ),
                 ),
               ),
               Text(
@@ -712,22 +779,33 @@ class _SensorGraphLogState extends State<SensorGraphLog> with SingleTickerProvid
                 child: GestureDetector(
                   onTap: () => _togglePhase(i),
                   child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 250),
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeOutCubic,
                     margin: EdgeInsets.only(right: i < 2 ? 8 : 0),
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
                     decoration: BoxDecoration(
-                      color: isVisible ? phaseBg : textColor.withValues(alpha: 0.03),
-                      borderRadius: BorderRadius.circular(16),
+                      gradient: isVisible 
+                          ? LinearGradient(
+                              colors: [
+                                phaseColor.withValues(alpha: 0.15),
+                                phaseColor.withValues(alpha: 0.02),
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            )
+                          : null,
+                      color: isVisible ? null : textColor.withValues(alpha: 0.02),
+                      borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: isVisible ? phaseColor : textColor.withValues(alpha: 0.15),
-                        width: isVisible ? 2.5 : 1,
+                        color: isVisible ? phaseColor.withValues(alpha: 0.6) : textColor.withValues(alpha: 0.08),
+                        width: isVisible ? 2 : 1,
                       ),
                       boxShadow: isVisible
                           ? [
                               BoxShadow(
-                                color: phaseColor.withValues(alpha: 0.15),
-                                blurRadius: 6,
-                                offset: const Offset(0, 3),
+                                color: phaseColor.withValues(alpha: 0.1),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
                               )
                             ]
                           : [],
@@ -739,19 +817,26 @@ class _SensorGraphLogState extends State<SensorGraphLog> with SingleTickerProvid
                         Row(
                           children: [
                             Container(
-                              width: 12,
-                              height: 12,
+                              width: 14,
+                              height: 14,
                               decoration: BoxDecoration(
-                                color: isVisible ? phaseColor : Colors.grey,
+                                color: isVisible ? phaseColor : Colors.grey.withValues(alpha: 0.5),
                                 shape: BoxShape.circle,
+                                boxShadow: isVisible ? [
+                                  BoxShadow(
+                                    color: phaseColor.withValues(alpha: 0.4),
+                                    blurRadius: 6,
+                                    spreadRadius: 1,
+                                  )
+                                ] : [],
                               ),
                             ),
-                            const SizedBox(width: 6),
+                            const SizedBox(width: 8),
                             Expanded(
                               child: Text(
                                 phaseName.split(' ').first, // 'R', 'Y', 'B'
                                 style: TextStyle(
-                                  fontSize: 14,
+                                  fontSize: 15,
                                   fontWeight: FontWeight.bold,
                                   color: isVisible ? phaseColor : textColor.withValues(alpha: 0.4),
                                 ),
@@ -759,12 +844,12 @@ class _SensorGraphLogState extends State<SensorGraphLog> with SingleTickerProvid
                             ),
                             Icon(
                               isVisible ? Icons.visibility_rounded : Icons.visibility_off_rounded,
-                              size: 14,
-                              color: isVisible ? phaseColor : textColor.withValues(alpha: 0.3),
+                              size: 16,
+                              color: isVisible ? phaseColor : textColor.withValues(alpha: 0.2),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 12),
 
                         // Phase Value
                         FittedBox(
@@ -776,34 +861,44 @@ class _SensorGraphLogState extends State<SensorGraphLog> with SingleTickerProvid
                               Text(
                                 displayVal.toStringAsFixed(displayVal.truncateToDouble() == displayVal ? 0 : 1),
                                 style: TextStyle(
-                                  fontSize: 22,
+                                  fontSize: 28,
                                   fontWeight: FontWeight.w800,
-                                  color: isVisible ? textColor : textColor.withValues(alpha: 0.4),
+                                  color: isVisible ? textColor : textColor.withValues(alpha: 0.3),
                                 ),
                               ),
-                              const SizedBox(width: 2),
+                              const SizedBox(width: 4),
                               Text(
                                 sensor.unit,
                                 style: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 13,
                                   fontWeight: FontWeight.bold,
-                                  color: isVisible ? phaseColor : textColor.withValues(alpha: 0.4),
+                                  color: isVisible ? phaseColor : textColor.withValues(alpha: 0.3),
                                 ),
                               ),
                             ],
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 6),
 
                         // Peak / Status subtext
-                        Text(
-                          isOff ? 'Peak: ${maxVal.toStringAsFixed(0)} ${sensor.unit}' : 'Active',
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                            color: isOff
-                                ? textColor.withValues(alpha: 0.5)
-                                : (isVisible ? phaseColor : textColor.withValues(alpha: 0.4)),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: isOff ? Colors.transparent : (isVisible ? phaseColor.withValues(alpha: 0.1) : Colors.transparent),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: isOff ? textColor.withValues(alpha: 0.1) : Colors.transparent,
+                            ),
+                          ),
+                          child: Text(
+                            isOff ? 'Peak: ${maxVal.toStringAsFixed(0)} ${sensor.unit}' : 'Active',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: isOff
+                                  ? textColor.withValues(alpha: 0.5)
+                                  : (isVisible ? phaseColor : textColor.withValues(alpha: 0.4)),
+                            ),
                           ),
                         ),
                       ],
@@ -822,69 +917,113 @@ class _SensorGraphLogState extends State<SensorGraphLog> with SingleTickerProvid
       final minV = sensor.phaseMinValues.isNotEmpty ? sensor.phaseMinValues[0] : 0.0;
 
       return Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: primaryColor.withValues(alpha: 0.06),
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: primaryColor.withValues(alpha: 0.2), width: 1.5),
+          gradient: LinearGradient(
+            colors: [
+              primaryColor.withValues(alpha: 0.12),
+              primaryColor.withValues(alpha: 0.04),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: primaryColor.withValues(alpha: 0.25), width: 1.5),
+          boxShadow: [
+            BoxShadow(
+              color: primaryColor.withValues(alpha: 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            )
+          ],
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(sensor.icon, color: primaryColor, size: 20),
-                    const SizedBox(width: 8),
-                    Text(
-                      sensor.name,
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                        color: textColor,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: primaryColor.withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(sensor.icon, color: primaryColor, size: 22),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                  textBaseline: TextBaseline.alphabetic,
-                  children: [
-                    Text(
-                      val.toStringAsFixed(val.truncateToDouble() == val ? 0 : 1),
-                      style: TextStyle(
-                        fontSize: 36,
-                        fontWeight: FontWeight.bold,
-                        color: textColor,
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          sensor.name,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: textColor,
+                            letterSpacing: 0.3,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      sensor.unit,
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: primaryColor,
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
+                    children: [
+                      Text(
+                        val.toStringAsFixed(val.truncateToDouble() == val ? 0 : 1),
+                        style: TextStyle(
+                          fontSize: 42,
+                          fontWeight: FontWeight.w800,
+                          color: textColor,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                      const SizedBox(width: 6),
+                      Text(
+                        sensor.unit,
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: primaryColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                const SizedBox(height: 12),
-                Text(
-                  'Max: $maxV ${sensor.unit}',
-                  style: TextStyle(fontSize: 11, color: textColor.withValues(alpha: 0.6), fontWeight: FontWeight.w500),
+                const SizedBox(height: 24),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: textColor.withValues(alpha: 0.05)),
+                  ),
+                  child: Text(
+                    'Max: $maxV ${sensor.unit}',
+                    style: TextStyle(fontSize: 12, color: textColor.withValues(alpha: 0.7), fontWeight: FontWeight.bold),
+                  ),
                 ),
-                Text(
-                  'Min: $minV ${sensor.unit}',
-                  style: TextStyle(fontSize: 11, color: textColor.withValues(alpha: 0.6), fontWeight: FontWeight.w500),
+                const SizedBox(height: 6),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: textColor.withValues(alpha: 0.05)),
+                  ),
+                  child: Text(
+                    'Min: $minV ${sensor.unit}',
+                    style: TextStyle(fontSize: 12, color: textColor.withValues(alpha: 0.7), fontWeight: FontWeight.bold),
+                  ),
                 ),
               ],
             ),
@@ -978,7 +1117,18 @@ class _SensorGraphLogState extends State<SensorGraphLog> with SingleTickerProvid
     double yMin = (minVal - rangePadding) < 0 ? 0 : (minVal - rangePadding);
     if (yMax == 0) yMax = 10;
 
+    int maxDataPoints = 0;
+    for (var series in sensor.multiData) {
+      if (series.length > maxDataPoints) maxDataPoints = series.length;
+    }
+
     return SfCartesianChart(
+      zoomPanBehavior: ZoomPanBehavior(
+        enablePanning: true,
+        enablePinching: true,
+        enableDoubleTapZooming: true,
+        zoomMode: ZoomMode.x,
+      ),
       plotAreaBorderWidth: 0,
       margin: EdgeInsets.zero,
       legend: Legend(
@@ -1009,6 +1159,12 @@ class _SensorGraphLogState extends State<SensorGraphLog> with SingleTickerProvid
         elevation: 8,
       ),
       primaryXAxis: CategoryAxis(
+        initialVisibleMinimum: maxDataPoints > 8 
+            ? (maxDataPoints - 8).toDouble() 
+            : 0.0,
+        initialVisibleMaximum: maxDataPoints > 0 
+            ? (maxDataPoints - 1).toDouble() 
+            : 0.0,
         majorGridLines: const MajorGridLines(width: 0),
         axisLine: AxisLine(width: 1, color: textColor.withValues(alpha: 0.1)),
         labelStyle: TextStyle(
