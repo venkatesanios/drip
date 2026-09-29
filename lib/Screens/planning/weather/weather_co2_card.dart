@@ -46,36 +46,88 @@ class CO2Card extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Header
         Row(
           children: [
-            Icon(icon, size: 20),
-            const SizedBox(width: 8),
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                icon,
+                size: 21,
+                color: Colors.black87,
+              ),
+            ),
+
+            const SizedBox(width: 10),
+
             Expanded(
               child: Text(
                 title,
-                style: const TextStyle(fontWeight: FontWeight.w600),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w100,
+                ),
               ),
             ),
           ],
         ),
 
-        const SizedBox(height: 12),
+        const SizedBox(height: 18),
 
-        Text(
-          'CO2 Level: $co2Value ppm',
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+        // CO2 value
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text(
+              co2Value.toString(),
+              style: const TextStyle(
+                fontSize: 30,
+                fontWeight: FontWeight.bold,
+                height: 1,
+              ),
+            ),
+
+            const SizedBox(width: 5),
+
+            Padding(
+              padding: const EdgeInsets.only(bottom: 2),
+              child: Text(
+                'ppm',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey.shade600,
+                ),
+              ),
+            ),
+          ],
         ),
 
-        const SizedBox(height: 12),
+        const SizedBox(height: 14),
+
+        // CO2 level bar
         _co2Bar(value: co2Value),
-        const SizedBox(height: 12),
 
-        Text(message),
+        if (message.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          Text(
+            message,
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey.shade700,
+            ),
+          ),
+        ],
 
-        const SizedBox(height: 10),
+        // Important:
+        // Push all period cards to the bottom
+        // so CO2 matches other sensor card heights.
+        const Spacer(),
 
         SensorPeriodCard(
           title: 'Current Day',
@@ -83,66 +135,88 @@ class CO2Card extends StatelessWidget {
           maxValue: max,
           averageValue: other,
         ),
+
         const SizedBox(height: 10),
 
         SensorPeriodCard(
           title: 'Last 7 Days',
-          minValue: last7DaysMin.toString(),
-          maxValue: last7DaysMax.toString(),
-          averageValue: last7DaysAverage.toString(),
+          minValue: last7DaysMin.toStringAsFixed(2),
+          maxValue: last7DaysMax.toStringAsFixed(2),
+          averageValue: last7DaysAverage.toStringAsFixed(2),
         ),
+
         const SizedBox(height: 10),
 
         SensorPeriodCard(
           title: 'Last Month',
-          minValue: last30DaysMin.toString(),
-          maxValue: last30DaysMax.toString(),
-          averageValue: last30DaysAverage.toString(),
+          minValue: last30DaysMin.toStringAsFixed(2),
+          maxValue: last30DaysMax.toStringAsFixed(2),
+          averageValue: last30DaysAverage.toStringAsFixed(2),
         ),
       ],
     );
   }
 
-  Widget _co2Bar({required int value}) {
+  Widget _co2Bar({
+    required int value,
+  }) {
     final safeMaxValue = maxValue <= 0 ? 1 : maxValue;
-    final percent = (value / safeMaxValue).clamp(0.0, 1.0).toDouble();
+
+    final percent = (value / safeMaxValue)
+        .clamp(0.0, 1.0)
+        .toDouble();
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final barWidth = constraints.maxWidth;
 
-        return Stack(
-          alignment: Alignment.centerLeft,
-          children: [
-            Container(
-              height: 8,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(6),
-                gradient: const LinearGradient(
-                  colors: [Colors.green, Colors.yellow, Colors.red],
+        final maxLeft =
+        (barWidth - 12).clamp(0.0, barWidth).toDouble();
+
+        final indicatorLeft =
+        (percent * barWidth - 6)
+            .clamp(0.0, maxLeft)
+            .toDouble();
+
+        return SizedBox(
+          height: 16,
+          child: Stack(
+            alignment: Alignment.centerLeft,
+            children: [
+              Container(
+                width: double.infinity,
+                height: 8,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(6),
+                  gradient: const LinearGradient(
+                    colors: [
+                      Colors.green,
+                      Colors.yellow,
+                      Colors.red,
+                    ],
+                  ),
                 ),
               ),
-            ),
-            Positioned(
-              left: (percent * barWidth - 6)
-                  .clamp(0.0, (barWidth - 12).clamp(0.0, barWidth))
-                  .toDouble(),
-              child: Container(
-                width: 12,
-                height: 12,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.black,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black26,
-                      blurRadius: 4,
-                    ),
-                  ],
+
+              Positioned(
+                left: indicatorLeft,
+                child: Container(
+                  width: 12,
+                  height: 12,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.black,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 4,
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         );
       },
     );

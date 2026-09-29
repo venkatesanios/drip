@@ -8,8 +8,6 @@ import '../weather_co2_card.dart';
 import '../weather_rainfall_card.dart';
 import '../weather_wind_card.dart';
 
-
-
 Color _sensorStatusColor(int code) {
   if (code == 255) return Colors.green.shade700;
 
@@ -69,15 +67,20 @@ class SensorTileNew extends StatelessWidget {
   Widget build(BuildContext context) {
     final normalizedTitle = title.toLowerCase();
 
+    const double sensorCardHeight = 430;
+
+    Widget sensorContent;
+
+    // CO2
     if (normalizedTitle.contains('co2')) {
-      return CO2Card(
+      sensorContent = CO2Card(
         icon: icon,
         co2Value: value.toInt(),
         maxValue: 2000,
         title: title,
         message: '',
-        min: minValue.toString(),
-        max: maxValue.toString(),
+        min: minValue.toStringAsFixed(2),
+        max: maxValue.toStringAsFixed(2),
         other: otherValue,
         last7DaysMin: last7DaysMin,
         last7DaysMax: last7DaysMax,
@@ -88,14 +91,16 @@ class SensorTileNew extends StatelessWidget {
       );
     }
 
-    if (normalizedTitle.contains('rain fall')) {
-      return  RainfallCard(
+    // Rainfall
+    else if (normalizedTitle.contains('rain fall') ||
+        normalizedTitle.contains('rainfall')) {
+      sensorContent = RainfallCard(
         icon: icon,
-        rainfallValue: value.toString(),
+        rainfallValue: value.toStringAsFixed(2),
         forecastText: '',
         description: '',
-        min: minValue.toString(),
-        max: maxValue.toString(),
+        min: minValue.toStringAsFixed(2),
+        max: maxValue.toStringAsFixed(2),
         other: otherValue,
         last7DaysMin: last7DaysMin,
         last7DaysMax: last7DaysMax,
@@ -106,13 +111,30 @@ class SensorTileNew extends StatelessWidget {
       );
     }
 
-    if (normalizedTitle.contains('wind direction')) {
-      return WindCard(
+    // Wind Direction
+    else if (normalizedTitle.contains('wind direction')) {
+      sensorContent = WindCard(
         icon: icon,
-        directionAngle: value,
+        directionAngle: value, statusCode: statusCode,
+
+
       );
     }
 
+    // Normal Sensors
+    else {
+      sensorContent = _buildNormalSensorCard();
+    }
+
+    // SAME HEIGHT FOR ALL SENSOR CARDS
+    return SizedBox(
+      width: double.infinity,
+      height: sensorCardHeight,
+      child: sensorContent,
+    );
+  }
+
+  Widget _buildNormalSensorCard() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -131,16 +153,19 @@ class SensorTileNew extends StatelessWidget {
                 color: Colors.black87,
               ),
             ),
+
             const SizedBox(width: 10),
+
             Expanded(
               child: Text(
                 title,
                 style: const TextStyle(
                   fontSize: 16,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w100,
                 ),
               ),
             ),
+
             Container(
               padding: const EdgeInsets.symmetric(
                 horizontal: 12,
@@ -155,7 +180,7 @@ class SensorTileNew extends StatelessWidget {
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 11,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w100,
                 ),
               ),
             ),
@@ -175,7 +200,9 @@ class SensorTileNew extends StatelessWidget {
                 height: 1,
               ),
             ),
+
             const SizedBox(width: 5),
+
             Padding(
               padding: const EdgeInsets.only(bottom: 2),
               child: Text(
@@ -190,29 +217,32 @@ class SensorTileNew extends StatelessWidget {
           ],
         ),
 
-        const SizedBox(height: 20),
+        // Push period cards to bottom
+        const Spacer(),
 
         SensorPeriodCard(
           title: 'Current Day',
-          minValue: minValue.toString(),
-          maxValue: maxValue.toString(),
+          minValue: minValue.toStringAsFixed(2),
+          maxValue: maxValue.toStringAsFixed(2),
           averageValue: otherValue,
         ),
+
         const SizedBox(height: 10),
 
         SensorPeriodCard(
           title: 'Last 7 Days',
-          minValue: last7DaysMin.toString(),
-          maxValue: last7DaysMax.toString(),
-          averageValue: last7DaysAverage.toString(),
+          minValue: last7DaysMin.toStringAsFixed(2),
+          maxValue: last7DaysMax.toStringAsFixed(2),
+          averageValue: last7DaysAverage.toStringAsFixed(2),
         ),
+
         const SizedBox(height: 10),
 
         SensorPeriodCard(
           title: 'Last Month',
-          minValue: last30DaysMin.toString(),
-          maxValue: last30DaysMax.toString(),
-          averageValue: last30DaysAverage.toString(),
+          minValue: last30DaysMin.toStringAsFixed(2),
+          maxValue: last30DaysMax.toStringAsFixed(2),
+          averageValue: last30DaysAverage.toStringAsFixed(2),
         ),
       ],
     );
