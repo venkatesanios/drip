@@ -2010,12 +2010,15 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
             }
             if(apply == true){
               if(recipe[selectedIndex]['ecActive'] != null && recipe[selectedIndex]['ecValue'] != null){
-                sequenceData[selectedGroup][segmentedControlCentralLocal == 0 ? 'centralDosing' : 'localDosing'][0]['needEcValue'] = recipe[selectedIndex]['ecActive'];
+                debugPrint("sequenceData => $sequenceData");
+                // sequenceData[selectedGroup][segmentedControlCentralLocal == 0 ? 'centralDosing' : 'localDosing'][0]['needEcValue'] = recipe[selectedIndex]['ecActive'];
+                sequenceData[selectedGroup][segmentedControlCentralLocal == 0 ? 'centralDosing' : 'localDosing'][0]['needEcValue'] = true;
                 sequenceData[selectedGroup][segmentedControlCentralLocal == 0 ? 'centralDosing' : 'localDosing'][0]['ecValue'] = recipe[selectedIndex]['ecValue'];
                 ec.text = recipe[selectedIndex]['ecValue'];
               }
               if(recipe[selectedIndex]['phActive'] != null && recipe[selectedIndex]['phValue'] != null){
-                sequenceData[selectedGroup][segmentedControlCentralLocal == 0 ? 'centralDosing' : 'localDosing'][0]['needPhValue'] = recipe[selectedIndex]['phActive'];
+                // sequenceData[selectedGroup][segmentedControlCentralLocal == 0 ? 'centralDosing' : 'localDosing'][0]['needPhValue'] = recipe[selectedIndex]['phActive'];
+                sequenceData[selectedGroup][segmentedControlCentralLocal == 0 ? 'centralDosing' : 'localDosing'][0]['needPhValue'] = true;
                 sequenceData[selectedGroup][segmentedControlCentralLocal == 0 ? 'centralDosing' : 'localDosing'][0]['phValue'] = recipe[selectedIndex]['phValue'];
                 ph.text = recipe[selectedIndex]['phValue'];
               }
