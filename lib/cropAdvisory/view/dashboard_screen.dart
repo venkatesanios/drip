@@ -196,7 +196,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
             Text(
-              "${_model.cropName ?? 'Farm '}",
+              _model.cropName ?? 'Farm ',
               style: GoogleFonts.poppins(
                 fontSize: 26,
                 fontWeight: FontWeight.w600,

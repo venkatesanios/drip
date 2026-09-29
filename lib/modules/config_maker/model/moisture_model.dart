@@ -33,4 +33,11 @@ class MoistureModel{
     valves = valves.where((objectId) => !objectIdToBeDeleted.contains(objectId)).toList();
     soilTemperature = soilTemperature.where((objectId) => !objectIdToBeDeleted.contains(objectId)).toList();
   }
+
+  bool isMoistureModelParameterIsEmpty(){
+    if(valves.isEmpty && soilTemperature.isEmpty){
+      return true;
+    }
+    return false;
+  }
 }

@@ -60,9 +60,12 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
   List<DeviceObjectModel>? _agitators;
   List<DeviceObjectModel>? _aerators;
   List<DeviceObjectModel>? _mainValves;
+  List<FertilizerSourceTank>? _tank ;
+
   List<DeviceObjectModel>? get agitators => _agitators;
   List<DeviceObjectModel>? get aerators => _aerators;
   List<DeviceObjectModel>? get mainValves => _mainValves;
+  List<FertilizerSourceTank>? get tank => _tank ;
 
   List<DeviceObjectModel>? _selectedObjects;
   List<Map<String, dynamic>> _selectedControllers = [];
@@ -101,13 +104,16 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       _agitators = null;
       _aerators = null;
       _mainValves = null;
+      _tank = null;
       configObjects.clear();
       irrigationLineFromConfigMaker.clear();
       if(getUserConfigMaker.statusCode == 200) {
         final responseJson = getUserProgramSequence.body;
         var sequenceJson = jsonDecode(responseJson);
         final configMakerJson = jsonDecode(getUserConfigMaker.body);
+        print('configMakerJson---->:$configMakerJson');
         configObjects = configMakerJson['data']['configObject'];
+
         for(var seq in sequenceJson['data']['sequence']){
           for(var v = (seq['valve'].length - 1); v >= 0; v--){
             bool isValveAvailable = configObjects.any((obj) => obj['sNo'] == seq['valve'][v]['sNo']);
@@ -140,7 +146,49 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         _waterSource = (processedData['waterSource'] as List).map((element) => ProgramWaterSource.fromJson(element as Map<String, dynamic>)).toList();
         _pump = (processedData['pump'] as List).map((element) => ProgramPump.fromJson(element as Map<String, dynamic>)).toList();
         _moistureSensor = (processedData['moistureSensor'] as List).map((element) => ProgramMoistureSensor.fromJson(element as Map<String, dynamic>)).toList();
+        final List<dynamic> rawFertilizerChannels =
+            configMakerJson['data']['fertilizerChannel'] ?? [];
 
+        final Set<String> tankSNos = {};
+
+// 1. Get tank/source SNo from fertilizerChannel
+        for (final channel in rawFertilizerChannels) {
+          final sources = channel['source'];
+
+          if (sources is List) {
+            for (final source in sources) {
+              if (source != null) {
+                tankSNos.add(source.toString());
+              }
+            }
+          }
+        }
+
+        print('tankSNos => $tankSNos');
+
+// 2. Find corresponding Source objects from configObject
+        final tankObjects = configObjects.where((obj) {
+          final sno = obj['sNo']?.toString();
+
+          return sno != null &&
+              tankSNos.contains(sno) &&
+              obj['objectName'] == 'Source';
+        }).toList();
+
+        print('tankObjects => $tankObjects');
+
+// 3. Convert Source objects into FertilizerSourceTank
+        _tank = tankObjects
+            .map(
+              (source) => FertilizerSourceTank.fromJson(
+            Map<String, dynamic>.from(source),
+          ),
+        )
+            .toList();
+
+        print(
+          'Tank list => ${_tank?.map((e) => e.tank.name).toList()}',
+        );
         // print("_sampleIrrigationLine :: ${_sampleIrrigationLine!.map((e) => e.irrigationLine.toJson())}");
         if(_fertilizerSite != null) {
           _agitators = fertilizerSite!.map((e) {
@@ -182,6 +230,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         }
       } else {
         log("HTTP Request failed or received an unexpected response.");
+        throw Exception("Failed to load sequence data");
       }
     } catch (e, stackTrace) {
       log('Error: $e');
@@ -547,8 +596,9 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
           };
         }
         _sampleScheduleModel = SampleScheduleModel.fromJson(convertedJson);
-      }else {
+      } else {
         log("HTTP Request failed or received an unexpected response.");
+        throw Exception("Failed to load schedule data");
       }
     } catch (e) {
       log('Error: $e');
@@ -742,6 +792,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         _sampleConditions = SampleConditions.fromJson(convertedJson);
       } else {
         log("HTTP Request failed or received an unexpected response.");
+        throw Exception("Failed to load condition data");
       }
     } catch (e) {
       log('Error: $e');
@@ -961,6 +1012,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         sequenceData = convertedJsonOfWaterAndFert['data']['waterAndFert'];
       } else {
         log("HTTP Request failed or received an unexpected response.");
+        throw Exception("Failed to load water and fert data");
       }
 
       if(getRecipe.statusCode == 200){
@@ -969,6 +1021,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         recipe = convertedJsonOfRecipe['data']['fertilizerSet'];
       }else {
         log("HTTP Request failed for recipe.");
+        throw Exception("Failed to load recipe data");
       }
 
       notifyListeners();
@@ -1090,6 +1143,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
             String method = 'Time';
             String timeValue = '00:00:00';
             String quantityValue = '';
+            String tank = 'Select Tank';
             bool onOff = false;
             if(newSequence == false){
               if(sequence[0]['centralDosing'].isNotEmpty){
@@ -1109,8 +1163,8 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
             fert['timeValue'] = timeValue;
             fert['quantityValue'] = quantityValue;
             fert['onOff'] = onOff;
+            fert['tank'] = tank;
             fertilizer.add(fert);
-
           }
 
           if(cd['ecSensor'].length != 0){
@@ -1484,6 +1538,9 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       var centralPH = '';
       var localEC = '';
       var localPH = '';
+      var centralFertTank = '0';
+      var localFertTank = '0';
+
       if(!isSiteVisible(sq['centralDosing'],'central') || sq[segmentedControlCentralLocal == 0 ? 'applyFertilizerForCentral' : 'applyFertilizerForLocal'] == false || sq['centralDosing'].isEmpty || sq['selectedCentralSite'] == -1){
         centralMethod = '0_0_0_0_0_0_0_0';
         centralTimeAndQuantity += '0_0_0_0_0_0_0_0';
@@ -1504,7 +1561,11 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
           centralPhActive = sq['centralDosing'][sq['selectedCentralSite']]['needPhValue'] == null ? 0 : sq['centralDosing'][sq['selectedCentralSite']]['needPhValue'] == true ? 1 : 0;
           centralPhValue = '${sq['centralDosing'][sq['selectedCentralSite']]['phValue'] ?? 0}';
           fertList.add(fertMethodHw(ft['method']));
+          if (centralFertTank == 0 && ft['source'] is List && ft['source'].isNotEmpty) {
+            centralFertTank = ft['source'][0];
+          }
         }
+
         for(var coma = fertList.length;coma < 8;coma++){
           centralMethod += '${centralMethod.isNotEmpty ? '_' : ''}0';
           centralTimeAndQuantity += '${centralTimeAndQuantity.isNotEmpty ? '_' : ''}0';
@@ -1532,6 +1593,9 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
           localPhActive = sq['localDosing'][sq['selectedLocalSite']]['needPhValue'] == null ? 0 : sq['localDosing'][sq['selectedLocalSite']]['needPhValue'] == true ? 1 : 0;
           localPhValue = '${sq['localDosing'][sq['selectedLocalSite']]['phValue'] ?? 0}';
           fertList.add(fertMethodHw(ft['method']));
+          if (localFertTank == 0 && ft['source'] is List && ft['source'].isNotEmpty) {
+            localFertTank = ft['source'][0];
+          }
         }
         for(var coma = fertList.length;coma < 8;coma++){
           localMethod += '${localMethod.length != 0 ? '_' : ''}0';
@@ -1574,8 +1638,10 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         'ZoneCondition' : sq['moistureSno'],
         'ImmediateStopByCondition' : sq['levelSno'],
         'Name' : sq['seqName'],
+        'CentralFertTank' : centralFertTank,
+        'LocalFertTank' : localFertTank,
       };
-      // print('jsonPayload :: $jsonPayload');
+      print('jsonPayload :: $jsonPayload');
       payload += jsonPayload.values.toList().join(',');
     }
     return payload;
@@ -2403,6 +2469,16 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
     return name;
   }
 
+
+  String getName(dynamic sNo){
+    var name = '';
+    for(var n in configObjects){
+      if(n['sNo'].toString() == sNo.toString()){
+        name = n['name'];
+      }
+    }
+    return name.isEmpty ? 'Location N/A' : name;
+  }
   void dataToWF() {
     serverDataWM = sequenceData;
     notifyListeners();
@@ -2560,6 +2636,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       _additionalData = AdditionalData.fromJson(jsonData['data']['selection']);
     } catch (e) {
       log('Error: $e');
+      rethrow;
     }
     Future.delayed(Duration.zero, () {
       notifyListeners();
@@ -2586,6 +2663,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         _newAlarmList = NewAlarmList.fromJson(convertedJson);
       } else {
         log("HTTP Request failed or received an unexpected response.");
+        throw Exception("Failed to load alarm data");
       }
     } catch (e) {
       log('Error: $e');
@@ -2661,6 +2739,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         });
       } else {
         log("HTTP Request failed or received an unexpected response.");
+        throw Exception("Failed to load program details");
       }
     } catch (e) {
       log('Error: $e');

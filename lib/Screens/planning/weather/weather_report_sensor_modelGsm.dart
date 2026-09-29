@@ -73,6 +73,10 @@ SensorHourReportGsm? parseSensorHourData({
       if (sensorSrNo != targetSensor) continue;
 
       String v(int i) => (i < parts.length && parts[i] != null && parts[i].trim().isNotEmpty) ? parts[i].trim() : '0';
+      final averageValue =
+      parts.length > 5 && parts[5].trim().isNotEmpty
+          ? parts[5].trim()
+          : 'NA';
 
       // 5️⃣ Create report
       return SensorHourReportGsm(
@@ -83,7 +87,7 @@ SensorHourReportGsm? parseSensorHourData({
         errorCode: v(2),
         minValue: v(3),
         maxValue: v(4),
-        averageValue: "NA",
+        averageValue: averageValue,
       );
     }
   }

@@ -187,8 +187,8 @@ class BleProvider extends ChangeNotifier {
         bool filterByCondition = connectMode == ConnectMode.pumpWifiDefault;
         debugPrint("filterByCondition : $filterByCondition");
         if(macAddressToConnect == upComingMacAddress && (filterByCondition ? result.device.platformName.contains('WIFI_') : result.device.platformName.contains('NIA_'))){
-          print("result.device.platformName : ${result.device.platformName}");
-          print("device : ${result.device}");
+          debugPrint("result.device.platformName : ${result.device.platformName}");
+          debugPrint("device : ${result.device}");
           device = result.device;
           bleNodeState = BleNodeState.deviceFound;
           notifyListeners();

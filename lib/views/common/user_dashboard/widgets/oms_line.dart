@@ -643,14 +643,7 @@ class _OmsLineState extends State<OmsLine> {
                       ],
                     ),
                   ),
-
                   const SizedBox(width: 4),
-
-                  // Single overflow menu replaces the previous 2-3 separate
-                  // icon buttons (Edit + duplicate/dead Bluetooth button).
-                  // This frees up ~80px of header width on narrow screens
-                  // and gives each action a proper 48px touch target inside
-                  // the menu instead of cramped 40px icons in a row.
                   PopupMenuButton<String>(
                     tooltip: 'More actions',
                     icon: const Icon(Icons.more_vert, size: 20, color: _Tone.textMuted),
@@ -703,9 +696,7 @@ class _OmsLineState extends State<OmsLine> {
                         ),
                     ],
                   ),
-
                   const SizedBox(width: 2),
-
                   AnimatedRotation(
                     turns: isExpanded ? 0.25 : 0,
                     duration: const Duration(milliseconds: 180),

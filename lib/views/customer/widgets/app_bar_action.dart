@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/modules/Preferences/view/preference_main_screen.dart';
+import 'package:oro_drip_irrigation/views/customer/widgets/user_manual_screen.dart';
 import 'package:provider/provider.dart';
 
 import '../../../Screens/Dealer/controllerverssionupdate.dart';
@@ -183,7 +185,7 @@ Widget _buildHelpMenu(
     CustomerScreenControllerViewModel vm,
     dynamic loggedInUser,
     dynamic viewedCustomer,
-    dynamic master) {
+    MasterControllerModel master) {
 
   final loggedUser = Provider.of<UserProvider>(context, listen: false).loggedInUser;
 
@@ -207,20 +209,37 @@ Widget _buildHelpMenu(
                 title: const Text('Help & support'),
                 onTap: () {
                   Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => const DashboardHelpPage()),
-                  );
+
+                  if (master.userManualLink?.isNotEmpty == true) {
+                    final pdfUrl = AppConstants.buildUserManualUrl(master.userManualLink);
+
+                    if (pdfUrl.isNotEmpty) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => UserManualScreen(pdfUrl: pdfUrl),
+                        ),
+                      );
+                    }
+                  } else {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const DashboardHelpPage()),
+                    );
+                  }
+
                 },
               ),
-              !loggedUser.configPermission ? ListTile(
+              (! loggedUser.configPermission  && ![...AppConstants.shine2V, ...AppConstants.shine4V, ...AppConstants.elite10V, ...AppConstants.pumpList]
+                  .contains(vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId))  ? ListTile(
                 leading: const Icon(Icons.info_outline),
                 title: const Text('Controller info'),
                 onTap: () async {
 
                   Navigator.pop(context);
                     if (loggedInUser.role == UserRole.admin) {
+
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -229,6 +248,7 @@ Widget _buildHelpMenu(
                                       vm.mySiteList.data[vm.sIndex].customerId,
                                   controllerId: master.controllerId,
                                   deviceID: master.deviceId,
+                              modeID: vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId,
                                 )),
                       );
                     } else {
@@ -244,11 +264,13 @@ Widget _buildHelpMenu(
                           vm.mySiteList.data[vm.sIndex].customerId,
                           master.controllerId,
                           master.deviceId,
+                          vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId,
                           1);
 
                   }
                 },
               ) : const SizedBox(),
+
               !loggedUser.configPermission ? ListTile(
                 leading: const Icon(Icons.restore),
                 title: const Text('Factory Reset'),
@@ -274,11 +296,12 @@ Widget _buildHelpMenu(
                           vm.mySiteList.data[vm.sIndex].customerId,
                           master.controllerId,
                           master.deviceId,
+                          vm.mySiteList.data[vm.sIndex].master[vm.mIndex].modelId,
                           2);
                     }
 
                 },
-              ) : SizedBox(),
+              ) : const SizedBox(),
               const Divider(height: 0),
               ListTile(
                 leading: const Icon(Icons.feedback_outlined),
@@ -460,44 +483,45 @@ Widget _buildNonGemActions(BuildContext context, dynamic master,
             child: Icon(Icons.question_answer_outlined),
           ),
         ),
-        // if (!kIsWeb && !AppConstants.wlcModelList.contains(master.modelId))
-        //   InkWell(
-        //     onTap: () {
-        //       final Map<String, dynamic> data = {
-        //         'controllerId': master.controllerId,
-        //         'deviceId': master.deviceId,
-        //         'deviceName': master.deviceName,
-        //         'categoryId': master.categoryId,
-        //         'categoryName': master.categoryName,
-        //         'modelId': master.modelId,
-        //         'modelName': master.modelName,
-        //         'InterfaceType': 1,
-        //         'interface': 'GSM',
-        //         'relayOutput': 3,
-        //         'latchOutput': 0,
-        //         'analogInput': 8,
-        //         'digitalInput': 4,
-        //       };
-        //       Navigator.push(
-        //         context,
-        //         MaterialPageRoute(
-        //           builder: (context) => NodeConnectionPage(
-        //             nodeData: data,
-        //             masterData: {
-        //               "userId": loggedInUser.id,
-        //               "customerId": customerId,
-        //               "controllerId": master.controllerId,
-        //             },
-        //             connectMode: ConnectMode.normal,
-        //           ),
-        //         ),
-        //       );
-        //     },
-        //     child: const Padding(
-        //       padding: EdgeInsets.symmetric(horizontal: 8),
-        //       child: Icon(Icons.bluetooth),
-        //     ),
-        //   ),
+        if (!kIsWeb && !AppConstants.wlcModelList.contains(master.modelId)
+            && !AppConstants.omsGemList.contains(master.modelId))
+          InkWell(
+            onTap: () {
+              final Map<String, dynamic> data = {
+                'controllerId': master.controllerId,
+                'deviceId': master.deviceId,
+                'deviceName': master.deviceName,
+                'categoryId': master.categoryId,
+                'categoryName': master.categoryName,
+                'modelId': master.modelId,
+                'modelName': master.modelName,
+                'InterfaceType': 1,
+                'interface': 'GSM',
+                'relayOutput': 3,
+                'latchOutput': 0,
+                'analogInput': 8,
+                'digitalInput': 4,
+              };
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => NodeConnectionPage(
+                    nodeData: data,
+                    masterData: {
+                      "userId": loggedInUser.id,
+                      "customerId": customerId,
+                      "controllerId": master.controllerId,
+                    },
+                    connectMode: ConnectMode.normal,
+                  ),
+                ),
+              );
+            },
+            child: const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8),
+              child: Icon(Icons.bluetooth),
+            ),
+          ),
         InkWell(
           onTap: () {
             Navigator.push(
@@ -519,7 +543,7 @@ Widget _buildNonGemActions(BuildContext context, dynamic master,
 }
 
 void showPasswordDialog(BuildContext context, correctPassword, userId,
-    controllerID, imeiNumber, type)
+    controllerID, imeiNumber,modeID, type)
 {
   final TextEditingController passwordController = TextEditingController();
   showDialog(
@@ -563,6 +587,7 @@ void showPasswordDialog(BuildContext context, correctPassword, userId,
                                   userId: userId,
                                   controllerId: controllerID,
                                   deviceID: imeiNumber,
+                              modeID: modeID,
                                 )),
                       );
                     } else if (type == 2) {

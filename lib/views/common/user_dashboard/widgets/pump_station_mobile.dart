@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:oro_drip_irrigation/views/common/user_dashboard/widgets/sensor_widget.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../Widgets/pump_widget.dart';
@@ -39,125 +40,6 @@ class PumpStationMobile extends StatelessWidget {
   });
 
   final ValueNotifier<int> popoverUpdateNotifier = ValueNotifier<int>(0);
-
-  /*@override
-  Widget build(BuildContext context) {
-    final wsAndFilterItems = [
-      if (inletWaterSources.isNotEmpty)
-        ..._buildWaterSource(context, inletWaterSources, true, true),
-
-      if (outletWaterSources.isNotEmpty)
-        ..._buildWaterSource(
-          context,
-          outletWaterSources,
-          inletWaterSources.isNotEmpty,
-          false,
-        ),
-
-      if (cFilterSite.isNotEmpty)
-        ...buildFilter(
-          context,
-          cFilterSite,
-          (cFertilizerSite.isNotEmpty || lFertilizerSite.isNotEmpty),
-          true,
-          isNova,
-        ),
-
-      if (lFilterSite.isNotEmpty)
-        ...buildFilter(
-          context,
-          lFilterSite,
-          (cFertilizerSite.isNotEmpty || lFertilizerSite.isNotEmpty),
-          true,
-          isNova,
-        ),
-    ];
-
-    final fertilizerItemsCentral = cFertilizerSite.isNotEmpty
-        ? _buildFertilizer(context, cFertilizerSite, isNova).cast<Widget>()
-        : <Widget>[];
-
-    const int itemsPerRow = 6;
-    const double itemHeight = 90;
-
-    return Column(
-      children: [
-        if (wsAndFilterItems.length <= itemsPerRow)
-          SizedBox(
-            height: itemHeight,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: wsAndFilterItems.reversed.toList(),
-              ),
-            ),
-          )
-        else
-          Column(
-            children: List.generate(
-              (wsAndFilterItems.length / itemsPerRow).ceil(),
-                  (rowIndex) {
-                final start = rowIndex * itemsPerRow;
-                final end = (start + itemsPerRow > wsAndFilterItems.length)
-                    ? wsAndFilterItems.length
-                    : start + itemsPerRow;
-
-                final rowItems =
-                wsAndFilterItems.sublist(start, end).reversed.toList();
-
-                return SizedBox(
-                  height: itemHeight,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: rowItems,
-                  ),
-                );
-              },
-            ),
-          ),
-
-        if (cFertilizerSite.isNotEmpty)
-          SizedBox(
-            width: double.infinity,
-            height: 125,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              physics: const AlwaysScrollableScrollPhysics(),
-              child: IntrinsicWidth(
-                child: Align(
-                  alignment: Alignment.topRight,
-                  child: InkWell(
-                    onTap: () {
-                      final customerVM =
-                      context.read<CustomerScreenControllerViewModel>();
-
-                      showRightSheet(
-                        context,
-                        ChangeNotifierProvider.value(
-                          value: customerVM,
-                          child: FertilizerLivePanel(
-                            deviceId: deviceId,
-                            controllerId: controllerId,
-                            customerId: customerId,
-                            isWide: false,
-                          ),
-                        ),
-                      );
-                    },
-                    child: Wrap(
-                      alignment: WrapAlignment.end,
-                      spacing: 0,
-                      runSpacing: 0,
-                      children: fertilizerItemsCentral,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-      ],
-    );
-  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -289,7 +171,69 @@ class PumpStationMobile extends StatelessWidget {
       bool isAvailInlet, bool isInlet) {
 
     final List<Widget> gridItems = [];
+
     for (int index = 0; index < waterSources.length; index++) {
+      final source = waterSources[index];
+
+      // --------------------------------------------------
+      // WATER SOURCE
+      // --------------------------------------------------
+      gridItems.add(
+        SourceColumnWidget(
+          source: source,
+          isInletSource: isInlet,
+          isAvailInlet: isAvailInlet,
+          index: index,
+          total: waterSources.length,
+          popoverUpdateNotifier: popoverUpdateNotifier,
+          deviceId: deviceId,
+          customerId: customerId,
+          controllerId: controllerId,
+          modelId: modelId,
+          isMobile: true,
+          isAvailFrtSite:
+          (cFertilizerSite.isNotEmpty || lFertilizerSite.isNotEmpty),
+        ),
+      );
+
+      // --------------------------------------------------
+      // PUMP + WATER METER
+      // --------------------------------------------------
+      for (final pump in source.outletPump) {
+        // Pump
+        gridItems.add(
+          PumpWidget(
+            pump: pump,
+            isSourcePump: isInlet,
+            deviceId: deviceId,
+            customerId: customerId,
+            controllerId: controllerId,
+            isMobile: true,
+            modelId: modelId,
+            pumpPosition: 'First',
+            isAvailFrtSite:
+            (cFertilizerSite.isNotEmpty || lFertilizerSite.isNotEmpty),
+            isNova: isNova,
+          ),
+        );
+
+        // Water Meter — only if this pump actually has one
+        if (pump.waterMeter.isNotEmpty) {
+          gridItems.add(
+            SensorWidget(
+              sensor: pump.waterMeter.first,
+              sensorType: 'Water Meter',
+              imagePath: 'assets/png/mobile/m_water_meter_pmp.png',
+              customerId: customerId,
+              controllerId: controllerId,
+            ),
+          );
+        }
+      }
+    }
+
+
+    /*for (int index = 0; index < waterSources.length; index++) {
       final source = waterSources[index];
       gridItems.add(SourceColumnWidget(
         source: source,
@@ -305,6 +249,7 @@ class PumpStationMobile extends StatelessWidget {
         isMobile: true,
         isAvailFrtSite: (cFertilizerSite.isNotEmpty || lFertilizerSite.isNotEmpty),
       ));
+
       gridItems.addAll(source.outletPump.map((pump) => PumpWidget(
         pump: pump,
         isSourcePump: isInlet,
@@ -317,7 +262,8 @@ class PumpStationMobile extends StatelessWidget {
         isAvailFrtSite: (cFertilizerSite.isNotEmpty || lFertilizerSite.isNotEmpty),
         isNova: isNova,
       )));
-    }
+    }*/
+
     return gridItems;
   }
 

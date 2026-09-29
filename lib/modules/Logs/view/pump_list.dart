@@ -201,7 +201,6 @@ class _PumpListState extends State<PumpList> {
         message = jsonDecode(result.body)['message'];
       }
     });
-    // print(result.body);
   }
 
 }
