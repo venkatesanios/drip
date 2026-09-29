@@ -858,48 +858,16 @@ class _LogHomeState extends State<LogHome> {
                                   // Fallback to now if parse fails
                                 }
 
-                                showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return Dialog(
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                      child: SizedBox(
-                                        width: MediaQuery.of(context).size.width > 600 ? 600 : MediaQuery.of(context).size.width * 0.9,
-                                        height: MediaQuery.of(context).size.height > 800 ? 800 : MediaQuery.of(context).size.height * 0.9,
-                                        child: Column(
-                                          children: [
-                                            Row(
-                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                              children: [
-                                                const Padding(
-                                                  padding: EdgeInsets.only(left: 16.0),
-                                                  child: Text(
-                                                    'Sensor Log',
-                                                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                                                  ),
-                                                ),
-                                                IconButton(
-                                                  icon: Icon(Icons.close),
-                                                  onPressed: () => Navigator.pop(context),
-                                                ),
-                                              ],
-                                            ),
-                                            Expanded(
-                                              child: ClipRRect(
-                                                borderRadius: BorderRadius.only(bottomLeft: Radius.circular(16), bottomRight: Radius.circular(16)),
-                                                child: SensorGraphLog(
-                                                  userId: widget.userData['customerId'],
-                                                  controllerId: widget.userData['controllerId'],
-                                                  fromDate: date1,
-                                                  toDate: date2,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    );
-                                  },
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => SensorGraphLog(
+                                      userId: widget.userData['customerId'],
+                                      controllerId: widget.userData['controllerId'],
+                                      fromDate: date1,
+                                      toDate: date2,
+                                    ),
+                                  ),
                                 );
                               },
                             ),
