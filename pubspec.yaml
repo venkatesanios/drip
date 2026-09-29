@@ -86,6 +86,8 @@ dependencies:
   http_parser: ^4.1.2
   dartssh2: ^3.3.0
   fl_chart: ^1.2.0
+  better_download_saver: ^0.0.1
+  easy_pdf_viewer: ^1.0.8
 #  audioplayers: ^6.5.0
 #  record: ^6.0.0
 
@@ -125,7 +127,6 @@ flutter:
     - assets/smartcomm_playstore.png
     - assets/smartcomm_launcher.png
     - assets/.env
-    - assets/localfile/Testing
     - assets/splash/oro_production.png
     - assets/splash/smart_comm.png
     - assets/splash/transparent.png
