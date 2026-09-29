@@ -1010,6 +1010,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         constantSetting = convertedJsonOfWaterAndFert['data']['default']['constant'];
 
         sequenceData = convertedJsonOfWaterAndFert['data']['waterAndFert'];
+        updateEcPhAlarmsFromSequences();
       } else {
         log("HTTP Request failed or received an unexpected response.");
         throw Exception("Failed to load water and fert data");
@@ -1455,6 +1456,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
     }
 
     sequenceData = generateNew;
+    updateEcPhAlarmsFromSequences();
     if(sequenceData.isNotEmpty){
       selectedGroup = 0;
       waterValueInTime = sequenceData[selectedGroup]['timeValue'];
@@ -2057,6 +2059,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         sequenceData[selectedGroup]['levelSno'] = value['sNo'];
       }
     }
+    updateEcPhAlarmsFromSequences();
     notifyListeners();
   }
 
@@ -2103,6 +2106,77 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool isAnySequenceEcOn() {
+    if (sequenceData.isEmpty) return false;
+    for (var seq in sequenceData) {
+      if (seq is Map) {
+        final applyCentral = seq['applyFertilizerForCentral'] ?? true;
+        if (applyCentral == true) {
+          final centralList = seq['centralDosing'] as List? ?? [];
+          for (var cd in centralList) {
+            if (cd is Map && cd['needEcValue'] == true) {
+              return true;
+            }
+          }
+        }
+        final applyLocal = seq['applyFertilizerForLocal'] ?? true;
+        if (applyLocal == true) {
+          final localList = seq['localDosing'] as List? ?? [];
+          for (var ld in localList) {
+            if (ld is Map && ld['needEcValue'] == true) {
+              return true;
+            }
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  bool isAnySequencePhOn() {
+    if (sequenceData.isEmpty) return false;
+    for (var seq in sequenceData) {
+      if (seq is Map) {
+        final applyCentral = seq['applyFertilizerForCentral'] ?? true;
+        if (applyCentral == true) {
+          final centralList = seq['centralDosing'] as List? ?? [];
+          for (var cd in centralList) {
+            if (cd is Map && cd['needPhValue'] == true) {
+              return true;
+            }
+          }
+        }
+        final applyLocal = seq['applyFertilizerForLocal'] ?? true;
+        if (applyLocal == true) {
+          final localList = seq['localDosing'] as List? ?? [];
+          for (var ld in localList) {
+            if (ld is Map && ld['needPhValue'] == true) {
+              return true;
+            }
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  void updateEcPhAlarmsFromSequences() {
+    if (_newAlarmList == null || _newAlarmList!.alarmList.isEmpty) return;
+
+    final ecActive = isAnySequenceEcOn();
+    final phActive = isAnySequencePhOn();
+
+    for (var alarm in _newAlarmList!.alarmList) {
+      if (alarm.sNo == 4) {
+        alarm.value = ecActive;
+      }
+
+      if (alarm.sNo == 5 || alarm.sNo == 6) {
+        alarm.value = phActive;
+      }
+    }
+  }
+
   void editEcPhNeedOrNot(String title){
     if(title == 'ec'){
       if(sequenceData[selectedGroup][segmentedControlCentralLocal == 0 ? 'centralDosing' : 'localDosing'][0]['needEcValue'] == true){
@@ -2115,7 +2189,9 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         sequenceData[selectedGroup][segmentedControlCentralLocal == 0 ? 'centralDosing' : 'localDosing'][0]['needPhValue'] = false;
       }else{
         sequenceData[selectedGroup][segmentedControlCentralLocal == 0 ? 'centralDosing' : 'localDosing'][0]['needPhValue'] = true;
-      }    }
+      }
+    }
+    updateEcPhAlarmsFromSequences();
     notifyListeners();
   }
 
@@ -2126,6 +2202,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       // // print(value);
       sequenceData[selectedGroup]['localDosing'][selectedLocalSite][ecOrPh] = value;
     }
+    updateEcPhAlarmsFromSequences();
     notifyListeners();
   }
 
@@ -2664,6 +2741,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         final responseJson = getUserProgramAlarm.body;
         final convertedJson = jsonDecode(responseJson);
         _newAlarmList = NewAlarmList.fromJson(convertedJson);
+        updateEcPhAlarmsFromSequences();
       } else {
         log("HTTP Request failed or received an unexpected response.");
         throw Exception("Failed to load alarm data");
