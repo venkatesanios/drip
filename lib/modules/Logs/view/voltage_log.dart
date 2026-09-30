@@ -247,7 +247,7 @@ class _PumpVoltageLogScreenState extends State<PumpVoltageLogScreen> {
       xValueMapper: (data, _) => 'Hour ${data['hour']}',
       yValueMapper: (data, _) {
         final key = selectedIndex == 0 ? 'voltage$phase' : selectedIndex == 1 ? 'current$phase' : selectedIndex == 2 ? 'powerFactor$phase' : 'power$phase';
-        return double.tryParse(data[key]) ?? 0.0;
+        return double.tryParse(data[key] ?? '0.0') ?? 0.0;
       },
       name: name,
       markerSettings: const MarkerSettings(isVisible: true),
