@@ -334,10 +334,10 @@ class _PumpControllerHomeState extends State<PumpControllerHome> {
     final provider = context.read<PumpControllerProvider>();
     switch(_selectedIndex) {
       case 0:
-        await provider.getUserPumpLog(widget.customerId, widget.masterData.controllerId, 0);
+        await provider.getUserPumpLog(widget.customerId, widget.masterData.controllerId, 0, widget.masterData);
       case 1:
         if(!isPumpWithValveModel) {
-          await provider.getUserPumpLog(widget.customerId, widget.masterData.controllerId, 0);
+          await provider.getUserPumpLog(widget.customerId, widget.masterData.controllerId, 0, widget.masterData);
         }
       case 2:
         if(isPumpWithValveModel) {

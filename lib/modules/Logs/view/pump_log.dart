@@ -34,6 +34,7 @@ class _PumpLogScreenState extends State<PumpLogScreen> {
           widget.userId,
           widget.controllerId,
           widget.nodeControllerId,
+          widget.masterData,
         );
       });
     }
@@ -61,7 +62,7 @@ class _PumpLogScreenState extends State<PumpLogScreen> {
                     readProvider.selectedDate = selectedDay;
                     readProvider.focusedDay = focusedDay;
                   });
-                  readProvider.getUserPumpLog(widget.userId, widget.controllerId, widget.nodeControllerId);
+                  readProvider.getUserPumpLog(widget.userId, widget.controllerId, widget.nodeControllerId, widget.masterData);
                 },
                 onFormatChanged: (format) {
                   if (readProvider.calendarFormat != format) {
@@ -112,6 +113,7 @@ class _PumpLogScreenState extends State<PumpLogScreen> {
                       }
                       return Timeline2(
                         events: readProvider.selectedIndex == 1 ? logData.motor2 : readProvider.selectedIndex == 2 ? logData.motor3 : logData.motor1,
+                        motorName: readProvider.segments[readProvider.selectedIndex],
                       );
                     } else {
                       return Center(
@@ -122,7 +124,7 @@ class _PumpLogScreenState extends State<PumpLogScreen> {
                               Text(readProvider.message),
                               FilledButton(
                                   onPressed: (){
-                                    readProvider.getUserPumpLog(widget.userId, widget.controllerId, widget.nodeControllerId);
+                                    readProvider.getUserPumpLog(widget.userId, widget.controllerId, widget.nodeControllerId, widget.masterData);
                                   },
                                   child: const Text("Reload")
                               )

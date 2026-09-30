@@ -1313,58 +1313,82 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                                             width: 140,
                                             height: 40,
                                             child: Center(
-                                              child: DropdownButton<dynamic>(
-                                                isExpanded: true,
-                                                dropdownColor: Colors.white,
+                                              child: Builder(
+                                                builder: (context) {
+                                                  final fertItem = programPvd.sequenceData[programPvd.selectedGroup]
+                                                      [programPvd.segmentedControlCentralLocal == 0
+                                                          ? 'centralDosing'
+                                                          : 'localDosing'][0]
+                                                      ['fertilizer'][index];
 
-                                                value: (
-                                                    programPvd.sequenceData[programPvd.selectedGroup]
-                                                    [programPvd.segmentedControlCentralLocal == 0
-                                                        ? 'centralDosing'
-                                                        : 'localDosing'][0]
-                                                    ['fertilizer'][index]['source'] as List?
-                                                )?.isNotEmpty == true
-                                                    ? programPvd.sequenceData[programPvd.selectedGroup]
-                                                [programPvd.segmentedControlCentralLocal == 0
-                                                    ? 'centralDosing'
-                                                    : 'localDosing'][0]
-                                                ['fertilizer'][index]['source'][0]
-                                                    : null,
+                                                  final channelSNo = fertItem['sNo'];
 
-                                                underline: Container(),
+                                                  double? currentTankSNo;
+                                                  if (fertItem['tank'] != null) {
+                                                    currentTankSNo = (fertItem['tank'] is num)
+                                                        ? (fertItem['tank'] as num).toDouble()
+                                                        : double.tryParse(fertItem['tank'].toString());
+                                                  } else if (fertItem['source'] != null) {
+                                                    if (fertItem['source'] is List && (fertItem['source'] as List).isNotEmpty) {
+                                                      var src = fertItem['source'][0];
+                                                      currentTankSNo = (src is num) ? src.toDouble() : double.tryParse(src.toString());
+                                                    } else if (fertItem['source'] is num) {
+                                                      currentTankSNo = (fertItem['source'] as num).toDouble();
+                                                    }
+                                                  }
 
-                                                hint: const Text(
-                                                  'Select Tank',
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: Colors.black,
-                                                  ),
-                                                ),
+                                                  final tankList = programPvd.getTanksForChannel(channelSNo);
 
-                                                items: (programPvd.tank ?? []).map((tankItem) {
-                                                  return DropdownMenuItem<dynamic>(
-                                                    value: tankItem.tank.sNo,
-                                                    child: Text(
-                                                      tankItem.tank.name ?? '',
-                                                      overflow: TextOverflow.ellipsis,
-                                                      style: const TextStyle(
+                                                  if (tankList.isEmpty) {
+                                                    return const Text(
+                                                      'N/A',
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: Colors.black,
+                                                      ),
+                                                    );
+                                                  }
+
+                                                  final isValidValue = currentTankSNo != null &&
+                                                      tankList.any((t) => (t['sNo'] as double) == currentTankSNo);
+
+                                                  return DropdownButton<double>(
+                                                    isExpanded: true,
+                                                    dropdownColor: Colors.white,
+                                                    value: isValidValue ? currentTankSNo : null,
+                                                    underline: Container(),
+                                                    hint: const Text(
+                                                      'Select Tank',
+                                                      style: TextStyle(
                                                         fontSize: 12,
                                                         color: Colors.black,
                                                       ),
                                                     ),
+                                                    items: tankList.map((tankItem) {
+                                                      return DropdownMenuItem<double>(
+                                                        value: tankItem['sNo'] as double,
+                                                        child: Text(
+                                                          tankItem['name'] ?? '',
+                                                          overflow: TextOverflow.ellipsis,
+                                                          style: const TextStyle(
+                                                            fontSize: 12,
+                                                            color: Colors.black,
+                                                          ),
+                                                        ),
+                                                      );
+                                                    }).toList(),
+                                                    onChanged: (double? value) {
+                                                      programPvd.editParticularChannelDetails(
+                                                        'tank',
+                                                        programPvd.segmentedControlCentralLocal == 0
+                                                            ? 'centralDosing'
+                                                            : 'localDosing',
+                                                        value,
+                                                        index,
+                                                      );
+                                                      print('value : $value');
+                                                    },
                                                   );
-                                                }).toList(),
-
-                                                onChanged: (value) {
-                                                  programPvd.editParticularChannelDetails(
-                                                    'source',
-                                                    programPvd.segmentedControlCentralLocal == 0
-                                                        ? 'centralDosing'
-                                                        : 'localDosing',
-                                                    value,
-                                                    index,
-                                                  );
-                                                  print('value : $value');
                                                 },
                                               ),
                                             ),

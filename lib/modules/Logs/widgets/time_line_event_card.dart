@@ -8,8 +8,19 @@ import '../model/event_log_model.dart';
 
 class TimelineEventCard extends StatelessWidget {
   final EventLog event;
+  final String? motorName;
 
-  const TimelineEventCard({super.key, required this.event});
+  const TimelineEventCard({super.key, required this.event, this.motorName});
+
+  String _formatReason(String reason) {
+    if (reason.isEmpty) return reason;
+    String formatted = reason;
+    if (motorName != null && motorName!.isNotEmpty && !motorName!.toLowerCase().startsWith("motor")) {
+      formatted = formatted.replaceAll(RegExp(r'motor[1-3]?', caseSensitive: false), motorName!);
+      formatted = formatted.replaceAll(RegExp(r'MOTOR[1-3]?', caseSensitive: false), motorName!);
+    }
+    return Constants.capitalizeFirstLetter(formatted);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +59,7 @@ class TimelineEventCard extends StatelessWidget {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          Constants.capitalizeFirstLetter(event.onReason),
+                          _formatReason(event.onReason),
                           style: TextStyle(
                             // fontSize: 16,
                             color: Theme.of(context).primaryColor,
@@ -66,7 +77,7 @@ class TimelineEventCard extends StatelessWidget {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          Constants.capitalizeFirstLetter(event.offReason),
+                          _formatReason(event.offReason),
                           style: const TextStyle(
                             fontSize: 14,
                             color: Colors.black,
