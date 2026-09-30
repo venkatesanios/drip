@@ -1252,15 +1252,25 @@ class FertilizerSiteModel {
         .map((obj) => CheSelector.fromConfigObject(obj))
         .toList();
 
+    final agitatorSNoSet = ((json['agitator'] as List?) ?? [])
+        .map((e) => (e as num).toDouble())
+        .toSet();
 
-    final agitatorList = json['agitator'] as List?;
-    final agitatorSNo = (agitatorList != null && agitatorList.isNotEmpty)
-        ? agitatorList.first as num
-        : 0;
     final agitator = configObjects
-        .where((obj) => agitatorSNo == obj.sNo)
+        .where((obj) => agitatorSNoSet.contains(obj.sNo))
         .map(Agitator.fromConfigObject)
         .toList();
+
+
+    // final agitatorList = json['agitator'] as List?;
+    // final agitatorSNo = (agitatorList != null && agitatorList.isNotEmpty)
+    //     ? agitatorList.first as num
+    //     : 0;
+    //
+    // final agitator = configObjects
+    //     .where((obj) => agitatorSNo == obj.sNo)
+    //     .map(Agitator.fromConfigObject)
+    //     .toList();
 
     final ecSNoSet = ((json['ec'] as List?) ?? []).map((e) => e).toSet();
     final ecSensor = configObjects.where((obj) => ecSNoSet.contains(obj.sNo))
