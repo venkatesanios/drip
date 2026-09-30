@@ -99,10 +99,10 @@ class _MoistureConfigurationState extends State<MoistureConfiguration> {
     required List<double> valveList
 }){
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        color: Theme.of(context).primaryColorLight.withOpacity(0.1),
+        color: Theme.of(context).primaryColorLight.withValues(alpha: 0.1),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -114,7 +114,7 @@ class _MoistureConfigurationState extends State<MoistureConfiguration> {
           const SizedBox(width: 20,),
           const Text('Valves : ', style: AppProperties.listTileBlackBoldStyle,),
           Center(
-            child: Text(valveList.isEmpty ? '-' : valveList.map((sNo) => getObjectName(sNo, widget.configPvd).name!).join(', '), style: TextStyle(color: Colors.teal, fontSize: 12, fontWeight: FontWeight.bold),),
+            child: Text(valveList.isEmpty ? '-' : valveList.map((sNo) => getObjectName(sNo, widget.configPvd).name!).join(', '), style: const TextStyle(color: Colors.teal, fontSize: 12, fontWeight: FontWeight.bold),),
           ),
           IconButton(
               onPressed: (){

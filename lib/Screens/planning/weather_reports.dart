@@ -12,7 +12,7 @@ class ReportPage extends StatefulWidget {
   final String initialReportType;
 
   const ReportPage(
-      {Key? key,
+      {super.key,
         required this.initialReportType,
         required this.userId,
         required this.controllerId,
@@ -92,7 +92,7 @@ class _ReportPageState extends State<ReportPage> {
          });
       }
     } catch (e, stackTrace) {
-      print(' trace overAll getData  => ${stackTrace}');
+      print(' trace overAll getData  => $stackTrace');
     }
 
   }
@@ -144,13 +144,13 @@ class _ReportPageState extends State<ReportPage> {
           autoScrollingMode: AutoScrollingMode.end,
           title: AxisTitle(
             text: selectedReportType,
-            textStyle: TextStyle(
+            textStyle: const TextStyle(
                 fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
           ),
           minimum: 0,
           maximum: 220,
           interval: 20,
-          labelStyle: TextStyle(
+          labelStyle: const TextStyle(
               fontSize: 12, fontWeight: FontWeight.w700, color: Colors.teal),
         );
       case 'SoilTemperature':
@@ -158,13 +158,13 @@ class _ReportPageState extends State<ReportPage> {
           autoScrollingMode: AutoScrollingMode.end,
           title: AxisTitle(
             text: selectedReportType,
-            textStyle: TextStyle(
+            textStyle: const TextStyle(
                 fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
           ),
           minimum: 100,
           maximum: 0,
           interval: 5,
-          labelStyle: TextStyle(
+          labelStyle: const TextStyle(
               fontSize: 12, fontWeight: FontWeight.w700, color: Colors.teal),
         );
       case 'Humidity':
@@ -172,13 +172,13 @@ class _ReportPageState extends State<ReportPage> {
           autoScrollingMode: AutoScrollingMode.end,
           title: AxisTitle(
             text: selectedReportType,
-            textStyle: TextStyle(
+            textStyle: const TextStyle(
                 fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
           ),
           minimum: 0,
           maximum: 100.0,
           interval: 6.0,
-          labelStyle: TextStyle(
+          labelStyle: const TextStyle(
               fontSize: 12, fontWeight: FontWeight.w700, color: Colors.teal),
         );
       case 'temperature':
@@ -186,13 +186,13 @@ class _ReportPageState extends State<ReportPage> {
           autoScrollingMode: AutoScrollingMode.end,
           title: AxisTitle(
             text: selectedReportType,
-            textStyle: TextStyle(
+            textStyle: const TextStyle(
                 fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
           ),
           minimum: 0,
           maximum: 90.0,
           interval: 5.0,
-          labelStyle: TextStyle(
+          labelStyle: const TextStyle(
               fontSize: 12, fontWeight: FontWeight.w700, color: Colors.teal),
         );
       case 'AtmosphericPressure':
@@ -200,13 +200,13 @@ class _ReportPageState extends State<ReportPage> {
           autoScrollingMode: AutoScrollingMode.end,
           title: AxisTitle(
             text: selectedReportType,
-            textStyle: TextStyle(
+            textStyle: const TextStyle(
                 fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
           ),
           minimum: 0,
           maximum: 2.0,
           interval: 0.2,
-          labelStyle: TextStyle(
+          labelStyle: const TextStyle(
               fontSize: 12, fontWeight: FontWeight.w700, color: Colors.teal),
         );
       case 'CO2':
@@ -214,13 +214,13 @@ class _ReportPageState extends State<ReportPage> {
           autoScrollingMode: AutoScrollingMode.end,
           title: AxisTitle(
             text: selectedReportType,
-            textStyle: TextStyle(
+            textStyle: const TextStyle(
                 fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
           ),
           minimum: 0,
           maximum: 900.0,
           interval: 50.0,
-          labelStyle: TextStyle(
+          labelStyle: const TextStyle(
               fontSize: 12, fontWeight: FontWeight.w700, color: Colors.teal),
         );
       case 'WindSpeed':
@@ -228,13 +228,13 @@ class _ReportPageState extends State<ReportPage> {
           autoScrollingMode: AutoScrollingMode.end,
           title: AxisTitle(
             text: selectedReportType,
-            textStyle: TextStyle(
+            textStyle: const TextStyle(
                 fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
           ),
           minimum: 0,
           maximum: 10.0,
           interval: 0.5,
-          labelStyle: TextStyle(
+          labelStyle: const TextStyle(
               fontSize: 12, fontWeight: FontWeight.w700, color: Colors.teal),
         );
       case 'LDR':
@@ -242,13 +242,13 @@ class _ReportPageState extends State<ReportPage> {
           autoScrollingMode: AutoScrollingMode.end,
           title: AxisTitle(
             text: selectedReportType,
-            textStyle: TextStyle(
+            textStyle: const TextStyle(
                 fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
           ),
           minimum: 0,
           maximum: 10.0,
           interval: 0.5,
-          labelStyle: TextStyle(
+          labelStyle: const TextStyle(
               fontSize: 12, fontWeight: FontWeight.bold, color: Colors.teal),
         );
       default:
@@ -256,10 +256,10 @@ class _ReportPageState extends State<ReportPage> {
           autoScrollingMode: AutoScrollingMode.end,
           title: AxisTitle(
             text: selectedReportType,
-            textStyle: TextStyle(
+            textStyle: const TextStyle(
                 fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
           ),
-          labelStyle: TextStyle(
+          labelStyle: const TextStyle(
               fontSize: 12, fontWeight: FontWeight.w700, color: Colors.teal),
         );
     }
@@ -275,7 +275,7 @@ class _ReportPageState extends State<ReportPage> {
     final List<int> errors = [];
 
     for (int hour = 0; hour < 24; hour++) {
-      final hourKey = hour.toString().padLeft(2, '0') + ":00";
+      final hourKey = "${hour.toString().padLeft(2, '0')}:00";
       final raw = dayData[hourKey];
 
       double value = 0;
@@ -344,7 +344,7 @@ class _ReportPageState extends State<ReportPage> {
     final List<SensorHourData> rows = [];
 
     for (int h = 0; h < 24; h++) {
-      final hourKey = h.toString().padLeft(2, '0') + ":00";
+      final hourKey = "${h.toString().padLeft(2, '0')}:00";
       final raw = dayData[hourKey];
 
       double value = 0;
@@ -392,7 +392,7 @@ class _ReportPageState extends State<ReportPage> {
       appBar: AppBar(
         title: Text(
           '${widget.initialReportType} Report',
-          style: TextStyle(
+          style: const TextStyle(
               fontWeight: FontWeight.w700, fontSize: 18, color: Colors.white),
         ),
         backgroundColor: colorScheme.primary,
@@ -403,7 +403,7 @@ class _ReportPageState extends State<ReportPage> {
           Padding(
             padding: const EdgeInsets.all(00.0),
             child: Container(
-              padding: EdgeInsets.all(20.0),
+              padding: const EdgeInsets.all(20.0),
               decoration: BoxDecoration(
                 color:
                 colorScheme.surface, // Background color for the container
@@ -419,7 +419,7 @@ class _ReportPageState extends State<ReportPage> {
                             fontWeight: FontWeight.bold,
                             fontSize: 18),
                       )),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   ElevatedButton(
                     onPressed: () async {
                       DateTime? pickedDate = await showDatePicker(
@@ -445,7 +445,7 @@ class _ReportPageState extends State<ReportPage> {
                     ),
                     child: Text(
                       selectedDate,
-                      style: TextStyle(color: Colors.white, fontSize: 15),
+                      style: const TextStyle(color: Colors.white, fontSize: 15),
                     ),
                   ),
                 ],
@@ -462,7 +462,7 @@ class _ReportPageState extends State<ReportPage> {
           else if (errorMessage.isNotEmpty)
             Center(child: Text(errorMessage))
           else ...[
-              SizedBox(height: 00),
+              const SizedBox(height: 00),
               Expanded(
                 child: SfCartesianChart(
                   backgroundColor: colorScheme.surface,
@@ -473,15 +473,15 @@ class _ReportPageState extends State<ReportPage> {
                   primaryXAxis: CategoryAxis(
                     title: AxisTitle(
                         text: yaxixname,
-                        textStyle: TextStyle(
+                        textStyle: const TextStyle(
                             color: Colors.black, fontWeight: FontWeight.bold)),
                     interval: 2,
                     minimum: 0,
                     maximum: 23, // Set interval to 1 to show every hour
                     labelRotation: 0, // Rotate labels for better readability
-                    majorGridLines: MajorGridLines(width: 1),
+                    majorGridLines: const MajorGridLines(width: 1),
                     autoScrollingMode: AutoScrollingMode.start,
-                    labelStyle: TextStyle(
+                    labelStyle: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
                         color: Colors.teal),
@@ -489,10 +489,10 @@ class _ReportPageState extends State<ReportPage> {
                   primaryYAxis: _getYAxisSettings(),
                   title: ChartTitle(
                       text: '$selectedReportType Data',
-                      textStyle: TextStyle(
+                      textStyle: const TextStyle(
                         fontWeight: FontWeight.w700,
                       )),
-                  legend: Legend(isVisible: true),
+                  legend: const Legend(isVisible: true),
                   tooltipBehavior: TooltipBehavior(
                       enable: false,
                       header: selectedReportType,
@@ -511,7 +511,7 @@ class _ReportPageState extends State<ReportPage> {
                       name: selectedReportType,
                       color: Colors.blueGrey, // Set the line color here
                       width: 1.0, // Set the line width here
-                      dashArray: [0], // Set the line style (dashed) here
+                      dashArray: const [0], // Set the line style (dashed) here
                       markerSettings: const MarkerSettings(
                         isVisible: true,
                         color: Colors.white,

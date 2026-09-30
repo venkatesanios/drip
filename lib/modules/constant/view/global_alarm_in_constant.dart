@@ -9,7 +9,6 @@ import '../../../Widgets/status_box.dart';
 import '../../../services/mqtt_service.dart';
 import '../../../utils/constants.dart';
 import '../../../utils/environment.dart';
-import '../../IrrigationProgram/widgets/custom_sliding_button.dart';
 import '../../config_maker/view/config_web_view.dart';
 import '../repository/constant_repository.dart';
 
@@ -75,8 +74,8 @@ class _GlobalAlarmInConstantState extends State<GlobalAlarmInConstant> {
                               boxShadow: [
                                 BoxShadow(
                                     color: hoveredSno.value == globalSetting.sNo
-                                        ? Theme.of(context).primaryColorLight.withOpacity(0.8)
-                                        : const Color(0xff000040).withOpacity(0.25),
+                                        ? Theme.of(context).primaryColorLight.withValues(alpha: 0.8)
+                                        : const Color(0xff000040).withValues(alpha: 0.25),
                                     blurRadius: 4,
                                     offset: const Offset(0, 4)
                                 )
@@ -99,7 +98,7 @@ class _GlobalAlarmInConstantState extends State<GlobalAlarmInConstant> {
                                   });
                                   Navigator.pop(context);
                                 },
-                                popUpItemModelList: [],
+                                popUpItemModelList: const [],
                               ),
                             ),
                           ),

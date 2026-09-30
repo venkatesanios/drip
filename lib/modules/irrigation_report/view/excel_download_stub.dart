@@ -27,7 +27,7 @@ Future<bool> generateExcel(data, String name) async {
           for (var j = 0;
           j < data['centralChannel${i}ColumnData'][0].length;
           j++)
-            'CH${i} - ${data['centralChannel${i}Column'][j]}',
+            'CH$i - ${data['centralChannel${i}Column'][j]}',
       if (data['localEcPhColumnData'][0] != null)
         for (var j = 0; j < data['localEcPhColumnData'][0].length; j++)
           data['localEcPhColumn'][j],
@@ -36,7 +36,7 @@ Future<bool> generateExcel(data, String name) async {
           for (var j = 0;
           j < data['localChannel${i}ColumnData'][0].length;
           j++)
-            'LH${i} - ${data['localChannel${i}Column'][j]}',
+            'LH$i - ${data['localChannel${i}Column'][j]}',
     ];
 
     // Write header row

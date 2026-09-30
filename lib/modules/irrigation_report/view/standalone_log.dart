@@ -44,7 +44,7 @@ class _StandaloneLogState extends State<StandaloneLog> {
   int noOfRowsPerPage = 20;
   int totalPages = 0;
   int selectedPages = 1;
-  String _range = '';
+  final String _range = '';
   String _rangeCount = '';
   String _dateCount = '';
 
@@ -75,7 +75,7 @@ class _StandaloneLogState extends State<StandaloneLog> {
       };
       var response = await IrrigationRepository().getUserNames(body);
       Map<String, dynamic> configData = jsonDecode(response.body);
-      print("jsonData : ${configData}");
+      print("jsonData : $configData");
       configObject = configData['data']['configObject'];
 
     }catch(e,stackTrace){
@@ -180,7 +180,7 @@ class _StandaloneLogState extends State<StandaloneLog> {
             child: Container(
               decoration: BoxDecoration(
                   color: Colors.green.shade50,
-                  borderRadius: BorderRadius.only(bottomRight: Radius.circular(20),bottomLeft: Radius.circular(20))
+                  borderRadius: const BorderRadius.only(bottomRight: Radius.circular(20),bottomLeft: Radius.circular(20))
               ),
               margin: const EdgeInsets.only(left: 5,right: 5),
               child: LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
@@ -212,12 +212,12 @@ class _StandaloneLogState extends State<StandaloneLog> {
                                     children: [
                                       for(var i in filterDataByPages(data : standaloneData['fixedColumnData']))
                                         Container(
-                                          color: Color(0xffDCF3DD),
+                                          color: const Color(0xffDCF3DD),
                                           padding: const EdgeInsets.only(left: 8),
                                           width: 100,
                                           height: 70,
                                           alignment: Alignment.center,
-                                          child: Text('${i}'),
+                                          child: Text('$i'),
                                         ),
                                     ],
                                   ),
@@ -270,7 +270,7 @@ class _StandaloneLogState extends State<StandaloneLog> {
                           ),
                         ),
                         Expanded(
-                          child: Container(
+                          child: SizedBox(
                             width: width-100,
                             child: Scrollbar(
                               thumbVisibility: true,
@@ -360,8 +360,8 @@ class _StandaloneLogState extends State<StandaloneLog> {
                         },
                         child: Container(
                           color: Colors.white,
-                          padding: EdgeInsets.all(5),
-                          child: Icon(Icons.keyboard_double_arrow_left),
+                          padding: const EdgeInsets.all(5),
+                          child: const Icon(Icons.keyboard_double_arrow_left),
                         ),
                       ),
                       if(standaloneData['fixedColumnData'] != null)
@@ -369,7 +369,7 @@ class _StandaloneLogState extends State<StandaloneLog> {
                           '${
                               (selectedPages * noOfRowsPerPage) - 20} - ${((selectedPages * noOfRowsPerPage) < standaloneData['fixedColumnData'].length
                               ?  (selectedPages * noOfRowsPerPage)
-                              : standaloneData['fixedColumnData'].length)} / ${standaloneData['fixedColumnData'].length}',style: TextStyle(color: Colors.white),
+                              : standaloneData['fixedColumnData'].length)} / ${standaloneData['fixedColumnData'].length}',style: const TextStyle(color: Colors.white),
                         ),
                       InkWell(
                         onTap: (){
@@ -381,8 +381,8 @@ class _StandaloneLogState extends State<StandaloneLog> {
                         },
                         child: Container(
                           color: Colors.white,
-                          padding: EdgeInsets.all(5),
-                          child: Icon(Icons.keyboard_double_arrow_right),
+                          padding: const EdgeInsets.all(5),
+                          child: const Icon(Icons.keyboard_double_arrow_right),
                         ),
                       ),
                     ],
@@ -390,11 +390,11 @@ class _StandaloneLogState extends State<StandaloneLog> {
                 ),
                 MaterialButton(
                     color: Colors.white,
-                    child: Text('Select Date'),
+                    child: const Text('Select Date'),
                     onPressed: (){
                       showDialog(context: context, builder: (context){
                         return AlertDialog(
-                          title: Text('Date Picker'),
+                          title: const Text('Date Picker'),
                           content: StatefulBuilder(
                             builder: (BuildContext context, StateSetter stateSetter) {
                               return SizedBox(
@@ -445,7 +445,7 @@ class _StandaloneLogState extends State<StandaloneLog> {
                         builder: (context){
                           var fileName = 'file';
                           return AlertDialog(
-                            title: Text('Give Name For Your File'),
+                            title: const Text('Give Name For Your File'),
                             content: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -454,7 +454,7 @@ class _StandaloneLogState extends State<StandaloneLog> {
                                   onChanged: (value){
                                     fileName = value;
                                   },
-                                  decoration: InputDecoration(
+                                  decoration: const InputDecoration(
                                       border: OutlineInputBorder()
                                   ),
                                 ),
@@ -466,7 +466,7 @@ class _StandaloneLogState extends State<StandaloneLog> {
                                     generateExcelForStandAlone(standaloneData,fileName);
                                     Navigator.pop(context);
                                   },
-                                  child: Text('Click to download')
+                                  child: const Text('Click to download')
                               )
                             ],
                           );
@@ -476,12 +476,12 @@ class _StandaloneLogState extends State<StandaloneLog> {
       
                   },
                   child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 5,horizontal: 10),
+                    padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(5),
                         color: Colors.white
                     ),
-                    child: Icon(Icons.download),
+                    child: const Icon(Icons.download),
                   ),
                 )
               ],
@@ -591,13 +591,13 @@ class _StandaloneLogState extends State<StandaloneLog> {
           showDialog(context: context, builder: (context){
             return AlertDialog(
               title: Text('$name Download Successfully at'),
-              content: Text('$filePath'),
+              content: Text(filePath),
               actions: [
                 TextButton(
                     onPressed: (){
                       Navigator.pop(context);
                     },
-                    child: Text('Ok')
+                    child: const Text('Ok')
                 )
               ],
             );
@@ -613,7 +613,7 @@ class _StandaloneLogState extends State<StandaloneLog> {
                     onPressed: (){
                       Navigator.pop(context);
                     },
-                    child: Text('Ok')
+                    child: const Text('Ok')
                 )
               ],
             );
@@ -654,7 +654,7 @@ class _StandaloneLogState extends State<StandaloneLog> {
       } else {
         _rangeCount = args.value.length.toString();
       }
-      print("range: ${_range},rangecount:${_rangeCount},Select date:${_selectedDate}");
+      print("range: $_range,rangecount:$_rangeCount,Select date:$_selectedDate");
     });
   }
 }

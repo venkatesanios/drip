@@ -16,12 +16,11 @@ class ConfigureMqtt extends StatefulWidget {
   final deviceID, userId, controllerId,communicationType;
 
   const ConfigureMqtt(
-      {Key? key,
+      {super.key,
         required this.deviceID,
         required this.userId,
         required this.communicationType,
-        required this.controllerId})
-      : super(key: key);
+        required this.controllerId});
 
   @override
   _ConfigureMqttState createState() => _ConfigureMqttState();
@@ -44,7 +43,7 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
   final List<String> platforms = ['AWS', 'Azure'];
   final List<String> dealers = ['ORO', 'LK'];
   final List<String> versions = ['Version 1.0', 'Version 1.1'];
-  TextEditingController _macController = TextEditingController();
+  final TextEditingController _macController = TextEditingController();
   final Repository repository = Repository(HttpService());
   String _lastPayload = '';
 
@@ -77,8 +76,8 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
 
       ScaffoldMessenger.of(context).showSnackBar(
          SnackBar(
-          content: Text("${!payload.contains("6801") ? payload : ""}"),
-          duration: Duration(seconds: 2),
+          content: Text(!payload.contains("6801") ? payload : ""),
+          duration: const Duration(seconds: 2),
         ),
       );
     }
@@ -106,7 +105,7 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
           isLoading = false;
         });
       }
-    } catch (e, stacktrace) {
+    } catch (e) {
       setState(() {
         errorMessage = 'Error fetching data: $e,';
         isLoading = false;
@@ -255,10 +254,11 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
                return ['AgritelAppToFirmware/', '0'];
            }
 
-        if (selectedVersion == 'Version 1.0')
+        if (selectedVersion == 'Version 1.0') {
           return ['AppToFirmware/', '1'];
-        else
+        } else {
           return ['OroAppToFirmware/', '0'];
+        }
       }
     } else {
       if (selectedPlatform == 'AWS') {
@@ -266,10 +266,11 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
         if (selectedVersion == 'Version 1.0') return ['AppsToFirmware/', '1'];
       } else {
         AppLog.log('return LK azure');
-        if (selectedVersion == 'Version 1.0')
+        if (selectedVersion == 'Version 1.0') {
           return ['AppsToFirmware/', '1'];
-        else
+        } else {
           return ['AppToFirmware/', '0'];
+        }
       }
     }
     AppLog.log('return else');
@@ -593,7 +594,7 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
         Provider.of<MqttPayloadProvider>(context, listen: true);
     return Scaffold(
       appBar: AppBar(
-        title: Text('Configure Hardware'),
+        title: const Text('Configure Hardware'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -618,7 +619,7 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                value: selectedDealer,
+                initialValue: selectedDealer,
                 decoration: const InputDecoration(
                   labelText: 'Select Current Dealer',
                   border: OutlineInputBorder(),
@@ -639,7 +640,7 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
               const SizedBox(height: 16),
               // Platform Dropdown
               DropdownButtonFormField<String>(
-                value: selectedPlatform,
+                initialValue: selectedPlatform,
                 decoration: const InputDecoration(
                   labelText: 'Select Current Platform',
                   border: OutlineInputBorder(),
@@ -657,7 +658,7 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
                     //     : F.appFlavor = Flavor.smartComm;
 
                     AppLog.log('flaVOR ${F.appFlavor}');
-                    AppLog.log('${AppConstants.mqttUrl}');
+                    AppLog.log(AppConstants.mqttUrl);
                     selectedPlatform = value;
                   });
                 },
@@ -666,7 +667,7 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
 
               // Version Dropdown
               DropdownButtonFormField<String>(
-                value: selectedVersion,
+                initialValue: selectedVersion,
                 decoration: const InputDecoration(
                   labelText: 'Select Current Version',
                   border: OutlineInputBorder(),
@@ -878,7 +879,7 @@ class _ConfigureMqttState extends State<ConfigureMqtt> {
              //    padding: const EdgeInsets.all(8.0),
              //    child: Text(mqttPayloadProvider.receivedPayload),
              //  ) : Container(),
-SizedBox(height: 10,),
+const SizedBox(height: 10,),
 
               widget.communicationType != "MQTT" ?  SingleChildScrollView(
                 padding: const EdgeInsets.all(16),

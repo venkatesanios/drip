@@ -20,7 +20,7 @@ import 'package:oro_drip_irrigation/utils/helpers/log_print.dart';
 
 class ResetVerssion extends StatefulWidget {
   const ResetVerssion(
-      {Key? key,
+      {super.key,
         required this.userId,
         required this.controllerId,
         required this.deviceID});
@@ -94,7 +94,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
     }
     catch (e, stackTrace) {
       AppLog.log(' Error overAll getData => ${e.toString()}');
-      AppLog.log(' trace overAll getData  => ${stackTrace}');
+      AppLog.log(' trace overAll getData  => $stackTrace');
     }
 
 
@@ -244,7 +244,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
                             message: "Controller Log",
                             child: IconButton(
                               style: ButtonStyle(
-                                  backgroundColor: MaterialStateProperty.all(
+                                  backgroundColor: WidgetStateProperty.all(
                                       Colors.teal.shade100)),
                               onPressed: () {
                                 setState(() {
@@ -268,7 +268,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
                               message: "Config Hardware",
                               child: IconButton(
                                 style: ButtonStyle(
-                                    backgroundColor: MaterialStateProperty.all(
+                                    backgroundColor: WidgetStateProperty.all(
                                         Colors.teal.shade100)),
                                 onPressed: () {
                                   setState(() {
@@ -308,7 +308,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
                               message: "LoRa Frequency Set ",
                               child: IconButton(
                                 style: ButtonStyle(
-                                    backgroundColor: MaterialStateProperty.all(
+                                    backgroundColor: WidgetStateProperty.all(
                                         Colors.teal.shade100)),
 
                                 onPressed: () {
@@ -344,7 +344,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
                               message: "LoRa Update ",
                               child: IconButton(
                                 style: ButtonStyle(
-                                    backgroundColor: MaterialStateProperty.all(
+                                    backgroundColor: WidgetStateProperty.all(
                                         Colors.teal.shade100)),
                                 onPressed: () {
                                   setState(() {
@@ -402,7 +402,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
                       const SizedBox(height: 10),
                       imeicheck != mergedList[index]['deviceId']!
                           ? mergedList[index]['status'] != 'Status'
-                          ? Container(
+                          ? SizedBox(
                         width: 200,
                         child: Icon(
                           iconData,
@@ -442,10 +442,10 @@ class _ResetVerssionState extends State<ResetVerssion> {
                                 value: progressValue,
                                 minHeight: 8,
                                 backgroundColor: Colors.grey[300],
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                                valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
                               ),
                             ),
-                            SizedBox(width: 12),
+                            const SizedBox(width: 12),
                             // Text('${(0.6 * 100).toStringAsFixed(0)}%'),
                             Text('${ mqttPayloadProvider.proogressstatus}'),
                           ],
@@ -465,8 +465,8 @@ class _ResetVerssionState extends State<ResetVerssion> {
                             FilledButton(
                               style: ButtonStyle(
                                   backgroundColor: checkupdatediable == 0
-                                      ? MaterialStateProperty.all(Colors.red)
-                                      : MaterialStateProperty.all(Colors.grey)),
+                                      ? WidgetStateProperty.all(Colors.red)
+                                      : WidgetStateProperty.all(Colors.grey)),
                               onPressed: () {
                                 selectindex = index;
                                 checkupdatediable == 0
@@ -479,8 +479,8 @@ class _ResetVerssionState extends State<ResetVerssion> {
                             FilledButton(
                               style: ButtonStyle(
                                   backgroundColor: checkupdatediable == 0
-                                      ? MaterialStateProperty.all(Colors.green)
-                                      : MaterialStateProperty.all(Colors.grey)),
+                                      ? WidgetStateProperty.all(Colors.green)
+                                      : WidgetStateProperty.all(Colors.grey)),
                               onPressed: () {
                                 selectindex = index;
                                 checkupdatediable == 0
@@ -526,7 +526,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
   sendHttp(String val, String msgstatus) async {
     Map<String, dynamic> payLoadFinal = {
       "5700":
-      {"5701": "$val"},
+      {"5701": val},
 
     };
     Map<String, dynamic> body = {
@@ -630,7 +630,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
     number *= 10;
     String result = number.toStringAsFixed(0);
     while (result.length < 4) {
-      result = '0' + result;
+      result = '0$result';
     }
     String firstPart = result.substring(0, 2);
     String secondPart = result.substring(2, 4);
@@ -830,7 +830,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
                           },
                           child: const Text('Send'),
                         ),],),
-                      Text("View to Lora Details:"),
+                      const Text("View to Lora Details:"),
                       Text(mqttPayloadProvider.Loara1verssion)
 
                     ],
@@ -867,7 +867,7 @@ class _ResetVerssionState extends State<ResetVerssion> {
                           )),
                         ],
                       ),
-                      Text("View to Lora Details:"),
+                      const Text("View to Lora Details:"),
                       Text(mqttPayloadProvider.Loara2verssion)
                     ],
                   ),
@@ -941,11 +941,11 @@ class BlinkingText extends StatefulWidget {
   final Duration blinkDuration;
 
   const BlinkingText({
-    Key? key,
+    super.key,
     required this.text,
     this.style = const TextStyle(fontSize: 20, color: Colors.red),
     this.blinkDuration = const Duration(milliseconds: 500),
-  }) : super(key: key);
+  });
 
   @override
   _BlinkingTextState createState() => _BlinkingTextState();

@@ -319,7 +319,7 @@ class BluetoothBleService {
             isWincDevice = name.contains('WINC') ||
                 name.startsWith('NIA_') ||
                 name.startsWith('WIFI_') ||
-                (localName != null && localName.contains('WINC'));
+                (localName.contains('WINC'));
           }
 
           if (deviceId != null && deviceId.isNotEmpty) {
@@ -604,7 +604,7 @@ class BluetoothBleService {
 
       // Verify connection
       await Future.delayed(const Duration(milliseconds: 500));
-      if (!await d.device.isConnected) {
+      if (!d.device.isConnected) {
         throw Exception("Device not connected after connect call");
       }
 
@@ -756,8 +756,6 @@ class BluetoothBleService {
         debugPrint("✅ BLE Device connected and stable");
         d.connectionState = BlueConnectionState.connected;
         _isAlreadyConnected = true;
-      } else if (state == BluetoothConnectionState.connecting) {
-        d.connectionState = BlueConnectionState.connecting;
       }
     });
   }
@@ -959,7 +957,7 @@ class BluetoothBleService {
         // --------------------------------------
 
         final isConnected =
-        await d.device.isConnected;
+        d.device.isConnected;
 
         if (!isConnected) {
 

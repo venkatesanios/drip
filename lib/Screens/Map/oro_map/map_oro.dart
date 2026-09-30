@@ -3,27 +3,24 @@ import 'dart:convert';
 import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:provider/provider.dart';
 import 'package:oro_drip_irrigation/utils/helpers/log_print.dart';
 
 import '../../../repository/repository.dart';
 import '../../../services/http_service.dart';
-import '../MapDeviceList.dart';
 import 'map_conection_objects.dart';
 
 
 class MapScreenOro extends StatefulWidget {
-  MapScreenOro({
-    Key? key,
+  const MapScreenOro({
+    super.key,
     required this.userId,
     required this.customerId,
     required this.controllerId,
     required this.imeiNo,
     required this.modelId,
     this.isCheckDashboard = false,
-  }) : super(key: key);
+  });
 
   final int userId, customerId, controllerId,modelId;
   final String imeiNo;
@@ -158,9 +155,9 @@ class _MapScreenOroState extends State<MapScreenOro> {
                 Polygon(
                   polygonId: PolygonId("area-${obj["sNo"]}"),
                   points: points,
-                  strokeColor: areaColor.withOpacity(0.8),
+                  strokeColor: areaColor.withValues(alpha: 0.8),
                   strokeWidth: 2,
-                  fillColor: areaColor.withOpacity(0.25),
+                  fillColor: areaColor.withValues(alpha: 0.25),
                 ),
               );
 
@@ -474,7 +471,7 @@ class _MapScreenOroState extends State<MapScreenOro> {
           ),
           if (!widget.isCheckDashboard)
             IconButton(
-              icon: Icon(Icons.map_outlined),
+              icon: const Icon(Icons.map_outlined),
               onPressed: () {
                 Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => MapConnectionObject(userId: widget.userId, customerId: widget.customerId, controllerId: widget.controllerId, imeiNo: widget.imeiNo,modelId: widget.modelId,),
@@ -505,7 +502,7 @@ class _MapScreenOroState extends State<MapScreenOro> {
             left: 20,
             right: 20,
             child: Container(
-              color: Colors.white.withOpacity(0.7),
+              color: Colors.white.withValues(alpha: 0.7),
               child: Row(
                 children: [
                   Expanded(
@@ -533,7 +530,7 @@ class _MapScreenOroState extends State<MapScreenOro> {
                   if (kIsWeb)
                     if (!widget.isCheckDashboard)
                       IconButton(
-                        icon: Icon(Icons.map_outlined,color: Colors.red,),
+                        icon: const Icon(Icons.map_outlined,color: Colors.red,),
                         onPressed: () {
                           Navigator.of(context).push(MaterialPageRoute(
                             builder: (context) => MapConnectionObject(userId: widget.userId, customerId: widget.customerId, controllerId: widget.controllerId, imeiNo: widget.imeiNo,modelId: widget.modelId,),

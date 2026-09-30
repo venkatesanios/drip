@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:oro_drip_irrigation/Constants/properties.dart';
 import 'package:oro_drip_irrigation/modules/IrrigationProgram/view/preview_screen.dart';
 import 'package:oro_drip_irrigation/modules/IrrigationProgram/view/schedule_screen.dart';
 import 'package:oro_drip_irrigation/modules/IrrigationProgram/view/selection_screen.dart';

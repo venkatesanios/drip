@@ -31,7 +31,7 @@ class ValveCardTable extends StatelessWidget {
               height: 40,
               width: double.infinity,
               decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor.withOpacity(0.1),
+                color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
                 borderRadius: const BorderRadius.only(
                   topRight: Radius.circular(5),
                   topLeft: Radius.circular(5),
@@ -46,14 +46,14 @@ class ValveCardTable extends StatelessWidget {
                     ),
                   ),
                   if (showSwitch) ...[
-                    VerticalDivider(color: Theme.of(context).primaryColor.withOpacity(0.1)),
+                    VerticalDivider(color: Theme.of(context).primaryColor.withValues(alpha: 0.1)),
                     SizedBox(
                       width: 60,
                       child: Transform.scale(
                         scale: 0.7,
                         child: Switch(
                           value: switchValue,
-                          activeColor: Colors.teal,
+                          activeThumbColor: Colors.teal,
                           hoverColor: Colors.pink.shade100,
                           onChanged: onSwitchChanged,
                         ),

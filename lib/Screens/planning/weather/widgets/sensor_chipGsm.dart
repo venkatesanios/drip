@@ -14,7 +14,6 @@ class SensorChipGsm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    if (device == null) return const SizedBox.shrink();
     return Container(
       width: isNarrow ? double.infinity : 230,
       height: 210,

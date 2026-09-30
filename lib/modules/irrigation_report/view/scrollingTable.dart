@@ -51,7 +51,7 @@ class ScrollingTable extends StatefulWidget {
   final List<dynamic> localChannel8ColumnData;
   final List<dynamic> graphData;
 
-  ScrollingTable({super.key,
+  const ScrollingTable({super.key,
     required this.fixedColumn,
     required this.fixedColumnData,
     required this.generalColumn,
@@ -130,7 +130,7 @@ class _ScrollingTableState extends State<ScrollingTable> {
       child: Container(
         decoration: BoxDecoration(
             color: Colors.green.shade50,
-            borderRadius: BorderRadius.only(bottomRight: Radius.circular(20),bottomLeft: Radius.circular(20))
+            borderRadius: const BorderRadius.only(bottomRight: Radius.circular(20),bottomLeft: Radius.circular(20))
         ),
         margin: const EdgeInsets.only(left: 5,right: 5),
         child: LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
@@ -142,7 +142,7 @@ class _ScrollingTableState extends State<ScrollingTable> {
                   //Todo : first column
                   Container(
                     // color: Color(0xffF7F9FA),
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
                             Color(0xff1C7C8A),
@@ -156,7 +156,7 @@ class _ScrollingTableState extends State<ScrollingTable> {
                     width: 100,
                     height: 75,
                     alignment: Alignment.center,
-                    child: Text('${widget.fixedColumn}',style: TextStyle(color: Colors.white),),
+                    child: Text(widget.fixedColumn,style: const TextStyle(color: Colors.white),),
                   ),
                   Expanded(
                     child: SingleChildScrollView(
@@ -185,7 +185,7 @@ class _ScrollingTableState extends State<ScrollingTable> {
                 children: [
                   Container(
                     // color: Color(0xffF7F9FA),
-                    color: Color(0xff03464F),
+                    color: const Color(0xff03464F),
                     width: width-100,
                     height: 75,
                     child: SingleChildScrollView(
@@ -198,7 +198,7 @@ class _ScrollingTableState extends State<ScrollingTable> {
                             Column(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Center(
+                                const Center(
                                   child: Text('General',style: TextStyle(color: Colors.white),),
                                 ),
                                 Row(
@@ -212,7 +212,7 @@ class _ScrollingTableState extends State<ScrollingTable> {
                                         width: widget.generalColumn[i] == 'Status' ? 150 : ['Start Stop Reason','Pause Resume Reason', 'Pump CT Average', 'Pump CT Maximum', 'Pump CT Minimum', 'Pressure Average', 'Pressure Maximum', 'Pressure Minimum'].contains(widget.generalColumn[i]) ? 200 : 100,
                                         height: 50,
                                         alignment: Alignment.centerLeft,
-                                        child: Text('${widget.generalColumn[i]}',style: TextStyle(color: Colors.black), maxLines: 2,),
+                                        child: Text('${widget.generalColumn[i]}',style: const TextStyle(color: Colors.black), maxLines: 2,),
                                       ),
 
                                   ],
@@ -249,7 +249,7 @@ class _ScrollingTableState extends State<ScrollingTable> {
                             Column(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Center(
+                                const Center(
                                   child: Text('Filter',style: TextStyle(color: Colors.white),),
                                 ),
                                 Row(
@@ -262,7 +262,7 @@ class _ScrollingTableState extends State<ScrollingTable> {
                                         width: 200,
                                         height: 50,
                                         alignment: Alignment.centerLeft,
-                                        child: Text('${widget.filterColumn[i]}',style: TextStyle(color: Colors.black),),
+                                        child: Text('${widget.filterColumn[i]}',style: const TextStyle(color: Colors.black),),
                                       ),
                                   ],
                                 ),
@@ -273,7 +273,7 @@ class _ScrollingTableState extends State<ScrollingTable> {
                             Column(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Center(
+                                const Center(
                                   child: Text('Pre Post',style: TextStyle(color: Colors.white),),
                                 ),
                                 Row(
@@ -286,7 +286,7 @@ class _ScrollingTableState extends State<ScrollingTable> {
                                         width: 100,
                                         height: 50,
                                         alignment: Alignment.centerLeft,
-                                        child: Text('${widget.prePostColumn[i]}',style: TextStyle(color: Colors.black),),
+                                        child: Text('${widget.prePostColumn[i]}',style: const TextStyle(color: Colors.black),),
                                       ),
 
                                   ],
@@ -298,7 +298,7 @@ class _ScrollingTableState extends State<ScrollingTable> {
                             Column(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Center(
+                                const Center(
                                   child: Text('<C-EC-PH>',style: TextStyle(color: Colors.white),),
                                 ),
                                 Row(
@@ -311,7 +311,7 @@ class _ScrollingTableState extends State<ScrollingTable> {
                                         width: 100,
                                         height: 50,
                                         alignment: Alignment.centerLeft,
-                                        child: Text('${widget.centralEcPhColumn[i]}',style: TextStyle(color: Colors.black),),
+                                        child: Text('${widget.centralEcPhColumn[i]}',style: const TextStyle(color: Colors.black),),
                                       ),
 
                                   ],
@@ -347,7 +347,7 @@ class _ScrollingTableState extends State<ScrollingTable> {
                             Column(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Center(
+                                const Center(
                                   child: Text('<L-EC-PH>',style: TextStyle(color: Colors.white),),
                                 ),
                                 Row(
@@ -360,7 +360,7 @@ class _ScrollingTableState extends State<ScrollingTable> {
                                         width: 100,
                                         height: 50,
                                         alignment: Alignment.centerLeft,
-                                        child: Text('${widget.localEcPhColumn[i]}',style: TextStyle(color: Colors.black),),
+                                        child: Text('${widget.localEcPhColumn[i]}',style: const TextStyle(color: Colors.black),),
                                       ),
 
                                   ],
@@ -435,12 +435,12 @@ class _ScrollingTableState extends State<ScrollingTable> {
                                                   width: 150,
                                                   height:getBoxHeight(widget.filterColumnData, i),
                                                   decoration: BoxDecoration(
-                                                    border: seperatingLength(i) ? Border(bottom: BorderSide(width: 1)) : null,
+                                                    border: seperatingLength(i) ? const Border(bottom: BorderSide(width: 1)) : null,
                                                   ),
                                                   alignment: Alignment.centerLeft,
                                                   child: Container(
                                                       width: 150,
-                                                      padding: EdgeInsets.all(5),
+                                                      padding: const EdgeInsets.all(5),
                                                       decoration: BoxDecoration(
                                                         // color: getStatus(i[j])['color'],
                                                           borderRadius: BorderRadius.circular(20)
@@ -493,7 +493,7 @@ class _ScrollingTableState extends State<ScrollingTable> {
                                                   width: 100,
                                                   height: getBoxHeight(widget.filterColumnData, i),
                                                   alignment: Alignment.centerLeft,
-                                                  child: Text('${widget.generalColumnData[i][j] ?? '-'}',style: TextStyle(fontSize: 12,fontWeight: FontWeight.normal),overflow: TextOverflow.ellipsis,),
+                                                  child: Text('${widget.generalColumnData[i][j] ?? '-'}',style: const TextStyle(fontSize: 12,fontWeight: FontWeight.normal),overflow: TextOverflow.ellipsis,),
                                                 ),
                                             SizedBox(
                                               width: 0,
@@ -524,14 +524,14 @@ class _ScrollingTableState extends State<ScrollingTable> {
                                                 width: 100,
                                                 height:getBoxHeight(widget.filterColumnData, i),
                                                 alignment: Alignment.centerLeft,
-                                                child: Text('${widget.waterColumnData[i][j] ?? '-'}',style: TextStyle(fontSize: 12,fontWeight: FontWeight.normal),overflow: TextOverflow.ellipsis,),
+                                                child: Text('${widget.waterColumnData[i][j] ?? '-'}',style: const TextStyle(fontSize: 12,fontWeight: FontWeight.normal),overflow: TextOverflow.ellipsis,),
                                               ),
                                             SizedBox(
                                               width: 0,
                                               height: getBoxHeight(widget.filterColumnData, i),
                                               child: CustomPaint(
                                                 painter: VerticalDotBorder(),
-                                                size: Size(0,50),
+                                                size: const Size(0,50),
                                               ),
                                             )
                                           ],
@@ -548,13 +548,13 @@ class _ScrollingTableState extends State<ScrollingTable> {
                                             for(var j = 0;j < widget.filterColumnData[i].length;j++)
                                               Container(
                                                 decoration: BoxDecoration(
-                                                  border: seperatingLength(i) ? Border(bottom: BorderSide(width: 1)) : null,
+                                                  border: seperatingLength(i) ? const Border(bottom: BorderSide(width: 1)) : null,
                                                 ),
                                                 padding: const EdgeInsets.only(left: 8),
                                                 width: 200,
                                                 height: getBoxHeight(widget.filterColumnData, i),
                                                 alignment: Alignment.centerLeft,
-                                                child: Text('${widget.filterColumnData[i][j] ?? '-'}',style: TextStyle(fontSize: 12,fontWeight: FontWeight.normal),overflow: TextOverflow.ellipsis,),
+                                                child: Text('${widget.filterColumnData[i][j] ?? '-'}',style: const TextStyle(fontSize: 12,fontWeight: FontWeight.normal),overflow: TextOverflow.ellipsis,),
                                               ),
                                             SizedBox(
                                               width: 0,
@@ -584,14 +584,14 @@ class _ScrollingTableState extends State<ScrollingTable> {
                                                 width: 100,
                                                 height:getBoxHeight(widget.filterColumnData, i),
                                                 alignment: Alignment.centerLeft,
-                                                child: Text('${widget.prePostColumnData[i][j] ?? '-'}',style: TextStyle(fontSize: 12,fontWeight: FontWeight.normal),overflow: TextOverflow.ellipsis,),
+                                                child: Text('${widget.prePostColumnData[i][j] ?? '-'}',style: const TextStyle(fontSize: 12,fontWeight: FontWeight.normal),overflow: TextOverflow.ellipsis,),
                                               ),
                                             SizedBox(
                                               width: 0,
                                               height: getBoxHeight(widget.filterColumnData, i),
                                               child: CustomPaint(
                                                 painter: VerticalDotBorder(),
-                                                size: Size(0,50),
+                                                size: const Size(0,50),
                                               ),
                                             )
 
@@ -609,20 +609,20 @@ class _ScrollingTableState extends State<ScrollingTable> {
                                             for(var j = 0;j < widget.centralEcPhColumnData[i].length;j++)
                                               Container(
                                                 decoration: BoxDecoration(
-                                                  border: seperatingLength(i) ? Border(bottom: BorderSide(width: 1)) : null,
+                                                  border: seperatingLength(i) ? const Border(bottom: BorderSide(width: 1)) : null,
                                                 ),
                                                 padding: const EdgeInsets.only(left: 8),
                                                 width: 100,
                                                 height:getBoxHeight(widget.filterColumnData, i),
                                                 alignment: Alignment.centerLeft,
-                                                child: Text('${widget.centralEcPhColumnData[i][j] ?? '-'}',style: TextStyle(fontSize: 12,fontWeight: FontWeight.normal),overflow: TextOverflow.ellipsis,),
+                                                child: Text('${widget.centralEcPhColumnData[i][j] ?? '-'}',style: const TextStyle(fontSize: 12,fontWeight: FontWeight.normal),overflow: TextOverflow.ellipsis,),
                                               ),
                                             SizedBox(
                                               width: 0,
                                               height: getBoxHeight(widget.filterColumnData, i),
                                               child: CustomPaint(
                                                 painter: VerticalDotBorder(),
-                                                size: Size(0,50),
+                                                size: const Size(0,50),
                                               ),
                                             )
 
@@ -649,20 +649,20 @@ class _ScrollingTableState extends State<ScrollingTable> {
                                             for(var j = 0;j < widget.localEcPhColumnData[i].length;j++)
                                               Container(
                                                 decoration: BoxDecoration(
-                                                  border: seperatingLength(i) ? Border(bottom: BorderSide(width: 1)) : null,
+                                                  border: seperatingLength(i) ? const Border(bottom: BorderSide(width: 1)) : null,
                                                 ),
                                                 padding: const EdgeInsets.only(left: 8),
                                                 width: 100,
                                                 height:getBoxHeight(widget.filterColumnData, i),
                                                 alignment: Alignment.centerLeft,
-                                                child: Text('${widget.localEcPhColumnData[i][j] ?? '-'}',style: TextStyle(fontSize: 12,fontWeight: FontWeight.normal),overflow: TextOverflow.ellipsis,),
+                                                child: Text('${widget.localEcPhColumnData[i][j] ?? '-'}',style: const TextStyle(fontSize: 12,fontWeight: FontWeight.normal),overflow: TextOverflow.ellipsis,),
                                               ),
                                             SizedBox(
                                               width: 0,
                                               height: getBoxHeight(widget.filterColumnData, i),
                                               child: CustomPaint(
                                                 painter: VerticalDotBorder(),
-                                                size: Size(0,50),
+                                                size: const Size(0,50),
                                               ),
                                             )
 
@@ -741,7 +741,7 @@ class _ScrollingTableState extends State<ScrollingTable> {
     for(var d in data){
       myWidget.add(
           Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               border: Border(bottom: BorderSide(width: 1)),
               color: Color(0xffDCF3DD),
             ),
@@ -773,20 +773,20 @@ class _ScrollingTableState extends State<ScrollingTable> {
               for(var j = 0;j < columnDataList[i].length;j++)
                 Container(
                   decoration: BoxDecoration(
-                    border: seperatingLength(i) ? Border(bottom: BorderSide(width: 1)) : null,
+                    border: seperatingLength(i) ? const Border(bottom: BorderSide(width: 1)) : null,
                   ),
                   padding: const EdgeInsets.only(left: 8),
                   width: 100,
                   height:getBoxHeight(widget.filterColumnData, i),
                   alignment: Alignment.centerLeft,
-                  child: Text('${columnDataList[i][j] ?? '-'}',style: TextStyle(fontSize: 12,fontWeight: FontWeight.normal),overflow: TextOverflow.ellipsis,),
+                  child: Text('${columnDataList[i][j] ?? '-'}',style: const TextStyle(fontSize: 12,fontWeight: FontWeight.normal),overflow: TextOverflow.ellipsis,),
                 ),
               SizedBox(
                 width: 0,
                 height: getBoxHeight(widget.filterColumnData, i),
                 child: CustomPaint(
                   painter: VerticalDotBorder(),
-                  size: Size(0,50),
+                  size: const Size(0,50),
                 ),
               )
 
@@ -801,7 +801,7 @@ class _ScrollingTableState extends State<ScrollingTable> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Center(
-          child: Text('<${central ? 'C' : 'L'}-CH$channelNo>',style: TextStyle(color: Colors.white),),
+          child: Text('<${central ? 'C' : 'L'}-CH$channelNo>',style: const TextStyle(color: Colors.white),),
         ),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -815,7 +815,7 @@ class _ScrollingTableState extends State<ScrollingTable> {
                   width: 100,
                   height: 50,
                   alignment: Alignment.centerLeft,
-                  child: Text('${columnList[i]}',style: TextStyle(color: Colors.black),),
+                  child: Text('${columnList[i]}',style: const TextStyle(color: Colors.black),),
                 ),
           ],
         ),
@@ -834,7 +834,7 @@ Widget getColumnDotLine(){
     height: 50,
     child: CustomPaint(
       painter: VerticalDotBorder(),
-      size: Size(0,50),
+      size: const Size(0,50),
     ),
   );
 }
@@ -845,8 +845,8 @@ class VerticalDotBorder extends CustomPainter{
     Paint border = Paint();
     border.color = Colors.black;
     border.strokeWidth = 0.5;
-    final double dashWidth = 5;
-    final double dashSpace = 5;
+    const double dashWidth = 5;
+    const double dashSpace = 5;
     double currentY = 0;
 
     while (currentY < size.height) {

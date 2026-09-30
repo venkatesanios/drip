@@ -1,8 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:io';
 import 'package:flutter/foundation.dart';
-import 'dart:ui';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
@@ -14,7 +12,6 @@ import 'package:oro_drip_irrigation/Widgets/custom_buttons.dart';
 import 'package:oro_drip_irrigation/modules/irrigation_report/view/scrollingTable.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:syncfusion_flutter_xlsio/xlsio.dart' as xlsio;
 // import 'dart:html' as html;
 // import 'package:excel/excel.dart';
 // import 'package:syncfusion_flutter_xlsio/xlsio.dart' as xlsio;
@@ -40,11 +37,11 @@ class _LogHomeState extends State<LogHome> {
   final ScrollController _scrollController = ScrollController();
   dynamic dataSource = [];
   int _selectedIndex = 0;
-  List<List<dynamic>> _irrigationOptionWise = [['Date',true],['Program',false],['Line',false],['Valve',false],['Status',false]];
+  final List<List<dynamic>> _irrigationOptionWise = [['Date',true],['Program',false],['Line',false],['Valve',false],['Status',false]];
   bool graphMode = false;
   DateRange? selectedDateRange;
   DateRange? lastSelectedDateRange;
-  ScrollController _graphController = ScrollController();
+  final ScrollController _graphController = ScrollController();
   late LinkedScrollControllerGroup _scrollable1;
   late ScrollController _verticalScroll1;
   late ScrollController _verticalScroll2;
@@ -171,7 +168,7 @@ class _LogHomeState extends State<LogHome> {
   IrrigationLogModel irrigationParameterArrayDuplicate = IrrigationLogModel();
   String _selectedDate = '';
   String _dateCount = '';
-  String _range = '';
+  final String _range = '';
   String _rangeCount = '';
 
   @override
@@ -389,7 +386,7 @@ class _LogHomeState extends State<LogHome> {
                       }
 
                     }
-                    print("program : ${program}");
+                    print("program : $program");
                   }
                 }catch(e,stackTrace){
                   log('Error on ProgramS_No : ${e.toString()}');
@@ -538,9 +535,31 @@ class _LogHomeState extends State<LogHome> {
       Navigator.pop(context);
     }catch(e,stackTrace){
       Navigator.pop(context);
+      if (!mounted) return;
+
       setState(() {
         httpError = 1;
       });
+
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (dialogContext) {
+          return AlertDialog(
+            title: const Text('Error'),
+            content: Text(e.toString()),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(dialogContext);
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+
       if (kDebugMode){
         print('error in log = > ${e.toString()}');
         print('error in log stackTrace= > $stackTrace');
@@ -634,32 +653,6 @@ class _LogHomeState extends State<LogHome> {
                     });
                   }
                 },
-                child: Container(
-                  width: 100,
-                  height: 40,
-                  decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColorDark,
-                      borderRadius: BorderRadius.circular(8)
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Checkbox(
-                          value: graphMode,
-                          onChanged: (value){
-                            getDialog(context);
-                            Future.delayed(const Duration(seconds: 1),(){
-                              setState(() {
-                                graphMode = value!;
-                              });
-                              Navigator.pop(context);
-                            });
-                          }
-                      ),
-                      selectedIcon,
-                    ],
-                  ),
-                ),
                 itemBuilder: (context) => [
                   // popupmenu item 1
                   // const PopupMenuItem(
@@ -709,6 +702,32 @@ class _LogHomeState extends State<LogHome> {
                 offset: const Offset(0, 50),
                 color: Colors.white,
                 elevation: 2,
+                child: Container(
+                  width: 100,
+                  height: 40,
+                  decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColorDark,
+                      borderRadius: BorderRadius.circular(8)
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Checkbox(
+                          value: graphMode,
+                          onChanged: (value){
+                            getDialog(context);
+                            Future.delayed(const Duration(seconds: 1),(){
+                              setState(() {
+                                graphMode = value!;
+                              });
+                              Navigator.pop(context);
+                            });
+                          }
+                      ),
+                      selectedIcon,
+                    ],
+                  ),
+                ),
               ),
               const SizedBox(width: 20,),
             ],
@@ -783,7 +802,7 @@ class _LogHomeState extends State<LogHome> {
                     ),
                   ),
                 if((dataSource == null || dataToShow.isEmpty))
-                  Expanded(child: Center(child: Text('There is no data in ${_selectedDate}'))),
+                  Expanded(child: Center(child: Text('There is no data in $_selectedDate'))),
                 if((dataSource != null || dataToShow.isNotEmpty))
                   if(graphMode == false)
                     Expanded(
@@ -1211,27 +1230,140 @@ class _LogHomeState extends State<LogHome> {
                 )
               ],
             )
-                : SizedBox(
-              width: MediaQuery.of(context).size.width,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text('Network is unreachable!!'),
-                  MaterialButton(
-                    onPressed: ()async{
-                      if(httpError != 2){
-                        setState(() {
-                          httpError = 2;
-                        });
-                        await Future.delayed(const Duration(seconds: 2));
-                        getData();
-                      }
-                    },
-                    child: httpError != 2 ? const Text('RETRY',style: TextStyle(color: Colors.white),) : loadingButtuon(),
-                    color: Colors.blueGrey,
+                : Container(
+              width: double.infinity,
+              color: const Color(0xffF1F5F9),
+              child: Center(
+                child: Container(
+                  width: 450,
+                  margin: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 30,
+                    vertical: 35,
                   ),
-                ],
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.blueGrey.withOpacity(0.12),
+                        blurRadius: 20,
+                        spreadRadius: 2,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 100,
+                        height: 100,
+                        decoration: const BoxDecoration(
+                          color: Color(0xffffe8ed),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            const Icon(
+                              Icons.wifi_off_rounded,
+                              size: 55,
+                              color: Colors.blueGrey,
+                            ),
+                            Positioned(
+                              right: 5,
+                              bottom: 5,
+                              child: Container(
+                                width: 35,
+                                height: 35,
+                                decoration: const BoxDecoration(
+                                  color: Colors.red,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.close,
+                                  color: Colors.white,
+                                  size: 24,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 25),
+
+                      const Text(
+                        'Connection Lost!',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xff263746),
+                        ),
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      const Text(
+                        'Unable to load irrigation logs. '
+                            'Please check your internet connection '
+                            'and try again.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 14,
+                          height: 1.5,
+                          color: Colors.blueGrey,
+                        ),
+                      ),
+
+                      const SizedBox(height: 25),
+                      SizedBox(
+                        width: 195,
+                        height: 50,
+                        child: ElevatedButton.icon(
+                          onPressed: httpError == 2
+                              ? null
+                              : () {
+                            setState(() {
+                              httpError = 2;
+                            });
+                            getData();
+                          },
+                          icon: httpError == 2
+                              ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                              : const Icon(
+                            Icons.refresh,
+                            color: Colors.white,
+                          ),
+                          label: Text(
+                            httpError == 2 ? 'LOADING...' : 'TRY AGAIN',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xff009688),
+                            disabledBackgroundColor: const Color(0xff009688),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
           )
@@ -1339,8 +1471,8 @@ class _LogHomeState extends State<LogHome> {
                             onPressed: (){
                               Navigator.pop(context);
                             },
-                            child: const Text("Cancel",style: TextStyle(color: Colors.white),),
                             color: Colors.red,
+                            child: const Text("Cancel",style: TextStyle(color: Colors.white),),
                           ),
                           MaterialButton(
                             onPressed: (){
@@ -1398,8 +1530,8 @@ class _LogHomeState extends State<LogHome> {
                               });
                               Navigator.pop(context);
                             },
-                            child: const Text("OK",style: TextStyle(color: Colors.white)),
                             color: Theme.of(context).primaryColor,
+                            child: const Text("OK",style: TextStyle(color: Colors.white)),
                           )
                         ],
                       ),
@@ -1598,7 +1730,7 @@ class _LogHomeState extends State<LogHome> {
                     width: 250,
                     child: ListTile(
                       leading: const Icon(Icons.adb_outlined,color: Colors.blueGrey,),
-                      title: Text('${i.uiKey}',style: const TextStyle(fontSize: 12),),
+                      title: Text(i.uiKey,style: const TextStyle(fontSize: 12),),
                       trailing: Checkbox(
                         value: i.show,
                         onChanged: (value) {
@@ -1642,7 +1774,7 @@ class _LogHomeState extends State<LogHome> {
         height: 400,
         doubleMonth: false,
         maximumDateRangeLength: 100,
-        quickDateRanges: [
+        quickDateRanges: const [
           // QuickDateRange(dateRange: null, label: "Remove date range"),
           // QuickDateRange(
           //   label: 'Last 3 days',
@@ -1736,7 +1868,7 @@ class _ChartData {
 Widget getTableHeader(name,flex){
   return Expanded(
       flex: flex,
-      child: Container(
+      child: SizedBox(
         // color: Colors.green.shade50,
         height: 40,
         child: Center(
@@ -1749,7 +1881,7 @@ Widget getTableHeader(name,flex){
 Widget getTableRow(name,flex){
   return Expanded(
       flex: flex,
-      child: Container(
+      child: SizedBox(
         // color: Colors.green.shade50,
         height: 40,
         child: Center(

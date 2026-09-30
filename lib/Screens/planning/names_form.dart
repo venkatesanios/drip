@@ -57,7 +57,7 @@ class _NamesState extends State<Names> {
       }
     } catch (e, stackTrace) {
       AppLog.log('Error overAll getData => ${e.toString()}');
-      AppLog.log('trace overAll getData  => ${stackTrace}');
+      AppLog.log('trace overAll getData  => $stackTrace');
     }
   }
 
@@ -155,10 +155,10 @@ class _NamesState extends State<Names> {
           },
           children: [
              TableRow(
-              decoration: BoxDecoration(color: Colors.white),
+              decoration: const BoxDecoration(color: Colors.white),
               children: [
                 Padding(
-                  padding: EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(8.0),
                   child: Center(
                     child: Text(
                       'S.No',
@@ -168,7 +168,7 @@ class _NamesState extends State<Names> {
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(8.0),
                   child: Center(
                     child: Text(
                       'Location',
@@ -178,7 +178,7 @@ class _NamesState extends State<Names> {
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(8.0),
                   child: Center(
                     child: Text(
                       'Name',
@@ -259,7 +259,7 @@ class _NamesState extends State<Names> {
                   ),
                 ],
               );
-            }).toList(),
+            }),
           ],
         ),
       ),
@@ -275,7 +275,7 @@ class _NamesState extends State<Names> {
     }
 
     return Scaffold(
-      appBar: kIsWeb ? null  : AppBar(title: Text('Names'),),
+      appBar: kIsWeb ? null  : AppBar(title: const Text('Names'),),
       body: Column(
         children: [
           getTabBarViewWidget(),

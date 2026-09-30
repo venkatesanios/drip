@@ -86,7 +86,7 @@ Widget buildModeCard({
       borderRadius: BorderRadius.circular(10),
       boxShadow: [
         BoxShadow(
-          color: currentMode.color.withOpacity(0.25),
+          color: currentMode.color.withValues(alpha: 0.25),
           blurRadius: 12,
           offset: const Offset(0, 4),
         ),
@@ -123,7 +123,7 @@ Widget buildModeCard({
                           color: Colors.white,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.white.withOpacity(0.6),
+                              color: Colors.white.withValues(alpha: 0.6),
                               blurRadius: 6,
                               spreadRadius: 1,
                             ),
@@ -135,9 +135,9 @@ Widget buildModeCard({
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
+                            const Text(
                               'Manual Mode',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white, // text color white

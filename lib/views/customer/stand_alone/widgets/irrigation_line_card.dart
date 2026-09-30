@@ -30,7 +30,7 @@ class IrrigationLineCard extends StatelessWidget {
         DataCell(Transform.scale(
           scale: 0.7,
           child: Switch(
-            activeColor: Colors.teal,
+            activeThumbColor: Colors.teal,
             hoverColor: Colors.pink.shade100,
             value: valve.isOn,
             onChanged: (val) => onToggleValve(valve, val),

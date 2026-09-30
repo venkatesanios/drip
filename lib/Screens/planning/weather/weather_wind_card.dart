@@ -1,5 +1,4 @@
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import 'package:flutter_svg/svg.dart';
@@ -22,7 +21,7 @@ class WindCard extends StatelessWidget {
       child: Column(
         children: [
 
-          _KeyValueRow("$directionAngle°", '${getDirection(directionAngle)}') ,
+          _KeyValueRow("$directionAngle°", getDirection(directionAngle)) ,
           const SizedBox(width: 12),
           _WindCompass(angle: directionAngle),
         ],
@@ -63,7 +62,7 @@ class _KeyValueRow extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-         Text('${keyText} - ${value}',
+         Text('$keyText - $value',
             style: const TextStyle(
                 fontWeight: FontWeight.bold, fontSize: 13)),
       ],

@@ -232,10 +232,10 @@ extension WeatherModelTreeBuilder on WeatherModelNew {
     final raw = weatherLive.cM.get5101();
     final result = <int, List<LiveSensorValue>>{};
 
-    if (raw == null || raw.isEmpty) return result;
+    if (raw.isEmpty) return result;
 
     for (final part in raw.split(';')) {
-      if (part == null || !part.contains(':')) continue;
+      if (!part.contains(':')) continue;
 
       final split = part.split(':');
       if (split.length < 2) continue;
@@ -248,7 +248,6 @@ extension WeatherModelTreeBuilder on WeatherModelNew {
       final sensors = <LiveSensorValue>[];
 
       for (final block in split[1].split('_')) {
-        if (block == null) continue;
         final f = block.split(',');
         if (f.length < 5) continue;
 

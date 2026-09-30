@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import '../../../../StateManagement/mqtt_payload_provider.dart';
 import '../../../../models/customer/site_model.dart';
 import '../../../../modules/IrrigationProgram/view/program_library.dart';
-import '../../../../providers/button_loading_provider.dart';
 import '../../../../providers/user_provider.dart';
 import '../../../../repository/repository.dart';
 import '../../../../services/communication_service.dart';
@@ -14,7 +13,6 @@ import '../../../../services/http_service.dart';
 import '../../../../utils/formatters.dart';
 import '../../../../utils/helpers/program_code_helper.dart';
 import '../../../../utils/my_function.dart';
-import '../../../../utils/my_helper_class.dart';
 import '../../../../utils/snack_bar.dart';
 import '../../../../view_models/customer/node_list_view_model.dart';
 import '../../../../view_models/customer/current_program_view_model.dart'; // adjust path to your actual file
@@ -777,7 +775,7 @@ class _OmsLineState extends State<OmsLine> {
       decoration: BoxDecoration(
         color: _Tone.statusPendingBg,
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: _Tone.statusPending.withOpacity(0.3), width: 0.5),
+        border: Border.all(color: _Tone.statusPending.withValues(alpha: 0.3), width: 0.5),
       ),
       child: Text(
         MyFunction().getUnitByParameter(context, sensorType, sensorVal.toString()) ?? '',
@@ -825,7 +823,7 @@ class _OmsLineState extends State<OmsLine> {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
         minimumSize: Size.zero,
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        side: BorderSide(color: enabled ? _Tone.subBorder : _Tone.subBorder.withOpacity(0.5)),
+        side: BorderSide(color: enabled ? _Tone.subBorder : _Tone.subBorder.withValues(alpha: 0.5)),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );

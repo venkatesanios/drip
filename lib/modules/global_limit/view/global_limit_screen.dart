@@ -3,7 +3,6 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:mqtt_client/mqtt_client.dart';
 import 'package:oro_drip_irrigation/Constants/properties.dart';
 import 'package:oro_drip_irrigation/modules/global_limit/repository/global_limit_repository.dart';
 import 'package:oro_drip_irrigation/services/mqtt_service.dart';
@@ -102,7 +101,7 @@ class _GlobalLimitScreenState extends State<GlobalLimitScreen> {
                               width: MediaQuery.of(context).size.width - 20,
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(20),
-                                  border: Border.all(width: 1, color: themeData.primaryColor.withOpacity(0.5))
+                                  border: Border.all(width: 1, color: themeData.primaryColor.withValues(alpha: 0.5))
                               ),
                               child: DataTable2(
                                 minWidth: 2750,
@@ -133,7 +132,7 @@ class _GlobalLimitScreenState extends State<GlobalLimitScreen> {
                                 rows: List.generate(listOfIrrigationLine[selectedLine].valve.length, (int row){
                                   return DataRow(
                                       color: WidgetStatePropertyAll(
-                                        row.isOdd ? Colors.white : themeData.primaryColorLight.withOpacity(0.1),
+                                        row.isOdd ? Colors.white : themeData.primaryColorLight.withValues(alpha: 0.1),
                                       ),
                                       cells: [
                                         DataCell(
@@ -217,7 +216,7 @@ class _GlobalLimitScreenState extends State<GlobalLimitScreen> {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(5),
-        border: Border.all(width: 1, color: Theme.of(context).primaryColorDark.withOpacity(0.3)),
+        border: Border.all(width: 1, color: Theme.of(context).primaryColorDark.withValues(alpha: 0.3)),
       ),
       child: TextFormField(
         key: Key(key),

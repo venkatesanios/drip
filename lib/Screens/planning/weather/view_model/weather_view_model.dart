@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 
@@ -45,7 +44,7 @@ class WeatherViewModel extends ChangeNotifier {
 
       final response = await repository.getweather(body);
 
-      if (response != null && response.statusCode == 200) {
+      if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (kDebugMode) {
           print('data:$data');
@@ -84,7 +83,7 @@ class WeatherViewModel extends ChangeNotifier {
       if (kDebugMode) {
         print('data:$data');
       }
-      if (data != null && data["data"] != null) {
+      if (data["data"] != null) {
         weatherModel = WeatherModelNew.fromJson(data["data"]);
         liveCache = weatherModel?.parseLive5101() ?? {};
         _buildConfigIndex();
@@ -153,17 +152,15 @@ class WeatherViewModel extends ChangeNotifier {
 
         hourlyTempReport.clear();
     hours.forEach((hourStr, raw) {
-      if (raw != null) {
-        final data = parseSensorHourData(
-          hour: hourStr,
-          raw: raw,
-          deviceSrNo: selectedSerialNumber.toString(),
-          targetSensor: sNo,
-        );
-        if (data != null && data.value != "NA") {
-          int hourInt = int.parse(hourStr.split(':').first);
-          hourlyTempReport[hourInt] = data.value;
-        }
+      final data = parseSensorHourData(
+        hour: hourStr,
+        raw: raw,
+        deviceSrNo: selectedSerialNumber.toString(),
+        targetSensor: sNo,
+      );
+      if (data != null && data.value != "NA") {
+        int hourInt = int.parse(hourStr.split(':').first);
+        hourlyTempReport[hourInt] = data.value;
       }
     });
       }

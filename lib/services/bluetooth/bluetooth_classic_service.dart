@@ -194,7 +194,7 @@ class BluetoothClassicService {
       providerState?.updateClassicDeviceStatus(device.device.address, BlueConnectionState.connected.index);
       providerState?.updateClassicConnectedDeviceStatus(device);
 
-      connection.input?.listen((Uint8List data) {
+      connection.input.listen((Uint8List data) {
         _buffer += utf8.decode(data);
         _parseBuffer();
       }).onDone(() {

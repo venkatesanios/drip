@@ -189,7 +189,7 @@ class _ConfigWebViewState extends State<ConfigWebView> {
       canPop: false,
       onPopInvokedWithResult: _onPopInvokedWithResult,
       child: Scaffold(
-        backgroundColor: themeData.primaryColorDark.withOpacity(themeMode ? 1.0 : 0.2),
+        backgroundColor: themeData.primaryColorDark.withValues(alpha: themeMode ? 1.0 : 0.2),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         floatingActionButton: Row(
           spacing: 20,
@@ -496,7 +496,7 @@ class _ConfigWebViewState extends State<ConfigWebView> {
                                           onPressed: (){
                                             Navigator.of(context).pop();
                                           },
-                                          child: Text('Cancel')
+                                          child: const Text('Cancel')
                                       ),
                                       CustomMaterialButton(
                                         onPressed: () {
@@ -508,7 +508,7 @@ class _ConfigWebViewState extends State<ConfigWebView> {
                                             Navigator.of(context).pop();
                                           }
                                         },
-                                        child: Text('Ok', style: TextStyle(color: Colors.white),),
+                                        child: const Text('Ok', style: TextStyle(color: Colors.white),),
                                       ),
                                     ],
                                   );
@@ -533,7 +533,7 @@ class _ConfigWebViewState extends State<ConfigWebView> {
                             spacing: 10,
                             children: [
                               CircleAvatar(
-                                backgroundColor: clearOnHover ? themeData.primaryColorLight : themeData.primaryColorLight.withOpacity(0.5),
+                                backgroundColor: clearOnHover ? themeData.primaryColorLight : themeData.primaryColorLight.withValues(alpha: 0.5),
                                 radius: 20,
                                 child: SizedImageSmall(imagePath: '${AppConstants.svgObjectPath}clear.svg',color:  Colors.white,),
                               ),
@@ -558,7 +558,7 @@ class _ConfigWebViewState extends State<ConfigWebView> {
                             spacing: 10,
                             children: [
                               CircleAvatar(
-                                backgroundColor: sendOnHover ? themeData.primaryColorLight : themeData.primaryColorLight.withOpacity(0.5),
+                                backgroundColor: sendOnHover ? themeData.primaryColorLight : themeData.primaryColorLight.withValues(alpha: 0.5),
                                 radius: 20,
                                 child: SizedImageSmall(imagePath: '${AppConstants.svgObjectPath}send.svg',color:  Colors.white,),
                               ),
@@ -720,7 +720,7 @@ class _ConfigWebViewState extends State<ConfigWebView> {
                       CustomMaterialButton(
                         onPressed: ()async{
                           payloadLoop : for(var payload in listOfPayload){
-                            print("payload : ${payload}");
+                            print("payload : $payload");
                             if(!payload['selected']){
                               continue payloadLoop;
                             }
@@ -835,7 +835,7 @@ class _ConfigWebViewState extends State<ConfigWebView> {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           border: Border.all(color: color),
           borderRadius: BorderRadius.circular(5)
       ),
@@ -879,8 +879,8 @@ class _ConfigWebViewState extends State<ConfigWebView> {
     var phSensor = configPvd.ph.cast<PhModel>().map((object){
       return object.toJson();
     }).toList();
-    print('ecSensor : ${ecSensor}');
-    print('phSensor : ${phSensor}');
+    print('ecSensor : $ecSensor');
+    print('phSensor : $phSensor');
     var body = {
       "userId" : configPvd.masterData['customerId'],
       "controllerId" : configPvd.masterData['controllerId'],

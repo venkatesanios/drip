@@ -135,10 +135,10 @@ class _FertilizationConfigurationState extends State<FertilizationConfiguration>
     required String objectName,
 }){
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        color: Theme.of(context).primaryColorLight.withOpacity(0.1),
+        color: Theme.of(context).primaryColorLight.withValues(alpha: 0.1),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -147,7 +147,7 @@ class _FertilizationConfigurationState extends State<FertilizationConfiguration>
           const SizedBox(width: 20,),
           Text('$objectName : ', style: AppProperties.listTileBlackBoldStyle,),
           Center(
-            child: Text(currentParameterValue.isEmpty ? '-' : currentParameterValue.map((sNo) => getObjectName(sNo, widget.configPvd).name!).join(', '), style: TextStyle(color: Colors.teal, fontSize: 12, fontWeight: FontWeight.bold),),
+            child: Text(currentParameterValue.isEmpty ? '-' : currentParameterValue.map((sNo) => getObjectName(sNo, widget.configPvd).name!).join(', '), style: const TextStyle(color: Colors.teal, fontSize: 12, fontWeight: FontWeight.bold),),
           ),
           IconButton(
               onPressed: (){
@@ -315,7 +315,7 @@ class _FertilizationDashboardFormationState extends State<FertilizationDashboard
             Positioned(
               left: 0,
               bottom: 50,
-              child: Text(widget.fertilizationSite.boosterPump.map((sNo) => getObjectName(sNo, configPvd).name!).join(', '), style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold),),
+              child: Text(widget.fertilizationSite.boosterPump.map((sNo) => getObjectName(sNo, configPvd).name!).join(', '), style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold),),
             )
           ],
         ),

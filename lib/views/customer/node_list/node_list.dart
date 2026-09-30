@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/models/customer/site_model.dart';
 import 'package:oro_drip_irrigation/modules/bluetooth_low_energy/view/node_connection_page.dart';
 import 'package:oro_drip_irrigation/services/http_service.dart';
-import 'package:oro_drip_irrigation/utils/helpers/mc_permission_helper.dart';
 import 'package:oro_drip_irrigation/views/customer/widgets/relay_status_avatar.dart';
 import 'package:provider/provider.dart';
 import '../../../StateManagement/mqtt_payload_provider.dart';
@@ -93,7 +92,7 @@ class NodeList extends StatelessWidget {
                     horizontalMargin: 0,
                     minWidth: 400,
                     headingRowHeight: 35.0,
-                    headingRowColor: WidgetStateProperty.all<Color>(Theme.of(context).primaryColorDark.withOpacity(0.3)),
+                    headingRowColor: WidgetStateProperty.all<Color>(Theme.of(context).primaryColorDark.withValues(alpha: 0.3)),
                     columns: const [
                       DataColumn2(
                           label: Center(child: Text('SR.No', style: TextStyle(fontWeight: FontWeight.normal, fontSize: 13, color: Colors.black),)),

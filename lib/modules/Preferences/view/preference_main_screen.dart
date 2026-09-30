@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:oro_drip_irrigation/Constants/properties.dart';
-import 'package:oro_drip_irrigation/app.dart';
 import 'package:oro_drip_irrigation/modules/Preferences/view/view_config.dart';
 import 'package:oro_drip_irrigation/services/communication_service.dart';
 import 'package:oro_drip_irrigation/services/http_service.dart';
@@ -633,7 +632,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
                     List common = preferenceProvider.commonPumpSettings!.where((element) =>
                         element.settingList.any((e) => e.changed == true)).toList().map((e) =>e.deviceId).toList();
                     List individual = preferenceProvider.individualPumpSetting!.where((element) =>
-                        element.settingList.any((e) => e.changed == true)).toList().map((e) =>e.deviceId).toList();;
+                        element.settingList.any((e) => e.changed == true)).toList().map((e) =>e.deviceId).toList();
                     if(preferenceProvider.commonPumpSettings!.any((element) => element.settingList.any((e) => e.changed == true)) || preferenceProvider.individualPumpSetting!.any((element) => element.settingList.any((e) => e.changed == true))) {
                       selectedOroPumpList.clear();
                       if(selectedOroPumpList.isEmpty) {
@@ -1356,7 +1355,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
         : getPayload(isToGem: isToGem, sendAll: true).split("?")[0].split(';')
         : payloadParts;
     print('start sendFunction');
-    print("payloadForGem : ${payloadForGem}");
+    print("payloadForGem : $payloadForGem");
     try {
       bool isLevelSettingChanged = preferenceProvider.individualPumpSetting!.any((pump) => pump.settingList.any((setting) => AppConstants.levelSetting.contains(setting.type) && setting.changed));
       bool isAnyOtherChanged = preferenceProvider.commonPumpSettings!.any((pump) => pump.settingList.any((setting) => setting.changed));
@@ -1526,11 +1525,11 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen> with Ticker
 
   String onDelayTimer() {
     List<String> result = [];
-    preferenceProvider.individualPumpSetting!.forEach((element) {
+    for (var element in preferenceProvider.individualPumpSetting!) {
       String combinedResult = '${element.toGem()},${element.oDt()}';
       // String combinedResult = element.oDt();
       result.add(combinedResult);
-    });
+    }
 
     return result.join(';');
   }

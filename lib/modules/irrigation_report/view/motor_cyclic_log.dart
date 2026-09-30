@@ -21,7 +21,7 @@ class _MotorCyclicLogState extends State<MotorCyclicLog> {
   DateTime? selectedDate;
   String _selectedDate = '';
   String _dateCount = '';
-  String _range = '';
+  final String _range = '';
   String _rangeCount = '';
   DateRange? selectedDateRange;
 
@@ -123,7 +123,7 @@ class _MotorCyclicLogState extends State<MotorCyclicLog> {
       } else {
         _rangeCount = args.value.length.toString();
       }
-      print("range: ${_range},rangecount:${_rangeCount},Select date:${_selectedDate}");
+      print("range: $_range,rangecount:$_rangeCount,Select date:$_selectedDate");
     });
   }
 
@@ -177,7 +177,7 @@ class _MotorCyclicLogState extends State<MotorCyclicLog> {
 
           });
         },
-        child: Icon(Icons.date_range),
+        child: const Icon(Icons.date_range),
       ),
       body: data.isNotEmpty ? SafeArea(
         child: Padding(
@@ -271,7 +271,7 @@ class _MotorCyclicLogState extends State<MotorCyclicLog> {
     return Column(
       children: [
         Container(
-          padding: EdgeInsets.all(8),
+          padding: const EdgeInsets.all(8),
           height: 30,
           color: Theme.of(context).primaryColorDark,
           child: Row(

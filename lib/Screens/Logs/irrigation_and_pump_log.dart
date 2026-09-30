@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/modules/irrigation_report/view/motor_cyclic_log.dart';
-import 'package:oro_drip_irrigation/modules/irrigation_report/view/oms_log.dart';
 import 'package:oro_drip_irrigation/utils/constants.dart';
 import '../../models/customer/site_model.dart';
 import '../../modules/Logs/repository/log_repos.dart';

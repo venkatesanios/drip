@@ -7,7 +7,6 @@ import 'package:provider/provider.dart';
 import '../../../Screens/Dealer/controllerverssionupdate.dart';
 import '../../../Screens/planning/FactoryReset.dart';
 import '../../../cropAdvisory/view/crop_list_screen.dart';
-import '../../../cropAdvisory/view/getUserInformationScreen.dart';
 import '../../../flavors.dart';
 import '../../../models/customer/site_model.dart';
 import '../../../modules/PumpController/view/node_settings.dart';
@@ -276,7 +275,7 @@ Widget _buildHelpMenu(
                     }
 
                 },
-              ) : SizedBox(),
+              ) : const SizedBox(),
               const Divider(height: 0),
               ListTile(
                 leading: const Icon(Icons.feedback_outlined),
@@ -329,7 +328,7 @@ Widget _buildAccountMenu(
                 CircleAvatar(
                   radius: 30,
                   backgroundColor:
-                      Theme.of(context).primaryColor.withOpacity(0.1),
+                      Theme.of(context).primaryColor.withValues(alpha: 0.1),
                   child: Text(viewedCustomer.name.substring(0, 1).toUpperCase(),
                       style: const TextStyle(fontSize: 25)),
                 ),

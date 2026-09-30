@@ -134,7 +134,7 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
       };
       var response = await IrrigationRepository().deleteUserLogConfig(body);
       Map<String, dynamic> jsonData = jsonDecode(response.body);
-      print('delete response =>${jsonData}');
+      print('delete response =>$jsonData');
       if(jsonData['code'] == 200){
         getUserLogConfig();
       }
@@ -177,16 +177,16 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
                                     children: [
                                       ListTile(
                                         leading: CircleAvatar(
-                                          backgroundColor: Color(0xff2B565B),
+                                          backgroundColor: const Color(0xff2B565B),
                                           radius: 20,
                                           child: Center(
-                                            child: Text('${i+1}',style: TextStyle(color: Colors.white),),
+                                            child: Text('${i+1}',style: const TextStyle(color: Colors.white),),
                                           ),
                                         ),
                                         title: Text('${serverData['staticLogConfig'][i]['logName']}'),
                                         trailing: IconButton(
                                             style: ButtonStyle(
-                                                backgroundColor: MaterialStateProperty.all(Color(0xffEFFFFB))
+                                                backgroundColor: WidgetStateProperty.all(const Color(0xffEFFFFB))
                                             ),
                                             onPressed: () {
                                               Navigator.push(context, MaterialPageRoute(builder: (context){
@@ -206,8 +206,8 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
                     if(serverData['logConfig'].isNotEmpty)
                       for(var i = 0;i < serverData['logConfig'].length;i++)
                         Container(
-                          margin: EdgeInsets.only(bottom: 20),
-                          padding: EdgeInsets.all(8),
+                          margin: const EdgeInsets.only(bottom: 20),
+                          padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
                               color:  Colors.white,
                               boxShadow: customBoxShadow,
@@ -246,8 +246,8 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
                               if(serverData['logConfig'].isNotEmpty)
                                 for(var i = 0;i < serverData['logConfig'].length;i++)
                                   Container(
-                                    margin: EdgeInsets.only(bottom: 20),
-                                    padding: EdgeInsets.all(8),
+                                    margin: const EdgeInsets.only(bottom: 20),
+                                    padding: const EdgeInsets.all(8),
                                     decoration: BoxDecoration(
                                         color:  Colors.white,
                                         boxShadow: customBoxShadow,
@@ -257,21 +257,21 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
                                       children: [
                                         ListTile(
                                           leading: CircleAvatar(
-                                            backgroundColor: Color(0xff2B565B),
+                                            backgroundColor: const Color(0xff2B565B),
                                             radius: 20,
                                             child: Center(
-                                              child: Text('${i+1}',style: TextStyle(color: Colors.white),),
+                                              child: Text('${i+1}',style: const TextStyle(color: Colors.white),),
                                             ),
                                           ),
                                           title: Text('${serverData['logConfig'][i]['logName']}'),
                                         ),
-                                        SizedBox(height: 20,),
+                                        const SizedBox(height: 20,),
                                         Row(
                                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                                           children: [
                                             IconButton(
                                                 style: ButtonStyle(
-                                                    backgroundColor: MaterialStateProperty.all(Color(0xffFFF0E5))
+                                                    backgroundColor: WidgetStateProperty.all(const Color(0xffFFF0E5))
                                                 ),
                                                 onPressed: ()async{
                                                   setState(() {
@@ -303,27 +303,27 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
                                                   sideSheet(constraints: constraint, mode: 2,configId: serverData['logConfig'][i]['logConfigId']);
 
                                                 },
-                                                icon: Icon(Icons.edit_note,color: Colors.orange,)
+                                                icon: const Icon(Icons.edit_note,color: Colors.orange,)
                                             ),
                                             IconButton(
                                                 style: ButtonStyle(
-                                                    backgroundColor: MaterialStateProperty.all(Color(0xffFFDEDC))
+                                                    backgroundColor: WidgetStateProperty.all(const Color(0xffFFDEDC))
                                                 ),
                                                 onPressed: (){
                                                   deleteUserLogConfig(id: serverData['logConfig'][i]['logConfigId']);
                                                 },
-                                                icon: Icon(Icons.delete,color: Colors.red,)
+                                                icon: const Icon(Icons.delete,color: Colors.red,)
                                             ),
                                             IconButton(
                                                 style: ButtonStyle(
-                                                    backgroundColor: MaterialStateProperty.all(Color(0xffEFFFFB))
+                                                    backgroundColor: WidgetStateProperty.all(const Color(0xffEFFFFB))
                                                 ),
                                                 onPressed: () {
                                                   Navigator.push(context, MaterialPageRoute(builder: (context){
                                                     return LogHome(serverData: serverData['logConfig'][i], userData: widget.userData, nameData: names,);
                                                   }));
                                                 },
-                                                icon: Icon(Icons.visibility,color: Colors.green,)
+                                                icon: const Icon(Icons.visibility,color: Colors.green,)
                                             ),
                                             // MaterialButton(
                                             //   color: Colors.green,
@@ -347,8 +347,8 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
                         if(serverData['logConfig'].isNotEmpty)
                           for(var i = 0;i < serverData['logConfig'].length;i++)
                             Container(
-                              margin: EdgeInsets.only(bottom: 20),
-                              padding: EdgeInsets.all(8),
+                              margin: const EdgeInsets.only(bottom: 20),
+                              padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
                                   color:  Colors.white,
                                   boxShadow: customBoxShadow,
@@ -358,10 +358,10 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
                                 children: [
                                   ListTile(
                                     leading: CircleAvatar(
-                                      backgroundColor: Color(0xff2B565B),
+                                      backgroundColor: const Color(0xff2B565B),
                                       radius: 20,
                                       child: Center(
-                                        child: Text('${i+1}',style: TextStyle(color: Colors.white),),
+                                        child: Text('${i+1}',style: const TextStyle(color: Colors.white),),
                                       ),
                                     ),
                                     title: Text('${serverData['logConfig'][i]['logName']}'),
@@ -370,7 +370,7 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
                                         children: [
                                           IconButton(
                                               style: ButtonStyle(
-                                                  backgroundColor: MaterialStateProperty.all(Color(0xffFFF0E5))
+                                                  backgroundColor: WidgetStateProperty.all(const Color(0xffFFF0E5))
                                               ),
                                               onPressed: ()async{
                                                 setState(() {
@@ -401,27 +401,27 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
                                                 });
                                                 sideSheet(constraints: constraint, mode: 2,configId: serverData['logConfig'][i]['logConfigId']);
                                               },
-                                              icon: Icon(Icons.edit_note,color: Colors.orange,)
+                                              icon: const Icon(Icons.edit_note,color: Colors.orange,)
                                           ),
                                           IconButton(
                                               style: ButtonStyle(
-                                                  backgroundColor: MaterialStateProperty.all(Color(0xffFFDEDC))
+                                                  backgroundColor: WidgetStateProperty.all(const Color(0xffFFDEDC))
                                               ),
                                               onPressed: (){
                                                 deleteUserLogConfig(id: serverData['logConfig'][i]['logConfigId']);
                                               },
-                                              icon: Icon(Icons.delete,color: Colors.red,)
+                                              icon: const Icon(Icons.delete,color: Colors.red,)
                                           ),
                                           IconButton(
                                               style: ButtonStyle(
-                                                  backgroundColor: MaterialStateProperty.all(Color(0xffEFFFFB))
+                                                  backgroundColor: WidgetStateProperty.all(const Color(0xffEFFFFB))
                                               ),
                                               onPressed: () {
                                                 Navigator.push(context, MaterialPageRoute(builder: (context){
                                                   return LogHome(serverData: serverData['logConfig'][i], userData: widget.userData, nameData: names,);
                                                 }));
                                               },
-                                              icon: Icon(Icons.visibility,color: Colors.green,)
+                                              icon: const Icon(Icons.visibility,color: Colors.green,)
                                           ),
                                           // MaterialButton(
                                           //   color: Colors.green,
@@ -437,7 +437,7 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
                                       ),
                                     ),
                                   ),
-                                  Row(
+                                  const Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                                     children: [
 
@@ -508,7 +508,7 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
               //         ),
               //       ),
               //     ),
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
             ],
@@ -574,8 +574,8 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
                             onPressed: (){
                               Navigator.pop(context);
                             },
-                            child: Text("Cancel",style: TextStyle(color: Colors.white),),
                             color: Colors.red,
+                            child: const Text("Cancel",style: TextStyle(color: Colors.white),),
                           ),
                           MaterialButton(
                             onPressed: (){
@@ -601,8 +601,8 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
                                 Navigator.pop(context);
                               }
                             },
-                            child: Text("OK",style: TextStyle(color: Colors.white)),
                             color: Theme.of(context).primaryColor,
+                            child: const Text("OK",style: TextStyle(color: Colors.white)),
                           )
                         ],
                       ),
@@ -624,14 +624,14 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              SizedBox(height: 25),
-                              Text('Give Log Config Name'),
+                              const SizedBox(height: 25),
+                              const Text('Give Log Config Name'),
                               SizedBox(
                                 width: 250,
                                 height: 40,
                                 child: TextFormField(
                                   initialValue: logName,
-                                  style: TextStyle(fontSize: 12),
+                                  style: const TextStyle(fontSize: 12),
                                   maxLength: 20,
                                   onChanged: (value){
                                     print('value => $value');
@@ -643,7 +643,7 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
                                   },
                                   textAlign: TextAlign.center,
                                   keyboardType: TextInputType.name,
-                                  decoration: InputDecoration(
+                                  decoration: const InputDecoration(
                                       counterText: '',
                                       border: UnderlineInputBorder(
                                         borderSide: BorderSide(
@@ -654,7 +654,7 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
                                   ),
                                 ),
                               ),
-                              Text(errorMessage,style: TextStyle(color: Colors.red),),
+                              Text(errorMessage,style: const TextStyle(color: Colors.red),),
                               //General ---------------------------
                               Column(
                                 children: [
@@ -678,11 +678,11 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
                                       for(var i in irrigationParameterArrayDuplicate.generalParameterList)
                                         if(i.payloadKey != 'overAll')
                                           Container(
-                                            margin: EdgeInsets.symmetric(horizontal: 5),
+                                            margin: const EdgeInsets.symmetric(horizontal: 5),
                                             width: 250,
                                             child: ListTile(
-                                              leading: Icon(Icons.commit,color: Colors.blueGrey,),
-                                              title: Text('${i.uiKey}',style: const TextStyle(fontSize: 12),),
+                                              leading: const Icon(Icons.commit,color: Colors.blueGrey,),
+                                              title: Text(i.uiKey,style: const TextStyle(fontSize: 12),),
                                               trailing: Checkbox(
                                                 value: i.show,
                                                 onChanged: (value) {
@@ -711,7 +711,7 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
                               Column(
                                 children: [
                                   ListTile(
-                                    title: Text('Water Parameter',style: TextStyle(fontWeight: FontWeight.bold),),
+                                    title: const Text('Water Parameter',style: TextStyle(fontWeight: FontWeight.bold),),
                                     leading: Checkbox(
                                       value: irrigationParameterArrayDuplicate.waterParameterList[irrigationParameterArrayDuplicate.waterParameterList.length - 1].show,
                                       onChanged: (bool? value) {
@@ -730,11 +730,11 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
                                       for(var i in irrigationParameterArrayDuplicate.waterParameterList)
                                         if(i.payloadKey != 'overAll')
                                           Container(
-                                            margin: EdgeInsets.symmetric(horizontal: 5),
+                                            margin: const EdgeInsets.symmetric(horizontal: 5),
                                             width: 250,
                                             child: ListTile(
-                                              leading: Icon(Icons.adb_outlined,color: Colors.blueGrey,),
-                                              title: Text('${i.uiKey}',style: const TextStyle(fontSize: 12),),
+                                              leading: const Icon(Icons.adb_outlined,color: Colors.blueGrey,),
+                                              title: Text(i.uiKey,style: const TextStyle(fontSize: 12),),
                                               trailing: Checkbox(
                                                 value: i.show,
                                                 onChanged: (value) {
@@ -763,7 +763,7 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
                               Column(
                                 children: [
                                   ListTile(
-                                    title: Text('Filter Parameter',style: TextStyle(fontWeight: FontWeight.bold),),
+                                    title: const Text('Filter Parameter',style: TextStyle(fontWeight: FontWeight.bold),),
                                     leading: Checkbox(
                                       value: irrigationParameterArrayDuplicate.filterParameterList[irrigationParameterArrayDuplicate.filterParameterList.length - 1].show,
                                       onChanged: (bool? value) {
@@ -782,11 +782,11 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
                                       for(var i in irrigationParameterArrayDuplicate.filterParameterList)
                                         if(i.payloadKey != 'overAll')
                                           Container(
-                                            margin: EdgeInsets.symmetric(horizontal: 5),
+                                            margin: const EdgeInsets.symmetric(horizontal: 5),
                                             width: 250,
                                             child: ListTile(
-                                              leading: Icon(Icons.adb_outlined,color: Colors.blueGrey,),
-                                              title: Text('${i.uiKey}',style: const TextStyle(fontSize: 12),),
+                                              leading: const Icon(Icons.adb_outlined,color: Colors.blueGrey,),
+                                              title: Text(i.uiKey,style: const TextStyle(fontSize: 12),),
                                               trailing: Checkbox(
                                                 value: i.show,
                                                 onChanged: (value) {
@@ -815,7 +815,7 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
                               Column(
                                 children: [
                                   ListTile(
-                                    title: Text('Pre Post Parameter',style: TextStyle(fontWeight: FontWeight.bold),),
+                                    title: const Text('Pre Post Parameter',style: TextStyle(fontWeight: FontWeight.bold),),
                                     leading: Checkbox(
                                       value: irrigationParameterArrayDuplicate.prePostParameterList[irrigationParameterArrayDuplicate.prePostParameterList.length - 1].show,
                                       onChanged: (bool? value) {
@@ -834,11 +834,11 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
                                       for(var i in irrigationParameterArrayDuplicate.prePostParameterList)
                                         if(i.payloadKey != 'overAll')
                                           Container(
-                                            margin: EdgeInsets.symmetric(horizontal: 5),
+                                            margin: const EdgeInsets.symmetric(horizontal: 5),
                                             width: 250,
                                             child: ListTile(
-                                              leading: Icon(Icons.adb_outlined,color: Colors.blueGrey,),
-                                              title: Text('${i.uiKey}',style: const TextStyle(fontSize: 12),),
+                                              leading: const Icon(Icons.adb_outlined,color: Colors.blueGrey,),
+                                              title: Text(i.uiKey,style: const TextStyle(fontSize: 12),),
                                               trailing: Checkbox(
                                                 value: i.show,
                                                 onChanged: (value) {
@@ -886,11 +886,11 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
                                       for(var i in irrigationParameterArrayDuplicate.centralEcPhParameterList)
                                         if(i.payloadKey != 'overAll')
                                           Container(
-                                            margin: EdgeInsets.symmetric(horizontal: 5),
+                                            margin: const EdgeInsets.symmetric(horizontal: 5),
                                             width: 250,
                                             child: ListTile(
-                                              leading: Icon(Icons.adb_outlined,color: Colors.blueGrey,),
-                                              title: Text('${i.uiKey}',style: const TextStyle(fontSize: 12),),
+                                              leading: const Icon(Icons.adb_outlined,color: Colors.blueGrey,),
+                                              title: Text(i.uiKey,style: const TextStyle(fontSize: 12),),
                                               trailing: Checkbox(
                                                 value: i.show,
                                                 onChanged: (value) {
@@ -946,11 +946,11 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
                                       for(var i in irrigationParameterArrayDuplicate.localEcPhParameterList)
                                         if(i.payloadKey != 'overAll')
                                           Container(
-                                            margin: EdgeInsets.symmetric(horizontal: 5),
+                                            margin: const EdgeInsets.symmetric(horizontal: 5),
                                             width: 250,
                                             child: ListTile(
-                                              leading: Icon(Icons.adb_outlined,color: Colors.blueGrey,),
-                                              title: Text('${i.uiKey}',style: const TextStyle(fontSize: 12),),
+                                              leading: const Icon(Icons.adb_outlined,color: Colors.blueGrey,),
+                                              title: Text(i.uiKey,style: const TextStyle(fontSize: 12),),
                                               trailing: Checkbox(
                                                 value: i.show,
                                                 onChanged: (value) {
@@ -982,7 +982,7 @@ class _ListOfLogConfigState extends State<ListOfLogConfig> {
 
                                 ],
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 height: 50,
                               ),
 

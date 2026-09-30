@@ -92,7 +92,7 @@ class PumpControllerProvider extends ChangeNotifier {
       isLoading = false;
       notifyListeners();
       // print("isLoading in the pump log : $isLoading");
-    } catch (e, stackTrace) {
+    } catch (e) {
       // print("$e");
       // print("stackTrace ==> $stackTrace");
       isLoading = false;
@@ -132,7 +132,7 @@ class PumpControllerProvider extends ChangeNotifier {
           List<dynamic> dataList = response['data'];
           motorDataList = dataList.map((item) => MotorDataHourly.fromJson(item)).toList();
           for (var i = 0; i < motorDataList[0].numberOfPumps; i++) {
-            List<Color> colors = [Colors.lightBlueAccent.shade100.withOpacity(0.6), Colors.lightGreenAccent.withOpacity(0.6), Colors.greenAccent.withOpacity(0.6)];
+            List<Color> colors = [Colors.lightBlueAccent.shade100.withValues(alpha: 0.6), Colors.lightGreenAccent.withValues(alpha: 0.6), Colors.greenAccent.withValues(alpha: 0.6)];
             chartData.add(
                 MotorData(
                     "M${i + 1}",
@@ -198,7 +198,7 @@ class PumpControllerProvider extends ChangeNotifier {
       }
       await Future.delayed(const Duration(seconds: 1));
       isLoading = false;
-    } catch (e, stackTrace) {
+    } catch (e) {
       message = 'Error occurred: $e';
       // print("$e");
       // print("stackTrace ==> $stackTrace");

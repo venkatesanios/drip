@@ -70,7 +70,7 @@ class _StandAloneWideState extends State<StandAloneWide> with SingleTickerProvid
                               SizedBox(
                                 width: 200,
                                 child: DropdownButtonFormField(
-                                  value: viewModel.programList.isNotEmpty
+                                  initialValue: viewModel.programList.isNotEmpty
                                       ? viewModel.programList[viewModel.ddCurrentPosition]
                                       : null,
                                   decoration: const InputDecoration(
@@ -129,7 +129,7 @@ class _StandAloneWideState extends State<StandAloneWide> with SingleTickerProvid
                                       padding: WidgetStateProperty.all(
                                         const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
                                       ),
-                                      backgroundColor: WidgetStateProperty.all<Color>(Theme.of(context).primaryColor.withOpacity(0.3)),
+                                      backgroundColor: WidgetStateProperty.all<Color>(Theme.of(context).primaryColor.withValues(alpha: 0.3)),
                                       shape: WidgetStateProperty.all<OutlinedBorder>(
                                         RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
                                       ),
@@ -192,7 +192,7 @@ class _StandAloneWideState extends State<StandAloneWide> with SingleTickerProvid
                                       padding: WidgetStateProperty.all(
                                         const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
                                       ),
-                                      backgroundColor: WidgetStateProperty.all<Color>(Theme.of(context).primaryColor.withOpacity(0.3)),
+                                      backgroundColor: WidgetStateProperty.all<Color>(Theme.of(context).primaryColor.withValues(alpha: 0.3)),
                                       shape: WidgetStateProperty.all<OutlinedBorder>(
                                         RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
                                       ),

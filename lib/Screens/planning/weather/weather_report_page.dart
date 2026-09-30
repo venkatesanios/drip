@@ -1,11 +1,9 @@
-import 'dart:convert';
 
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import 'package:oro_drip_irrigation/Screens/planning/weather/weather_report_model.dart';
-import 'package:oro_drip_irrigation/Screens/planning/weather/weather_report_sensor_model.dart' hide parseSensorHourData;
 import 'package:oro_drip_irrigation/Screens/planning/weather/weather_report_sensor_modelGsm.dart';
 
 import '../../../repository/repository.dart';
@@ -180,14 +178,14 @@ class _SensorHourlyReportPageState extends State<SensorHourlyReportPage> {
 
   Widget _buildHeaderSummary() {
     return  Padding(
-      padding: EdgeInsets.only(left: 4.0),
+      padding: const EdgeInsets.only(left: 4.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("${widget.sensorName}",
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+          Text(widget.sensorName,
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
           Text(selectedDate,
-              style: TextStyle(color: Colors.grey)),
+              style: const TextStyle(color: Colors.grey)),
         ],
       ),
     );
@@ -204,7 +202,7 @@ class _SensorHourlyReportPageState extends State<SensorHourlyReportPage> {
         horizontalMargin: 12,
         minWidth: 600,
         headingRowHeight: 50,
-        headingRowColor: MaterialStateProperty.all(Colors.teal),
+        headingRowColor: WidgetStateProperty.all(Colors.teal),
         border: const TableBorder(
           horizontalInside: BorderSide(color: Colors.teal, width: 1),
         ),
@@ -238,8 +236,8 @@ class _SensorHourlyReportPageState extends State<SensorHourlyReportPage> {
           } else {
             rowColor = Colors.red.shade50;
           }
-          return DataRow( color: MaterialStateProperty.resolveWith<Color?>(
-                (Set<MaterialState> states) {
+          return DataRow( color: WidgetStateProperty.resolveWith<Color?>(
+                (Set<WidgetState> states) {
               return rowColor;
             },
           ), cells: [
@@ -268,7 +266,7 @@ class _SensorHourlyReportPageState extends State<SensorHourlyReportPage> {
           color: code == '255' ? Colors.green.shade50 : code == 'NA' ?  Colors.grey.shade50 : Colors.red.shade50,),
       ),
       child: Text(
-        code == '255' ? 'Normal' : code == 'NA' ?  '$code' : 'ERR-$code',
+        code == '255' ? 'Normal' : code == 'NA' ?  code : 'ERR-$code',
         style:  TextStyle(
           color: code == '255' ? Colors.green : code == 'NA' ?  Colors.grey : Colors.red,
           fontWeight: FontWeight.bold,

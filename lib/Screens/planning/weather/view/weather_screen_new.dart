@@ -302,7 +302,7 @@ class _LineTabViewState extends State<_LineTabView> {
                         widget.vm.fetchWeatherData(widget.customerId, widget.userId,);
                       },
                     ),
-                    Text("Get Live Data")
+                    const Text("Get Live Data")
                   ],
                 ),
                  _weatherSummaryCard(
@@ -338,7 +338,7 @@ class _LineTabViewState extends State<_LineTabView> {
                         onTap: (){
                           // AppLog.log('deviceID ->${station.device[selectedStationIndex].deviceId}');
                           AppLog.log('device ->${station.device.controllerId}');
-                          AppLog.log('deviceID ->${station}');
+                          AppLog.log('deviceID ->$station');
                            // AppLog.log('userId ->${widget.userId} customerId ->${widget.customerId}');
                           Navigator.push(
                             context,
@@ -401,7 +401,7 @@ class _LineTabViewState extends State<_LineTabView> {
                   widget.vm.fetchWeatherData(widget.customerId, widget.userId);
                 },
               ),
-              Text("Get Live Data")
+              const Text("Get Live Data")
             ],
           ),
           _weatherSummaryCard(

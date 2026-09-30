@@ -20,7 +20,7 @@ class _ZoneCyclicLogState extends State<ZoneCyclicLog> {
   DateTime? selectedDate;
   String _selectedDate = '';
   String _dateCount = '';
-  String _range = '';
+  final String _range = '';
   String _rangeCount = '';
   DateRange? selectedDateRange;
 

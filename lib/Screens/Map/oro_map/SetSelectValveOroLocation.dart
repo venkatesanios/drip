@@ -1,4 +1,3 @@
-import 'dart:developer' as AppLogger;
 
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -12,7 +11,7 @@ import 'package:oro_drip_irrigation/utils/helpers/log_print.dart';
 
 
 class SetSelectOroLocation extends StatefulWidget {
-  const SetSelectOroLocation({Key? key, required this.index}) : super(key: key);
+  const SetSelectOroLocation({super.key, required this.index});
   final int index;
   @override
   _SetSelectOroLocationState createState() => _SetSelectOroLocationState();
@@ -28,18 +27,18 @@ class _SetSelectOroLocationState extends State<SetSelectOroLocation> {
   late MqttPayloadProvider mqttPayloadProvider;
   ConnectedObject? _selectedObject;
   bool _isDrawerOpen = false;
-  double _drawerWidth = 280;
+  final double _drawerWidth = 280;
 
   List<LatLng> _points = [];
-  Set<Marker> _vertices = {};
-  Set<Polyline> _lines = {};
-  Set<Polygon> _polygons = {};
+  final Set<Marker> _vertices = {};
+  final Set<Polyline> _lines = {};
+  final Set<Polygon> _polygons = {};
 
   bool _isClosed = false;
-  List<List<LatLng>> _undoStack = [];
-  List<List<LatLng>> _redoStack = [];
+  final List<List<LatLng>> _undoStack = [];
+  final List<List<LatLng>> _redoStack = [];
   List<LatLng> _finalPolygonPoints = [];
-  List<LatLng> _redoPoints = [];
+  final List<LatLng> _redoPoints = [];
 
 
   @override
@@ -103,7 +102,7 @@ class _SetSelectOroLocationState extends State<SetSelectOroLocation> {
           content: Text("Select Object first"),
         ),
       );
-      return null;
+      return;
     }
 
     final position = LatLng(lat, long);
@@ -224,7 +223,7 @@ class _SetSelectOroLocationState extends State<SetSelectOroLocation> {
         leading: Row(
           children: [
             IconButton(
-              icon: Icon(Icons.arrow_back),
+              icon: const Icon(Icons.arrow_back),
               onPressed: () {
                 setState(() {
                   Navigator.pop(context);
@@ -275,7 +274,7 @@ class _SetSelectOroLocationState extends State<SetSelectOroLocation> {
                       return ListTile(
                         selected: obj == _selectedObject,
                         selectedTileColor:
-                        Colors.blue.withOpacity(0.2),
+                        Colors.blue.withValues(alpha: 0.2),
                         title: Text(obj.name ??
                             obj.objectName ??
                             "Object"),
@@ -369,19 +368,19 @@ class _SetSelectOroLocationState extends State<SetSelectOroLocation> {
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         IconButton(
-                          icon: Icon(Icons.undo),
+                          icon: const Icon(Icons.undo),
                           onPressed: _points.isEmpty ? null : _undo,
                         ),
 
                         IconButton(
-                          icon: Icon(Icons.redo),
+                          icon: const Icon(Icons.redo),
                           onPressed: _redoPoints.isEmpty ? null : _redo,
                         ),
                         IconButton(
-                            icon: Icon(Icons.delete, color: Colors.red),
+                            icon: const Icon(Icons.delete, color: Colors.red),
                             onPressed: _deletePolygon),
                         IconButton(
-                            icon: Icon(Icons.check, color: Colors.green),
+                            icon: const Icon(Icons.check, color: Colors.green),
                             onPressed: _closePolygon),
                       ],
                     ),
@@ -608,7 +607,7 @@ class _SetSelectOroLocationState extends State<SetSelectOroLocation> {
         Polygon(
           polygonId: const PolygonId("editing"),
           points: _finalPolygonPoints, // ✅ NOT _points
-          fillColor: Colors.blue.withOpacity(0.4),
+          fillColor: Colors.blue.withValues(alpha: 0.4),
           strokeWidth: 2,
           strokeColor: Colors.blue,
         ),
@@ -696,8 +695,8 @@ class _SetSelectOroLocationState extends State<SetSelectOroLocation> {
             points: points,
 
             fillColor: isSelected
-                ? Colors.blue.withOpacity(0.4)   // ✅ Selected
-                : Colors.yellow.withOpacity(0.3), // ✅ Others
+                ? Colors.blue.withValues(alpha: 0.4)   // ✅ Selected
+                : Colors.yellow.withValues(alpha: 0.3), // ✅ Others
 
             strokeColor:
             isSelected ? Colors.blue : Colors.grey,

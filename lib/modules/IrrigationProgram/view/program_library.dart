@@ -22,7 +22,6 @@ import '../widgets/custom_alert_dialog.dart';
 import '../../SystemDefinitions/widgets/custom_snack_bar.dart';
 import '../../../utils/environment.dart';
 import '../widgets/custom_drop_down_tile.dart';
-import '../widgets/custom_native_time_picker.dart';
 import '../widgets/progress_dialog_ecogem.dart';
 import 'irrigation_program_main.dart';
 
@@ -337,7 +336,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                 SwitchListTile(
                   title: const Text('Enable Day Count RTC'),
                   value: dayCountRtcModel.dayCountRtc,
-                  activeColor: theme.primaryColor,
+                  activeThumbColor: theme.primaryColor,
                   onChanged: (v) => setState(() => dayCountRtcModel.dayCountRtc = v),
                 ),
                 if (dayCountRtcModel.dayCountRtc) ...[
@@ -372,7 +371,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                     SwitchListTile(
                       title: const Text('Enable Queue Restart'),
                       value: programQueueModel.autoQueueRestart,
-                      activeColor: theme.primaryColor,
+                      activeThumbColor: theme.primaryColor,
                       onChanged: (v) => setState(() => programQueueModel.autoQueueRestart = v),
                     ),
                     const SizedBox(height: 12),
@@ -386,7 +385,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                               child: Text('${index + 1}', style: const TextStyle(fontWeight: FontWeight.bold)),
                             ),
                             title: DropdownButtonFormField<String>(
-                              value: programQueueModel.queueOrder[index] != '0' ? programQueueModel.queueOrder[index] : '0',
+                              initialValue: programQueueModel.queueOrder[index] != '0' ? programQueueModel.queueOrder[index] : '0',
                               decoration: InputDecoration(border: OutlineInputBorder(borderRadius: BorderRadius.circular(8))),
                               items: [
                                 const DropdownMenuItem(value: '0', child: Text('None')),
@@ -443,7 +442,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                 SwitchListTile(
                   title: const Text('Enable Skip Days'),
                   value: programQueueModel.skipDays,
-                  activeColor: theme.primaryColor,
+                  activeThumbColor: theme.primaryColor,
                   onChanged: (v) => setState(() => programQueueModel.skipDays = v),
                 ),
                 if (programQueueModel.skipDays) ...[
@@ -477,7 +476,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                 SwitchListTile(
                   title: const Text('Drip Standalone Mode'),
                   value: programQueueModel.dripStandaloneMode,
-                  activeColor: theme.primaryColor,
+                  activeThumbColor: theme.primaryColor,
                   onChanged: (v) => setState(() => programQueueModel.dripStandaloneMode = v),
                 ),
 
@@ -884,7 +883,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                               await Future.delayed(const Duration(seconds: 1), () async{
                                 await irrigationProgramMainProvider.programLibraryData(widget.customerId,  widget.controllerId);
                               });
-                            } catch (error, stackTrace) {
+                            } catch (error) {
                               showSnackBar(message: 'Failed to update because of $error', context: context);
                               // print("Error: $error");
                               // print("stackTrace: $stackTrace");
@@ -978,7 +977,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                               else
                                 buildScheduleMethodOfDay(
                                     method: "NOT SCHEDULED",
-                                    color: Colors.grey.withOpacity(0.2)
+                                    color: Colors.grey.withValues(alpha: 0.2)
                                 )
                             ],
                           ),
@@ -1286,7 +1285,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
   }
 
   void showEditItemDialog(Program program, int index, List<Program> programLibraryData) {
-    final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
     showAdaptiveDialog(
       context: context,
       builder: (BuildContext dialogContext) =>
@@ -1296,7 +1295,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                   surfaceTintColor: Colors.white,
                   title: const Text('Edit Item'),
                   content: Form(
-                    key: _formKey,
+                    key: formKey,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -1356,7 +1355,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
                     ),
                     TextButton(
                       onPressed: () async{
-                        if (_formKey.currentState!.validate()) {
+                        if (formKey.currentState!.validate()) {
                           Map<String, dynamic> dataToMqtt = {
                             "2800": {
                               "2801" : "${program.serialNumber},${program.priority == irrigationProgramMainProvider.priorityList[0] ? 1 : 0}"
@@ -1486,7 +1485,7 @@ class _ProgramLibraryScreenNewState extends State<ProgramLibraryScreenNew> {
               BoxShadow(
                 offset: const Offset(0, 4),
                 blurRadius: 4,
-                color: const Color(0xffCFCFCF).withOpacity(0.25),
+                color: const Color(0xffCFCFCF).withValues(alpha: 0.25),
               ),
             ],
           ),
@@ -1613,7 +1612,7 @@ Future<void> validatePayloadSent({
       await Future.delayed(const Duration(seconds: 1));
       Navigator.of(context).pop();
     }
-  } catch (error, stackTrace) {
+  } catch (error) {
     // print("stackTrace ::: $stackTrace");
     // print("error ::: $error");
     showAlertDialog(message: error.toString(), context: context);

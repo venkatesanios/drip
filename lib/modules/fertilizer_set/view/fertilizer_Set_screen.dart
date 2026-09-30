@@ -145,7 +145,7 @@ class _FertilizerSetScreenState extends State<FertilizerSetScreen> {
                                               children: [
                                                 Container(
                                                   height: 30,
-                                                  color: themeData.primaryColorLight.withOpacity(0.1),
+                                                  color: themeData.primaryColorLight.withValues(alpha: 0.1),
                                                   child: Row(
                                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                     children: [
@@ -159,7 +159,7 @@ class _FertilizerSetScreenState extends State<FertilizerSetScreen> {
                                                 ...recipe.channel.map((channel) {
                                                   return  Container(
                                                     height: 40,
-                                                    color: recipe.channel.indexOf(channel).isOdd ? themeData.primaryColorLight.withOpacity(0.05) : null,
+                                                    color: recipe.channel.indexOf(channel).isOdd ? themeData.primaryColorLight.withValues(alpha: 0.05) : null,
                                                     child: Row(
                                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                       children: [
@@ -176,13 +176,13 @@ class _FertilizerSetScreenState extends State<FertilizerSetScreen> {
                                                         ),
                                                         tableRowCell(
                                                             width: 50,
-                                                            widget: Text('Ch ${recipe.channel.indexOf(channel) + 1}', style: TextStyle(color: Colors.black54),)
+                                                            widget: Text('Ch ${recipe.channel.indexOf(channel) + 1}', style: const TextStyle(color: Colors.black54),)
                                                         ),
                                                         tableRowCell(
                                                             width: 120,
                                                             widget : CustomDropDownButton(
                                                               value: channel.method,
-                                                              list: ['Time', 'Pro.time', 'Quantity', 'Pro.quantity', 'Pro.qty per 1000L'],
+                                                              list: const ['Time', 'Pro.time', 'Quantity', 'Pro.quantity', 'Pro.qty per 1000L'],
                                                               onChanged: (value) {
                                                                 setState(() {
                                                                   channel.method = value!;
@@ -404,7 +404,7 @@ class _FertilizerSetScreenState extends State<FertilizerSetScreen> {
       width:  width ?? 100,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(5),
-        border: Border.all(width: 1, color: Theme.of(context).primaryColorDark.withOpacity(0.3)),
+        border: Border.all(width: 1, color: Theme.of(context).primaryColorDark.withValues(alpha: 0.3)),
       ),
       child: TextFormField(
         key: Key(key),
@@ -494,7 +494,7 @@ class _FertilizerSetScreenState extends State<FertilizerSetScreen> {
       child: Container(
         padding: const EdgeInsets.all(2),
         decoration: BoxDecoration(
-            color: color.withOpacity(0.2),
+            color: color.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(3)
         ),
         child: Icon(icon, color: color,),

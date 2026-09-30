@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/Constants/constants.dart';
 import 'package:oro_drip_irrigation/modules/IrrigationProgram/repository/irrigation_program_repo.dart';
@@ -65,7 +64,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
   List<DeviceObjectModel>? get mainValves => _mainValves;
 
   List<DeviceObjectModel>? _selectedObjects;
-  List<Map<String, dynamic>> _selectedControllers = [];
+  final List<Map<String, dynamic>> _selectedControllers = [];
   List<DeviceObjectModel>? get selectedObjects=> _selectedObjects;
   List<Map<String, dynamic>> get selectedControllers=> _selectedControllers;
   List<Map<String, dynamic>> irrigationLineFromConfigMaker = [];
@@ -1459,10 +1458,10 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       var valId = '';
       var mvId = '';
       for(var vl in sq['valve']){
-        valId += '${valId.length != 0 ? '_' : ''}${vl['sNo']}';
+        valId += '${valId.isNotEmpty ? '_' : ''}${vl['sNo']}';
       }
       for(var vl in sq['mainValve']){
-        mvId += '${mvId.length != 0 ? '_' : ''}${vl['sNo']}';
+        mvId += '${mvId.isNotEmpty ? '_' : ''}${vl['sNo']}';
       }
       var centralMethod = '';
       var centralTimeAndQuantity = '';
@@ -1534,9 +1533,9 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
           fertList.add(fertMethodHw(ft['method']));
         }
         for(var coma = fertList.length;coma < 8;coma++){
-          localMethod += '${localMethod.length != 0 ? '_' : ''}0';
-          localTimeAndQuantity += '${localTimeAndQuantity.length != 0 ? '_' : ''}0';
-          localFertOnOff += '${localFertOnOff.length != 0 ? '_' : ''}0';
+          localMethod += '${localMethod.isNotEmpty ? '_' : ''}0';
+          localTimeAndQuantity += '${localTimeAndQuantity.isNotEmpty ? '_' : ''}0';
+          localFertOnOff += '${localFertOnOff.isNotEmpty ? '_' : ''}0';
         }
       }
       payload += payload.isNotEmpty ? ';' : '';
@@ -2361,15 +2360,15 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         var literForOneSeconds = waterFlowRate/3600;
         var fertilizerGapInLiters = literForOneSeconds * diff;
         var userInput = value != '' ? double.parse(value) : 0;
-        var howMany1000In_fertilizerGapInLiters = fertilizerGapInLiters/1000;
-        var injectorPer1000L = howMany1000In_fertilizerGapInLiters * userInput;
+        var howmany1000inFertilizergapinliters = fertilizerGapInLiters/1000;
+        var injectorPer1000L = howmany1000inFertilizergapinliters * userInput;
         var flowRate = getFlowRate(index);
         var maxFertilizerLimitInLiters = diff * flowRate;
-        print('howMany1000In_fertilizerGapInLiters => $howMany1000In_fertilizerGapInLiters  fertilizerGapInLiters => $fertilizerGapInLiters injectorPer1000L => $injectorPer1000L  maxFertilizerLimitInLiters => $maxFertilizerLimitInLiters');
+        print('howMany1000In_fertilizerGapInLiters => $howmany1000inFertilizergapinliters  fertilizerGapInLiters => $fertilizerGapInLiters injectorPer1000L => $injectorPer1000L  maxFertilizerLimitInLiters => $maxFertilizerLimitInLiters');
         if(editingSelectedFertilizer['method'] == 'Pro.quant per 1000L'){
           if(injectorPer1000L > maxFertilizerLimitInLiters){
             editingSelectedFertilizer['quantityValue'] = ((maxFertilizerLimitInLiters /
-                howMany1000In_fertilizerGapInLiters) - 0.1)
+                howmany1000inFertilizergapinliters) - 0.1)
                 .toStringAsFixed(1); // 0.2 for ensure always fertilizer is less than water
             getInjectorController(index).text = editingSelectedFertilizer['quantityValue'].toString();
             return {'message' : 'fertilizer value limit up to ${getInjectorController(index).text}'};
@@ -2398,7 +2397,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
   String giveNameForSequence(dynamic data){
     var name = '';
     for(var i in data['selected']){
-      name += '${name.length != 0 ? '&' : ''}$i';
+      name += '${name.isNotEmpty ? '&' : ''}$i';
     }
     return name;
   }

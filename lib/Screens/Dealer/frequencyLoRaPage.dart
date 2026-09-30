@@ -76,7 +76,7 @@ class _FrequencyPageState extends State<FrequencyPage> {
     number *= 10;
     String result = number.toStringAsFixed(0);
     while (result.length < 4) {
-      result = '0' + result;
+      result = '0$result';
     }
     String firstPart = result.substring(0, 2);
     String secondPart = result.substring(2, 4);

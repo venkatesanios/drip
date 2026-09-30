@@ -10,7 +10,6 @@ import '../../../../services/mqtt_service.dart';
 import '../../../../utils/environment.dart';
 import '../weather_report_page.dart';
 import '../widgets/info_box.dart';
-import '../widgets/sensor_chip.dart';
 import '../widgets/sensor_chipGsm.dart';
 import '../widgets/sun_time_card.dart';
 import '../widgets/time_of_day_icon_new.dart';
@@ -141,7 +140,7 @@ Widget _buildWideLayout(
                       Request();
                      },
                   ),
-                  Text("Get Live Data")
+                  const Text("Get Live Data")
                 ],
               ),
               _weatherSummaryCard(
