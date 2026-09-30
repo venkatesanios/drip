@@ -87,7 +87,23 @@ class _PumpVoltageLogScreenState extends State<PumpVoltageLogScreen> {
   @override
   Widget build(BuildContext context) {
     pumpControllerProvider = Provider.of(context);
-    bool shouldHideRYPhase = selectedIndex == 0 && isSinglePhaseModel;
+    
+    bool showR = true;
+    bool showY = true;
+    bool showB = true;
+
+    if (isSinglePhaseModel) {
+      if (selectedIndex == 0) {
+        showR = false;
+        showY = false;
+        showB = true;
+      } else if (selectedIndex == 1) {
+        showR = true;
+        showY = false;
+        showB = false;
+      }
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: [...AppConstants.ecoGemAndPlusModelList, ...AppConstants.gemModelList].contains(widget.masterData.modelId) ? AppBar(
@@ -187,26 +203,27 @@ class _PumpVoltageLogScreenState extends State<PumpVoltageLogScreen> {
                               format: 'point.x: point.y',
                             ),
                             series: <SplineSeries<Map<String, dynamic>, String>>[
-                              if (!shouldHideRYPhase)
+                              if (showR)
                                 _buildSplineSeries(
                                   dataSource: filteredData,
                                   color: Colors.red,
                                   phase: 'R',
                                   name: selectedIndex == 0 ? 'Voltage R' : selectedIndex == 1 ? 'Current R' : selectedIndex == 2 ? "Power Factor R" : "Power R",
                                 ),
-                              if (!shouldHideRYPhase)
+                              if (showY)
                                 _buildSplineSeries(
                                   dataSource: filteredData,
                                   color: Colors.yellow,
                                   phase: 'Y',
                                   name: selectedIndex == 0 ? 'Voltage Y' : selectedIndex == 1 ? 'Current Y' : selectedIndex == 2 ? "Power Factor Y" : "Power Y",
                                 ),
-                              _buildSplineSeries(
-                                dataSource: filteredData,
-                                color: Colors.blue,
-                                phase: 'B',
-                                name: selectedIndex == 0 ? 'Voltage B' : selectedIndex == 1 ? 'Current B' : selectedIndex == 2 ? "Power Factor B" : "Power B",
-                              ),
+                              if (showB)
+                                _buildSplineSeries(
+                                  dataSource: filteredData,
+                                  color: Colors.blue,
+                                  phase: 'B',
+                                  name: selectedIndex == 0 ? 'Voltage B' : selectedIndex == 1 ? 'Current B' : selectedIndex == 2 ? "Power Factor B" : "Power B",
+                                ),
                             ],
                           ),
                         ),
@@ -216,7 +233,7 @@ class _PumpVoltageLogScreenState extends State<PumpVoltageLogScreen> {
                           physics: const NeverScrollableScrollPhysics(),
                           itemCount: 1,
                           itemBuilder: (context, index) {
-                            return _buildVoltageLogCard(pumpControllerProvider.voltageData[index], shouldHideRYPhase);
+                            return _buildVoltageLogCard(pumpControllerProvider.voltageData[index], showR, showY, showB);
                           },
                         ),
                     ],
@@ -255,7 +272,13 @@ class _PumpVoltageLogScreenState extends State<PumpVoltageLogScreen> {
     );
   }
 
-  Widget _buildVoltageLogCard(Map<String, dynamic> data, bool hideRY) {
+  Widget _buildVoltageLogCard(Map<String, dynamic> data, bool showR, bool showY, bool showB) {
+    int activePhases = (showR ? 1 : 0) + (showY ? 1 : 0) + (showB ? 1 : 0);
+    Map<int, TableColumnWidth> widths = { 0: const FlexColumnWidth(2) };
+    for (int i = 0; i < activePhases; i++) {
+      widths[i + 1] = const FlexColumnWidth(1);
+    }
+    
     return Card(
       margin: const EdgeInsets.all(10),
       elevation: 4,
@@ -269,15 +292,7 @@ class _PumpVoltageLogScreenState extends State<PumpVoltageLogScreen> {
           children: [
             Table(
               border: TableBorder.all(color: Colors.grey.shade300),
-              columnWidths: hideRY ? const {
-                0: FlexColumnWidth(2),
-                1: FlexColumnWidth(1),
-              } : const {
-                0: FlexColumnWidth(2),
-                1: FlexColumnWidth(1),
-                2: FlexColumnWidth(1),
-                3: FlexColumnWidth(1),
-              },
+              columnWidths: widths,
               children: [
                 TableRow(
                   children: [
@@ -286,26 +301,27 @@ class _PumpVoltageLogScreenState extends State<PumpVoltageLogScreen> {
                       padding: const EdgeInsets.all(8.0),
                       child: const Text('Hours', style: TextStyle(fontWeight: FontWeight.bold,)),
                     ),
-                    if (!hideRY)
+                    if (showR)
                       Container(
                         color: Colors.redAccent.shade100,
                         padding: const EdgeInsets.all(8.0),
                         child: const Text('R', style: TextStyle(fontWeight: FontWeight.bold)),
                       ),
-                    if (!hideRY)
+                    if (showY)
                       Container(
                         padding: const EdgeInsets.all(8.0),
                         color: Colors.amberAccent.shade100,
                         child: const Text('Y', style: TextStyle(fontWeight: FontWeight.bold,)),
                       ),
-                    Container(
-                      padding: const EdgeInsets.all(8.0),
-                      color: Colors.lightBlueAccent.shade100,
-                      child: const Text('B', style: TextStyle(fontWeight: FontWeight.bold)),
-                    ),
+                    if (showB)
+                      Container(
+                        padding: const EdgeInsets.all(8.0),
+                        color: Colors.lightBlueAccent.shade100,
+                        child: const Text('B', style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
                   ],
                 ),
-                ..._buildDataRows(hideRY)
+                ..._buildDataRows(showR, showY, showB)
               ],
             ),
           ],
@@ -314,7 +330,7 @@ class _PumpVoltageLogScreenState extends State<PumpVoltageLogScreen> {
     );
   }
 
-  List<TableRow> _buildDataRows(bool hideRY) {
+  List<TableRow> _buildDataRows(bool showR, bool showY, bool showB) {
     List<TableRow> rows = [];
 
     for (var entry in pumpControllerProvider.voltageData) {
@@ -325,7 +341,7 @@ class _PumpVoltageLogScreenState extends State<PumpVoltageLogScreen> {
               padding: const EdgeInsets.all(8.0),
               child: Text('${entry['hour']}'),
             ),
-            if (!hideRY)
+            if (showR)
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
@@ -333,7 +349,7 @@ class _PumpVoltageLogScreenState extends State<PumpVoltageLogScreen> {
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
-            if (!hideRY)
+            if (showY)
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
@@ -341,13 +357,14 @@ class _PumpVoltageLogScreenState extends State<PumpVoltageLogScreen> {
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                selectedIndex == 0 ? entry['voltageB'] : selectedIndex == 1 ? entry['currentB'] : selectedIndex == 2 ? entry['powerFactorB'] : entry['powerB'],
-                style: const TextStyle(fontWeight: FontWeight.bold,),
+            if (showB)
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  selectedIndex == 0 ? entry['voltageB'] : selectedIndex == 1 ? entry['currentB'] : selectedIndex == 2 ? entry['powerFactorB'] : entry['powerB'],
+                  style: const TextStyle(fontWeight: FontWeight.bold,),
+                ),
               ),
-            ),
           ],
         ),
       );
