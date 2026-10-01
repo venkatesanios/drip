@@ -1634,6 +1634,8 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       for(var vl in sq['mainValve']){
         mvId += '${mvId.isNotEmpty ? '_' : ''}${vl['sNo']}';
       }
+
+      // final joined strings (used in the payload)
       var centralMethod = '';
       var centralTimeAndQuantity = '';
       var centralFertOnOff = '';
@@ -1650,13 +1652,23 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       var localEcValue = '';
       var localPhActive = 0;
       var localPhValue = '';
-      var centralEC = '';
-      var centralPH = '';
-      var localEC = '';
-      var localPH = '';
       var centralTankValve = '';
       var localTankValve = '';
 
+      // lists collected inside the loops, joined after the loops
+      List<String> centralMethodList = [];
+      List<String> centralTimeAndQuantityList = [];
+      List<String> centralFertOnOffList = [];
+      List<String> centralFertSnoList = [];
+      List<String> centralTankValveList = [];
+
+      List<String> localMethodList = [];
+      List<String> localTimeAndQuantityList = [];
+      List<String> localFertOnOffList = [];
+      List<String> localFertIdList = [];
+      List<String> localTankValveList = [];
+
+      // ---------------- CENTRAL ----------------
       if(!isSiteVisible(sq['centralDosing'],'central') || sq[segmentedControlCentralLocal == 0 ? 'applyFertilizerForCentral' : 'applyFertilizerForLocal'] == false || sq['centralDosing'].isEmpty || sq['selectedCentralSite'] == -1){
         centralMethod = zeroWithUnderScore(channelLimit);
         centralTimeAndQuantity = zeroWithUnderScore(channelLimit);
@@ -1667,38 +1679,51 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         centralPhActive = 0;
         centralPhValue = '';
       }else{
-        var fertList = [];
-        for(var ft in sq['centralDosing'][sq['selectedCentralSite']]['fertilizer']){
+        var site = sq['centralDosing'][sq['selectedCentralSite']];
+
+        for(var ft in site['fertilizer']){
           String tankValveSno = '';
           for(var src in rawWaterSource){
             if(src['sNo'] == ft['tank']){
-              List<double> outletTankValve =  src['outletTankValve'] != null ? (src['outletTankValve'] as List<dynamic>).map((sNo) => sNo as double).toList() : [];
+              List<double> outletTankValve = src['outletTankValve'] != null
+                  ? (src['outletTankValve'] as List<dynamic>).map((object) => (object['sNo'] as num).toDouble()).toList()
+                  : [];
               if(outletTankValve.isNotEmpty){
                 tankValveSno = outletTankValve.first.toString();
               }
             }
           }
-          print("tankValveSno : $tankValveSno");
-          centralMethod += '${centralMethod.isNotEmpty ? '_' : ''}${fertMethodHw(ft['method'])}';
-          centralFertOnOff += '${centralFertOnOff.isNotEmpty ? '_' : ''}${ft['onOff'] == true ? 1 : 0}';
-          centralFertSno += '${centralFertSno.isNotEmpty ? '_' : ''}${ft['sNo']}';
-          centralTankValve += '${centralTankValve.isNotEmpty ? '_' : ''}$tankValveSno';
-          centralTimeAndQuantity += '${centralTimeAndQuantity.isNotEmpty ? '_' : ''}${ft['method'].contains('ime') ? ft['timeValue'] : ft['quantityValue']}';
-          centralEcActive = sq['centralDosing'][sq['selectedCentralSite']]['needEcValue'] == null ? 0 : sq['centralDosing'][sq['selectedCentralSite']]['needEcValue'] == true ? 1 : 0;
-          centralEcValue = '${sq['centralDosing'][sq['selectedCentralSite']]['ecValue'] ?? 0}';
-          centralPhActive = sq['centralDosing'][sq['selectedCentralSite']]['needPhValue'] == null ? 0 : sq['centralDosing'][sq['selectedCentralSite']]['needPhValue'] == true ? 1 : 0;
-          centralPhValue = '${sq['centralDosing'][sq['selectedCentralSite']]['phValue'] ?? 0}';
-          fertList.add(fertMethodHw(ft['method']));
+
+          centralMethodList.add('${fertMethodHw(ft['method'])}');
+          centralFertOnOffList.add('${ft['onOff'] == true ? 1 : 0}');
+          centralFertSnoList.add('${ft['sNo']}');
+          centralTankValveList.add(tankValveSno);
+          centralTimeAndQuantityList.add('${ft['method'].contains('ime') ? ft['timeValue'] : ft['quantityValue']}');
         }
 
-        for(var coma = fertList.length;coma < channelLimit;coma++){
-          centralMethod += '${centralMethod.isNotEmpty ? '_' : ''}0';
-          centralTimeAndQuantity += '${centralTimeAndQuantity.isNotEmpty ? '_' : ''}0';
-          centralFertOnOff += '${centralFertOnOff.isNotEmpty ? '_' : ''}0';
-          centralTankValve += '${centralTankValve.isNotEmpty ? '_' : ''}0';
+        // EC / PH do not depend on the fertilizer, so set them once
+        centralEcActive = site['needEcValue'] == true ? 1 : 0;
+        centralEcValue = '${site['ecValue'] ?? 0}';
+        centralPhActive = site['needPhValue'] == true ? 1 : 0;
+        centralPhValue = '${site['phValue'] ?? 0}';
+
+        // pad with zeros up to channelLimit
+        for(var i = centralMethodList.length; i < channelLimit; i++){
+          centralMethodList.add('0');
+          centralTimeAndQuantityList.add('0');
+          centralFertOnOffList.add('0');
+          centralTankValveList.add('');
         }
+
+        // join after the loop
+        centralMethod = centralMethodList.join('_');
+        centralFertOnOff = centralFertOnOffList.join('_');
+        centralFertSno = centralFertSnoList.join('_');
+        centralTankValve = centralTankValveList.join('_');
+        centralTimeAndQuantity = centralTimeAndQuantityList.join('_');
       }
 
+      // ---------------- LOCAL ----------------
       if(!isSiteVisible(sq['localDosing'],'local') || sq[segmentedControlCentralLocal == 0 ? 'applyFertilizerForCentral' : 'applyFertilizerForLocal'] == false || sq['localDosing'].isEmpty || sq['selectedLocalSite'] == -1){
         localMethod = zeroWithUnderScore(channelLimit);
         localTimeAndQuantity = zeroWithUnderScore(channelLimit);
@@ -1709,35 +1734,47 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         localPhActive = 0;
         localPhValue = '';
       }else{
-        var fertList = [];
-        for(var ft in sq['localDosing'][sq['selectedLocalSite']]['fertilizer']){
+        var site = sq['localDosing'][sq['selectedLocalSite']];
+
+        for(var ft in site['fertilizer']){
           String tankValveSno = '';
           for(var src in rawWaterSource){
             if(src['sNo'] == ft['tank']){
-              List<double> outletTankValve =  src['outletTankValve'] != null ? (src['outletTankValve'] as List<dynamic>).map((sNo) => sNo as double).toList() : [];
+              List<double> outletTankValve = src['outletTankValve'] != null
+                  ? (src['outletTankValve'] as List<dynamic>).map((object) => (object['sNo'] as num).toDouble()).toList()
+                  : [];
               if(outletTankValve.isNotEmpty){
                 tankValveSno = outletTankValve.first.toString();
               }
             }
           }
-          localMethod += '${localMethod.isNotEmpty ? '_' : ''}${fertMethodHw(ft['method'])}';
-          localFertOnOff += '${localFertOnOff.isNotEmpty ? '_' : ''}${ft['onOff'] == true ? 1 : 0}';
-          localFertId += '${localFertId.isNotEmpty ? '_' : ''}${ft['sNo']}';
-          localTankValve += '${localTankValve.isNotEmpty ? '_' : ''}$tankValveSno';
-          localTimeAndQuantity += '${localTimeAndQuantity.isNotEmpty ? '_' : ''}${ft['method'].contains('ime') ? ft['timeValue'] : ft['quantityValue']}';
-          localEcActive = sq['localDosing'][sq['selectedLocalSite']]['needEcValue'] == null ? 0 : sq['localDosing'][sq['selectedLocalSite']]['needEcValue'] == true ? 1 : 0;
-          localEcValue = '${sq['localDosing'][sq['selectedLocalSite']]['ecValue'] ?? 0}';
-          localPhActive = sq['localDosing'][sq['selectedLocalSite']]['needPhValue'] == null ? 0 : sq['localDosing'][sq['selectedLocalSite']]['needPhValue'] == true ? 1 : 0;
-          localPhValue = '${sq['localDosing'][sq['selectedLocalSite']]['phValue'] ?? 0}';
-          fertList.add(fertMethodHw(ft['method']));
+
+          localMethodList.add('${fertMethodHw(ft['method'])}');
+          localFertOnOffList.add('${ft['onOff'] == true ? 1 : 0}');
+          localFertIdList.add('${ft['sNo']}');
+          localTankValveList.add(tankValveSno);
+          localTimeAndQuantityList.add('${ft['method'].contains('ime') ? ft['timeValue'] : ft['quantityValue']}');
         }
-        for(var coma = fertList.length;coma < channelLimit;coma++){
-          localMethod += '${localMethod.isNotEmpty ? '_' : ''}0';
-          localTimeAndQuantity += '${localTimeAndQuantity.isNotEmpty ? '_' : ''}0';
-          localFertOnOff += '${localFertOnOff.isNotEmpty ? '_' : ''}0';
-          localTankValve += '${localTankValve.isNotEmpty ? '_' : ''}0';
+
+        localEcActive = site['needEcValue'] == true ? 1 : 0;
+        localEcValue = '${site['ecValue'] ?? 0}';
+        localPhActive = site['needPhValue'] == true ? 1 : 0;
+        localPhValue = '${site['phValue'] ?? 0}';
+
+        for(var i = localMethodList.length; i < channelLimit; i++){
+          localMethodList.add('0');
+          localTimeAndQuantityList.add('0');
+          localFertOnOffList.add('0');
+          localTankValveList.add('');
         }
+
+        localMethod = localMethodList.join('_');
+        localFertOnOff = localFertOnOffList.join('_');
+        localFertId = localFertIdList.join('_');
+        localTankValve = localTankValveList.join('_');
+        localTimeAndQuantity = localTimeAndQuantityList.join('_');
       }
+
       payload += payload.isNotEmpty ? ';' : '';
       print("sq['mainValve'] : ${sq['mainValve']}");
       Map<String, dynamic> jsonPayload = {
@@ -1780,6 +1817,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
     }
     return payload;
   }
+
 
   dynamic ecoGemPayloadForWF(serialNumber){
     var wf = '';

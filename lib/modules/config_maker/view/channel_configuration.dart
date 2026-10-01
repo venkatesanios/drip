@@ -63,6 +63,16 @@ class _ChannelConfigurationState extends State<ChannelConfiguration> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            IntrinsicWidth(
+                              stepWidth: 300,
+                              child: ListTile(
+                                leading: SizedImage(
+                                  imagePath: '${AppConstants.svgObjectPath}objectId_${AppConstants.channelObjectId}.svg',
+                                  color: Colors.black,
+                                ),
+                                title: Text(channel.commonDetails.name!),
+                              ),
+                            ),
                             Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Wrap(
