@@ -2215,58 +2215,50 @@ class _ZoneLogState extends State<ZoneLog> with AutomaticKeepAliveClientMixin {
       );
     }
 
-    return Container(
-      decoration: BoxDecoration(
-        color: rowBg,
-        border: const Border(
-          left: BorderSide(color: Color(0xFFCBD5E1), width: 1),
-          bottom: BorderSide(color: Color(0xFFE2E8F0), width: 1),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: colTotalDurationWidth,
+          height: 52,
+          alignment: Alignment.center,
+          padding: const EdgeInsets.symmetric(horizontal: 2),
+          decoration: const BoxDecoration(
+            border: Border(
+              left: BorderSide(color: Color(0xFFCBD5E1), width: 1),
+              right: BorderSide(color: Color(0xFFCBD5E1), width: 1),
+            ),
+          ),
+          child: Text(
+            _formatDuration(rowTotalSeconds),
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF15803D),
+            ),
+          ),
         ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: colTotalDurationWidth,
-            height: 52,
-            alignment: Alignment.center,
-            padding: const EdgeInsets.symmetric(horizontal: 2),
-            decoration: const BoxDecoration(
-              border: Border(
-                right: BorderSide(color: Color(0xFFCBD5E1), width: 1),
-              ),
-            ),
-            child: Text(
-              _formatDuration(rowTotalSeconds),
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF15803D),
-              ),
+        Container(
+          width: colTotalQuantityWidth,
+          height: 52,
+          alignment: Alignment.center,
+          padding: const EdgeInsets.symmetric(horizontal: 2),
+          child: Text(
+            rowTotalQuantity.toString(),
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF15803D),
             ),
           ),
-          Container(
-            width: colTotalQuantityWidth,
-            height: 52,
-            alignment: Alignment.center,
-            padding: const EdgeInsets.symmetric(horizontal: 2),
-            child: Text(
-              rowTotalQuantity.toString(),
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF15803D),
-              ),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
