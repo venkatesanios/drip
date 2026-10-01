@@ -659,12 +659,6 @@ class _ValveSensorsPopoverState extends State<ValveSensorsPopover> {
 
 enum _GaugeType { moisture, temperature, pressure }
 
-/// One section of the popover: a title, an optional chip selector when
-/// there's more than one sensor of this type, a live gauge, a shared
-/// calendar, and a chart.
-///
-/// Works generically across MoistureSensor / SoilTemperature / PressureSensor
-/// models as long as each exposes `.sNo`, `.name`, and `.value`.
 class _SensorSection extends StatefulWidget {
   final String title;
   final List<dynamic> sensors;

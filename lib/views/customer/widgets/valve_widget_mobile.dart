@@ -27,8 +27,12 @@ class ValveWidgetMobile extends StatefulWidget {
 
 class _ValveWidgetMobileState extends State<ValveWidgetMobile> {
 
-  void _openSensorsPopover(BuildContext context,
-      {String? section, bool hasAnySensor = false}) {
+  void _openSensorsPopover(
+      BuildContext context, {
+        String? section,
+        double popoverHeight = 340,
+        bool hasAnySensor = false,
+      }) {
 
     showPopover(
       context: context,
@@ -44,7 +48,6 @@ class _ValveWidgetMobileState extends State<ValveWidgetMobile> {
       arrowHeight: 15,
       arrowWidth: 30,
       barrierColor: Colors.black54,
-      arrowDyOffset: -40,
     );
   }
 
@@ -277,7 +280,11 @@ class _ValveWidgetMobileState extends State<ValveWidgetMobile> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             GestureDetector(
-              onTap: () => _openSensorsPopover(context),
+              onTap: () => _openSensorsPopover(
+                context,
+                hasAnySensor: hasAnySensor,
+                popoverHeight: hasAnySensor ? 340 : 70,
+              ),
               child: SizedBox(
                 width: 43,
                 height: 43,

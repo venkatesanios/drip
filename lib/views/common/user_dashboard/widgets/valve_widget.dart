@@ -42,7 +42,6 @@ class ValveWidget extends StatelessWidget {
       arrowHeight: 15,
       arrowWidth: 30,
       barrierColor: Colors.black54,
-      arrowDyOffset: -40,
     );
   }
 
