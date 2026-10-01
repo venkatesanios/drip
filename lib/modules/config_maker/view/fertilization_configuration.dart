@@ -105,12 +105,18 @@ class _FertilizationConfigurationState extends State<FertilizationConfiguration>
                                 spacing: 30,
                                 runSpacing: 20,
                                 children: [
-                                  getFertilizerParameter(fertilizationSite: fertilizationSite, currentParameterValue: fertilizationSite.channel.map((channel) => channel.sNo).toList(), parameterType: 1, objectId: 10, objectName: 'Channel'),
-                                  getFertilizerParameter(fertilizationSite: fertilizationSite, currentParameterValue: fertilizationSite.boosterPump, parameterType: 2, objectId: 7, objectName: 'Booster'),
-                                  getFertilizerParameter(fertilizationSite: fertilizationSite, currentParameterValue: fertilizationSite.agitator, parameterType: 3, objectId: 9, objectName: 'Agitator'),
-                                  getFertilizerParameter(fertilizationSite: fertilizationSite, currentParameterValue: fertilizationSite.selector, parameterType: 4, objectId: 8, objectName: 'Selector'),
-                                  getFertilizerParameter(fertilizationSite: fertilizationSite, currentParameterValue: fertilizationSite.ec, parameterType: 5, objectId: 27, objectName: 'Ec'),
-                                  getFertilizerParameter(fertilizationSite: fertilizationSite, currentParameterValue: fertilizationSite.ph, parameterType: 6, objectId: 28, objectName: 'Ph'),
+                                  if (shouldShowParameter(10, fertilizationSite.channel.map((channel) => channel.sNo).toList()))
+                                    getFertilizerParameter(fertilizationSite: fertilizationSite, currentParameterValue: fertilizationSite.channel.map((channel) => channel.sNo).toList(), parameterType: 1, objectId: 10, objectName: 'Channel'),
+                                  if (shouldShowParameter(7, fertilizationSite.boosterPump))
+                                    getFertilizerParameter(fertilizationSite: fertilizationSite, currentParameterValue: fertilizationSite.boosterPump, parameterType: 2, objectId: 7, objectName: 'Booster'),
+                                  if (shouldShowParameter(9, fertilizationSite.agitator))
+                                    getFertilizerParameter(fertilizationSite: fertilizationSite, currentParameterValue: fertilizationSite.agitator, parameterType: 3, objectId: 9, objectName: 'Agitator'),
+                                  if (shouldShowParameter(8, fertilizationSite.selector))
+                                    getFertilizerParameter(fertilizationSite: fertilizationSite, currentParameterValue: fertilizationSite.selector, parameterType: 4, objectId: 8, objectName: 'Selector'),
+                                  if (shouldShowParameter(27, fertilizationSite.ec))
+                                    getFertilizerParameter(fertilizationSite: fertilizationSite, currentParameterValue: fertilizationSite.ec, parameterType: 5, objectId: 27, objectName: 'Ec'),
+                                  if (shouldShowParameter(28, fertilizationSite.ph))
+                                    getFertilizerParameter(fertilizationSite: fertilizationSite, currentParameterValue: fertilizationSite.ph, parameterType: 6, objectId: 28, objectName: 'Ph'),
                                 ],
                               ),
                             ),
@@ -125,6 +131,13 @@ class _FertilizationConfigurationState extends State<FertilizationConfiguration>
         );
       }),
     );
+  }
+
+  bool shouldShowParameter(int objectId, List<double> currentParameterValue) {
+    return currentParameterValue.isNotEmpty ||
+        widget.configPvd.listOfGeneratedObject.any(
+          (object) => object.objectId == objectId && object.controllerId != null,
+        );
   }
 
   Widget getFertilizerParameter({
@@ -146,8 +159,8 @@ class _FertilizationConfigurationState extends State<FertilizationConfiguration>
           SizedImage(imagePath: '${AppConstants.svgObjectPath}objectId_$objectId.svg',color: themeMode ? Colors.black : Colors.white),
           const SizedBox(width: 20,),
           Text('$objectName : ', style: AppProperties.listTileBlackBoldStyle,),
-          Center(
-            child: Text(currentParameterValue.isEmpty ? '-' : currentParameterValue.map((sNo) => getObjectName(sNo, widget.configPvd).name!).join(', '), style: TextStyle(color: Colors.teal, fontSize: 12, fontWeight: FontWeight.bold),),
+          Expanded(
+            child: Text(currentParameterValue.isEmpty ? '-' : currentParameterValue.map((sNo) => getObjectName(sNo, widget.configPvd).name!).join(', '), overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.teal, fontSize: 12, fontWeight: FontWeight.bold),),
           ),
           IconButton(
               onPressed: (){
@@ -165,10 +178,18 @@ class _FertilizationConfigurationState extends State<FertilizationConfiguration>
                         parameter: parameterType
                     ),
                     onPressed: (){
-                      setState(() {
-                        widget.configPvd.updateSelectionInFertilization(fertilizationSite.commonDetails.sNo!, parameterType);
-                      });
-                      Navigator.pop(context);
+                      if (parameterType == 1 && widget.configPvd.listOfSelectedSno.length > 20) {
+                        simpleDialogBox(
+                          context: context,
+                          title: 'Alert',
+                          message: 'Only 20 injectors can be selected per site.',
+                        );
+                      } else {
+                        setState(() {
+                          widget.configPvd.updateSelectionInFertilization(fertilizationSite.commonDetails.sNo!, parameterType);
+                        });
+                        Navigator.pop(context);
+                      }
                     }
                 );
               },
@@ -185,11 +206,11 @@ class _FertilizationConfigurationState extends State<FertilizationConfiguration>
     required int parameter
   }){
     List<DeviceObjectModel> listOfObject = widget.configPvd.listOfGeneratedObject
-        .where((object) => object.objectId == objectId)
+        .where((object) => object.objectId == objectId && object.controllerId != null)
         .toList();
     List<double> assigned = [];
     List<double> unAssigned = [];
-    if(![AppConstants.ecObjectId, AppConstants.phObjectId].contains(objectId)){
+    if(![AppConstants.ecObjectId, AppConstants.phObjectId, AppConstants.boosterObjectId, AppConstants.agitatorObjectId].contains(objectId)){
       for(var site in widget.configPvd.fertilization){
         List<double> siteParameter = parameter == 1
             ? site.channel.map((channel) => channel.sNo).toList()

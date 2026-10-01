@@ -447,6 +447,8 @@ class ConstantProvider extends ChangeNotifier{
           })
         else
           ...List.generate(defaultEcPhSetting.length, (index){
+            print("ec setting => ${defaultEcPhSetting[index].sNo} | ${defaultEcPhSetting[index].title} | ${defaultEcPhSetting[index].value.value}");
+            if(defaultEcPhSetting[index].sNo == 8) return '';
             return payloadValidate(defaultEcPhSetting[index].value.value);
           }),
         if(ecPhSensor.isNotEmpty && ecPhSensor[siteIndex].phSetting.isNotEmpty)
@@ -457,6 +459,7 @@ class ConstantProvider extends ChangeNotifier{
           })
         else
           ...List.generate(defaultEcPhSetting.length, (index){
+            if(defaultEcPhSetting[index].sNo == 8) return '';
             return payloadValidate(defaultEcPhSetting[index].value.value);
           }),
       ].join(',');

@@ -279,13 +279,21 @@ class _SourceConfigurationState extends State<SourceConfiguration> {
                                                       singleSelection: false,
                                                       listOfObject: widget.configPvd.listOfGeneratedObject.where((object) => (object.objectId == AppConstants.valveObjectId && !widget.configPvd.source.any((src) => src.valves.contains(object.sNo)))).toList(),
                                                       onPressed: (){
-                                                        setState(() {
-                                                          source.outletValves.clear();
-                                                          source.outletValves.addAll(widget.configPvd.listOfSelectedSno);
-                                                          widget.configPvd.updateAssignObject(sNo: source.commonDetails.sNo!, objectId: AppConstants.valveObjectId,listOfSerialNo: widget.configPvd.listOfSelectedSno);
-                                                          widget.configPvd.listOfSelectedSno.clear();
-                                                        });
-                                                        Navigator.pop(context);
+                                                        if (widget.configPvd.listOfSelectedSno.length > 1) {
+                                                          simpleDialogBox(
+                                                            context: context,
+                                                            title: 'Alert',
+                                                            message: 'Only single valve can be selected for outlet valve.',
+                                                          );
+                                                        } else {
+                                                          setState(() {
+                                                            source.outletValves.clear();
+                                                            source.outletValves.addAll(widget.configPvd.listOfSelectedSno);
+                                                            widget.configPvd.updateAssignObject(sNo: source.commonDetails.sNo!, objectId: AppConstants.valveObjectId,listOfSerialNo: widget.configPvd.listOfSelectedSno);
+                                                            widget.configPvd.listOfSelectedSno.clear();
+                                                          });
+                                                          Navigator.pop(context);
+                                                        }
                                                       }
                                                   );
                                                 },
@@ -300,6 +308,105 @@ class _SourceConfigurationState extends State<SourceConfiguration> {
                                       getLevelAndFloatSelection(source, mode),
                                   if([6,7].contains(source.sourceType))
                                     ...[
+                                      if(widget.configPvd.listOfGeneratedObject.any((object) => object.objectId == AppConstants.tankValveObjectId))
+                                        ...[
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(8),
+                                              color: Theme.of(context).primaryColorLight.withOpacity(0.1),
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                SizedImage(imagePath: '${AppConstants.svgObjectPath}objectId_${AppConstants.tankValveObjectId}.svg', color: Colors.black,),
+                                                const SizedBox(width: 20,),
+                                                const Text('Inlet Tank Valve : ', style: AppProperties.listTileBlackBoldStyle,),
+                                                Expanded(
+                                                  child: Center(
+                                                    child: Text(source.inletTankValve.map((sNo) => getObjectName(sNo, widget.configPvd).name!).join(', '), style: const TextStyle(color: Colors.teal, fontSize: 12, fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis),),
+                                                  ),
+                                                ),
+                                                IconButton(
+                                                    onPressed: (){
+                                                      setState(() {
+                                                        widget.configPvd.listOfSelectedSno.clear();
+                                                        widget.configPvd.listOfSelectedSno.addAll(source.inletTankValve);
+                                                      });
+                                                      selectionDialogBox(
+                                                          context: context,
+                                                          title: 'Select Inlet Tank Valve',
+                                                          singleSelection: false,
+                                                          listOfObject: widget.configPvd.listOfGeneratedObject.where((object) => (object.objectId == AppConstants.tankValveObjectId && !widget.configPvd.source.any((src) => src.outletTankValve.contains(object.sNo)))).toList(),
+                                                          onPressed: (){
+                                                            setState(() {
+                                                              source.inletTankValve.clear();
+                                                              source.inletTankValve.addAll(widget.configPvd.listOfSelectedSno);
+                                                              widget.configPvd.updateAssignObject(sNo: source.commonDetails.sNo!, objectId: AppConstants.tankValveObjectId,listOfSerialNo: widget.configPvd.listOfSelectedSno);
+                                                              widget.configPvd.listOfSelectedSno.clear();
+                                                            });
+                                                            Navigator.pop(context);
+                                                          }
+                                                      );
+                                                    },
+                                                    icon: Icon(Icons.touch_app, color: Theme.of(context).primaryColor, size: 20,)
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(8),
+                                              color: Theme.of(context).primaryColorLight.withOpacity(0.1),
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                SizedImage(imagePath: '${AppConstants.svgObjectPath}objectId_${AppConstants.tankValveObjectId}.svg', color: Colors.black,),
+                                                const SizedBox(width: 20,),
+                                                const Text('Outlet Tank Valve : ', style: AppProperties.listTileBlackBoldStyle,),
+                                                Expanded(
+                                                  child: Center(
+                                                    child: Text(source.outletTankValve.map((sNo) => getObjectName(sNo, widget.configPvd).name!).join(', '), style: const TextStyle(color: Colors.teal, fontSize: 12, fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis),),
+                                                  ),
+                                                ),
+                                                IconButton(
+                                                    onPressed: (){
+                                                      setState(() {
+                                                        widget.configPvd.listOfSelectedSno.clear();
+                                                        widget.configPvd.listOfSelectedSno.addAll(source.outletTankValve);
+                                                      });
+                                                      selectionDialogBox(
+                                                          context: context,
+                                                          title: 'Select Outlet Tank Valve',
+                                                          singleSelection: false,
+                                                          listOfObject: widget.configPvd.listOfGeneratedObject.where((object) => (object.objectId == AppConstants.tankValveObjectId && !widget.configPvd.source.any((src) => src.inletTankValve.contains(object.sNo)))).toList(),
+                                                          onPressed: (){
+                                                            if (widget.configPvd.listOfSelectedSno.length > 1) {
+                                                              simpleDialogBox(
+                                                                context: context,
+                                                                title: 'Alert',
+                                                                message: 'Only single valve can be selected for outlet valve.',
+                                                              );
+                                                            } else {
+                                                              setState(() {
+                                                                source.outletTankValve.clear();
+                                                                source.outletTankValve.addAll(widget.configPvd.listOfSelectedSno);
+                                                                widget.configPvd.updateAssignObject(sNo: source.commonDetails.sNo!, objectId: AppConstants.tankValveObjectId,listOfSerialNo: widget.configPvd.listOfSelectedSno);
+                                                                widget.configPvd.listOfSelectedSno.clear();
+                                                              });
+                                                              Navigator.pop(context);
+                                                            }
+                                                          }
+                                                      );
+                                                    },
+                                                    icon: Icon(Icons.touch_app, color: Theme.of(context).primaryColor, size: 20,)
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                        ],
                                       Container(
                                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                         decoration: BoxDecoration(

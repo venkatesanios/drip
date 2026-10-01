@@ -15,6 +15,8 @@ class SourceModel {
   List<double> aerator;
   List<double> valves;
   List<double> outletValves;
+  List<double> inletTankValve;
+  List<double> outletTankValve;
   List<double> agitator;
 
   SourceModel({
@@ -31,6 +33,8 @@ class SourceModel {
     required this.aerator,
     required this.valves,
     required this.outletValves,
+    required this.inletTankValve,
+    required this.outletTankValve,
     required this.agitator,
   });
 
@@ -39,6 +43,8 @@ class SourceModel {
     outletPump = outletPump.where((objectId) => !objectIdToBeDeleted.contains(objectId)).toList();
     valves = valves.where((objectId) => !objectIdToBeDeleted.contains(objectId)).toList();
     outletValves = outletValves.where((objectId) => !objectIdToBeDeleted.contains(objectId)).toList();
+    inletTankValve = inletTankValve.where((objectId) => !objectIdToBeDeleted.contains(objectId)).toList();
+    outletTankValve = outletTankValve.where((objectId) => !objectIdToBeDeleted.contains(objectId)).toList();
     agitator = agitator.where((objectId) => !objectIdToBeDeleted.contains(objectId)).toList();
     level = objectIdToBeDeleted.contains(level) ? 0.0 : level;
     outletWaterMeter = objectIdToBeDeleted.contains(outletWaterMeter) ? 0.0 : outletWaterMeter;
@@ -65,6 +71,8 @@ class SourceModel {
         aerator: data['aerator'] != null ?  (data['aerator'] as List<dynamic>).map((sNo) => sNo as double).toList() : [],
         valves: (data['valves'] as List<dynamic>).map((sNo) => sNo as double).toList(),
         outletValves: data['outletValves'] != null ? (data['outletValves'] as List<dynamic>).map((sNo) => sNo as double).toList() : [],
+        inletTankValve: data['inletTankValve'] != null ? (data['inletTankValve'] as List<dynamic>).map((sNo) => sNo as double).toList() : [],
+        outletTankValve: data['outletTankValve'] != null ? (data['outletTankValve'] as List<dynamic>).map((sNo) => sNo as double).toList() : [],
         agitator: data['agitator'] != null ? (data['agitator'] as List<dynamic>).map((sNo) => sNo as double).toList() : [],
     );
   }
@@ -84,6 +92,8 @@ class SourceModel {
       'aerator' : aerator,
       'valves' : valves,
       'outletValves' : outletValves,
+      'inletTankValve' : inletTankValve,
+      'outletTankValve' : outletTankValve,
       'agitator' : agitator,
     });
     return commonInfo;

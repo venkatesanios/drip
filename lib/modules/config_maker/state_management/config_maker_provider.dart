@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:oro_drip_irrigation/modules/config_maker/model/ec_model.dart';
 import 'package:oro_drip_irrigation/modules/config_maker/repository/config_maker_repository.dart';
 import 'package:oro_drip_irrigation/utils/constants.dart';
+import 'package:oro_drip_irrigation/view_models/create_account_view_model.dart';
 import '../model/channel_config_model.dart';
 import '../model/device_model.dart';
 import '../model/device_object_model.dart';
@@ -543,7 +544,7 @@ class ConfigMakerProvider extends ChangeNotifier{
               );
             }else if(deviceObjectModel.objectId == AppConstants.sourceObjectId){
               source.add(
-                  SourceModel(commonDetails: deviceObjectModel, inletPump: [], outletPump: [], aerator: [], valves: [], outletValves: [], agitator: [],)
+                  SourceModel(commonDetails: deviceObjectModel, inletPump: [], outletPump: [], aerator: [], valves: [], outletValves: [], agitator: [], inletTankValve: [], outletTankValve: [])
               );
             }else if(deviceObjectModel.objectId == AppConstants.pumpObjectId){
               pump.add(
@@ -1191,7 +1192,7 @@ class ConfigMakerProvider extends ChangeNotifier{
     List<String> pumpPayload = [];
 
     for (var i = 0; i < pump.length; i++) {
-      bool pumpIsConnected = listOfGeneratedObject.any((object) => object.sNo == pump[i].commonDetails.sNo && object.connectionNo != null);
+      bool pumpIsConnected = listOfGeneratedObject.any((object) => object.sNo == pump[i].commonDetails.sNo && object.connectionNo != null && object.controllerId != null);
       var pumpModelObject = pump[i];
       var relatedSources = source.where((e) => e.inletPump.contains(pumpModelObject.commonDetails.sNo) || e.outletPump.contains(pumpModelObject.commonDetails.sNo)).toList();
       if(pumpIsConnected){
@@ -1334,6 +1335,29 @@ class ConfigMakerProvider extends ChangeNotifier{
       }.entries.map((e) => e.value).join(","));
     }
     return moisturePayload.join(";");
+  }
+
+  String getTankValvePayload() {
+    List<dynamic> tankValvePayload = [];
+    List<DeviceObjectModel> tankValveList = listOfGeneratedObject.where((e) => e.objectId == AppConstants.tankValveObjectId && e.controllerId != null).toList();
+    for(var tankValve in tankValveList){
+      SourceModel? sumpSource = source.firstWhereOrNull(
+            (e) => e.outletTankValve.contains(tankValve.sNo),
+      );
+      SourceModel? tankSource = source.firstWhereOrNull(
+            (e) => e.inletTankValve.contains(tankValve.sNo),
+      );
+      tankValvePayload.add({
+        "S_No": tankValve.sNo,
+        "SumpTankLevel": sumpSource == null ? '' : sumpSource.level,
+        "TopTankLevel": tankSource == null ? '' : tankSource.level,
+        "TopTankFloatHigh": tankSource == null ? '' : tankSource.topFloatForInletPump,
+        "TopTankFloatLow": tankSource == null ? '' : tankSource.bottomFloatForInletPump,
+        "SumpTankFloatHigh": sumpSource == null ? '' : sumpSource.topFloatForOutletPump,
+        "SumpTankFloatLow": sumpSource == null ? '' : sumpSource.bottomFloatForOutletPump,
+      }.entries.map((e) => e.value).join(","));
+    }
+    return tankValvePayload.join(";");
   }
 
   String getValveConfigPayload() {
@@ -1522,7 +1546,8 @@ class ConfigMakerProvider extends ChangeNotifier{
         "WaterMeter": serialNoOrEmpty(lineModelObject.waterMeter),
         "Agitator" : '',
         "PowerSupplyFeedbackInput" : serialNoOrEmpty(lineModelObject.powerSupply),
-        "Name" : lineModelObject.commonDetails.name
+        "Name" : lineModelObject.commonDetails.name,
+        "Valve" : lineModelObject.valve.join('_')
       }.entries.map((e) => e.value).toList().join(','));
     }
     return irrigationLinePayload.join(";");
