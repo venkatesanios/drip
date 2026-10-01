@@ -149,7 +149,9 @@ Future<String?> exportZoneLogMatrixToExcel({
   required List<DateTime> dateColumns,
   required List<dynamic> rows,
   required Map<String, int> dailyTotals,
+  Map<String, int>? dailyTotalQuantities,
   required int grandTotalSeconds,
+  int grandTotalQuantity = 0,
   required String fileName,
 }) async {
   try {
@@ -165,6 +167,7 @@ Future<String?> exportZoneLogMatrixToExcel({
       header1.add(TextCellValue(''));
     }
     header1.add(TextCellValue('Total'));
+    header1.add(TextCellValue(''));
     sheet.appendRow(header1);
 
     // Header 2: Sub-headers
@@ -174,6 +177,7 @@ Future<String?> exportZoneLogMatrixToExcel({
       header2.add(TextCellValue('Quantity'));
     }
     header2.add(TextCellValue('Total Duration'));
+    header2.add(TextCellValue('Total Quantity'));
     sheet.appendRow(header2);
 
     // Data rows
@@ -186,6 +190,7 @@ Future<String?> exportZoneLogMatrixToExcel({
       dataRow.add(TextCellValue(displayName));
 
       int rowTotalSec = 0;
+      int rowTotalQty = 0;
       for (var d in dateColumns) {
         String dKey = DateFormat('yyyy-MM-dd').format(d);
         var dayData = row.dayEntries[dKey];
@@ -193,12 +198,14 @@ Future<String?> exportZoneLogMatrixToExcel({
           dataRow.add(TextCellValue(dayData.durationQtyStr));
           dataRow.add(TextCellValue(dayData.qtyCompletedStr));
           rowTotalSec += (dayData.durationQtySeconds as int? ?? 0);
+          rowTotalQty += (dayData.quantityCompleted as int? ?? 0);
         } else {
           dataRow.add(TextCellValue('00:00:00'));
           dataRow.add(TextCellValue('0'));
         }
       }
       dataRow.add(TextCellValue(_formatDurationHelper(rowTotalSec)));
+      dataRow.add(TextCellValue(rowTotalQty.toString()));
       sheet.appendRow(dataRow);
     }
 
@@ -207,10 +214,12 @@ Future<String?> exportZoneLogMatrixToExcel({
     for (var d in dateColumns) {
       String dKey = DateFormat('yyyy-MM-dd').format(d);
       int daySec = dailyTotals[dKey] ?? 0;
+      int dayQty = dailyTotalQuantities?[dKey] ?? 0;
       footerRow.add(TextCellValue(_formatDurationHelper(daySec)));
-      footerRow.add(TextCellValue(''));
+      footerRow.add(TextCellValue(dayQty.toString()));
     }
     footerRow.add(TextCellValue(_formatDurationHelper(grandTotalSeconds)));
+    footerRow.add(TextCellValue(grandTotalQuantity.toString()));
     sheet.appendRow(footerRow);
 
     final fileBytes = excel.encode();
