@@ -1,72 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:easy_pdf_viewer/easy_pdf_viewer.dart';
+import 'package:pdfrx/pdfrx.dart';
 
-class UserManualScreen extends StatefulWidget {
-  const UserManualScreen({
-    super.key,
-    required this.pdfUrl,
-  });
-
-  final String pdfUrl;
-
-  @override
-  State<UserManualScreen> createState() => _UserManualScreenState();
-}
-
-class _UserManualScreenState extends State<UserManualScreen> {
-  PDFDocument? document;
-  bool isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    loadPdf();
-  }
-
-  Future<void> loadPdf() async {
-    try {
-      final pdf = await PDFDocument.fromURL(widget.pdfUrl);
-
-      if (!mounted) return;
-
-      setState(() {
-        document = pdf;
-        isLoading = false;
-      });
-    } catch (e) {
-      if (!mounted) return;
-
-      setState(() {
-        isLoading = false;
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Unable to load PDF: $e'),
-        ),
-      );
-    }
-  }
+class UserManualScreen extends StatelessWidget {
+  final String url;
+  const UserManualScreen({super.key, required this.url});
 
   @override
   Widget build(BuildContext context) {
+    print(url);
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text('User Manual'),
-      ),
-      body: isLoading
-          ? const Center(
-        child: CircularProgressIndicator(),
-      )
-          : document == null
-          ? const Center(
-        child: Text('Unable to load user manual'),
-      )
-          : PDFViewer(
-        document: document!,
-        lazyLoad: false,
-        zoomSteps: 1,
+      appBar: AppBar(title: const Text('User Manual')),
+      body: PdfViewer.uri(
+        Uri.parse(url),
+        params: PdfViewerParams(
+          textSelectionParams: const PdfTextSelectionParams(enabled: false),
+          loadingBannerBuilder: (context, bytesDownloaded, totalBytes) =>
+          const Center(child: CircularProgressIndicator()),
+          errorBannerBuilder: (context, error, stackTrace, documentRef) =>
+              Center(child: Text('Unable to load user manual\n$error')),
+        ),
       ),
     );
   }
