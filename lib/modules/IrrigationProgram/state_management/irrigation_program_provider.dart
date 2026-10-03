@@ -854,14 +854,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
   TextEditingController ph = TextEditingController();
   TextEditingController channel = TextEditingController();
   TextEditingController injectorValue = TextEditingController();
-  TextEditingController injectorValue_0 = TextEditingController();
-  TextEditingController injectorValue_1 = TextEditingController();
-  TextEditingController injectorValue_2 = TextEditingController();
-  TextEditingController injectorValue_3 = TextEditingController();
-  TextEditingController injectorValue_4 = TextEditingController();
-  TextEditingController injectorValue_5 = TextEditingController();
-  TextEditingController injectorValue_6 = TextEditingController();
-  TextEditingController injectorValue_7 = TextEditingController();
+  final Map<int, TextEditingController> _injectorControllers = {};
   ScrollController scrollControllerGroup = ScrollController();
   ScrollController scrollControllerSite = ScrollController();
   ScrollController scrollControllerInjector = ScrollController();
@@ -1015,30 +1008,10 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
   }
 
   TextEditingController getInjectorController(int index){
-    if(index == 0){
-      return injectorValue_0;
+    if (!_injectorControllers.containsKey(index)) {
+      _injectorControllers[index] = TextEditingController();
     }
-    else if(index == 1){
-      return injectorValue_1;
-    }
-    else if(index == 2){
-      return injectorValue_2;
-    }
-    else if(index == 3){
-      return injectorValue_3;
-    }
-    else if(index == 4){
-      return injectorValue_4;
-    }
-    else if(index == 5){
-      return injectorValue_5;
-    }
-    else if(index == 6){
-      return injectorValue_6;
-    }
-    else{
-      return injectorValue_7;
-    }
+    return _injectorControllers[index]!;
   }
 
   void editSegmentedCentralLocal(int value){
