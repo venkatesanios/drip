@@ -133,7 +133,7 @@ class IndividualPumpData {
           : reason == 2 ? "$motorOff upper tank full"
           : reason == 3 ? "$motorOff low voltage"
           : reason == 4 ? "$motorOff high voltage"
-          : reason == 5 ? "$motorOff voltage SPP"
+          : reason == 5 ? "$motorOff unbalanced voltage"
           : reason == 6 ? "$motorOff reverse phase"
           : reason == 7 ? "$motorOff starter trip"
           : reason == 8 ? "$motorOff dry run"
@@ -176,6 +176,7 @@ class IndividualPumpData {
           : reason == 46 ? "$motorOff tank float failed"
           : reason == 47 ? "$motorOn Auto On Power On"
           : reason == 48 ? "$motorOff Auto Off Power On"
+          : reason == 49 ? "$motorOff Dry run occurrence"
           : "Unknown",
       waterMeter: json["WM"] ?? "",
       cumulativeFlow: value != "-" ? value.substring(firstIndex) : "-",

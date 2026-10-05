@@ -131,7 +131,7 @@ enum PumpReasonCode {
   sumpFloatFailed(40,'Motor off due to sump float failed'),
   tankFloatFailed(41,'Motor off due to tank float failed'),
   motorOffCyclicTimeCompleted(42, 'Motor off due to cycle completed'),
-  motorOffDryRunOccurrence(43, 'Motor off due to dry run occurrence');
+  motorOffDryRunOccurrence(49, 'Motor off due to dry run occurrence');
 
   final int code;
   final String content;

@@ -104,8 +104,10 @@ class BleProvider extends ChangeNotifier {
 
   /*controller variable*/
   ScrollController traceScrollController = ScrollController();
-  TextEditingController frequency = TextEditingController();
-  TextEditingController spreadFactor = TextEditingController();
+  TextEditingController frequency1 = TextEditingController();
+  TextEditingController frequency2 = TextEditingController();
+  TextEditingController spreadFactor1 = TextEditingController();
+  TextEditingController spreadFactor2 = TextEditingController();
   TextEditingController wifiSsid = TextEditingController();
   TextEditingController wifiPassword = TextEditingController();
   TextEditingController ec1Controller = TextEditingController();
@@ -599,10 +601,16 @@ class BleProvider extends ChangeNotifier {
               }
 
               if (nodeDataFromHw.containsKey('FRQ')) {
-                frequency.text = '${int.parse(nodeDataFromHw['FRQ']) / 10}';
+                frequency1.text = '${int.parse(nodeDataFromHw['FRQ']) / 10}';
+              }
+              if (nodeDataFromHw.containsKey('FRQ2')) {
+                frequency2.text = '${int.parse(nodeDataFromHw['FRQ2']) / 10}';
               }
               if (nodeDataFromHw.containsKey('SF')) {
-                spreadFactor.text = nodeDataFromHw['SF'];
+                spreadFactor1.text = nodeDataFromHw['SF'];
+              }
+              if (nodeDataFromHw.containsKey('SF2')) {
+                spreadFactor2.text = nodeDataFromHw['SF2'];
               }
               if (nodeDataFromHw.containsKey('WIFISSID')) {
                 wifiSsid.text = nodeDataFromHw['WIFISSID'];
