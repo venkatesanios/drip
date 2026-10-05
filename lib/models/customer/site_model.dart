@@ -209,8 +209,10 @@ class MasterControllerModel {
 
     final waterSourcesRaw = config['waterSource'] as List? ?? [];
     final filterSiteRaw = config['filterSite'] as List? ?? [];
+
     final fertilizerSiteRaw = config['fertilizerSite'] as List? ?? [];
     final moistureSensorRaw = config['moistureSensor'] as List? ?? [];
+
     final valveRaw = config['valve'] as List? ?? [];
 
     final pumpRaw = (config['pump'] as List?) ?? [];
@@ -547,10 +549,18 @@ class IrrigationLineModel {
 
     final sourcePumpList = (json['sourcePump'] as List?) ?? [];
     final sourcePumpSet = sourcePumpList.map((e) => (e as num).toDouble()).toSet();
+
+    /*final matchedInletSources = WaterSourceUtils.getWaterSourcesByOutletPump(
+      sourcePumpSet: sourcePumpSet,
+      allWaterSources: waterSources,
+      isAerator: false,
+    );*/
+
     final matchedInletSources = WaterSourceUtils.getWaterSourcesByOutletPump(
       sourcePumpSet: sourcePumpSet,
       allWaterSources: waterSources,
       isAerator: false,
+      includeInletOnly: true,
     );
 
     final irrPumpList = (json['irrigationPump'] as List?) ?? [];
@@ -2482,6 +2492,65 @@ class WaterSourceUtils {
     required Set<double> sourcePumpSet,
     required List<WaterSourceModel> allWaterSources,
     required bool isAerator,
+    bool includeInletOnly = false, // add sources that only have inlet pumps
+  }) {
+    final result = <WaterSourceModel>[];
+    final inletOnly = <WaterSourceModel>[];
+
+    for (final source in allWaterSources) {
+      final matchingOutletPumps = source.outletPump
+          .where((pump) => sourcePumpSet.contains(pump.sNo))
+          .toList();
+
+      final matchingAeratorPumps = source.aeratorPump
+          .where((pump) => sourcePumpSet.contains(pump.sNo))
+          .toList();
+
+      if (matchingOutletPumps.isNotEmpty || matchingAeratorPumps.isNotEmpty) {
+        result.add(WaterSourceModel(
+          sNo: source.sNo,
+          name: source.name,
+          sourceType: source.sourceType,
+          inletPumpSno: [],
+          outletPumpSno: [],
+          inletPump: [],
+          outletPump: matchingOutletPumps,
+          aeratorPump: matchingAeratorPumps,
+          isWaterInAndOut: false,
+          level: source.level,
+          floatSwitches: source.floatSwitches,
+        ));
+      } else if (includeInletOnly &&
+          source.outletPump.isEmpty &&
+          source.inletPump.any((pump) => sourcePumpSet.contains(pump.sNo))) {
+        // Final tank: only inlet pumps feed it, no outlet pump.
+        inletOnly.add(WaterSourceModel(
+          sNo: source.sNo,
+          name: source.name,
+          sourceType: source.sourceType,
+          inletPumpSno: source.inletPumpSno,
+          outletPumpSno: [],
+          inletPump: [],          // pumps already shown on the source before it
+          outletPump: [],
+          aeratorPump: [],
+          isWaterInAndOut: false,
+          level: source.level,
+          floatSwitches: source.floatSwitches,
+        ));
+      }
+    }
+
+    // inlet-only sources go last
+    return [...result, ...inletOnly];
+  }
+}
+
+/*class WaterSourceUtils {
+
+  static List<WaterSourceModel> getWaterSourcesByOutletPump({
+    required Set<double> sourcePumpSet,
+    required List<WaterSourceModel> allWaterSources,
+    required bool isAerator,
   }) {
     return allWaterSources.map((source) {
 
@@ -2511,7 +2580,7 @@ class WaterSourceUtils {
     }).whereType<WaterSourceModel>().toList();
   }
 
-}
+}*/
 
 class UserPermission {
   final int sNo;
