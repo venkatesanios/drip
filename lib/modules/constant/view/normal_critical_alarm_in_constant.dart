@@ -27,8 +27,24 @@ class _NormalCriticalInConstantState extends State<NormalCriticalInConstant> {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    double minWidth = (cellWidth * 1) + (widget.constPvd.defaultNormalCriticalAlarmSetting.length * cellWidth) + 50;
     bool isGem = AppConstants.gemModelList.contains(widget.constPvd.userData['modelId']);
+    bool isNova = AppConstants.ecoGemModelList.contains(widget.constPvd.userData['modelId']);
+    
+    List<ConstantSettingModel> visibleSettings = widget.constPvd.defaultNormalCriticalAlarmSetting.where((defaultSetting) {
+      bool display = isGem ? defaultSetting.gemDisplay : defaultSetting.ecoGemDisplay;
+      if (isNova && display) {
+        String titleLower = defaultSetting.title.toLowerCase();
+        if (titleLower.contains('alarm on status') ||
+            titleLower.contains('auto reset') ||
+            titleLower.contains('reset after irrigation') ||
+            titleLower.contains('active')) {
+          display = false;
+        }
+      }
+      return display;
+    }).toList();
+
+    double minWidth = (cellWidth * 1) + (visibleSettings.length * cellWidth) + 50;
     Color borderColor = const Color(0xffE1E2E3);
     return Column(
       children: [
@@ -52,9 +68,7 @@ class _NormalCriticalInConstantState extends State<NormalCriticalInConstant> {
                           fixedWidth: cellWidth,
                           label: Text('Alarm', style: Theme.of(context).textTheme.labelLarge,textAlign: TextAlign.center, softWrap: true)
                       ),
-                      ...widget.constPvd.defaultNormalCriticalAlarmSetting
-                          .where((defaultSetting) => AppConstants.gemModelList.contains(widget.constPvd.userData['modelId']) ? defaultSetting.gemDisplay : defaultSetting.ecoGemDisplay)
-                          .map((defaultSetting) {
+                      ...visibleSettings.map((defaultSetting) {
                         return DataColumn2(
                             headingRowAlignment: MainAxisAlignment.center,
                             fixedWidth: cellWidth,
@@ -82,37 +96,40 @@ class _NormalCriticalInConstantState extends State<NormalCriticalInConstant> {
                                 )
                             ),
                             for(var index = 0;index < widget.constPvd.defaultNormalCriticalAlarmSetting.length;index++)
-                              if(isGem ? widget.constPvd.defaultNormalCriticalAlarmSetting[index].gemDisplay : widget.constPvd.defaultNormalCriticalAlarmSetting[index].ecoGemDisplay)
+                              if(visibleSettings.contains(widget.constPvd.defaultNormalCriticalAlarmSetting[index]))
                                 DataCell(
                                     Column(
                                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                       children: [
-                                        AnimatedBuilder(
-                                            animation: normalAlarm.setting[index].value,
-                                            builder: (context, child){
-                                              return SizedBox(
-                                                height: 40,
-                                                width: cellWidth,
-                                                child: FindSuitableWidget(
-                                                  constantSettingModel: normalAlarm.setting[index],
-                                                  onUpdate: (value){
-                                                    normalAlarm.setting[index].value.value = value;
-                                                    if(normalAlarm.setting[index].common != null){
-                                                      criticalAlarm.setting[index].value.value = value;
-                                                    }
-                                                  },
-                                                  onOk: (){
-                                                    normalAlarm.setting[index].value.value = widget.overAllPvd.getTime();
-                                                    if(normalAlarm.setting[index].common != null){
-                                                      criticalAlarm.setting[index].value.value = widget.overAllPvd.getTime();
-                                                    }
-                                                    Navigator.pop(context);
-                                                  },
-                                                  popUpItemModelList: normalAlarm.setting[index].sNo == 2 ? widget.constPvd.alarmOnStatus : widget.constPvd.alarmResetAfterIrrigation,
-                                                ),
-                                              );
-                                            }
-                                        ),
+                                        if (isNova && widget.constPvd.defaultNormalCriticalAlarmSetting[index].title.toLowerCase().contains('scan time') && !(normalAlarm.title.toLowerCase().contains('low flow') || normalAlarm.title.toLowerCase().contains('high flow') || normalAlarm.title.toLowerCase().contains('no flow')))
+                                          SizedBox(height: 40, width: cellWidth, child: const Center(child: Text('-')))
+                                        else
+                                          AnimatedBuilder(
+                                              animation: normalAlarm.setting[index].value,
+                                              builder: (context, child){
+                                                return SizedBox(
+                                                  height: 40,
+                                                  width: cellWidth,
+                                                  child: FindSuitableWidget(
+                                                    constantSettingModel: normalAlarm.setting[index],
+                                                    onUpdate: (value){
+                                                      normalAlarm.setting[index].value.value = value;
+                                                      if(normalAlarm.setting[index].common != null){
+                                                        criticalAlarm.setting[index].value.value = value;
+                                                      }
+                                                    },
+                                                    onOk: (){
+                                                      normalAlarm.setting[index].value.value = widget.overAllPvd.getTime();
+                                                      if(normalAlarm.setting[index].common != null){
+                                                        criticalAlarm.setting[index].value.value = widget.overAllPvd.getTime();
+                                                      }
+                                                      Navigator.pop(context);
+                                                    },
+                                                    popUpItemModelList: normalAlarm.setting[index].sNo == 2 ? widget.constPvd.alarmOnStatus : widget.constPvd.alarmResetAfterIrrigation,
+                                                  ),
+                                                );
+                                              }
+                                          ),
                                         if(criticalAlarm.setting[index].common == null && !AppConstants.ecoGemModelList.contains(widget.constPvd.userData['modelId']))
                                           AnimatedBuilder(
                                               animation: criticalAlarm.setting[index].value,
