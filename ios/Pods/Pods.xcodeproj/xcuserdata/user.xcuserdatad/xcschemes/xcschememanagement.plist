@@ -154,11 +154,6 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>MTBBarcodeScanner.xcscheme</key>
-		<dict>
-			<key>isShown</key>
-			<false/>
-		</dict>
 		<key>Mantle.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -395,11 +390,6 @@
 			<false/>
 		</dict>
 		<key>pointer_interceptor_ios.xcscheme</key>
-		<dict>
-			<key>isShown</key>
-			<false/>
-		</dict>
-		<key>qr_code_scanner_plus.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
