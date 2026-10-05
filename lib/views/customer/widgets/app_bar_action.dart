@@ -217,7 +217,7 @@ Widget _buildHelpMenu(
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => UserManualScreen(url: pdfUrl),
+                          builder: (_) => UserManualScreen(pdfUrl: pdfUrl),
                         ),
                       );
                     }
