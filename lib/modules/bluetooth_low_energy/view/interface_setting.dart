@@ -16,7 +16,9 @@ class InterfaceSetting extends StatefulWidget {
 class _InterfaceSettingState extends State<InterfaceSetting> {
   late BleProvider bleService;
   FocusNode frequencyFocus = FocusNode();
+  FocusNode frequencyFocus2 = FocusNode();
   FocusNode spreadingFactorFocus = FocusNode();
+  FocusNode spreadingFactorFocus2 = FocusNode();
   final _formKey = GlobalKey<FormState>();
   String userName = '';
   String password = '';
@@ -58,6 +60,19 @@ class _InterfaceSettingState extends State<InterfaceSetting> {
         }
       }
     });
+    frequencyFocus2.addListener(() {
+      if(frequencyFocus2.hasFocus == false){
+        var value = double.parse(bleService.frequency2.text == '' ? '0' : bleService.frequency2.text);
+        if(value > 850.0 && value < 1000.0){
+
+        }else{
+          setState(() {
+            bleService.frequency2.text = '850.0';
+          });
+          simpleDialogBox(message: 'Frequency should be in the range of 850.0 to 880.0',context: context,title: 'Alert');
+        }
+      }
+    });
     spreadingFactorFocus.addListener(() {
       if(spreadingFactorFocus.hasFocus == false){
         var value = int.parse(bleService.spreadFactor1.text == '' ? '0' : bleService.spreadFactor1.text);
@@ -66,6 +81,19 @@ class _InterfaceSettingState extends State<InterfaceSetting> {
         }else{
           setState(() {
             bleService.spreadFactor1.text = '7';
+          });
+          simpleDialogBox(message: 'Spreading factor should be in the range of 7 to 12',context: context, title: 'Alert');
+        }
+      }
+    });
+    spreadingFactorFocus2.addListener(() {
+      if(spreadingFactorFocus2.hasFocus == false){
+        var value = int.parse(bleService.spreadFactor2.text == '' ? '0' : bleService.spreadFactor2.text);
+        if(value >= 7.0 && value <= 12.0){
+
+        }else{
+          setState(() {
+            bleService.spreadFactor2.text = '7';
           });
           simpleDialogBox(message: 'Spreading factor should be in the range of 7 to 12',context: context, title: 'Alert');
         }
@@ -264,7 +292,7 @@ class _InterfaceSettingState extends State<InterfaceSetting> {
                       ),
                       const SizedBox(height: 30),
                       TextFormField(
-                        focusNode: frequencyFocus,
+                        focusNode: frequencyFocus2,
                         controller: bleService.frequency2,
                         keyboardType: TextInputType.number,
                         decoration: inputDecoration.copyWith(
@@ -276,7 +304,7 @@ class _InterfaceSettingState extends State<InterfaceSetting> {
                       ),
                       const SizedBox(height: 20),
                       TextFormField(
-                        focusNode: spreadingFactorFocus,
+                        focusNode: spreadingFactorFocus2,
                         controller: bleService.spreadFactor2,
                         keyboardType: TextInputType.number,
                         decoration: inputDecoration.copyWith(

@@ -80,11 +80,30 @@ class _ChannelConfigurationState extends State<ChannelConfiguration> {
                                 runSpacing: 20,
                                 children: [
                                   getDosingMeterSelection(channel),
+                                  // getObject(
+                                  //     channel: channel,
+                                  //     list: channel.source,
+                                  //     objectId: AppConstants.sourceObjectId,
+                                  //     listOfObject: widget.configPvd.source.where((src) => ([6,7].contains(src.sourceType))).map((e) => e.commonDetails).toList()
+                                  // ),
                                   getObject(
                                       channel: channel,
-                                      list: channel.source,
-                                      objectId: AppConstants.sourceObjectId,
-                                      listOfObject: widget.configPvd.source.where((src) => ([6,7].contains(src.sourceType))).map((e) => e.commonDetails).toList()
+                                      list: channel.outletTankValve,
+                                      objectId: AppConstants.tankValveObjectId,
+                                      listOfObject: widget.configPvd.listOfGeneratedObject.where((e) {
+                                        if(e.objectId == AppConstants.tankValveObjectId){
+                                          bool available = widget.configPvd.source.where((src) {
+                                            if(src.sourceType == 7){
+                                              return true;
+                                            }else{
+                                              return false;
+                                            }
+                                          }).any((src) => src.outletTankValve.contains(e.sNo));
+                                          return available;
+                                        }else{
+                                          return false;
+                                        }
+                                      }).toList()
                                   ),
                                 ],
                               ),
@@ -151,7 +170,7 @@ class _ChannelConfigurationState extends State<ChannelConfiguration> {
     required List<DeviceObjectModel> listOfObject,
     required int objectId,
   }){
-    String name = objectId == AppConstants.dosingMeterObjectId ? 'Dosing Meter' : 'Fertilizer Tank';
+    String name = objectId == AppConstants.dosingMeterObjectId ? 'Dosing Meter' : objectId == AppConstants.sourceObjectId ? 'Fertilizer Tank' : 'Outlet Tank Valve';
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(

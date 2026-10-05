@@ -383,21 +383,13 @@ class _SourceConfigurationState extends State<SourceConfiguration> {
                                                           singleSelection: false,
                                                           listOfObject: widget.configPvd.listOfGeneratedObject.where((object) => (object.objectId == AppConstants.tankValveObjectId && !widget.configPvd.source.any((src) => src.inletTankValve.contains(object.sNo)))).toList(),
                                                           onPressed: (){
-                                                            if (widget.configPvd.listOfSelectedSno.length > 1) {
-                                                              simpleDialogBox(
-                                                                context: context,
-                                                                title: 'Alert',
-                                                                message: 'Only single valve can be selected for outlet valve.',
-                                                              );
-                                                            } else {
-                                                              setState(() {
-                                                                source.outletTankValve.clear();
-                                                                source.outletTankValve.addAll(widget.configPvd.listOfSelectedSno);
-                                                                widget.configPvd.updateAssignObject(sNo: source.commonDetails.sNo!, objectId: AppConstants.tankValveObjectId,listOfSerialNo: widget.configPvd.listOfSelectedSno);
-                                                                widget.configPvd.listOfSelectedSno.clear();
-                                                              });
-                                                              Navigator.pop(context);
-                                                            }
+                                                            setState(() {
+                                                              source.outletTankValve.clear();
+                                                              source.outletTankValve.addAll(widget.configPvd.listOfSelectedSno);
+                                                              widget.configPvd.updateAssignObject(sNo: source.commonDetails.sNo!, objectId: AppConstants.tankValveObjectId,listOfSerialNo: widget.configPvd.listOfSelectedSno);
+                                                              widget.configPvd.listOfSelectedSno.clear();
+                                                            });
+                                                            Navigator.pop(context);
                                                           }
                                                       );
                                                     },
