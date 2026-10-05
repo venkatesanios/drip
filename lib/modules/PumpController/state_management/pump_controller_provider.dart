@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+import '../../../models/customer/site_model.dart';
 import '../../../services/http_service.dart';
 import '../../Logs/model/motor_data.dart';
 import '../../Logs/model/motor_data_hourly.dart';
@@ -30,7 +31,63 @@ class PumpControllerProvider extends ChangeNotifier {
 
   List<Map<String, dynamic>> voltageData = [];
 
-  Future<void> getUserPumpLog(userId, controllerId, nodeControllerId) async {
+  List<String> getPumpNames(MasterControllerModel? masterData, int nodeControllerId, int controllerId) {
+    if (masterData != null) {
+      final targetControllerId = nodeControllerId != 0 ? nodeControllerId : controllerId;
+
+      var targetPumps = masterData.configObjects
+          .where((e) => e.objectId == 5 && e.controllerId == targetControllerId)
+          .toList();
+
+      if (targetPumps.isEmpty) {
+        targetPumps = masterData.configObjects
+            .where((e) => e.objectId == 5)
+            .toList();
+      }
+
+      if (targetPumps.isNotEmpty) {
+        String m1 = "Motor 1";
+        String m2 = "Motor 2";
+        String m3 = "Motor 3";
+
+        for (var pump in targetPumps) {
+          if (pump.name.isNotEmpty) {
+            if (pump.connectionNo == 1) {
+              m1 = pump.name;
+            } else if (pump.connectionNo == 2) {
+              m2 = pump.name;
+            } else if (pump.connectionNo == 3) {
+              m3 = pump.name;
+            }
+          }
+        }
+
+        if (m1 == "Motor 1" && targetPumps.isNotEmpty && targetPumps[0].name.isNotEmpty) {
+          m1 = targetPumps[0].name;
+        }
+        if (m2 == "Motor 2" && targetPumps.length > 1 && targetPumps[1].name.isNotEmpty) {
+          m2 = targetPumps[1].name;
+        }
+        if (m3 == "Motor 3" && targetPumps.length > 2 && targetPumps[2].name.isNotEmpty) {
+          m3 = targetPumps[2].name;
+        }
+
+        return [m1, m2, m3];
+      }
+
+      if (nodeControllerId != 0) {
+        final matchingNode = masterData.nodeList
+            .where((n) => n.controllerId == nodeControllerId)
+            .firstOrNull;
+        if (matchingNode != null && matchingNode.deviceName.isNotEmpty) {
+          return [matchingNode.deviceName, matchingNode.deviceName, matchingNode.deviceName];
+        }
+      }
+    }
+    return ["Motor 1", "Motor 2", "Motor 3"];
+  }
+
+  Future<void> getUserPumpLog(userId, controllerId, nodeControllerId, [MasterControllerModel? masterData]) async {
     Map<String, dynamic> data = {
       "userId": userId,
       "controllerId": controllerId,
@@ -50,16 +107,17 @@ class PumpControllerProvider extends ChangeNotifier {
       if (getPumpController.statusCode == 200) {
         if (response['data'] is List) {
           pumpLogData = (response['data'] as List).map((i) => PumpLogData.fromJson(i)).toList();
+          final pumpNames = getPumpNames(masterData, nodeControllerId, controllerId);
           for (var i = 0; i < pumpLogData.length; i++) {
             print(pumpLogData[i].motor1);
             if (pumpLogData[i].motor1.isNotEmpty) {
-              segments.addAll({0: "Motor 1"});
+              segments.addAll({0: pumpNames[0]});
             }
             if (pumpLogData[i].motor2.isNotEmpty) {
-              segments.addAll({1: "Motor 2"});
+              segments.addAll({1: pumpNames[1]});
             }
             if (pumpLogData[i].motor3.isNotEmpty) {
-              segments.addAll({2: "Motor 3"});
+              segments.addAll({2: pumpNames[2]});
             }
             if (pumpLogData[i].motor2.isNotEmpty) {
               selectedIndex = 1;

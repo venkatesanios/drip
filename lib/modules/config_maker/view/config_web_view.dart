@@ -665,6 +665,9 @@ class _ConfigWebViewState extends State<ConfigWebView> {
             '108' : configPvd.getValveConfigPayload(),
           if(gem && !omsGem && configPvd.moisture.any((moisture) => !moisture.isMoistureModelParameterIsEmpty()))
             '109' : configPvd.getMoisturePayload(),
+          if(gem && !omsGem && configPvd.listOfGeneratedObject.any((obj) => obj.objectId == AppConstants.tankValveObjectId))
+            '110' : configPvd.getTankValvePayload(),
+
         }
       };
       setState(() {

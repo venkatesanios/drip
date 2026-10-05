@@ -69,7 +69,7 @@ class _SensorHourlyReportPageState
   DateTime selectedDate = DateTime.now();
 
   bool isLoading = false;
-  bool isGraphView = false;
+  bool isGraphView = true;
 
   List<SensorHourReportGsm> hourlyReport = [];
   List<SensorDailyReport> dailyReport = [];
@@ -297,7 +297,6 @@ class _SensorHourlyReportPageState
   // ============================================================
   // MONTHLY REPORT
   // ============================================================
-
   Future<void> fetchMonthlyReport() async {
     if (!mounted) return;
 
@@ -308,39 +307,40 @@ class _SensorHourlyReportPageState
     });
 
     try {
-      final DateTime firstDay = DateTime(
-        selectedDate.year,
-        selectedDate.month,
-        1,
-      );
-
-      DateTime lastDay = DateTime(
-        selectedDate.year,
-        selectedDate.month + 1,
-        0,
-      );
+      DateTime endDate = _dateOnly(selectedDate);
 
       final DateTime today =
       _dateOnly(DateTime.now());
 
-      // Current month -> stop at today.
-      if (firstDay.year == today.year &&
-          firstDay.month == today.month) {
-        lastDay = today;
+      // Do not allow future end date.
+      if (endDate.isAfter(today)) {
+        endDate = today;
       }
+
+      // Last 30 days including selected date.
+      //
+      // Example:
+      // selectedDate = 28-09-2026
+      //
+      // fromDate = 30-08-2026
+      // toDate   = 28-09-2026
+      final DateTime startDate =
+      endDate.subtract(
+        const Duration(days: 29),
+      );
 
       final String fromDate =
       DateFormat('yyyy-MM-dd').format(
-        firstDay,
+        startDate,
       );
 
       final String toDate =
       DateFormat('yyyy-MM-dd').format(
-        lastDay,
+        endDate,
       );
 
       debugPrint(
-        'Monthly report: $fromDate -> $toDate',
+        'Last 30 Days report: $fromDate -> $toDate',
       );
 
       final response =
@@ -368,15 +368,16 @@ class _SensorHourlyReportPageState
       });
     } catch (e, stackTrace) {
       debugPrint(
-        'Monthly report error: $e',
+        'Last 30 Days report error: $e',
       );
+
       debugPrint(
         '$stackTrace',
       );
 
       if (mounted) {
         _showError(
-          'Unable to load monthly report',
+          'Unable to load last 30 days report',
         );
       }
     } finally {
@@ -387,6 +388,95 @@ class _SensorHourlyReportPageState
       }
     }
   }
+  // Future<void> fetchMonthlyReport() async {
+  //   if (!mounted) return;
+  //
+  //   setState(() {
+  //     isLoading = true;
+  //     hourlyReport = [];
+  //     dailyReport = [];
+  //   });
+  //
+  //   try {
+  //     final DateTime firstDay = DateTime(
+  //       selectedDate.year,
+  //       selectedDate.month,
+  //       1,
+  //     );
+  //
+  //     DateTime lastDay = DateTime(
+  //       selectedDate.year,
+  //       selectedDate.month + 1,
+  //       0,
+  //     );
+  //
+  //     final DateTime today =
+  //     _dateOnly(DateTime.now());
+  //
+  //     // Current month -> stop at today.
+  //     if (firstDay.year == today.year &&
+  //         firstDay.month == today.month) {
+  //       lastDay = today;
+  //     }
+  //
+  //     final String fromDate =
+  //     DateFormat('yyyy-MM-dd').format(
+  //       firstDay,
+  //     );
+  //
+  //     final String toDate =
+  //     DateFormat('yyyy-MM-dd').format(
+  //       lastDay,
+  //     );
+  //
+  //     debugPrint(
+  //       'Monthly report: $fromDate -> $toDate',
+  //     );
+  //
+  //     final response =
+  //     await repository.getweatherReport({
+  //       "userId": widget.userId,
+  //       "controllerId": widget.controllerId,
+  //       "fromDate": fromDate,
+  //       "toDate": toDate,
+  //     });
+  //
+  //     final WeatherReportModel model =
+  //     weatherReportModelFromJson(
+  //       response.body,
+  //     );
+  //
+  //     final List<SensorDailyReport> result =
+  //     calculateDailyReport(
+  //       model,
+  //     );
+  //
+  //     if (!mounted) return;
+  //
+  //     setState(() {
+  //       dailyReport = result;
+  //     });
+  //   } catch (e, stackTrace) {
+  //     debugPrint(
+  //       'Monthly report error: $e',
+  //     );
+  //     debugPrint(
+  //       '$stackTrace',
+  //     );
+  //
+  //     if (mounted) {
+  //       _showError(
+  //         'Unable to load monthly report',
+  //       );
+  //     }
+  //   } finally {
+  //     if (mounted) {
+  //       setState(() {
+  //         isLoading = false;
+  //       });
+  //     }
+  //   }
+  // }
 
   // ============================================================
   // DAILY CALCULATION
@@ -701,11 +791,24 @@ class _SensorHourlyReportPageState
             '${DateFormat('dd MMM yyyy').format(endDate)}';
 
       case ReportType.monthly:
-        return DateFormat(
-          'MMMM yyyy',
-        ).format(
-          selectedDate,
+        DateTime endDate =
+        _dateOnly(selectedDate);
+
+        final DateTime today =
+        _dateOnly(DateTime.now());
+
+        if (endDate.isAfter(today)) {
+          endDate = today;
+        }
+
+        final DateTime startDate =
+        endDate.subtract(
+          const Duration(days: 29),
         );
+
+        return '${DateFormat('dd MMM').format(startDate)}'
+            ' - '
+            '${DateFormat('dd MMM yyyy').format(endDate)}';
     }
   }
 

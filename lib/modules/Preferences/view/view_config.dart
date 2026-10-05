@@ -150,9 +150,7 @@ class _ViewConfigState extends State<ViewConfig> {
 
   void updateViewPayloads(String pumpConfigValue) {
     int numberOfPumps = int.tryParse(pumpConfigValue) ?? 1;
-    print("numberOfPumps : ${numberOfPumps}");
     configs = generateDynamicConfigs(numberOfPumps);
-    print("configs => $configs");
     setState(() {});
   }
 

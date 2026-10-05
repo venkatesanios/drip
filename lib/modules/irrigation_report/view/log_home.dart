@@ -24,6 +24,7 @@ import 'excel_download_stub.dart' if (dart.library.html) 'excel_download_web.dar
 import '../model/data_parsing_and_sorting_model.dart';
 import '../model/general_parameter_model.dart';
 import '../repository/irrigation_repository.dart';
+import 'package:oro_drip_irrigation/Screens/Logs/sensor_graph_log.dart';
 
 class LogHome extends StatefulWidget {
   final dynamic serverData;
@@ -843,7 +844,32 @@ class _LogHomeState extends State<LogHome> {
                               localChannel8Column: dataToShow['localChannel8Column'],
                               localChannel8ColumnData: filterDataByPages(data: dataToShow['localChannel8ColumnData']),
                               graphData: dataToShow['graphData'],
+                              onSequenceClicked: (sequenceName) {
+                                DateTime date1 = DateTime.now();
+                                DateTime date2 = DateTime.now();
+                                try {
+                                  String dateString1 = _selectedDate.split(' - ')[0];
+                                  String dateString2 = _selectedDate.split(' - ')[1];
+                                  List<String> parts1 = dateString1.split('/');
+                                  List<String> parts2 = dateString2.split('/');
+                                  date1 = DateTime(int.parse(parts1[2]), int.parse(parts1[1]), int.parse(parts1[0]));
+                                  date2 = DateTime(int.parse(parts2[2]), int.parse(parts2[1]), int.parse(parts2[0]));
+                                } catch (e) {
+                                  // Fallback to now if parse fails
+                                }
 
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => SensorGraphLog(
+                                      userId: widget.userData['customerId'],
+                                      controllerId: widget.userData['controllerId'],
+                                      fromDate: date1,
+                                      toDate: date2,
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
                         ],
                       ),

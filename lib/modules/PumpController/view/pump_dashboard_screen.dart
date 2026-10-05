@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart' show kDebugMode, debugPrint;
 import 'package:flutter/material.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 import 'package:oro_drip_irrigation/Constants/constants.dart';
@@ -49,6 +50,10 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
   final MqttService mqttService = MqttService();
   final Repository repository = Repository(HttpService());
   late Animation<double> _animation2;
+
+  /// Used to print the phase/reason debug block only when the payload changes
+  /// (build() runs very often, so printing every build would flood the console).
+  String _lastDebugSignature = '';
 
   @override
   void initState() {
@@ -137,6 +142,94 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
         : version;
   }
 
+  // ---------------------------------------------------------------------------
+  // Helpers
+  // ---------------------------------------------------------------------------
+
+  /// Safe double parse: returns 0 for "-", "" or garbage instead of throwing.
+  double _toD(dynamic value) => double.tryParse(value.toString().trim()) ?? 0;
+
+  /// Shows whole numbers without decimals, otherwise 2 decimals (e.g. power factor 0.95).
+  String _fmt(double value) =>
+      value == value.roundToDouble() ? value.toStringAsFixed(0) : value.toStringAsFixed(2);
+
+  /// Returns the "n-th" comma separated item of a list as double (0 if missing).
+  double _at(List<String> list, int i) => i < list.length ? _toD(list[i]) : 0;
+
+  /// Current value at index [i] (use -1 for "last"), with the 2 character prefix
+  /// stripped exactly like before, but without throwing a RangeError.
+  String _currentAt(PumpControllerData data, int i) {
+    final parts = data.current.toString().split(',');
+    if (parts.isEmpty) return '- A';
+    final idx = i < 0 ? parts.length - 1 : i;
+    if (idx >= parts.length) return '- A';
+    final raw = parts[idx].trim();
+    return '${raw.length > 2 ? raw.substring(2) : raw} A';
+  }
+
+  /// True when the pump "reason" text describes an ON event (whole word match,
+  /// so words like "controller" / "condition" no longer count as "on").
+  bool _reasonIsOn(dynamic pumpItem) {
+    if (pumpItem.reasonCode == 0) return pumpItem.status == 1;
+    final reason = pumpItem.reason.toString();
+    final hasOn = RegExp(r'\bon\b', caseSensitive: false).hasMatch(reason);
+    final hasOff = RegExp(r'\boff\b', caseSensitive: false).hasMatch(reason);
+    return hasOn && !hasOff;
+  }
+
+  // ---------------------------------------------------------------------------
+  // DEBUG
+  // ---------------------------------------------------------------------------
+
+  /// Prints raw + parsed R/Y/B voltage, current, power, power factor and every
+  /// pump's reason. Only prints when something in the payload changed.
+  void _debugPhaseData(PumpControllerData data) {
+    if (!kDebugMode) return;
+
+    final signature = [
+      data.voltage,
+      data.current,
+      data.power,
+      data.powerFactor,
+      data.dataFetchingStatus,
+      data.pumps.map((p) => '${p.reasonCode}:${p.status}:${p.reason}').join(';'),
+    ].join('|');
+    if (signature == _lastDebugSignature) return;
+    _lastDebugSignature = signature;
+
+    final voltage = data.voltage.toString().split(',');
+    final current = data.current.toString().split(',');
+    const labels = ['R', 'Y', 'B'];
+    final lineToLine = _at(voltage, 0) > 300 && _at(voltage, 1) > 300 && _at(voltage, 2) > 300;
+
+    final b = StringBuffer();
+    b.writeln('══════════ PUMP DASHBOARD PHASE DEBUG ══════════');
+    b.writeln('model=${widget.masterData.modelId} | flavor=${F.name} | numberOfPumps=${data.numberOfPumps} | dataFetchingStatus=${data.dataFetchingStatus}');
+    b.writeln('RAW voltage="${data.voltage}"');
+    b.writeln('RAW current="${data.current}"');
+    b.writeln('RAW power="${data.power}"');
+    b.writeln('RAW powerFactor="${data.powerFactor}"');
+    b.writeln('RAW energyParameters="${data.energyParameters}"');
+    b.writeln('voltage mode => ${lineToLine ? "LINE-TO-LINE (all > 300)" : "PHASE-TO-NEUTRAL"}');
+    for (var i = 0; i < 3; i++) {
+      final vRaw = i < voltage.length ? voltage[i] : '<missing>';
+      final cRaw = i < current.length ? current[i] : '<missing>';
+      b.writeln('${labels[i]} | voltage raw="$vRaw" parsed=${_at(voltage, i)} | current raw="$cRaw" shown="${_currentAt(data, i)}"');
+    }
+    if (voltage.length != 3) b.writeln('⚠ voltage has ${voltage.length} items (expected 3)');
+    if (current.length != 3) b.writeln('⚠ current has ${current.length} items (expected 3)');
+    for (var i = 0; i < data.pumps.length; i++) {
+      final p = data.pumps[i];
+      b.writeln('PUMP[$i] status=${p.status} reasonCode=${p.reasonCode} reason="${p.reason}" '
+          '=> reason ${[30, 31, 100].contains(p.reasonCode) ? "HIDDEN (code in 30/31/100)" : "VISIBLE"}');
+    }
+    if (data.dataFetchingStatus != 1) {
+      b.writeln('⚠ dataFetchingStatus != 1 -> reasonCode is forced to 100 in buildNewPumpDetails, so the reason is hidden until live data arrives');
+    }
+    b.writeln('════════════════════════════════════════════════');
+    debugPrint(b.toString());
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!hasRequestedLive) {
@@ -163,6 +256,7 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
               if (!snapshot.hasData || snapshot.data == null) {
                 return const Center(child: Text('Data not available'));
               }
+              _debugPhaseData(snapshot.data!);
               return ListView(
                 children: [
                   const SizedBox(height: 10,),
@@ -212,7 +306,7 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                                 children: [
                                   Text(widget.masterData.deviceName, style: themeData.textTheme.titleMedium!.copyWith(fontWeight: FontWeight.bold),),
                                   Badge(
-                                    alignment: const Alignment(-3.5, -1),
+                                    alignment: const Alignment(-3.1, -1),
                                     smallSize: 0.1,
                                     backgroundColor: Colors.transparent,
                                     label: Text("${snapshot.data?.signalStrength ?? "0"}%", style: const TextStyle(fontSize: 8, color: Colors.red, fontWeight: FontWeight.bold),),
@@ -289,43 +383,50 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
   }
 
   Widget _buildPhaseWidget(AsyncSnapshot<PumpControllerData?> snapshot) {
-    final List<String> voltage = snapshot.data!.voltage.split(',');
-    final List<String> powerFactor = snapshot.data!.powerFactor != null ? snapshot.data!.powerFactor.split(',') : [];
-    final List<String> power = snapshot.data!.power != null ? snapshot.data!.power.split(',') : [];
+    final List<String> voltage = snapshot.data!.voltage.toString().split(',');
+    final List<String> powerFactor = snapshot.data!.powerFactor != null ? snapshot.data!.powerFactor.toString().split(',') : [];
+    final List<String> power = snapshot.data!.power != null ? snapshot.data!.power.toString().split(',') : [];
+
+    final double vR = _at(voltage, 0);
+    final double vY = _at(voltage, 1);
+    final double vB = _at(voltage, 2);
+    final bool allAbove300 = vR > 300 && vY > 300 && vB > 300;
+    final bool anyAbove300 = vR > 300 || vY > 300 || vB > 300;
+
     dynamic title;
     dynamic value;
     dynamic value2;
     if(F.name.contains('oro') || F.name.contains('agritel')) {
-      title = !(double.parse(voltage[0]) > 300 && double.parse(voltage[1]) > 300 && double.parse(voltage[2]) > 300)
-          ? ["RN ${double.parse(voltage[0]).toStringAsFixed(0)}",
-        "YN ${double.parse(voltage[1]).toStringAsFixed(0)}",
-        "BN ${double.parse(voltage[2]).toStringAsFixed(0)}"] : null;
+      title = !allAbove300
+          ? ["RN ${vR.toStringAsFixed(0)}",
+        "YN ${vY.toStringAsFixed(0)}",
+        "BN ${vB.toStringAsFixed(0)}"] : null;
       if(snapshot.data!.power != null) {
-        value2 = ["RP ${double.parse(power[0]).toStringAsFixed(0)}",
-          "YP ${double.parse(power[1]).toStringAsFixed(0)}",
-          "BP ${double.parse(power[2]).toStringAsFixed(0)}"];
+        value2 = ["RP ${_at(power, 0).toStringAsFixed(0)}",
+          "YP ${_at(power, 1).toStringAsFixed(0)}",
+          "BP ${_at(power, 2).toStringAsFixed(0)}"];
       } else {
-        value2 = (double.parse(voltage[0]) > 300 && double.parse(voltage[1]) > 300 && double.parse(voltage[2]) > 300)
-            ? ["RY ${double.parse(voltage[0]).toStringAsFixed(0)}",
-          "YB ${double.parse(voltage[0]).toStringAsFixed(0)}",
-          "BR ${double.parse(voltage[0]).toStringAsFixed(0)}"]
-            : ["RY ${calculatePhToPh(double.parse(voltage[0]), double.parse(voltage[1]))}",
-          "YB ${calculatePhToPh(double.parse(voltage[1]), double.parse(voltage[2]))}",
-          "BR ${calculatePhToPh(double.parse(voltage[2]), double.parse(voltage[0]))}"];
+        value2 = allAbove300
+            ? ["RY ${vR.toStringAsFixed(0)}",
+          "YB ${vY.toStringAsFixed(0)}",
+          "BR ${vB.toStringAsFixed(0)}"]
+            : ["RY ${calculatePhToPh(vR, vY)}",
+          "YB ${calculatePhToPh(vY, vB)}",
+          "BR ${calculatePhToPh(vB, vR)}"];
       }
       if(snapshot.data!.powerFactor != null) {
-        value = ["RPF ${double.parse(powerFactor[0]).toStringAsFixed(0)}",
-          "YPF ${double.parse(powerFactor[1]).toStringAsFixed(0)}",
-          "BPF ${double.parse(powerFactor[2]).toStringAsFixed(0)}"];
+        value = ["RPF ${_fmt(_at(powerFactor, 0))}",
+          "YPF ${_fmt(_at(powerFactor, 1))}",
+          "BPF ${_fmt(_at(powerFactor, 2))}"];
       }
     } else {
-      value2 = !(double.parse(voltage[0]) > 300 || double.parse(voltage[1]) > 300 || double.parse(voltage[2]) > 300)
-          ? ["RN ${double.parse(voltage[0]).toStringAsFixed(0)}",
-        "YN ${double.parse(voltage[1]).toStringAsFixed(0)}",
-        "BN ${double.parse(voltage[2]).toStringAsFixed(0)}"]
-          : ["RY ${double.parse(voltage[0]).toStringAsFixed(0)}",
-        "YB ${double.parse(voltage[1]).toStringAsFixed(0)}",
-        "BR ${double.parse(voltage[2]).toStringAsFixed(0)}"];
+      value2 = !anyAbove300
+          ? ["RN ${vR.toStringAsFixed(0)}",
+        "YN ${vY.toStringAsFixed(0)}",
+        "BN ${vB.toStringAsFixed(0)}"]
+          : ["RY ${vR.toStringAsFixed(0)}",
+        "YB ${vY.toStringAsFixed(0)}",
+        "BR ${vB.toStringAsFixed(0)}"];
     }
 
     return Container(
@@ -376,7 +477,8 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text("VOLTAGE : ", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w400)),
-                  Text("${int.parse(snapshot.data!.voltage.split(',')[0]) + int.parse(snapshot.data!.voltage.split(',')[2])}", style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  // FIX: int.parse crashed on decimal values like "230.5"
+                  Text(_fmt(vR + vB), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                 ],
               ),
             ),
@@ -483,6 +585,15 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
     final showResetButton = !excludedReasons.contains(pumpItem.reasonCode) &&
         allowedResetModelIds.contains(widget.masterData.modelId);
 
+    // Reason text shown next to the pump name
+    final bool reasonIsOn = _reasonIsOn(pumpItem);
+    final Color reasonColor = reasonIsOn ? Colors.green.shade700 : Colors.red.shade700;
+    final Color reasonBgColor = reasonIsOn ? Colors.green.shade50 : Colors.red.shade50;
+    final String reasonText = pumpItem.reasonCode == 0
+        ? (pumpItem.status == 1 ? "Turned on through the mobile" : "Turned off through the mobile")
+        : pumpItem.reason.toString();
+    final bool showReason = ![30, 31, 100].contains(pumpItem.reasonCode) && reasonText.trim().isNotEmpty;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -551,38 +662,24 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                   ],
                 ),
               ),
-              // if(![30, 31, 100].contains(pumpItem.reasonCode))
-              //   Flexible(
-              //     child: Container(
-              //       // width: double.maxFinite,
-              //       // color: pumpItem.reasonCode == 0
-              //       //     ? (pumpItem.status == 1
-              //       //     ? Colors.green.shade50
-              //       //     : Colors.red.shade50)
-              //       //     : (pumpItem.reason.contains('on') ? Colors.green.shade50 : Colors.red.shade50),
-              //       // // padding: const EdgeInsets.all(8),
-              //       margin: const EdgeInsets.symmetric(horizontal: 15),
-              //       child: Text(
-              //         pumpItem.reasonCode == 0
-              //             ? (pumpItem.status == 1 ? "Turned on through the mobile" : "Turned off through the mobile").toUpperCase()
-              //             : pumpItem.reason.toUpperCase(),
-              //         style: TextStyle(
-              //
-              //             overflow: TextOverflow.ellipsis,
-              //             color: pumpItem.reasonCode == 0
-              //                 ? (pumpItem.status == 1
-              //                 ? Colors.green.shade700
-              //                 : Colors.red.shade700)
-              //                 : (pumpItem.reason.contains('on') ? Colors.green.shade700 : Colors.red.shade700),
-              //             fontWeight: FontWeight.bold,
-              //             fontSize: 12
-              //           // fontSize: titleFontSize
-              //         ),
-              //         textAlign: TextAlign.right,
-              //         // overflow: TextOverflow.ellipsis,
-              //       ),
-              //     ),
-              //   ),
+              // Reason text (was commented out, which is why it never showed)
+              if(showReason)
+                Flexible(
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Text(
+                      reasonText.toUpperCase(),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.right,
+                      style: TextStyle(
+                        color: reasonColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
@@ -621,11 +718,7 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                           Container(
                               padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
                               decoration: BoxDecoration(
-                                  color: pumpItem.reasonCode == 0
-                                      ? (pumpItem.status == 1
-                                      ? Colors.green.shade50
-                                      : Colors.red.shade50)
-                                      : (pumpItem.reason.contains('on') ? Colors.green.shade50 : Colors.red.shade50),
+                                  color: reasonBgColor,
                                   borderRadius: BorderRadius.circular(5)
                               ),
                               child: RichText(
@@ -657,11 +750,7 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                           Container(
                               padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
                               decoration: BoxDecoration(
-                                  color: pumpItem.reasonCode == 0
-                                      ? (pumpItem.status == 1
-                                      ? Colors.green.shade50
-                                      : Colors.red.shade50)
-                                      : (pumpItem.reason.contains('on') ? Colors.green.shade50 : Colors.red.shade50),
+                                  color: reasonBgColor,
                                   borderRadius: BorderRadius.circular(5)
                               ),
                               child: RichText(
@@ -760,16 +849,16 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                           if(AppConstants.singlePhaseWlcModelList.contains(widget.masterData.modelId))
                             buildCurrentContainer(
                               title: 'BC : ',
-                              value: "${pumpData.current.toString().split(',').first.substring(2)} A",
+                              value: _currentAt(pumpData, 0),
                               color1: Colors.lightBlueAccent.shade100,
                               color2: Colors.lightBlueAccent.shade700,
                             )
                           else ...[
                             if(int.parse(pumpData.numberOfPumps) == 1)
-                              for(var i = 0; i < pumpData.current.toString().split(',').length; i++)
+                              for(var i = 0; i < min(3, pumpData.current.toString().split(',').length); i++)
                                 buildCurrentContainer(
                                   title: ['RC : ', 'YC : ', 'BC : '][i],
-                                  value: "${pumpData.current.toString().split(',')[i].substring(2)} A",
+                                  value: _currentAt(pumpData, i),
                                   color1: [
                                     Colors.redAccent.shade100,
                                     Colors.amberAccent.shade100,
@@ -785,7 +874,7 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                               for(var i = 0; i < int.parse(pumpData.numberOfPumps); i++)
                                 buildCurrentContainer(
                                   title: ['RC : ', 'YC : '][i],
-                                  value: "${pumpData.current.toString().split(',')[i].substring(2)} A",
+                                  value: _currentAt(pumpData, i),
                                   color1: [
                                     Colors.redAccent.shade100,
                                     Colors.amberAccent.shade100,
@@ -798,28 +887,28 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                             if(int.parse(pumpData.numberOfPumps) == 2 && index == 1)
                               buildCurrentContainer(
                                 title: 'BC : ',
-                                value: "${pumpData.current.toString().split(',').last.substring(2)} A",
+                                value: _currentAt(pumpData, -1),
                                 color1: Colors.lightBlueAccent.shade100,
                                 color2: Colors.lightBlueAccent.shade700,
                               ),
                             if(int.parse(pumpData.numberOfPumps) == 3 && index == 0)
                               buildCurrentContainer(
                                 title: 'RC : ',
-                                value: "${pumpData.current.toString().split(',').first.substring(2)} A",
+                                value: _currentAt(pumpData, 0),
                                 color1: Colors.redAccent.shade100,
                                 color2: Colors.redAccent.shade700,
                               ),
                             if(int.parse(pumpData.numberOfPumps) == 3 && index == 1)
                               buildCurrentContainer(
                                 title: 'YC : ',
-                                value: "${pumpData.current.toString().split(',')[1].substring(2)} A",
+                                value: _currentAt(pumpData, 1),
                                 color1: Colors.amberAccent.shade100,
                                 color2: Colors.amberAccent.shade700,
                               ),
                             if(int.parse(pumpData.numberOfPumps) == 3 && index == 2)
                               buildCurrentContainer(
                                 title: 'BC : ',
-                                value: "${pumpData.current.toString().split(',').last.substring(2)} A",
+                                value: _currentAt(pumpData, -1),
                                 color1: Colors.lightBlueAccent.shade100,
                                 color2: Colors.lightBlueAccent.shade700,
                               ),
@@ -829,7 +918,7 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
                     else
                       buildCurrentContainer(
                         title: 'CT : ',
-                        value: "${pumpData.current.toString().split(',')[2].substring(2)} A",
+                        value: _currentAt(pumpData, 2),
                         color1: Theme.of(context).primaryColorLight,
                         color2: Theme.of(context).primaryColor,
                       ),
@@ -1364,10 +1453,14 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
   }
 
   Widget _buildPumpControlButton({required String label, required Color color, required String command, required int delay, required PumpControllerData pumpData, required int index}) {
+    bool isWlc = AppConstants.wlcModelList.contains(widget.masterData.modelId);
+    bool isAutoMode = pumpData.manualMode.toUpperCase() == '1' || pumpData.manualMode.toUpperCase() == 'AUTO';
+    bool isDisabled = (isWlc && isAutoMode) || pumpData.dataFetchingStatus != 1;
+
     return BounceEffectButton(
       label: label,
       textColor: color,
-      onTap: pumpData.dataFetchingStatus == 1 ? () async {
+      onTap: !isDisabled ? () async {
         setState(() => pumpData.pumps[index].status = 2);
         var data = {
           "userId": widget.customerId,
@@ -1382,7 +1475,7 @@ class _PumpDashboardScreenState extends State<PumpDashboardScreen> with TickerPr
         String? wlcCommand = '*$normalCommand#';
         final result = await context.read<CommunicationService>().sendCommand(
           serverMsg: '',
-          payload: AppConstants.wlcModelList.contains(widget.masterData.modelId) ? wlcCommand : normalCommand,
+          payload: isWlc ? wlcCommand : normalCommand,
         );
         debugPrint("motor on/off result => $result");
         // await mqttService.topicToPublishAndItsMessage(jsonEncode({"sentSms": "motor${index+1}$command"}), "${Environment.mqttPublishTopic}/${widget.masterData.deviceId}",);

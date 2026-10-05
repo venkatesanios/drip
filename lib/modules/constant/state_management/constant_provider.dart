@@ -447,6 +447,8 @@ class ConstantProvider extends ChangeNotifier{
           })
         else
           ...List.generate(defaultEcPhSetting.length, (index){
+            print("ec setting => ${defaultEcPhSetting[index].sNo} | ${defaultEcPhSetting[index].title} | ${defaultEcPhSetting[index].value.value}");
+            if(defaultEcPhSetting[index].sNo == 8) return '';
             return payloadValidate(defaultEcPhSetting[index].value.value);
           }),
         if(ecPhSensor.isNotEmpty && ecPhSensor[siteIndex].phSetting.isNotEmpty)
@@ -457,6 +459,7 @@ class ConstantProvider extends ChangeNotifier{
           })
         else
           ...List.generate(defaultEcPhSetting.length, (index){
+            if(defaultEcPhSetting[index].sNo == 8) return '';
             return payloadValidate(defaultEcPhSetting[index].value.value);
           }),
       ].join(',');
@@ -502,14 +505,22 @@ class ConstantProvider extends ChangeNotifier{
     List<dynamic> payloadList = [];
     for(var line in normalCriticalAlarm){
       for(var alarmIndex = 0;alarmIndex < line.normal.length;alarmIndex++){
+        var settingsPayload = line.normal[alarmIndex].setting.where((setting){
+          return (setting.ecoGemPayload);
+        }).map((setting){
+          return payloadValidate(setting.value.value);
+        }).toList();
+
+        var sNo = line.normal[alarmIndex].sNo;
+        var globalAlarmSetting = globalAlarm.where((g) => g.sNo == sNo);
+        if (globalAlarmSetting.isNotEmpty && settingsPayload.isNotEmpty) {
+          settingsPayload[settingsPayload.length - 1] = payloadValidate(globalAlarmSetting.first.value.value);
+        }
+
         payloadList.add(
           [
-            line.normal[alarmIndex].sNo,
-            ...line.normal[alarmIndex].setting.where((setting){
-              return (setting.ecoGemPayload);
-            }).map((setting){
-              return payloadValidate(setting.value.value);
-            }),
+            sNo,
+            ...settingsPayload
           ].join(','),
         );
       }
