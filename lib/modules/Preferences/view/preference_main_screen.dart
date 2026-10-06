@@ -988,6 +988,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen>
       required BoxConstraints constraints,
       required int pumpIndex}) {
     try {
+      debugPrint("modelId ::: ${widget.masterData['modelId']}");
       return SingleChildScrollView(
         child: Column(
           children: [
@@ -996,15 +997,15 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen>
                 for (var categoryIndex = 0;
                     categoryIndex < settingList.length;
                     categoryIndex++)
-                  if ([...AppConstants.wlcModelList]
-                          .contains(widget.masterData['modelId']) &&
+                  if (([...AppConstants.wlcModelList]
+                          .contains(widget.masterData['modelId']) && !AppConstants.threePhaseWireLessWlcModelList.contains(widget.masterData['modelId'])) &&
                       AppConstants.otherCalibration
                           .contains(settingList[categoryIndex].type))
                     Container()
-                  else if ([
+                  else if (([
                         ...AppConstants.singlePhaseWlcModelList,
                         ...AppConstants.threePhaseWlcModelList,
-                      ].contains(widget.masterData['modelId']) &&
+                      ].contains(widget.masterData['modelId']) && !AppConstants.threePhaseWireLessWlcModelList.contains(widget.masterData['modelId'])) &&
                       AppConstants.otherSetting
                           .contains(settingList[categoryIndex].type))
                     Container()
@@ -1384,6 +1385,10 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen>
                   child: Center(
                       child: Text('Off Time (HH:MM:SS)',
                           style: Theme.of(context).textTheme.bodyLarge))),
+              Expanded(
+                  child: Center(
+                      child: Text('Action',
+                          style: Theme.of(context).textTheme.bodyLarge))),
             ],
           ),
           const SizedBox(
@@ -1395,6 +1400,10 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen>
                 ...rtcSettings.asMap().entries.map((entry) {
                   final int rtcIndex = entry.key;
                   final rtcSetting = entry.value;
+                  final bool isClearingAllowed = (rtcSetting.onTime.isNotEmpty &&
+                          rtcSetting.onTime != "00:00:00") ||
+                      (rtcSetting.offTime.isNotEmpty &&
+                          rtcSetting.offTime != "00:00:00");
 
                   return Column(
                     children: [
@@ -1463,12 +1472,55 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen>
                                     setState(() {});
                                   } else {
                                     setState(() {
+                                      settingList[categoryIndex]
+                                          .setting[settingIndex]
+                                          .isChanged = true;
                                       settingList[categoryIndex].changed = true;
                                     });
                                   }
                                 },
                                 is24HourMode: true,
                                 modelId: 1,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Center(
+                              child: IconButton(
+                                tooltip: 'Clear RTC ${rtcIndex + 1}',
+                                icon: Icon(
+                                  Icons.clear,
+                                  color: isClearingAllowed
+                                      ? Colors.red
+                                      : Colors.grey.shade400,
+                                  size: 20,
+                                ),
+                                onPressed: isClearingAllowed
+                                    ? () {
+                                        final oldOnTime = rtcSetting.onTime;
+                                        final oldOffTime = rtcSetting.offTime;
+                                        rtcSetting.onTime = "00:00:00";
+                                        rtcSetting.offTime = "00:00:00";
+                                        final error = _validateSingleRtcList(
+                                            rtcSettings,
+                                            isLiveEdit: true);
+                                        if (error != null) {
+                                          rtcSetting.onTime = oldOnTime;
+                                          rtcSetting.offTime = oldOffTime;
+                                          if (mounted) {
+                                            _showRtcErrorDialog(error);
+                                          }
+                                        } else {
+                                          setState(() {
+                                            settingList[categoryIndex]
+                                                .setting[settingIndex]
+                                                .isChanged = true;
+                                            settingList[categoryIndex]
+                                                .changed = true;
+                                          });
+                                        }
+                                      }
+                                    : null,
                               ),
                             ),
                           ),
@@ -2735,7 +2787,6 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen>
       }
       if (value != null) values.add(value);
     }
-    print("values => $values");
     return values.join(",");
   }
 
