@@ -3,13 +3,11 @@ import 'device_object_model.dart';
 class ChannelConfigModel{
   DeviceObjectModel commonDetails;
   double dosingMeter;
-  List<double> source;
   List<double> outletTankValve;
 
   ChannelConfigModel({
     required this.commonDetails,
     this.dosingMeter = 0.0,
-    required this.source,
     required this.outletTankValve,
   });
 
@@ -18,10 +16,9 @@ class ChannelConfigModel{
     return ChannelConfigModel(
         commonDetails: deviceObjectModel,
         dosingMeter: data['dosingMeter'] ?? 0.0,
-        source: data['source'] != null ? (data['source'] as List<dynamic>).map((sNo) => (sNo as num).toDouble()).toList() : [],
-        outletTankValve: data['outletTankValve'] != null 
+        outletTankValve: data['outletTankValve'] != null
             ? (data['outletTankValve'] as List<dynamic>).map((sNo) => (sNo as num).toDouble()).toList() 
-            : (data['tankValve'] != null ? (data['tankValve'] as List<dynamic>).map((sNo) => (sNo as num).toDouble()).toList() : []),
+            : [],
     );
   }
 
@@ -29,7 +26,6 @@ class ChannelConfigModel{
     var commonInfo = commonDetails.toJson();
     commonInfo.addAll({
       'dosingMeter' : dosingMeter,
-      'source' : source,
       'outletTankValve' : outletTankValve,
     });
     return commonInfo;
@@ -37,7 +33,6 @@ class ChannelConfigModel{
 
   void updateObjectIdIfDeletedInProductLimit(List<double> objectIdToBeDeleted){
     dosingMeter = objectIdToBeDeleted.contains(dosingMeter) ? 0.0 : dosingMeter;
-    source = source.where((objectId) => !objectIdToBeDeleted.contains(objectId)).toList();
     outletTankValve = outletTankValve.where((objectId) => !objectIdToBeDeleted.contains(objectId)).toList();
   }
 }
