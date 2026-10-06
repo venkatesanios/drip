@@ -1073,12 +1073,14 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
     bool applyFertilizerForLocal = false;
     String moistureCondition = '-';
     dynamic moistureSno = 0;
+    bool applyMoisture = false;
     if(newSequence == false){
       prePostMethod = sequence[0]['prePostMethod'];
       preValue = sequence[0]['preValue'];
       postValue = sequence[0]['postValue'];
-      moistureCondition = sequence[0]['moistureCondition'];
-      moistureSno = sequence[0]['moistureSno'];
+      moistureCondition = sequence[0]['moistureCondition'] ?? '-';
+      moistureSno = sequence[0]['moistureSno'] ?? 0;
+      applyMoisture = sequence[0]['applyMoisture'] ?? false;
     }
     var centralDuplicate = [];
     for(var i in central){
@@ -1339,6 +1341,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       'seqName' : sequence[0]['seqName'],
       'moistureCondition' : moistureCondition,
       'moistureSno' : moistureSno,
+      'applyMoisture' : applyMoisture,
       'levelCondition' : '-',
       'levelSno' : 0,
       'prePostMethod' : prePostMethod,
@@ -2128,10 +2131,14 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       }
       break;
       case ('applyMoisture') : {
-        sequenceData[selectedGroup]['moistureCondition'] = value['name'];
-        sequenceData[selectedGroup]['moistureSno'] = value['sNo'];
+        if (value is bool) {
+          sequenceData[selectedGroup]['applyMoisture'] = value;
+        } else if (value is Map) {
+          sequenceData[selectedGroup]['moistureCondition'] = value['name'];
+          sequenceData[selectedGroup]['moistureSno'] = value['sNo'];
+        }
+        break;
       }
-      break;
       case ('applyLevel') : {
         sequenceData[selectedGroup]['levelCondition'] = value['name'];
         sequenceData[selectedGroup]['levelSno'] = value['sNo'];

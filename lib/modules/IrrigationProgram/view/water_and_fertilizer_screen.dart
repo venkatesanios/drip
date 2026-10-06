@@ -768,7 +768,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                                   ),
                                 ),
                                 trailing: Switch(
-                                  value:  false,
+                                  value: programPvd.sequenceData[programPvd.selectedGroup]['applyMoisture'] ?? false,
                                   onChanged: (bool value) {
                                     programPvd.editGroupSiteInjector(
                                       'applyMoisture',

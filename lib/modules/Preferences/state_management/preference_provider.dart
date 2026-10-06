@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../model/preference_data_model.dart';
 import '../../../services/http_service.dart';
+import '../../../utils/constants.dart';
 import '../repository/preferences_repo.dart';
 
 const actionForGeneral = "getUserPreferenceGeneral";
@@ -94,6 +95,26 @@ class PreferenceProvider extends ChangeNotifier {
         final result = jsonDecode(response.body);
         individualPumpSetting = List.from(result['data']['individualPumpSetting'].map((json) => IndividualPumpSetting.fromJson(json)));
         commonPumpSettings = List.from(result['data']['commonPumpSetting'].map((json) => CommonPumpSetting.fromJson(json)));
+        if (individualPumpSetting != null) {
+          for (var individualPump in individualPumpSetting!) {
+            int minSeconds = individualPump.pumpType == 2 ? 30 : 5;
+            for (var category in individualPump.settingList) {
+              if (AppConstants.timerSetting.contains(category.type)) {
+                for (var setting in category.setting) {
+                  final titleUpper = setting.title.toUpperCase();
+                  if (titleUpper.contains("ON DELAY") || setting.serialNumber == 1) {
+                    if (setting.value is String && setting.value.isNotEmpty) {
+                      int sec = _timeStringToSeconds(setting.value);
+                      if (sec < minSeconds) {
+                        setting.value = _secondsToTimeString(minSeconds);
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     } catch(error, stackTrace) {
       // print("Error parsing setting data: $error");
@@ -325,4 +346,20 @@ class PreferenceProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  int _timeStringToSeconds(String timeStr) {
+    if (timeStr.isEmpty) return 0;
+    final parts = timeStr.split(':');
+    if (parts.length < 2) return 0;
+    int hours = int.tryParse(parts[0]) ?? 0;
+    int minutes = int.tryParse(parts[1]) ?? 0;
+    int seconds = parts.length > 2 ? (int.tryParse(parts[2]) ?? 0) : 0;
+    return hours * 3600 + minutes * 60 + seconds;
+  }
+
+  String _secondsToTimeString(int totalSeconds) {
+    int hours = totalSeconds ~/ 3600;
+    int minutes = (totalSeconds % 3600) ~/ 60;
+    int seconds = totalSeconds % 60;
+    return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+  }
 }
