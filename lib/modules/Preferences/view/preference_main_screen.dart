@@ -786,6 +786,11 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen>
                         _showRtcErrorDialog(rtcError);
                         return;
                       }
+                      final onDelayError = validateAllOnDelaySettings();
+                      if (onDelayError != null) {
+                        _showOnDelayAlertMessage(onDelayError);
+                        return;
+                      }
                       await Future.delayed(Duration.zero, () {
                         setState(() {
                           // oroPumpList.clear();
@@ -1140,7 +1145,8 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen>
                                               categoryIndex,
                                               settingIndex,
                                               settingList,
-                                              newValue),
+                                              newValue,
+                                              pumpIndex: pumpIndex),
                                       conditionToShow: getConditionToShow(
                                         type: settingList[categoryIndex].type,
                                         serialNumber: settingList[categoryIndex]
@@ -1714,14 +1720,147 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen>
     return "Last setting: ${parts[index]}";
   }
 
+  String _secondsToTimeString(int totalSeconds) {
+    int hours = totalSeconds ~/ 3600;
+    int minutes = (totalSeconds % 3600) ~/ 60;
+    int seconds = totalSeconds % 60;
+    return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+  }
+
+  void _showOnDelayAlert(int minSeconds) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Row(
+            children: [
+              Icon(Icons.warning_amber_rounded, color: Colors.orange),
+              SizedBox(width: 8),
+              Text("Invalid Timer Setting"),
+            ],
+          ),
+          content: Text(
+              "On Delay Timer must be at least $minSeconds seconds.\nResetting time to ${_secondsToTimeString(minSeconds)}."),
+          actions: [
+            FilledButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showOnDelayAlertMessage(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Row(
+            children: [
+              Icon(Icons.warning_amber_rounded, color: Colors.orange),
+              SizedBox(width: 8),
+              Text("Invalid Timer Setting"),
+            ],
+          ),
+          content: Text(message),
+          actions: [
+            FilledButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  String? validateAllOnDelaySettings() {
+    if (preferenceProvider.individualPumpSetting != null) {
+      for (var individualPump in preferenceProvider.individualPumpSetting!) {
+        int minSeconds = individualPump.pumpType == 2 ? 30 : 5;
+        for (var settingCategory in individualPump.settingList) {
+          if (AppConstants.timerSetting.contains(settingCategory.type)) {
+            for (var setting in settingCategory.setting) {
+              final titleUpper = setting.title.toUpperCase();
+              if (titleUpper.contains("ON DELAY") ||
+                  setting.serialNumber == 1) {
+                if (setting.value is String && setting.value.isNotEmpty) {
+                  int curSec = _rtcTimeToSeconds(setting.value);
+                  if (curSec < minSeconds) {
+                    setting.value = _secondsToTimeString(minSeconds);
+                    return "${individualPump.name} - ${setting.title}: Minimum value is $minSeconds seconds. Resetting time to ${_secondsToTimeString(minSeconds)}.";
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    return null;
+  }
+
   dynamic _getInitialValue(
       int categoryIndex, int settingIndex, List settingList, int pumpIndex) {
-    return settingList[categoryIndex].setting[settingIndex].value;
+    var val = settingList[categoryIndex].setting[settingIndex].value;
+    final setting = settingList[categoryIndex].setting[settingIndex];
+    final titleUpper = setting.title.toUpperCase();
+    if (titleUpper.contains("ON DELAY") ||
+        (AppConstants.timerSetting.contains(settingList[categoryIndex].type) &&
+            setting.serialNumber == 1)) {
+      int pumpType = 0;
+      if (preferenceProvider.individualPumpSetting != null &&
+          pumpIndex < preferenceProvider.individualPumpSetting!.length) {
+        pumpType = preferenceProvider.individualPumpSetting![pumpIndex].pumpType;
+      }
+      int minSeconds = (pumpType == 2) ? 30 : 5;
+      if (val is String && val.isNotEmpty) {
+        int curSeconds = _rtcTimeToSeconds(val);
+        if (curSeconds < minSeconds) {
+          val = _secondsToTimeString(minSeconds);
+          setting.value = val;
+        }
+      }
+    }
+    return val;
   }
 
   void onChangeValue(
-      int categoryIndex, int settingIndex, List settingList, newValue) {
+      int categoryIndex, int settingIndex, List settingList, newValue,
+      {int? pumpIndex}) {
     setState(() {
+      var finalValue = newValue;
+      final setting = settingList[categoryIndex].setting[settingIndex];
+      final titleUpper = setting.title.toUpperCase();
+      if (titleUpper.contains("ON DELAY") ||
+          (AppConstants.timerSetting.contains(settingList[categoryIndex].type) &&
+              setting.serialNumber == 1)) {
+        int pumpType = 0;
+        if (preferenceProvider.individualPumpSetting != null &&
+            pumpIndex != null &&
+            pumpIndex < preferenceProvider.individualPumpSetting!.length) {
+          pumpType = preferenceProvider.individualPumpSetting![pumpIndex].pumpType;
+        } else if (preferenceProvider.individualPumpSetting != null) {
+          int idx = preferenceProvider.individualPumpSetting!
+              .indexWhere((p) => p.settingList == settingList);
+          if (idx != -1) {
+            pumpType = preferenceProvider.individualPumpSetting![idx].pumpType;
+          }
+        }
+        int minSeconds = (pumpType == 2) ? 30 : 5;
+        if (finalValue is String) {
+          int selectedSec = _rtcTimeToSeconds(finalValue);
+          if (selectedSec < minSeconds) {
+            finalValue = _secondsToTimeString(minSeconds);
+            Future.delayed(const Duration(milliseconds: 100), () {
+              if (mounted) _showOnDelayAlert(minSeconds);
+            });
+          }
+        }
+      }
+
       settingList[categoryIndex].setting[settingIndex].isChanged = true;
       if (AppConstants.otherSetting.contains(settingList[categoryIndex].type)) {
         if (settingList[categoryIndex].setting[settingIndex].serialNumber ==
