@@ -282,47 +282,47 @@ class IrrigationLineWide extends StatelessWidget {
     return gridItems;
   }
 
- /* List<Widget> _buildWaterSource(BuildContext context, List<WaterSourceModel> waterSources,
-      bool isAvailInlet, bool isInlet, bool isAvailFertilizer) {
-
-    final List<Widget> gridItems = [];
-    for (int index = 0; index < waterSources.length; index++) {
-      final source = waterSources[index];
-      gridItems.add(Padding(
-        padding: EdgeInsets.only(top: isAvailFertilizer? 38.5:8),
-        child: SourceColumnWidget(
-          source: source,
-          isInletSource: isInlet,
-          isAvailInlet: isAvailInlet,
-          index: index,
-          total: waterSources.length,
-          popoverUpdateNotifier: popoverUpdateNotifier,
-          deviceId: deviceId,
-          customerId: customerId,
-          controllerId: controllerId,
-          modelId: modelId,
-          isMobile: false,
-          isAvailFrtSite: (cFertilizerSite.isNotEmpty || lFertilizerSite.isNotEmpty),
-        ),
-      ));
-      gridItems.addAll(source.outletPump.map((pump) => Padding(
-        padding: EdgeInsets.only(top: isAvailFertilizer? 38.5:8),
-        child: PumpWidget(
-          pump: pump,
-          isSourcePump: isInlet,
-          deviceId: deviceId,
-          customerId: customerId,
-          controllerId: controllerId,
-          isMobile: false,
-          modelId: modelId,
-          pumpPosition: 'First',
-          isNova: false,
-          isAvailFrtSite: (cFertilizerSite.isNotEmpty || lFertilizerSite.isNotEmpty),
-        ),
-      )));
-    }
-    return gridItems;
-  }*/
+  // List<Widget> _buildWaterSource(BuildContext context, List<WaterSourceModel> waterSources,
+  //     bool isAvailInlet, bool isInlet, bool isAvailFertilizer) {
+  //
+  //   final List<Widget> gridItems = [];
+  //   for (int index = 0; index < waterSources.length; index++) {
+  //     final source = waterSources[index];
+  //     gridItems.add(Padding(
+  //       padding: EdgeInsets.only(top: isAvailFertilizer? 38.5:8),
+  //       child: SourceColumnWidget(
+  //         source: source,
+  //         isInletSource: isInlet,
+  //         isAvailInlet: isAvailInlet,
+  //         index: index,
+  //         total: waterSources.length,
+  //         popoverUpdateNotifier: popoverUpdateNotifier,
+  //         deviceId: deviceId,
+  //         customerId: customerId,
+  //         controllerId: controllerId,
+  //         modelId: modelId,
+  //         isMobile: false,
+  //         isAvailFrtSite: (cFertilizerSite.isNotEmpty || lFertilizerSite.isNotEmpty),
+  //       ),
+  //     ));
+  //     gridItems.addAll(source.outletPump.map((pump) => Padding(
+  //       padding: EdgeInsets.only(top: isAvailFertilizer? 38.5:8),
+  //       child: PumpWidget(
+  //         pump: pump,
+  //         isSourcePump: isInlet,
+  //         deviceId: deviceId,
+  //         customerId: customerId,
+  //         controllerId: controllerId,
+  //         isMobile: false,
+  //         modelId: modelId,
+  //         pumpPosition: 'First',
+  //         isNova: false,
+  //         isAvailFrtSite: (cFertilizerSite.isNotEmpty || lFertilizerSite.isNotEmpty),
+  //       ),
+  //     )));
+  //   }
+  //   return gridItems;
+  // }
 
   List<Widget> _buildSensorItems(List<SensorModel> sensors, String type, String imagePath) {
     return sensors.map((sensor) {
@@ -337,7 +337,7 @@ class IrrigationLineWide extends StatelessWidget {
   }
 
 
-  List<Widget> _buildFertilizer(
+ List<Widget> _buildFertilizer(
       BuildContext context,
       List<FertilizerSiteModel> fertilizerSite,
       bool isNova,
@@ -392,11 +392,11 @@ class IrrigationLineWide extends StatelessWidget {
         widgets.add(_buildVerticalLine(height: 130));
       }
 
-      /*// Calculate widths.
-      final boosterPumpWidth = site.boosterPump.length * 70.0;
-      final channelWidth = site.channel.length * 70.0;
-      final agitatorWidth = site.agitator.isNotEmpty ? 57.5 : 0.0;
-      final totalWidth = boosterPumpWidth + channelWidth + agitatorWidth;*/
+      // // Calculate widths.
+      // final boosterPumpWidth = site.boosterPump.length * 70.0;
+      // final channelWidth = site.channel.length * 70.0;
+      // final agitatorWidth = site.agitator.isNotEmpty ? 57.5 : 0.0;
+      // final totalWidth = boosterPumpWidth + channelWidth + agitatorWidth;
 
       return SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -496,101 +496,102 @@ class IrrigationLineWide extends StatelessWidget {
     }).toList();
   }
 
-  /*List<Widget> _buildFertilizer(BuildContext context,
-      List<FertilizerSiteModel> fertilizerSite, bool isNova) {
-    return List.generate(fertilizerSite.length, (siteIndex) {
-      final site = fertilizerSite[siteIndex];
-      final widgets = <Widget>[];
 
-      if (siteIndex != 0) {
-        widgets.add(_buildVerticalLine(height: 120));
-      }
-
-      widgets.add(BoosterWidget(fertilizerSite: site, isMobile: false));
-
-      for (int channelIndex = 0; channelIndex < site.channel.length; channelIndex++) {
-        final channel = site.channel[channelIndex];
-
-        widgets.add(ChannelWidget(
-          channel: channel,
-          cIndex: channelIndex,
-          channelLength: site.channel.length,
-          agitator: site.agitator,
-          siteSno: site.sNo.toString(),
-          isMobile: false,
-        ));
-
-        if (channelIndex == site.channel.length - 1 && site.agitator.isNotEmpty) {
-          widgets.add(AgitatorWidget(
-            fertilizerSite: site,
-            isMobile: false,
-          ));
-        }
-      }
-
-      if (kIsWeb) {
-        widgets.add(_buildVerticalLine(height: 130));
-      }
-
-      final boosterPumpWidth = site.boosterPump.length * 70.0;
-      final channelWidth = site.channel.length * 70.0;
-      final agitatorWidth = site.agitator.length * 57.5;
-
-      final totalWidth = boosterPumpWidth + channelWidth + agitatorWidth;
-
-      return SizedBox(
-        width: agitatorWidth>0? totalWidth : totalWidth+5.5,
-        //width: ((site.boosterPump.length + site.channel.length + site.agitator.length ) * 70) + 5,
-        child: Stack(
-          children: [
-            Row(
-              children: widgets.map((w) {
-                return InkWell(
-                  onTap: () {
-                    final customerVM = context.read<CustomerScreenControllerViewModel>();
-                    showRightSheet(
-                      context,
-                      ChangeNotifierProvider.value(
-                        value: customerVM,
-                        child: FertilizerLivePanel(
-                          deviceId: deviceId,
-                          controllerId: controllerId,
-                          customerId: customerId,
-                          isWide: true,
-                        ),
-                      ),
-                    );
-                  },
-                  child: w,
-                );
-              }).toList(),
-            ),
-            // Row(children: widgets),
-            Positioned(
-              left: 3,
-              bottom: 0,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: Colors.grey, width: 0.5),
-                ),
-                child: Text(
-                  site.name,
-                  style: const TextStyle(
-                    fontSize: 10,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-
-    }).toList();
-  }*/
+  // List<Widget> _buildFertilizer(BuildContext context,
+  //     List<FertilizerSiteModel> fertilizerSite, bool isNova) {
+  //   return List.generate(fertilizerSite.length, (siteIndex) {
+  //     final site = fertilizerSite[siteIndex];
+  //     final widgets = <Widget>[];
+  //
+  //     if (siteIndex != 0) {
+  //       widgets.add(_buildVerticalLine(height: 120));
+  //     }
+  //
+  //     widgets.add(BoosterWidget(fertilizerSite: site, isMobile: false));
+  //
+  //     for (int channelIndex = 0; channelIndex < site.channel.length; channelIndex++) {
+  //       final channel = site.channel[channelIndex];
+  //
+  //       widgets.add(ChannelWidget(
+  //         channel: channel,
+  //         cIndex: channelIndex,
+  //         channelLength: site.channel.length,
+  //         agitator: site.agitator,
+  //         siteSno: site.sNo.toString(),
+  //         isMobile: false,
+  //       ));
+  //
+  //       if (channelIndex == site.channel.length - 1 && site.agitator.isNotEmpty) {
+  //         widgets.add(AgitatorWidget(
+  //           fertilizerSite: site,
+  //           isMobile: false,
+  //         ));
+  //       }
+  //     }
+  //
+  //     if (kIsWeb) {
+  //       widgets.add(_buildVerticalLine(height: 130));
+  //     }
+  //
+  //     final boosterPumpWidth = site.boosterPump.length * 70.0;
+  //     final channelWidth = site.channel.length * 70.0;
+  //     final agitatorWidth = site.agitator.length * 57.5;
+  //
+  //     final totalWidth = boosterPumpWidth + channelWidth + agitatorWidth;
+  //
+  //     return SizedBox(
+  //       width: agitatorWidth>0? totalWidth : totalWidth+5.5,
+  //       //width: ((site.boosterPump.length + site.channel.length + site.agitator.length ) * 70) + 5,
+  //       child: Stack(
+  //         children: [
+  //           Row(
+  //             children: widgets.map((w) {
+  //               return InkWell(
+  //                 onTap: () {
+  //                   final customerVM = context.read<CustomerScreenControllerViewModel>();
+  //                   showRightSheet(
+  //                     context,
+  //                     ChangeNotifierProvider.value(
+  //                       value: customerVM,
+  //                       child: FertilizerLivePanel(
+  //                         deviceId: deviceId,
+  //                         controllerId: controllerId,
+  //                         customerId: customerId,
+  //                         isWide: true,
+  //                       ),
+  //                     ),
+  //                   );
+  //                 },
+  //                 child: w,
+  //               );
+  //             }).toList(),
+  //           ),
+  //           // Row(children: widgets),
+  //           Positioned(
+  //             left: 3,
+  //             bottom: 0,
+  //             child: Container(
+  //               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+  //               decoration: BoxDecoration(
+  //                 color: Colors.white,
+  //                 borderRadius: BorderRadius.circular(4),
+  //                 border: Border.all(color: Colors.grey, width: 0.5),
+  //               ),
+  //               child: Text(
+  //                 site.name,
+  //                 style: const TextStyle(
+  //                   fontSize: 10,
+  //                   color: Colors.black,
+  //                 ),
+  //               ),
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     );
+  //
+  //   }).toList();
+  // }
 
   Widget _buildVerticalLine({required double height}) {
     return SizedBox(
