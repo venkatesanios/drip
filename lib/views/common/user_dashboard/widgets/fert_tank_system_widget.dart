@@ -352,7 +352,7 @@ class FertTankSystemWidget extends StatelessWidget {
   Widget _tankBox(FertTank t) {
     final level = t.source.level.isNotEmpty ? t.source.level.first.value : '-';
     return _box(
-      icon: FontAwesomeIcons.arrowUpFromWaterPump,
+      icon: FontAwesomeIcons.faucetDrip,
       color: Colors.black54,
       border: Colors.black12,
       iconColor: Colors.white,
