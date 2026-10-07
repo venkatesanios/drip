@@ -177,6 +177,9 @@ class IndividualPumpData {
           : reason == 47 ? "$motorOn Auto On Power On"
           : reason == 48 ? "$motorOff Auto Off Power On"
           : reason == 49 ? "$motorOff Dry run occurrence"
+          : reason == 50 ? "$motorOff low pressure"
+          : reason == 51 ? "$motorOff high pressure"
+          : reason == 52 ? "$motorOff Leakage current sensed"
           : "Unknown",
       waterMeter: json["WM"] ?? "",
       cumulativeFlow: value != "-" ? value.substring(firstIndex) : "-",
