@@ -481,7 +481,7 @@ class FertTankSystemWidget extends StatelessWidget {
   }
 
   Widget _box({
-    required IconData icon,
+    required dynamic icon,
     required Color color,
     required Color border,
     required Color iconColor,
@@ -499,7 +499,11 @@ class FertTankSystemWidget extends StatelessWidget {
             borderRadius: BorderRadius.circular(6),
             border: Border.all(color: border, width: 1),
           ),
-          child: Icon(icon, size: 22, color: iconColor),
+          child: Center(
+            child: icon is IconData
+                ? Icon(icon, size: 22, color: iconColor)
+                : FaIcon(icon, size: 22, color: iconColor),
+          ),
         ),
         const SizedBox(height: 2),
         SizedBox(
