@@ -2697,6 +2697,7 @@ class TankValveModel {
   final double sNo;
   final String name;
   int status;
+  bool selected = false;
   int completePercent;
   final List<double> assignObject;
 
