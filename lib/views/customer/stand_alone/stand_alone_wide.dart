@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:oro_drip_irrigation/view_models/customer/stand_alone_view_model.dart';
+import 'package:oro_drip_irrigation/views/customer/stand_alone/widgets/fert_main_source_card.dart';
 import 'package:oro_drip_irrigation/views/customer/stand_alone/widgets/fertilizer_site_card.dart';
 import 'package:oro_drip_irrigation/views/customer/stand_alone/widgets/filter_site_card.dart';
 import 'package:oro_drip_irrigation/views/customer/stand_alone/widgets/irrigation_line_card.dart';
@@ -335,6 +336,19 @@ class _StandAloneWideState extends State<StandAloneWide> with SingleTickerProvid
       return map;
     }).values.toList();
 
+    // NEW fertilizer tank concept: main source pumps + tank valves (deduped)
+    final fertMainSources = <double, FertMainSource>{};
+    final fertTanks = <double, FertTank>{};
+    for (final site in [...cFertilizerSite, ...lFertilizerSite]) {
+      if (!site.hasTankSystem) continue;
+      for (final m in site.tankSystem!.mainSources) {
+        fertMainSources.putIfAbsent(m.source.sNo, () => m);
+      }
+      for (final t in site.tankSystem!.tanks) {
+        fertTanks.putIfAbsent(t.sNo, () => t);
+      }
+    }
+
 
 
     return Column(
@@ -411,6 +425,15 @@ class _StandAloneWideState extends State<StandAloneWide> with SingleTickerProvid
 
           }).toList(),
         ) : const SizedBox(),
+
+        FertMainSourceCard(
+          sources: fertMainSources.values.toList(),
+          onChanged: (pump, val) => setState(() => pump.selected = val),
+        ),
+        FertTankValveCard(
+          tanks: fertTanks.values.toList(),
+          onChanged: (valve, val) => setState(() => valve.selected = val),
+        ),
       ],
     );
   }

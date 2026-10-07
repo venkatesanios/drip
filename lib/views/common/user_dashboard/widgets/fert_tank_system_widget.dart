@@ -49,7 +49,7 @@ class FertTankSystemWidget extends StatelessWidget {
 
     // ---------- main section ----------
     final mainWidths =
-    mains.map((m) => colW + m.pumps.length * (connW + colW)).toList();
+        mains.map((m) => colW + m.pumps.length * (connW + colW)).toList();
     final maxMainW = mainWidths.isEmpty ? 0.0 : mainWidths.reduce(math.max);
     final collectorX = maxMainW + 16;
 
@@ -59,7 +59,7 @@ class FertTankSystemWidget extends StatelessWidget {
     for (final t in tanks) {
       final k = math.max(1, t.outletValves.length);
       final inletW =
-      t.inletValves.isEmpty ? 0.0 : t.inletValves.length * colW + connW;
+          t.inletValves.isEmpty ? 0.0 : t.inletValves.length * colW + connW;
       final tankX = collectorX + connW + inletW;
       final tankRight = tankX + colW;
       final forkX = tankRight + 12;
@@ -88,7 +88,7 @@ class FertTankSystemWidget extends StatelessWidget {
     }
     double injX(int j) => crossStart + 16 + j * injGap;
     final crossEnd =
-    injSNos.isEmpty ? crossStart : injX(injSNos.length - 1) + 18;
+        injSNos.isEmpty ? crossStart : injX(injSNos.length - 1) + 18;
 
     final tanksEnd = groups.isEmpty
         ? collectorX
@@ -180,7 +180,7 @@ class FertTankSystemWidget extends StatelessWidget {
             height: 10,
             child: DecoratedBox(
               decoration:
-              BoxDecoration(color: injColor, shape: BoxShape.circle),
+                  BoxDecoration(color: injColor, shape: BoxShape.circle),
             ),
           ));
         }
@@ -241,30 +241,30 @@ class FertTankSystemWidget extends StatelessWidget {
 
   // ---------- drawing helpers ----------
   Widget _h(double left, double y, double w) => Positioned(
-    left: left,
-    top: y - 1,
-    width: math.max(0, w),
-    height: 2,
-    child: ColoredBox(color: lineColor),
-  );
+        left: left,
+        top: y - 1,
+        width: math.max(0, w),
+        height: 2,
+        child: ColoredBox(color: lineColor),
+      );
 
   Widget _v(double x, double y1, double y2) => Positioned(
-    left: x - 1,
-    top: y1 - 1,
-    width: 2,
-    height: (y2 - y1) + 2,
-    child: ColoredBox(color: lineColor),
-  );
+        left: x - 1,
+        top: y1 - 1,
+        width: 2,
+        height: (y2 - y1) + 2,
+        child: ColoredBox(color: lineColor),
+      );
 
   Widget _caption(String t) => Text(
-    t,
-    style: TextStyle(
-      fontSize: 8,
-      letterSpacing: 0.6,
-      color: Colors.blueGrey.shade400,
-      fontWeight: FontWeight.w600,
-    ),
-  );
+        t,
+        style: TextStyle(
+          fontSize: 8,
+          letterSpacing: 0.6,
+          color: Colors.blueGrey.shade400,
+          fontWeight: FontWeight.w600,
+        ),
+      );
 
   String _shortNo(String name) {
     final m = RegExp(r'(\d+)\s*$').firstMatch(name);
@@ -327,9 +327,10 @@ class FertTankSystemWidget extends StatelessWidget {
               width: 30,
               height: 30,
               fit: BoxFit.contain,
-              colorFilter: const ColorFilter.mode(Colors.black54, BlendMode.srcIn),
+              colorFilter:
+                  const ColorFilter.mode(Colors.black54, BlendMode.srcIn),
               placeholderBuilder: (_) =>
-              const Icon(Icons.error, size: 20, color: Colors.red),
+                  const Icon(Icons.error, size: 20, color: Colors.red),
             ),
           ),
         ),
@@ -349,10 +350,9 @@ class FertTankSystemWidget extends StatelessWidget {
   }
 
   Widget _tankBox(FertTank t) {
-    final level =
-    t.source.level.isNotEmpty ? t.source.level.first.value : '-';
+    final level = t.source.level.isNotEmpty ? t.source.level.first.value : '-';
     return _box(
-      icon: FontAwesomeIcons.arrowUpFromWaterPump,
+      icon: FontAwesomeIcons.faucetDrip,
       color: Colors.black54,
       border: Colors.black12,
       iconColor: Colors.white,
@@ -368,13 +368,12 @@ class FertTankSystemWidget extends StatelessWidget {
 
     return Selector<MqttPayloadProvider, String?>(
       selector: (_, provider) =>
-      provider.getTankValveOnOffStatus(rawKey) ??
+          provider.getTankValveOnOffStatus(rawKey) ??
           provider.getTankValveOnOffStatus(paddedKey),
       builder: (_, status, __) {
         final parts = status?.split(',') ?? [];
-        final int onOffStatus = parts.length > 1
-            ? (int.tryParse(parts[1]) ?? v.status)
-            : v.status;
+        final int onOffStatus =
+            parts.length > 1 ? (int.tryParse(parts[1]) ?? v.status) : v.status;
         final int percent = parts.length > 2
             ? (int.tryParse(parts[2]) ?? v.completePercent)
             : v.completePercent;
@@ -402,7 +401,7 @@ class FertTankSystemWidget extends StatelessWidget {
         }
 
         final Color iconColor =
-        (onOffStatus == 3) ? Colors.black87 : Colors.white;
+            (onOffStatus == 3) ? Colors.black87 : Colors.white;
 
         return Column(
           mainAxisSize: MainAxisSize.min,
@@ -429,7 +428,7 @@ class FertTankSystemWidget extends StatelessWidget {
                     ),
                     child: const Center(
                       child: FaIcon(
-                        FontAwesomeIcons.faucetDrip,   // ✅ same icon for both
+                        FontAwesomeIcons.faucetDrip,
                         size: 11,
                         color: Colors.white,
                       ),
@@ -481,9 +480,8 @@ class FertTankSystemWidget extends StatelessWidget {
     );
   }
 
-
   Widget _box({
-    required IconData icon,
+    required dynamic icon,
     required Color color,
     required Color border,
     required Color iconColor,
@@ -501,7 +499,11 @@ class FertTankSystemWidget extends StatelessWidget {
             borderRadius: BorderRadius.circular(6),
             border: Border.all(color: border, width: 1),
           ),
-          child: Icon(icon, size: 22, color: iconColor),
+          child: Center(
+            child: icon is IconData
+                ? Icon(icon, size: 22, color: iconColor)
+                : FaIcon(icon, size: 22, color: iconColor),
+          ),
         ),
         const SizedBox(height: 2),
         SizedBox(
@@ -515,8 +517,7 @@ class FertTankSystemWidget extends StatelessWidget {
           ),
         ),
         if (sub != null)
-          Text(sub,
-              style: const TextStyle(fontSize: 9, color: Colors.black54)),
+          Text(sub, style: const TextStyle(fontSize: 9, color: Colors.black54)),
       ],
     );
   }
@@ -527,6 +528,6 @@ class _Group {
   final int row;
   final int rows;
   final double tankX, tankRight, forkX, valveX;
-  _Group(this.tank, this.row, this.rows, this.tankX, this.tankRight,
-      this.forkX, this.valveX);
+  _Group(this.tank, this.row, this.rows, this.tankX, this.tankRight, this.forkX,
+      this.valveX);
 }
