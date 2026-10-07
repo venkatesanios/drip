@@ -430,7 +430,7 @@ class ConfigMakerProvider extends ChangeNotifier{
         for(var i in listOfGeneratedObject){
           if(i.objectId == AppConstants.channelObjectId){
             channelConfig.add(
-              ChannelConfigModel(commonDetails: i, dosingMeter: 0.0, source: [], outletTankValve: [])
+              ChannelConfigModel(commonDetails: i, dosingMeter: 0.0, outletTankValve: [])
             );
           }
         }
@@ -560,7 +560,7 @@ class ConfigMakerProvider extends ChangeNotifier{
               );
             }else if(deviceObjectModel.objectId == AppConstants.channelObjectId){
               channelConfig.add(
-                  ChannelConfigModel(commonDetails: deviceObjectModel, dosingMeter: 0.0, source: [], outletTankValve: [])
+                  ChannelConfigModel(commonDetails: deviceObjectModel, dosingMeter: 0.0, outletTankValve: [])
               );
             }else if(deviceObjectModel.objectId == AppConstants.pressureSensorObjectId){
               pressureSensor.add(
@@ -1103,10 +1103,7 @@ class ConfigMakerProvider extends ChangeNotifier{
   void updateSelectionInChannel(double sNo, int objectId){
     for(var ch in channelConfig){
       if(ch.commonDetails.sNo == sNo){
-        if(objectId == AppConstants.sourceObjectId){
-          ch.source.clear();
-          ch.source.addAll(listOfSelectedSno);
-        }else if(objectId == AppConstants.tankValveObjectId){
+        if(objectId == AppConstants.tankValveObjectId){
           ch.outletTankValve.clear();
           ch.outletTankValve.addAll(listOfSelectedSno);
         }
