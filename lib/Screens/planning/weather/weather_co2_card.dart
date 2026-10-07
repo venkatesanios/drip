@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/Screens/planning/weather/widgets/periodicCard.dart';
+import 'package:oro_drip_irrigation/Screens/planning/weather/widgets/periodicCardCurrent.dart';
 
 class CO2Card extends StatelessWidget {
   final IconData icon;
@@ -43,63 +44,68 @@ class CO2Card extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(icon, size: 20),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                title,
-                style: const TextStyle(fontWeight: FontWeight.w600),
+    return Container(
+      height: 400,
+      width: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 20),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  title,
+                  maxLines: 2,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
               ),
-            ),
-          ],
-        ),
-
-        const SizedBox(height: 12),
-
-        Text(
-          'CO2 Level: $co2Value ppm',
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
+            ],
           ),
-        ),
 
-        const SizedBox(height: 12),
-        _co2Bar(value: co2Value),
-        const SizedBox(height: 12),
+          const SizedBox(height: 12),
 
-        Text(message),
+          Text(
+            'CO2 Level: $co2Value ppm',
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
 
-        const SizedBox(height: 10),
+          const SizedBox(height: 12),
+          _co2Bar(value: co2Value),
+          const SizedBox(height: 12),
 
-        SensorPeriodCard(
-          title: 'Current Day',
-          minValue: min,
-          maxValue: max,
-          averageValue: other,
-        ),
-        const SizedBox(height: 10),
+          Text(message),
 
-        SensorPeriodCard(
-          title: 'Last 7 Days',
-          minValue: last7DaysMin.toString(),
-          maxValue: last7DaysMax.toString(),
-          averageValue: last7DaysAverage.toString(),
-        ),
-        const SizedBox(height: 10),
+          const SizedBox(height: 10),
 
-        SensorPeriodCard(
-          title: 'Last Month',
-          minValue: last30DaysMin.toString(),
-          maxValue: last30DaysMax.toString(),
-          averageValue: last30DaysAverage.toString(),
-        ),
-      ],
+          SensorPeriodCardCurrent(
+            title: 'Current Day',
+            minValue: min,
+            maxValue: max,
+            averageValue: other,
+          ),
+          const SizedBox(height: 10),
+
+          SensorPeriodCard(
+            title: 'Last 7 Days',
+            minValue: last7DaysMin.toString(),
+            maxValue: last7DaysMax.toString(),
+            averageValue: last7DaysAverage.toString(),
+          ),
+          const SizedBox(height: 10),
+
+          SensorPeriodCard(
+            title: 'Last Month',
+            minValue: last30DaysMin.toString(),
+            maxValue: last30DaysMax.toString(),
+            averageValue: last30DaysAverage.toString(),
+          ),
+        ],
+      ),
     );
   }
 

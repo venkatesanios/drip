@@ -5,7 +5,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/Screens/planning/weather/widgets/sensor_tile_new.dart';
+import 'package:provider/provider.dart';
 
+import '../../../../StateManagement/mqtt_payload_provider.dart';
 import '../../../../services/mqtt_service.dart';
 import '../../../../utils/environment.dart';
 import '../weather_report_monthly.dart';
@@ -59,8 +61,8 @@ class _WeatherGsmState extends State<WeatherGsm> {
 
   void _requestLiveData() {
     final payload = jsonEncode({
-      '5000': {'5001': ''},
-    });
+      'sentSms': '#live'}
+    );
 
     manager.topicToPublishAndItsMessage(
       payload,
@@ -72,6 +74,8 @@ class _WeatherGsmState extends State<WeatherGsm> {
 
   @override
   Widget build(BuildContext context) {
+    final mqttPayloadProvider = Provider.of<MqttPayloadProvider>(context, listen: true);
+    print("mqttPayloadProvider.weatherGSMModelinstance:${mqttPayloadProvider.weatherGSMModelinstance}");
     try {
       // Accept either the full API response or the data object itself.
       final responseData = widget.jsondata['data'];
@@ -79,12 +83,25 @@ class _WeatherGsmState extends State<WeatherGsm> {
           ? Map<String, dynamic>.from(responseData)
           : widget.jsondata;
 
-      final weatherLive = _asMap(json['weatherLive']);
-      final cm = _asMap(weatherLive['cM']);
+      Map<String, dynamic> mqttData = {};
+      if (mqttPayloadProvider.weatherGSMModelinstance.isNotEmpty) {
+        try {
+          final decoded = jsonDecode(mqttPayloadProvider.weatherGSMModelinstance);
+          if (decoded is Map) {
+            mqttData = Map<String, dynamic>.from(decoded);
+          }
+        } catch (_) {}
+      }
 
-      final liveMap = mapBySNo(
-        parseLive7901(cm['7901']?.toString() ?? ''),
-      );
+      final weatherLive = mqttData.containsKey('weatherLive')
+          ? _asMap(mqttData['weatherLive'])
+          : mqttData.containsKey('cM') && _asMap(mqttData['cM']).containsKey('weatherLive')
+              ? _asMap(_asMap(mqttData['cM'])['weatherLive'])
+              : _asMap(json['weatherLive']);
+
+      final cmMap = mqttData.containsKey('cM') ? _asMap(mqttData['cM']) : mqttData;
+      final livePayload = cmMap['7901']?.toString() ?? mqttData['7901']?.toString() ?? '';
+      final liveMap = mapBySNo(parseLive7901(livePayload));
 
       final configList = (json['configObject'] as List? ?? [])
           .whereType<Map>()
@@ -122,9 +139,15 @@ class _WeatherGsmState extends State<WeatherGsm> {
       final wind = sensorValue('Wind Speed Sensor');
       final humidity = sensorValue('Humidity Sensor');
 
-      final time = weatherLive['cT']?.toString() ?? '';
-      final date = weatherLive['cD']?.toString() ?? '';
-      final dateTime = '$time-$date';
+      final time = mqttData['cT']?.toString() ??
+                   weatherLive['cT']?.toString() ??
+                   json['cT']?.toString() ?? '';
+      final date = mqttData['cD']?.toString() ??
+                   weatherLive['cD']?.toString() ??
+                   json['cD']?.toString() ?? '';
+      final dateTime = (date.isNotEmpty && time.isNotEmpty)
+          ? '$date $time'
+          : (date.isNotEmpty ? date : (time.isNotEmpty ? time : '--'));
 
       return kIsWeb
           ? _buildWideLayout(
@@ -175,7 +198,7 @@ class _WeatherGsmState extends State<WeatherGsm> {
       ) {
     final orderedSensors = _orderSensors(sensors);
 
-    return Row(
+    return Column(
       children: [
         Padding(
           padding: const EdgeInsets.all(8),
@@ -189,18 +212,19 @@ class _WeatherGsmState extends State<WeatherGsm> {
                       icon: const Icon(Icons.refresh),
                       onPressed: _requestLiveData,
                     ),
-                    const Text('Get Live Data'),
+                    const Text('Live : '),
+                    Text(dateTime),
                   ],
                 ),
-                _weatherSummaryCard(
-                  dateTime,
-                  temperature,
-                  wind,
-                  humidity,
-                  time,
-                ),
-                const SizedBox(height: 16),
-                _sunCard(),
+                // _weatherSummaryCard(
+                //   dateTime,
+                //   temperature,
+                //   wind,
+                //   humidity,
+                //   time,
+                // ),
+                // const SizedBox(height: 16),
+                // _sunCard(),
               ],
             ),
           ),
@@ -253,18 +277,19 @@ class _WeatherGsmState extends State<WeatherGsm> {
               icon: const Icon(Icons.refresh),
               onPressed: _requestLiveData,
             ),
-            const Text('Get Live Data'),
+            const Text('Live : '),
+            Text(dateTime),
           ],
         ),
-        _weatherSummaryCard(
-          dateTime,
-          temperature,
-          wind,
-          humidity,
-          time,
-        ),
-        const SizedBox(height: 16),
-        _sunCard(),
+        // _weatherSummaryCard(
+        //   dateTime,
+        //   temperature,
+        //   wind,
+        //   humidity,
+        //   time,
+        // ),
+        // const SizedBox(height: 16),
+        // _sunCard(),
         const SizedBox(height: 16),
 
         // One separate card for every sensor.
