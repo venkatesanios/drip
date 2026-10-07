@@ -1626,9 +1626,9 @@ class _SensorHourlyReportPageState
                     // TOTAL REMOVED
                     return LineTooltipItem(
                       '${_formatDate(item.date)}\n'
-                          'Avg: ${item.averageValue.toStringAsFixed(2)} ${widget.unit}\n'
-                          'Min: ${item.minValue.toStringAsFixed(2)} ${widget.unit}\n'
-                          'Max: ${item.maxValue.toStringAsFixed(2)} ${widget.unit}',
+                          'Avg: ${item.averageValue.toStringAsFixed(2)} ${widget.unit}\n',
+                          // 'Min: ${item.minValue.toStringAsFixed(2)} ${widget.unit}\n'
+                          // 'Max: ${item.maxValue.toStringAsFixed(2)} ${widget.unit}',
                       const TextStyle(
                         color:
                         Colors.white,

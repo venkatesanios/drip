@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../StateManagement/customer_provider.dart';
+import '../../../../StateManagement/mqtt_payload_provider.dart';
 import '../../../../repository/repository.dart';
 import '../../../../services/http_service.dart';
 import '../../../../services/mqtt_service.dart';
@@ -94,8 +95,10 @@ class _WeatherScreenNewState extends State<WeatherScreenNew>
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       key: ValueKey(Provider.of<CustomerProvider>(context).controllerId),
-      create: (_) => WeatherViewModel(Repository(HttpService()))
-        ..fetchWeatherData(widget.customerId, widget.controllerId),
+      create: (context) => WeatherViewModel(
+        Repository(HttpService()),
+        Provider.of<MqttPayloadProvider>(context, listen: false),
+      )..fetchWeatherData(widget.customerId, widget.controllerId),
       child: Consumer<WeatherViewModel>(
         builder: (context, vm, _) {
           if (vm.isLoadingWeather) {
@@ -105,8 +108,6 @@ class _WeatherScreenNewState extends State<WeatherScreenNew>
           if (vm.weatherModel == null) {
             return const Center(child: Text("No weather data available"));
           }
-
-
           if (!vm.hasAnyWeatherStation) {
             return  Scaffold(
               body: Center(
@@ -146,10 +147,11 @@ class _WeatherScreenNewState extends State<WeatherScreenNew>
           );
 
           if(lines.length > 1){
-             return MediaQuery.sizeOf(context).width < 600 ? Scaffold(
+             return MediaQuery.sizeOf(context).width < 800 ? Scaffold(
               appBar: AppBar(
-                title: const Text("Weather"),
-                bottom: TabBar(
+                automaticallyImplyLeading: false,
+                toolbarHeight: 0,
+                 bottom: TabBar(
                    labelColor: Colors.white,
                   unselectedLabelColor: Colors.white54,
                   indicatorColor: Colors.white,
@@ -160,16 +162,7 @@ class _WeatherScreenNewState extends State<WeatherScreenNew>
                     for (final line in lines) Tab(text: line.line.name),
                   ],
                 ),
-                actions: [IconButton(
-                  icon:  const Icon(Icons.refresh),
-                  onPressed: () {
-                    Request();
-                    vm.fetchWeatherData(
-                      widget.customerId,
-                      widget.controllerId,
-                    );
-                  },
-                )],
+
               ),
               body: TabBarView(
                 controller: _tabController,
@@ -322,38 +315,51 @@ class _LineTabViewState extends State<_LineTabView> {
   {
     print("_buildWideLayout call station.sensors:${station.sensors}");
 
-    return Row(
+    return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.all(8),
-          child: SizedBox(
-            width: 320,
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    IconButton(
-                      icon:  const Icon(Icons.refresh),
-                      onPressed: () {
-                        Request();
-                        widget.vm.fetchWeatherData(widget.customerId, widget.userId,);
-                      },
-                    ),
-                    Text("Get Live Data")
-                  ],
-                ),
-                 _weatherSummaryCard(
-                  formattedDT,
-                  tempText,
-                  windText,
-                  humidityText,
-                  widget.vm.weatherModel!.weatherLive.cT,
-                ),
-                const SizedBox(height: 16),
-                sunCard(),
-              ],
+        // Padding(
+        //   padding: const EdgeInsets.all(8),
+        //   child: SizedBox(
+        //     width: 320,
+        //     child: Column(
+        //       children: [
+        //         Row(
+        //           children: [
+        //             IconButton(
+        //               icon:  const Icon(Icons.refresh),
+        //               onPressed: () {
+        //                 Request();
+        //                 widget.vm.fetchWeatherData(widget.customerId, widget.userId,);
+        //               },
+        //             ),
+        //             Text("Get Live Data")
+        //           ],
+        //         ),
+        //         //  _weatherSummaryCard(
+        //         //   formattedDT,
+        //         //   tempText,
+        //         //   windText,
+        //         //   humidityText,
+        //         //   widget.vm.weatherModel!.weatherLive.cT,
+        //         // ),
+        //         const SizedBox(height: 16),
+        //         // sunCard(),
+        //       ],
+        //     ),
+        //   ),
+        // ),
+        Row(
+          children: [
+            IconButton(
+              icon:  const Icon(Icons.refresh),
+              onPressed: () {
+                Request();
+                widget.vm.fetchWeatherData(widget.customerId, widget.userId,);
+              },
             ),
-          ),
+            Text("Live : "),
+            Text(formattedDT),
+          ],
         ),
               Expanded(
     child: RefreshIndicator(
@@ -451,18 +457,19 @@ class _LineTabViewState extends State<_LineTabView> {
                   widget.vm.fetchWeatherData(widget.customerId, widget.userId);
                 },
               ),
-              Text("Get Live Data")
+              Text("Live : "),
+              Text(formattedDT),
             ],
           ),
-          _weatherSummaryCard(
-            formattedDT,
-            tempText,
-            windText,
-            humidityText,
-            widget.vm.weatherModel!.weatherLive.cT,
-          ),
-          const SizedBox(height: 16),
-          sunCard(),
+          // _weatherSummaryCard(
+          //   formattedDT,
+          //   tempText,
+          //   windText,
+          //   humidityText,
+          //   widget.vm.weatherModel!.weatherLive.cT,
+          // ),
+          // const SizedBox(height: 16),
+          // sunCard(),
           const SizedBox(height: 16),
           Card(
             child: Padding(

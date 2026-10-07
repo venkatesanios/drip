@@ -17,6 +17,7 @@ class MqttPayloadProvider with ChangeNotifier {
   dynamic spa = '';
   String dashBoardPayload = '', schedulePayload = '';
   WeatherModel weatherModelinstance = WeatherModel();
+  String weatherGSMModelinstance = '';
   MapConfigModel mapModelInstance = MapConfigModel();
 
   Map<String, dynamic> pumpControllerPayload = {};
@@ -690,7 +691,7 @@ class MqttPayloadProvider with ChangeNotifier {
 
       try {
         Map<String, dynamic> data = _receivedPayload.isNotEmpty? jsonDecode(_receivedPayload) : {};
-         debugPrint('_receivedPayload------>:$_receivedPayload');
+         // debugPrint('_receivedPayload------>:$_receivedPayload');
 
         if (data.containsKey('cD') && data.containsKey('cT')) {
           liveDateAndTime = '${data['cD'] ?? "--"} ${data['cT'] ?? "--"}';
@@ -806,6 +807,9 @@ class MqttPayloadProvider with ChangeNotifier {
         }
         else if(data.containsKey('5100') && data['5100'] != null && data['5100'].isNotEmpty){
           weatherModelinstance = WeatherModel.fromJson(data);
+        }
+        else if((data.containsKey('7900') && data['7900'] != null && data['7900'].isNotEmpty) || data['mC'] == '7900'){
+          weatherGSMModelinstance = _receivedPayload;
         }
         else if(data['mC'] != null && data["mC"].contains("VIEW")) {
           cCList = {...cCList, data['cC']}.toList();

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/Screens/planning/weather/widgets/periodicCard.dart';
+import 'package:oro_drip_irrigation/Screens/planning/weather/widgets/periodicCardCurrent.dart';
 
 import '../view/weather_screen_new.dart';
 import '../weather_co2_card.dart';
@@ -110,111 +111,114 @@ class SensorTileNew extends StatelessWidget {
       return WindCard(
         icon: icon,
         directionAngle: value,
+        statusCode: statusCode,
       );
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Container(
-              width: 38,
-              height: 38,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(
-                icon,
-                size: 21,
-                color: Colors.black87,
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
+    return Container(
+      height: 400,
+      width: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  icon,
+                  size: 21,
+                  color: Colors.black87,
                 ),
               ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 6,
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  title,
+                  maxLines: 2,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w100,
+
+                  ),
+                ),
               ),
-              decoration: BoxDecoration(
-                color: _sensorStatusColor(statusCode),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
+
+
+            ],
+          ),
+          Row(
+            children: [
+              SizedBox(width: 48,),
+              Text(
                 statusCode == 255 ? 'Normal' : 'Alert',
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: _sensorStatusColor(statusCode),
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
                 ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
+          const SizedBox(height: 18),
 
-        const SizedBox(height: 18),
-
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(
-              value.toStringAsFixed(2),
-              style: const TextStyle(
-                fontSize: 30,
-                fontWeight: FontWeight.bold,
-                height: 1,
-              ),
-            ),
-            const SizedBox(width: 5),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 2),
-              child: Text(
-                unit,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.grey.shade600,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                value.toStringAsFixed(2),
+                style: const TextStyle(
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
+                  height: 1,
                 ),
               ),
-            ),
-          ],
-        ),
+              const SizedBox(width: 5),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 2),
+                child: Text(
+                  unit,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+              ),
+            ],
+          ),
 
-        const SizedBox(height: 20),
+          const SizedBox(height: 20),
 
-        SensorPeriodCard(
-          title: 'Current Day',
-          minValue: minValue.toString(),
-          maxValue: maxValue.toString(),
-          averageValue: otherValue,
-        ),
-        const SizedBox(height: 10),
+          SensorPeriodCardCurrent(
+            title: 'Current Day',
+            minValue: minValue.toString(),
+            maxValue: maxValue.toString(),
+            averageValue: otherValue,
+          ),
+          const SizedBox(height: 10),
 
-        SensorPeriodCard(
-          title: 'Last 7 Days',
-          minValue: last7DaysMin.toString(),
-          maxValue: last7DaysMax.toString(),
-          averageValue: last7DaysAverage.toString(),
-        ),
-        const SizedBox(height: 10),
+          SensorPeriodCard(
+            title: 'Last 7 Days',
+            minValue: last7DaysMin.toString(),
+            maxValue: last7DaysMax.toString(),
+            averageValue: last7DaysAverage.toString(),
+          ),
+          const SizedBox(height: 10),
 
-        SensorPeriodCard(
-          title: 'Last Month',
-          minValue: last30DaysMin.toString(),
-          maxValue: last30DaysMax.toString(),
-          averageValue: last30DaysAverage.toString(),
-        ),
-      ],
+          SensorPeriodCard(
+            title: 'Last Month',
+            minValue: last30DaysMin.toString(),
+            maxValue: last30DaysMax.toString(),
+            averageValue: last30DaysAverage.toString(),
+          ),
+        ],
+      ),
     );
   }
 }

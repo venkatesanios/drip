@@ -1,13 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class SensorPeriodCard extends StatelessWidget {
+class SensorPeriodCardCurrent extends StatelessWidget {
   final String title;
   final String minValue;
   final String maxValue;
   final String averageValue;
 
-  const SensorPeriodCard({
+  const SensorPeriodCardCurrent({
     super.key,
     required this.title,
     required this.minValue,
@@ -39,35 +39,9 @@ class SensorPeriodCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              _value('Min', minValue),
+              _value('Max', maxValue),
               _value('Average', averageValue),
-              SizedBox(),
-
-               Container(
-                  width: 60,
-                  height: 30,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE3F5EA),
-                    borderRadius: BorderRadius.circular(15),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 2,
-                        offset: Offset(0, 1),
-                      ),
-                    ],
-                  ),
-                  alignment: Alignment.center,
-                  child: const Text(
-                    ' View Log',
-                    style: TextStyle(
-                      color: Color(0xFF1D9505),
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-
-
             ],
           ),
         ],
