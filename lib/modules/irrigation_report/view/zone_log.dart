@@ -1,9 +1,12 @@
 import 'dart:convert';
+import 'dart:math' as math;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:syncfusion_flutter_datepicker/datepicker.dart';
+import '../../../Widgets/custom_buttons.dart';
 import '../../../models/customer/site_model.dart';
 import '../../SystemDefinitions/widgets/custom_snack_bar.dart';
 import '../repository/irrigation_repository.dart';
@@ -141,6 +144,8 @@ class _ZoneLogState extends State<ZoneLog> with AutomaticKeepAliveClientMixin {
   String _selectedGraphMetric =
       'Duration'; // 'Duration' (Green) or 'Quantity' (Orange)
   String _graphChartType = 'Column'; // 'Column', 'Spline', 'Area'
+  final Set<String> _expandedBreakdownKeys = {};
+
 
   @override
   void initState() {
@@ -711,6 +716,66 @@ class _ZoneLogState extends State<ZoneLog> with AutomaticKeepAliveClientMixin {
     }
   }
 
+  Future<void> _selectDateRange(BuildContext context) async {
+    DateTime tempStart = _fromDate;
+    DateTime tempEnd = _toDate;
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text(
+            'Date Picker',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          content: StatefulBuilder(
+            builder: (BuildContext context, StateSetter stateSetter) {
+              return SizedBox(
+                width: 250,
+                height: 280,
+                child: SfDateRangePicker(
+                  selectionMode: DateRangePickerSelectionMode.range,
+                  initialSelectedRange: PickerDateRange(_fromDate, _toDate),
+                  onSelectionChanged:
+                      (DateRangePickerSelectionChangedArgs args) {
+                    if (args.value is PickerDateRange) {
+                      final PickerDateRange range =
+                          args.value as PickerDateRange;
+                      if (range.startDate != null) {
+                        tempStart = range.startDate!;
+                        tempEnd = range.endDate ?? range.startDate!;
+                      }
+                    }
+                  },
+                ),
+              );
+            },
+          ),
+          actions: [
+            CustomMaterialButton(
+              title: 'Cancel',
+              outlined: true,
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+            CustomMaterialButton(
+              title: 'OK',
+              onPressed: () {
+                setState(() {
+                  _fromDate = tempStart;
+                  _toDate = tempEnd;
+                });
+                Navigator.pop(context);
+                fetchZoneLogApi();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Widget _buildFilterCard(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -734,116 +799,48 @@ class _ZoneLogState extends State<ZoneLog> with AutomaticKeepAliveClientMixin {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Row 1: From Date & To Date side-by-side
+                // Row 1: Date Range Selection
                 Row(
                   children: [
-                    // From Date
+                    const Text("Date Range",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 12)),
+                    const SizedBox(width: 6),
                     Expanded(
-                      child: Row(
-                        children: [
-                          const Text("From Date",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 12)),
-                          const SizedBox(width: 6),
-                          Expanded(
-                            child: InkWell(
-                              onTap: () async {
-                                final picked = await showDatePicker(
-                                  context: context,
-                                  initialDate: _fromDate,
-                                  firstDate: DateTime(2025),
-                                  lastDate: DateTime(2030),
-                                );
-                                if (picked != null) {
-                                  setState(() {
-                                    _fromDate = picked;
-                                  });
-                                }
-                              },
-                              child: Container(
-                                height: 36,
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 6, vertical: 4),
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                      color: const Color(0xFFCBD5E1)),
-                                  borderRadius: BorderRadius.circular(6),
-                                  color: Colors.white,
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                        DateFormat('dd MMM yyyy')
-                                            .format(_fromDate),
-                                        style: const TextStyle(fontSize: 11.5)),
-                                    const Icon(Icons.calendar_today,
-                                        size: 14, color: Color(0xFF64748B)),
-                                  ],
+                      child: InkWell(
+                        onTap: () => _selectDateRange(context),
+                        child: Container(
+                          height: 36,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                                color: const Color(0xFFCBD5E1)),
+                            borderRadius: BorderRadius.circular(6),
+                            color: Colors.white,
+                          ),
+                          child: Row(
+                            mainAxisAlignment:
+                                MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  "${DateFormat('dd MMM yyyy').format(_fromDate)} - ${DateFormat('dd MMM yyyy').format(_toDate)}",
+                                  style: const TextStyle(fontSize: 11.5),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                            ),
+                              const Icon(Icons.calendar_today,
+                                  size: 14, color: Color(0xFF64748B)),
+                            ],
                           ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    // To Date
-                    Expanded(
-                      child: Row(
-                        children: [
-                          const Text("To Date",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 12)),
-                          const SizedBox(width: 6),
-                          Expanded(
-                            child: InkWell(
-                              onTap: () async {
-                                final picked = await showDatePicker(
-                                  context: context,
-                                  initialDate: _toDate,
-                                  firstDate: DateTime(2025),
-                                  lastDate: DateTime(2030),
-                                );
-                                if (picked != null) {
-                                  setState(() {
-                                    _toDate = picked;
-                                  });
-                                }
-                              },
-                              child: Container(
-                                height: 36,
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 6, vertical: 4),
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                      color: const Color(0xFFCBD5E1)),
-                                  borderRadius: BorderRadius.circular(6),
-                                  color: Colors.white,
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                        DateFormat('dd MMM yyyy')
-                                            .format(_toDate),
-                                        style: const TextStyle(fontSize: 11.5)),
-                                    const Icon(Icons.calendar_today,
-                                        size: 14, color: Color(0xFF64748B)),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 8),
-                // Row 2: Program Filter & Action Buttons
+                // Row 2: Program Filter & Excel Button
                 Row(
                   children: [
                     // Program Dropdown
@@ -896,38 +893,11 @@ class _ZoneLogState extends State<ZoneLog> with AutomaticKeepAliveClientMixin {
                       ),
                     ),
                     const SizedBox(width: 6),
-                    // Filter Button
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1E88E5),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 0),
-                        minimumSize: const Size(0, 36),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(6)),
-                      ),
-                      onPressed: () => fetchZoneLogApi(),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.filter_alt_outlined,
-                              size: 14, color: Colors.white),
-                          SizedBox(width: 3),
-                          Text("Filter",
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 11.5)),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-
                     // Excel Button
                     OutlinedButton(
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 0),
+                            horizontal: 8, vertical: 0),
                         minimumSize: const Size(0, 36),
                         side: const BorderSide(color: Color(0xFF2E7D32)),
                         backgroundColor: Colors.white,
@@ -961,28 +931,16 @@ class _ZoneLogState extends State<ZoneLog> with AutomaticKeepAliveClientMixin {
             runSpacing: 10,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              // From Date Picker
+              // Date Range Picker
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text("From Date",
+                  const Text("Date Range",
                       style:
                           TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
                   const SizedBox(width: 8),
                   InkWell(
-                    onTap: () async {
-                      final picked = await showDatePicker(
-                        context: context,
-                        initialDate: _fromDate,
-                        firstDate: DateTime(2025),
-                        lastDate: DateTime(2030),
-                      );
-                      if (picked != null) {
-                        setState(() {
-                          _fromDate = picked;
-                        });
-                      }
-                    },
+                    onTap: () => _selectDateRange(context),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 8),
@@ -992,52 +950,12 @@ class _ZoneLogState extends State<ZoneLog> with AutomaticKeepAliveClientMixin {
                         color: Colors.white,
                       ),
                       child: Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(DateFormat('dd MMM yyyy').format(_fromDate),
-                              style: const TextStyle(fontSize: 13)),
-                          const SizedBox(width: 8),
-                          const Icon(Icons.calendar_today,
-                              size: 16, color: Color(0xFF64748B)),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              // To Date Picker
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text("To Date",
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                  const SizedBox(width: 8),
-                  InkWell(
-                    onTap: () async {
-                      final picked = await showDatePicker(
-                        context: context,
-                        initialDate: _toDate,
-                        firstDate: DateTime(2025),
-                        lastDate: DateTime(2030),
-                      );
-                      if (picked != null) {
-                        setState(() {
-                          _toDate = picked;
-                        });
-                      }
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 8),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: const Color(0xFFCBD5E1)),
-                        borderRadius: BorderRadius.circular(6),
-                        color: Colors.white,
-                      ),
-                      child: Row(
-                        children: [
-                          Text(DateFormat('dd MMM yyyy').format(_toDate),
-                              style: const TextStyle(fontSize: 13)),
+                          Text(
+                            "${DateFormat('dd MMM yyyy').format(_fromDate)} - ${DateFormat('dd MMM yyyy').format(_toDate)}",
+                            style: const TextStyle(fontSize: 13),
+                          ),
                           const SizedBox(width: 8),
                           const Icon(Icons.calendar_today,
                               size: 16, color: Color(0xFF64748B)),
@@ -1085,30 +1003,6 @@ class _ZoneLogState extends State<ZoneLog> with AutomaticKeepAliveClientMixin {
                         },
                       ),
                     ),
-                  ),
-                ],
-              ),
-
-              // Filter Button
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF1E88E5),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 8),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(6)),
-                    ),
-                    onPressed: () {
-                      fetchZoneLogApi();
-                    },
-                    icon: const Icon(Icons.filter_alt_outlined,
-                        size: 16, color: Colors.white),
-                    label: const Text("Filter",
-                        style: TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),
@@ -2490,10 +2384,34 @@ class _ZoneLogState extends State<ZoneLog> with AutomaticKeepAliveClientMixin {
                     ),
                     const SizedBox(height: 12),
 
-                    // SfCartesianChart
-                    SizedBox(
-                      height: 320,
-                      child: _buildSfChart(filteredRows),
+                    // SfCartesianChart with horizontal scrolling for 1 month or constrained width
+                    LayoutBuilder(
+                      builder: (context, chartConstraints) {
+                        const double minWidthPerDate = 45.0;
+                        final double totalCalculatedWidth =
+                            _dateColumns.length * minWidthPerDate;
+                        final double chartWidth = math.max(
+                            chartConstraints.maxWidth, totalCalculatedWidth);
+
+                        return ScrollConfiguration(
+                          behavior: ScrollConfiguration.of(context).copyWith(
+                            dragDevices: {
+                              PointerDeviceKind.touch,
+                              PointerDeviceKind.mouse,
+                              PointerDeviceKind.trackpad,
+                              PointerDeviceKind.stylus,
+                            },
+                          ),
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: SizedBox(
+                              width: chartWidth,
+                              height: 320,
+                              child: _buildSfChart(filteredRows),
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -2810,6 +2728,7 @@ class _ZoneLogState extends State<ZoneLog> with AutomaticKeepAliveClientMixin {
     return SfCartesianChart(
       legend: const Legend(
         isVisible: true,
+        toggleSeriesVisibility: false,
         position: LegendPosition.top,
         alignment: ChartAlignment.center,
         textStyle: TextStyle(
@@ -2995,18 +2914,80 @@ class _ZoneLogState extends State<ZoneLog> with AutomaticKeepAliveClientMixin {
 
   Widget _buildSequenceBreakdownCard(
       SequenceRowData row, int grandTotalSeconds, int grandTotalQuantity) {
-    double durPct = grandTotalSeconds > 0
-        ? (row.totalDurationSeconds / grandTotalSeconds).clamp(0.0, 1.0)
-        : 0.0;
-    double qtyPct = grandTotalQuantity > 0
-        ? (row.totalQuantity / grandTotalQuantity).clamp(0.0, 1.0)
-        : 0.0;
+    bool isExpanded = _expandedBreakdownKeys.contains(row.key);
 
-    String durPctStr =
-        durPct > 0 ? " (${(durPct * 100).toStringAsFixed(1)}%)" : "";
-    String qtyPctStr = (row.totalQuantity > 0 && qtyPct > 0)
-        ? " (${(qtyPct * 100).toStringAsFixed(1)}%)"
-        : "";
+    Widget toggleBtn = InkWell(
+      onTap: () {
+        setState(() {
+          if (isExpanded) {
+            _expandedBreakdownKeys.remove(row.key);
+          } else {
+            _expandedBreakdownKeys.add(row.key);
+          }
+        });
+      },
+      borderRadius: BorderRadius.circular(4),
+      child: Container(
+        padding: const EdgeInsets.all(2),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFFF7ED),
+          borderRadius: BorderRadius.circular(4),
+          border: Border.all(color: const Color(0xFFFFEDD5), width: 1),
+        ),
+        child: Icon(
+          isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+          size: 16,
+          color: const Color(0xFFEA580C),
+        ),
+      ),
+    );
+
+    Widget durationBadge = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: const Color(0xFFE0F2F1),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.timer_outlined, size: 11, color: Color(0xFF0F766E)),
+          const SizedBox(width: 3),
+          Text(
+            _formatDuration(row.totalDurationSeconds),
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF0F766E),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    Widget quantityBadge = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF7ED),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.water_drop_outlined,
+              size: 11, color: Color(0xFFEA580C)),
+          const SizedBox(width: 3),
+          Text(
+            row.totalQuantity > 0 ? "${row.totalQuantity}" : "-",
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFFEA580C),
+            ),
+          ),
+        ],
+      ),
+    );
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -3024,7 +3005,7 @@ class _ZoneLogState extends State<ZoneLog> with AutomaticKeepAliveClientMixin {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (isNarrow) ...[
-                // Mobile / Narrow: Row 1 = Sequence Badge + Program Name
+                // Mobile / Narrow: Row 1 = Sequence Badge + Program Name + Toggle
                 Row(
                   children: [
                     Container(
@@ -3060,64 +3041,19 @@ class _ZoneLogState extends State<ZoneLog> with AutomaticKeepAliveClientMixin {
                           ),
                         ),
                       ),
+                    ] else ...[
+                      const Spacer(),
                     ],
+                    toggleBtn,
                   ],
                 ),
                 const SizedBox(height: 6),
                 // Mobile / Narrow: Row 2 = Duration Badge & Quantity Badge
                 Row(
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE0F2F1),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.timer_outlined,
-                              size: 11, color: Color(0xFF0F766E)),
-                          const SizedBox(width: 3),
-                          Text(
-                            "${_formatDuration(row.totalDurationSeconds)}$durPctStr",
-                            style: const TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF0F766E),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    durationBadge,
                     const SizedBox(width: 6),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFFF7ED),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.water_drop_outlined,
-                              size: 11, color: Color(0xFFEA580C)),
-                          const SizedBox(width: 3),
-                          Text(
-                            row.totalQuantity > 0
-                                ? "${row.totalQuantity}$qtyPctStr"
-                                : "-",
-                            style: const TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFFEA580C),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    quantityBadge,
                   ],
                 ),
               ] else ...[
@@ -3170,79 +3106,221 @@ class _ZoneLogState extends State<ZoneLog> with AutomaticKeepAliveClientMixin {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFE0F2F1),
-                            borderRadius: BorderRadius.circular(4),
+                        durationBadge,
+                        const SizedBox(width: 6),
+                        quantityBadge,
+                        const SizedBox(width: 6),
+                        toggleBtn,
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+
+
+              // Expanded Date-wise Duration, Quantity & Total breakdown
+              if (isExpanded) ...[
+                const SizedBox(height: 10),
+                Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                  ),
+                  child: Column(
+                    children: [
+                      // Header
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 6),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFF1F5F9),
+                          borderRadius:
+                              BorderRadius.vertical(top: Radius.circular(5)),
+                          border: Border(
+                            bottom:
+                                BorderSide(color: Color(0xFFCBD5E1), width: 1),
                           ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(Icons.timer_outlined,
-                                  size: 11, color: Color(0xFF0F766E)),
-                              const SizedBox(width: 3),
-                              Text(
-                                "${_formatDuration(row.totalDurationSeconds)}$durPctStr",
+                        ),
+                        child: const Row(
+                          children: [
+                            Expanded(
+                              flex: 3,
+                              child: Text(
+                                "Date",
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF475569),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 3,
+                              child: Text(
+                                "Duration",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF0F766E),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 3,
+                              child: Text(
+                                "Quantity",
+                                textAlign: TextAlign.right,
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFFEA580C),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Date Rows
+                      for (int dIdx = 0; dIdx < _dateColumns.length; dIdx++)
+                        Builder(builder: (context) {
+                          DateTime d = _dateColumns[dIdx];
+                          String dKey = DateFormat('yyyy-MM-dd').format(d);
+                          SequenceDayData? dayData = row.dayEntries[dKey];
+
+                          bool hasRun = dayData != null && dayData.hasRun;
+                          int durSec = dayData?.durationQtySeconds ?? 0;
+                          int qty = dayData?.quantityCompleted ?? 0;
+
+                          String durStr = (hasRun && durSec > 0)
+                              ? _formatDuration(durSec)
+                              : (hasRun && dayData.durationQtyStr != '00:00:00'
+                                  ? dayData.durationQtyStr
+                                  : '-');
+                          String qtyStr =
+                              (hasRun && qty > 0) ? qty.toString() : '-';
+
+                          Color rowBg = dIdx % 2 == 0
+                              ? Colors.white
+                              : const Color(0xFFF8FAFC);
+
+                          return Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 6),
+                            color: rowBg,
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  flex: 3,
+                                  child: Text(
+                                    DateFormat('dd/MM/yyyy').format(d),
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: hasRun
+                                          ? FontWeight.w600
+                                          : FontWeight.normal,
+                                      color: hasRun
+                                          ? const Color(0xFF1E293B)
+                                          : const Color(0xFF94A3B8),
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  flex: 3,
+                                  child: Text(
+                                    durStr,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: durStr != '-'
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                      color: durStr != '-'
+                                          ? const Color(0xFF0F766E)
+                                          : const Color(0xFF94A3B8),
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  flex: 3,
+                                  child: Text(
+                                    qtyStr,
+                                    textAlign: TextAlign.right,
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: qtyStr != '-'
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                      color: qtyStr != '-'
+                                          ? const Color(0xFFEA580C)
+                                          : const Color(0xFF94A3B8),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }),
+                      // Total Footer Row
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 7),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFF0FDF4),
+                          borderRadius:
+                              BorderRadius.vertical(bottom: Radius.circular(5)),
+                          border: Border(
+                            top: BorderSide(
+                                color: Color(0xFFBBF7D0), width: 1.5),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            const Expanded(
+                              flex: 3,
+                              child: Text(
+                                "Total",
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF166534),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 3,
+                              child: Text(
+                                _formatDuration(row.totalDurationSeconds),
+                                textAlign: TextAlign.center,
                                 style: const TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.bold,
                                   color: Color(0xFF0F766E),
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFFF7ED),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(Icons.water_drop_outlined,
-                                  size: 11, color: Color(0xFFEA580C)),
-                              const SizedBox(width: 3),
-                              Text(
+                            ),
+                            Expanded(
+                              flex: 3,
+                              child: Text(
                                 row.totalQuantity > 0
-                                    ? "${row.totalQuantity}$qtyPctStr"
+                                    ? "${row.totalQuantity}"
                                     : "-",
+                                textAlign: TextAlign.right,
                                 style: const TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.bold,
                                   color: Color(0xFFEA580C),
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
-              const SizedBox(height: 8),
-              // Dynamic Progress Bar based on selected metric (Duration in Green / Quantity in Orange)
-              ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: LinearProgressIndicator(
-                  value: _selectedGraphMetric == 'Quantity' ? qtyPct : durPct,
-                  minHeight: 6,
-                  backgroundColor: _selectedGraphMetric == 'Quantity'
-                      ? const Color(0xFFFFF7ED)
-                      : const Color(0xFFF1F5F9),
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    _selectedGraphMetric == 'Quantity'
-                        ? const Color(0xFFF97316)
-                        : const Color(0xFF0D9488),
+                      ),
+                    ],
                   ),
                 ),
-              ),
+              ],
             ],
           );
         },
