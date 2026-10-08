@@ -786,6 +786,11 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen>
                         _showRtcErrorDialog(rtcError);
                         return;
                       }
+                      final onDelayError = validateAllOnDelaySettings();
+                      if (onDelayError != null) {
+                        _showOnDelayAlertMessage(onDelayError);
+                        return;
+                      }
                       await Future.delayed(Duration.zero, () {
                         setState(() {
                           // oroPumpList.clear();
@@ -988,6 +993,7 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen>
       required BoxConstraints constraints,
       required int pumpIndex}) {
     try {
+      debugPrint("modelId ::: ${widget.masterData['modelId']}");
       return SingleChildScrollView(
         child: Column(
           children: [
@@ -996,15 +1002,15 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen>
                 for (var categoryIndex = 0;
                     categoryIndex < settingList.length;
                     categoryIndex++)
-                  if ([...AppConstants.wlcModelList]
-                          .contains(widget.masterData['modelId']) &&
+                  if (([...AppConstants.wlcModelList]
+                          .contains(widget.masterData['modelId']) && !AppConstants.threePhaseWireLessWlcModelList.contains(widget.masterData['modelId'])) &&
                       AppConstants.otherCalibration
                           .contains(settingList[categoryIndex].type))
                     Container()
-                  else if ([
+                  else if (([
                         ...AppConstants.singlePhaseWlcModelList,
                         ...AppConstants.threePhaseWlcModelList,
-                      ].contains(widget.masterData['modelId']) &&
+                      ].contains(widget.masterData['modelId']) && !AppConstants.threePhaseWireLessWlcModelList.contains(widget.masterData['modelId'])) &&
                       AppConstants.otherSetting
                           .contains(settingList[categoryIndex].type))
                     Container()
@@ -1139,7 +1145,8 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen>
                                               categoryIndex,
                                               settingIndex,
                                               settingList,
-                                              newValue),
+                                              newValue,
+                                              pumpIndex: pumpIndex),
                                       conditionToShow: getConditionToShow(
                                         type: settingList[categoryIndex].type,
                                         serialNumber: settingList[categoryIndex]
@@ -1384,6 +1391,10 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen>
                   child: Center(
                       child: Text('Off Time (HH:MM:SS)',
                           style: Theme.of(context).textTheme.bodyLarge))),
+              Expanded(
+                  child: Center(
+                      child: Text('Action',
+                          style: Theme.of(context).textTheme.bodyLarge))),
             ],
           ),
           const SizedBox(
@@ -1395,6 +1406,10 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen>
                 ...rtcSettings.asMap().entries.map((entry) {
                   final int rtcIndex = entry.key;
                   final rtcSetting = entry.value;
+                  final bool isClearingAllowed = (rtcSetting.onTime.isNotEmpty &&
+                          rtcSetting.onTime != "00:00:00") ||
+                      (rtcSetting.offTime.isNotEmpty &&
+                          rtcSetting.offTime != "00:00:00");
 
                   return Column(
                     children: [
@@ -1463,12 +1478,55 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen>
                                     setState(() {});
                                   } else {
                                     setState(() {
+                                      settingList[categoryIndex]
+                                          .setting[settingIndex]
+                                          .isChanged = true;
                                       settingList[categoryIndex].changed = true;
                                     });
                                   }
                                 },
                                 is24HourMode: true,
                                 modelId: 1,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Center(
+                              child: IconButton(
+                                tooltip: 'Clear RTC ${rtcIndex + 1}',
+                                icon: Icon(
+                                  Icons.clear,
+                                  color: isClearingAllowed
+                                      ? Colors.red
+                                      : Colors.grey.shade400,
+                                  size: 20,
+                                ),
+                                onPressed: isClearingAllowed
+                                    ? () {
+                                        final oldOnTime = rtcSetting.onTime;
+                                        final oldOffTime = rtcSetting.offTime;
+                                        rtcSetting.onTime = "00:00:00";
+                                        rtcSetting.offTime = "00:00:00";
+                                        final error = _validateSingleRtcList(
+                                            rtcSettings,
+                                            isLiveEdit: true);
+                                        if (error != null) {
+                                          rtcSetting.onTime = oldOnTime;
+                                          rtcSetting.offTime = oldOffTime;
+                                          if (mounted) {
+                                            _showRtcErrorDialog(error);
+                                          }
+                                        } else {
+                                          setState(() {
+                                            settingList[categoryIndex]
+                                                .setting[settingIndex]
+                                                .isChanged = true;
+                                            settingList[categoryIndex]
+                                                .changed = true;
+                                          });
+                                        }
+                                      }
+                                    : null,
                               ),
                             ),
                           ),
@@ -1662,14 +1720,147 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen>
     return "Last setting: ${parts[index]}";
   }
 
+  String _secondsToTimeString(int totalSeconds) {
+    int hours = totalSeconds ~/ 3600;
+    int minutes = (totalSeconds % 3600) ~/ 60;
+    int seconds = totalSeconds % 60;
+    return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+  }
+
+  void _showOnDelayAlert(int minSeconds) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Row(
+            children: [
+              Icon(Icons.warning_amber_rounded, color: Colors.orange),
+              SizedBox(width: 8),
+              Text("Invalid Timer Setting"),
+            ],
+          ),
+          content: Text(
+              "On Delay Timer must be at least $minSeconds seconds.\nResetting time to ${_secondsToTimeString(minSeconds)}."),
+          actions: [
+            FilledButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showOnDelayAlertMessage(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Row(
+            children: [
+              Icon(Icons.warning_amber_rounded, color: Colors.orange),
+              SizedBox(width: 8),
+              Text("Invalid Timer Setting"),
+            ],
+          ),
+          content: Text(message),
+          actions: [
+            FilledButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  String? validateAllOnDelaySettings() {
+    if (preferenceProvider.individualPumpSetting != null) {
+      for (var individualPump in preferenceProvider.individualPumpSetting!) {
+        int minSeconds = individualPump.pumpType == 2 ? 30 : 5;
+        for (var settingCategory in individualPump.settingList) {
+          if (AppConstants.timerSetting.contains(settingCategory.type)) {
+            for (var setting in settingCategory.setting) {
+              final titleUpper = setting.title.toUpperCase();
+              if (titleUpper.contains("ON DELAY") ||
+                  setting.serialNumber == 1) {
+                if (setting.value is String && setting.value.isNotEmpty) {
+                  int curSec = _rtcTimeToSeconds(setting.value);
+                  if (curSec < minSeconds) {
+                    setting.value = _secondsToTimeString(minSeconds);
+                    return "${individualPump.name} - ${setting.title}: Minimum value is $minSeconds seconds. Resetting time to ${_secondsToTimeString(minSeconds)}.";
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    return null;
+  }
+
   dynamic _getInitialValue(
       int categoryIndex, int settingIndex, List settingList, int pumpIndex) {
-    return settingList[categoryIndex].setting[settingIndex].value;
+    var val = settingList[categoryIndex].setting[settingIndex].value;
+    final setting = settingList[categoryIndex].setting[settingIndex];
+    final titleUpper = setting.title.toUpperCase();
+    if (titleUpper.contains("ON DELAY") ||
+        (AppConstants.timerSetting.contains(settingList[categoryIndex].type) &&
+            setting.serialNumber == 1)) {
+      int pumpType = 0;
+      if (preferenceProvider.individualPumpSetting != null &&
+          pumpIndex < preferenceProvider.individualPumpSetting!.length) {
+        pumpType = preferenceProvider.individualPumpSetting![pumpIndex].pumpType;
+      }
+      int minSeconds = (pumpType == 2) ? 30 : 5;
+      if (val is String && val.isNotEmpty) {
+        int curSeconds = _rtcTimeToSeconds(val);
+        if (curSeconds < minSeconds) {
+          val = _secondsToTimeString(minSeconds);
+          setting.value = val;
+        }
+      }
+    }
+    return val;
   }
 
   void onChangeValue(
-      int categoryIndex, int settingIndex, List settingList, newValue) {
+      int categoryIndex, int settingIndex, List settingList, newValue,
+      {int? pumpIndex}) {
     setState(() {
+      var finalValue = newValue;
+      final setting = settingList[categoryIndex].setting[settingIndex];
+      final titleUpper = setting.title.toUpperCase();
+      if (titleUpper.contains("ON DELAY") ||
+          (AppConstants.timerSetting.contains(settingList[categoryIndex].type) &&
+              setting.serialNumber == 1)) {
+        int pumpType = 0;
+        if (preferenceProvider.individualPumpSetting != null &&
+            pumpIndex != null &&
+            pumpIndex < preferenceProvider.individualPumpSetting!.length) {
+          pumpType = preferenceProvider.individualPumpSetting![pumpIndex].pumpType;
+        } else if (preferenceProvider.individualPumpSetting != null) {
+          int idx = preferenceProvider.individualPumpSetting!
+              .indexWhere((p) => p.settingList == settingList);
+          if (idx != -1) {
+            pumpType = preferenceProvider.individualPumpSetting![idx].pumpType;
+          }
+        }
+        int minSeconds = (pumpType == 2) ? 30 : 5;
+        if (finalValue is String) {
+          int selectedSec = _rtcTimeToSeconds(finalValue);
+          if (selectedSec < minSeconds) {
+            finalValue = _secondsToTimeString(minSeconds);
+            Future.delayed(const Duration(milliseconds: 100), () {
+              if (mounted) _showOnDelayAlert(minSeconds);
+            });
+          }
+        }
+      }
+
       settingList[categoryIndex].setting[settingIndex].isChanged = true;
       if (AppConstants.otherSetting.contains(settingList[categoryIndex].type)) {
         if (settingList[categoryIndex].setting[settingIndex].serialNumber ==
@@ -2735,7 +2926,6 @@ class _PreferenceMainScreenState extends State<PreferenceMainScreen>
       }
       if (value != null) values.add(value);
     }
-    print("values => $values");
     return values.join(",");
   }
 

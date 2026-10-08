@@ -31,13 +31,13 @@ class ConfigMakerProvider extends ChangeNotifier{
     0 : 'Source Configuration',
     1 : 'Pump Configuration',
     2 : 'Filtration Configuration',
-    3 : 'Fertilization Configuration',
-    4 : 'Moisture Configuration',
-    5 : 'Ec Configuration',
-    6 : 'Ph Configuration',
-    7 : 'Pressure Configuration',
-    8 : 'Valve Configuration',
-    9 : 'Channel Configuration',
+    3 : 'Channel Configuration',
+    4 : 'Fertilization Configuration',
+    5 : 'Moisture Configuration',
+    6 : 'Ec Configuration',
+    7 : 'Ph Configuration',
+    8 : 'Pressure Configuration',
+    9 : 'Valve Configuration',
     10 : 'Line Configuration',
   };
   int selectedConfigurationTab = 0;
@@ -48,13 +48,13 @@ class ConfigMakerProvider extends ChangeNotifier{
     0 : AppConstants.sourceObjectId,
     1 : AppConstants.pumpObjectId,
     2 : AppConstants.filterSiteObjectId,
-    3 : AppConstants.fertilizerSiteObjectId,
-    4 : AppConstants.moistureObjectId,
-    5 : AppConstants.ecObjectId,
-    6 : AppConstants.phObjectId,
-    7 : AppConstants.pressureSensorObjectId,
-    8 : AppConstants.valveObjectId,
-    9 : AppConstants.channelObjectId,
+    3 : AppConstants.channelObjectId,
+    4 : AppConstants.fertilizerSiteObjectId,
+    5 : AppConstants.moistureObjectId,
+    6 : AppConstants.ecObjectId,
+    7 : AppConstants.phObjectId,
+    8 : AppConstants.pressureSensorObjectId,
+    9 : AppConstants.valveObjectId,
     10 : AppConstants.irrigationLineObjectId,
   };
   SelectionMode selectedSelectionMode = SelectionMode.auto;
@@ -430,7 +430,7 @@ class ConfigMakerProvider extends ChangeNotifier{
         for(var i in listOfGeneratedObject){
           if(i.objectId == AppConstants.channelObjectId){
             channelConfig.add(
-              ChannelConfigModel(commonDetails: i, dosingMeter: 0.0, source: [])
+              ChannelConfigModel(commonDetails: i, dosingMeter: 0.0, outletTankValve: [])
             );
           }
         }
@@ -560,7 +560,7 @@ class ConfigMakerProvider extends ChangeNotifier{
               );
             }else if(deviceObjectModel.objectId == AppConstants.channelObjectId){
               channelConfig.add(
-                  ChannelConfigModel(commonDetails: deviceObjectModel, dosingMeter: 0.0, source: [])
+                  ChannelConfigModel(commonDetails: deviceObjectModel, dosingMeter: 0.0, outletTankValve: [])
               );
             }else if(deviceObjectModel.objectId == AppConstants.pressureSensorObjectId){
               pressureSensor.add(
@@ -1103,9 +1103,9 @@ class ConfigMakerProvider extends ChangeNotifier{
   void updateSelectionInChannel(double sNo, int objectId){
     for(var ch in channelConfig){
       if(ch.commonDetails.sNo == sNo){
-        if(objectId == AppConstants.sourceObjectId){
-          ch.source.clear();
-          ch.source.addAll(listOfSelectedSno);
+        if(objectId == AppConstants.tankValveObjectId){
+          ch.outletTankValve.clear();
+          ch.outletTankValve.addAll(listOfSelectedSno);
         }
         listOfSelectedSno.clear();
       }

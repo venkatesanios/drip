@@ -931,7 +931,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<Map<String, dynamic>> getTanksForChannel(dynamic channelSNo) {
+  List<Map<String, dynamic>> getOutletValveForChannel(dynamic channelSNo) {
     final double? targetChannelSNo = (channelSNo is num)
         ? channelSNo.toDouble()
         : double.tryParse(channelSNo.toString());
@@ -945,66 +945,39 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       }
     }
 
-    if (matchedChannel != null &&
-        matchedChannel['source'] != null &&
-        matchedChannel['source'] is List &&
-        (matchedChannel['source'] as List).isNotEmpty) {
-      final List<dynamic> allowedSources = matchedChannel['source'];
-      final Set<double> allowedSNos = {};
-      for (var s in allowedSources) {
-        if (s != null) {
-          final double? parsedSNo = (s is num) ? s.toDouble() : double.tryParse(s.toString());
-          if (parsedSNo != null) {
-            allowedSNos.add(parsedSNo);
+    Set<double> allowedValveSNos = {};
+    if (matchedChannel != null) {
+      var rawValves = matchedChannel['outletTankValve'] ?? matchedChannel['tankValve'];
+      if (rawValves is List && rawValves.isNotEmpty) {
+        for (var v in rawValves) {
+          if (v != null) {
+            final double? parsedSNo = (v is num) ? v.toDouble() : double.tryParse(v.toString());
+            if (parsedSNo != null) {
+              allowedValveSNos.add(parsedSNo);
+            }
           }
-        }
-      }
-
-      if (allowedSNos.isNotEmpty) {
-        List<Map<String, dynamic>> result = [];
-        for (var ws in _rawWaterSource) {
-          // final wsSNo = (ws['sNo'] is num) ? (ws['sNo'] as num).toDouble() : double.tryParse(ws['sNo']?.toString() ?? '');
-          final wsSNo = ws['sNo'];
-          if (wsSNo != null && allowedSNos.contains(wsSNo)) {
-            result.add({
-              'sNo': wsSNo,
-              'name': ws['name'],
-            });
-          }
-        }
-
-        if (result.isNotEmpty) {
-          return result;
         }
       }
     }
 
-    // if (_rawWaterSource.isNotEmpty) {
-    //   return _rawWaterSource.map((ws) {
-    //     // final wsSNo = (ws['sNo'] is num) ? (ws['sNo'] as num).toDouble() : double.tryParse(ws['sNo']?.toString() ?? '');
-    //     final wsSNo = ws['sNo'];
-    //     return {
-    //       'sNo': wsSNo ?? 0.0,
-    //       'name': ws['name'],
-    //     };
-    //   }).toList();
-    // }
-    //
-    // if (configObjects.isNotEmpty) {
-    //   List<Map<String, dynamic>> fallbackList = [];
-    //   for (var obj in configObjects) {
-    //     final objSNo = (obj['sNo'] is num) ? (obj['sNo'] as num).toDouble() : double.tryParse(obj['sNo']?.toString() ?? '');
-    //     if (objSNo != null && (obj['objectName'] == 'Water Source' || obj['objectName'] == 'Source')) {
-    //       fallbackList.add({
-    //         'sNo': objSNo,
-    //         'name': obj['name'] ?? 'Water Source',
-    //       });
-    //     }
-    //   }
-    //   return fallbackList;
-    // }
+    List<Map<String, dynamic>> result = [];
 
-    return [];
+    // 1. Filter configObjects by allowed outlet tank valve sNos
+    if (allowedValveSNos.isNotEmpty) {
+      for (var obj in configObjects) {
+        final double? objSNo = (obj['sNo'] is num) ? (obj['sNo'] as num).toDouble() : double.tryParse(obj['sNo']?.toString() ?? '');
+        if (objSNo != null && allowedValveSNos.contains(objSNo)) {
+          result.add({
+            'sNo': objSNo,
+            'name': obj['name'] ?? 'Outlet Tank Valve',
+          });
+        }
+      }
+      if (result.isNotEmpty) {
+        return result;
+      }
+    }
+    return result;
   }
 
   TextEditingController getInjectorController(int index){
@@ -1100,12 +1073,14 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
     bool applyFertilizerForLocal = false;
     String moistureCondition = '-';
     dynamic moistureSno = 0;
+    bool applyMoisture = false;
     if(newSequence == false){
       prePostMethod = sequence[0]['prePostMethod'];
       preValue = sequence[0]['preValue'];
       postValue = sequence[0]['postValue'];
-      moistureCondition = sequence[0]['moistureCondition'];
-      moistureSno = sequence[0]['moistureSno'];
+      moistureCondition = sequence[0]['moistureCondition'] ?? '-';
+      moistureSno = sequence[0]['moistureSno'] ?? 0;
+      applyMoisture = sequence[0]['applyMoisture'] ?? false;
     }
     var centralDuplicate = [];
     for(var i in central){
@@ -1204,7 +1179,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
             String method = 'Time';
             String timeValue = '00:00:00';
             String quantityValue = '';
-            double? tank;
+            double? outletTankValve;
             bool onOff = false;
             if(newSequence == false){
               if(sequence[0]['centralDosing'].isNotEmpty){
@@ -1214,15 +1189,8 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
                     timeValue = oldFert['timeValue'];
                     quantityValue = oldFert['quantityValue'];
                     onOff = oldFert['onOff'];
-                    if (oldFert['tank'] != null) {
-                      tank = (oldFert['tank'] is num) ? (oldFert['tank'] as num).toDouble() : double.tryParse(oldFert['tank'].toString());
-                    } else if (oldFert['source'] != null) {
-                      if (oldFert['source'] is List && (oldFert['source'] as List).isNotEmpty) {
-                        var src = oldFert['source'][0];
-                        tank = (src is num) ? src.toDouble() : double.tryParse(src.toString());
-                      } else if (oldFert['source'] is num) {
-                        tank = (oldFert['source'] as num).toDouble();
-                      }
+                    if (oldFert['outletTankValve'] != null && oldFert['outletTankValve'] is double) {
+                      outletTankValve = oldFert['outletTankValve'];
                     }
                     break;
                   }
@@ -1234,7 +1202,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
             fert['timeValue'] = timeValue;
             fert['quantityValue'] = quantityValue;
             fert['onOff'] = onOff;
-            fert['tank'] = tank;
+            fert['outletTankValve'] = outletTankValve;
             fertilizer.add(fert);
           }
 
@@ -1298,7 +1266,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
             String method = 'Time';
             String timeValue = '00:00:00';
             String quantityValue = '';
-            double? tank;
+            double? outletTankValve;
             bool onOff = false;
             if(newSequence == false){
               if(sequence[0]['localDosing'].isNotEmpty){
@@ -1308,15 +1276,8 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
                     timeValue = oldFert['timeValue'];
                     quantityValue = oldFert['quantityValue'];
                     onOff = oldFert['onOff'];
-                    if (oldFert['tank'] != null) {
-                      tank = (oldFert['tank'] is num) ? (oldFert['tank'] as num).toDouble() : double.tryParse(oldFert['tank'].toString());
-                    } else if (oldFert['source'] != null) {
-                      if (oldFert['source'] is List && (oldFert['source'] as List).isNotEmpty) {
-                        var src = oldFert['source'][0];
-                        tank = (src is num) ? src.toDouble() : double.tryParse(src.toString());
-                      } else if (oldFert['source'] is num) {
-                        tank = (oldFert['source'] as num).toDouble();
-                      }
+                    if (oldFert['outletTankValve'] != null && oldFert['outletTankValve'] is double) {
+                      outletTankValve = oldFert['outletTankValve'];
                     }
                     break;
                   }
@@ -1328,7 +1289,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
             fert['timeValue'] = timeValue;
             fert['quantityValue'] = quantityValue;
             fert['onOff'] = onOff;
-            fert['tank'] = tank;
+            fert['outletTankValve'] = outletTankValve;
             fertilizer.add(fert);
           }
           if(ld['ecSensor'].length != 0){
@@ -1380,6 +1341,7 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       'seqName' : sequence[0]['seqName'],
       'moistureCondition' : moistureCondition,
       'moistureSno' : moistureSno,
+      'applyMoisture' : applyMoisture,
       'levelCondition' : '-',
       'levelSno' : 0,
       'prePostMethod' : prePostMethod,
@@ -1655,22 +1617,10 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         var site = sq['centralDosing'][sq['selectedCentralSite']];
 
         for(var ft in site['fertilizer']){
-          String tankValveSno = '';
-          for(var src in rawWaterSource){
-            if(src['sNo'] == ft['tank']){
-              List<double> outletTankValve = src['outletTankValve'] != null
-                  ? (src['outletTankValve'] as List<dynamic>).map((object) => (object['sNo'] as num).toDouble()).toList()
-                  : [];
-              if(outletTankValve.isNotEmpty){
-                tankValveSno = outletTankValve.first.toString();
-              }
-            }
-          }
-
           centralMethodList.add('${fertMethodHw(ft['method'])}');
           centralFertOnOffList.add('${ft['onOff'] == true ? 1 : 0}');
           centralFertSnoList.add('${ft['sNo']}');
-          centralTankValveList.add(tankValveSno);
+          centralTankValveList.add(ft['outletTankValve'] == null ? '' : ft['outletTankValve'].toString());
           centralTimeAndQuantityList.add('${ft['method'].contains('ime') ? ft['timeValue'] : ft['quantityValue']}');
         }
 
@@ -1710,22 +1660,10 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
         var site = sq['localDosing'][sq['selectedLocalSite']];
 
         for(var ft in site['fertilizer']){
-          String tankValveSno = '';
-          for(var src in rawWaterSource){
-            if(src['sNo'] == ft['tank']){
-              List<double> outletTankValve = src['outletTankValve'] != null
-                  ? (src['outletTankValve'] as List<dynamic>).map((object) => (object['sNo'] as num).toDouble()).toList()
-                  : [];
-              if(outletTankValve.isNotEmpty){
-                tankValveSno = outletTankValve.first.toString();
-              }
-            }
-          }
-
-          localMethodList.add('${fertMethodHw(ft['method'])}');
+          localMethodList.add(fertMethodHw(ft['method']));
           localFertOnOffList.add('${ft['onOff'] == true ? 1 : 0}');
           localFertIdList.add('${ft['sNo']}');
-          localTankValveList.add(tankValveSno);
+          localTankValveList.add(ft['outletTankValve'] == null ? '' : ft['outletTankValve'].toString());
           localTimeAndQuantityList.add('${ft['method'].contains('ime') ? ft['timeValue'] : ft['quantityValue']}');
         }
 
@@ -2193,10 +2131,14 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
       }
       break;
       case ('applyMoisture') : {
-        sequenceData[selectedGroup]['moistureCondition'] = value['name'];
-        sequenceData[selectedGroup]['moistureSno'] = value['sNo'];
+        if (value is bool) {
+          sequenceData[selectedGroup]['applyMoisture'] = value;
+        } else if (value is Map) {
+          sequenceData[selectedGroup]['moistureCondition'] = value['name'];
+          sequenceData[selectedGroup]['moistureSno'] = value['sNo'];
+        }
+        break;
       }
-      break;
       case ('applyLevel') : {
         sequenceData[selectedGroup]['levelCondition'] = value['name'];
         sequenceData[selectedGroup]['levelSno'] = value['sNo'];
@@ -2639,12 +2581,12 @@ class IrrigationProgramMainProvider extends ChangeNotifier {
 
   dynamic editParticularChannelDetails(String title,String centralOrLocal,dynamic value,int index){
     switch(title){
-      case ('tank') : {
-        double? tankSNo;
+      case ('outletTankValve') : {
+        double? outletTankValveSno;
         if (value != null) {
-          tankSNo = (value is num) ? value.toDouble() : double.tryParse(value.toString());
+          outletTankValveSno = (value is num) ? value.toDouble() : double.tryParse(value.toString());
         }
-        sequenceData[selectedGroup][centralOrLocal][centralOrLocal == 'centralDosing' ? selectedCentralSite : selectedLocalSite]['fertilizer'][index]['tank'] = tankSNo;
+        sequenceData[selectedGroup][centralOrLocal][centralOrLocal == 'centralDosing' ? selectedCentralSite : selectedLocalSite]['fertilizer'][index]['outletTankValve'] = outletTankValveSno;
         break;
       }
       case ('method') : {

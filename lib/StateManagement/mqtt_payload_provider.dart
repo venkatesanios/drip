@@ -17,6 +17,7 @@ class MqttPayloadProvider with ChangeNotifier {
   dynamic spa = '';
   String dashBoardPayload = '', schedulePayload = '';
   WeatherModel weatherModelinstance = WeatherModel();
+  String weatherGSMModelinstance = '';
   MapConfigModel mapModelInstance = MapConfigModel();
 
   Map<String, dynamic> pumpControllerPayload = {};
@@ -127,6 +128,7 @@ class MqttPayloadProvider with ChangeNotifier {
    final Map<String, String> _sensorValueMap = {};
    final Map<String, String> _boosterPumpOnOffStatusMap = {};
    final Map<String, String> _agitatorOnOffStatusMap = {};
+   final Map<String, String> _tankValveOnOffStatusMap = {};
 
    final Map<String, FertilizerSiteLiveModel> _fertilizerSiteMap = {};
    final Map<String, FertilizerChannelLiveModel> _fertilizerChannelMap = {};
@@ -624,6 +626,7 @@ class MqttPayloadProvider with ChangeNotifier {
     selectedProgram = 0;
     // pumpControllerData = null;
     lastUpdate = DateTime.now();
+    _tankValveOnOffStatusMap.clear();
     notifyListeners();
   }
 
@@ -688,7 +691,7 @@ class MqttPayloadProvider with ChangeNotifier {
 
       try {
         Map<String, dynamic> data = _receivedPayload.isNotEmpty? jsonDecode(_receivedPayload) : {};
-         debugPrint('_receivedPayload------>:$_receivedPayload');
+         // debugPrint('_receivedPayload------>:$_receivedPayload');
 
         if (data.containsKey('cD') && data.containsKey('cT')) {
           liveDateAndTime = '${data['cD'] ?? "--"} ${data['cT'] ?? "--"}';
@@ -757,6 +760,7 @@ class MqttPayloadProvider with ChangeNotifier {
           updateFertilizerSitePayloads(data['cM']['2402'].split(";"), data['cM']['2407'].split(";"));
 
           updateValveStatus(data['cM']['2402'].split(";"));
+          updateTankValveStatus(data['cM']['2402'].split(";"));
           updateLightStatus(data['cM']['2402'].split(";"));
           updateFanStatus(data['cM']['2402'].split(";"));
           updateSensorValue(data['cM']['2403'].split(";"));
@@ -803,6 +807,9 @@ class MqttPayloadProvider with ChangeNotifier {
         }
         else if(data.containsKey('5100') && data['5100'] != null && data['5100'].isNotEmpty){
           weatherModelinstance = WeatherModel.fromJson(data);
+        }
+        else if((data.containsKey('7900') && data['7900'] != null && data['7900'].isNotEmpty) || data['mC'] == '7900'){
+          weatherGSMModelinstance = _receivedPayload;
         }
         else if(data['mC'] != null && data["mC"].contains("VIEW")) {
           cCList = {...cCList, data['cC']}.toList();
@@ -1021,6 +1028,25 @@ class MqttPayloadProvider with ChangeNotifier {
      }
    }
 
+   void updateTankValveStatus(List<String> tankValvePayload) {
+     for (final entry in tankValvePayload) {
+       if (!entry.startsWith('48.')) continue;
+
+       final parts = entry.split(',');
+       if (parts.isEmpty || parts[0].isEmpty) continue;
+
+       final raw = parts[0].trim();                    // e.g. "48.01"
+       _tankValveOnOffStatusMap[raw] = entry;
+
+       // Also store a 3-decimal padded key: "48.01" → "48.010"
+       if (raw.contains('.')) {
+         final seg = raw.split('.');
+         final padded = '${seg[0]}.${seg[1].padRight(3, '0')}';
+         _tankValveOnOffStatusMap[padded] = entry;
+       }
+     }
+   }
+
    void updateGateStatus(List<String> gateOnOffPayload) {
      for (final entry in gateOnOffPayload) {
        if (!entry.startsWith('43.')) continue;
@@ -1153,6 +1179,7 @@ class MqttPayloadProvider with ChangeNotifier {
    String? getSensorUpdatedValve(String sNo) => _sensorValueMap[sNo];
    String? getBoosterPumpOnOffStatus(String sNo) => _boosterPumpOnOffStatusMap[sNo];
    String? getAgitatorOnOffStatus(String sNo) => _agitatorOnOffStatusMap[sNo];
+   String? getTankValveOnOffStatus(String sNo) => _tankValveOnOffStatusMap[sNo];
 
    Map<String, FertilizerSiteLiveModel> get fertilizerSiteMap => _fertilizerSiteMap;
    Map<String, FertilizerChannelLiveModel> get fertilizerChannelMap => _fertilizerChannelMap;

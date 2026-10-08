@@ -768,7 +768,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                                   ),
                                 ),
                                 trailing: Switch(
-                                  value:  false,
+                                  value: programPvd.sequenceData[programPvd.selectedGroup]['applyMoisture'] ?? false,
                                   onChanged: (bool value) {
                                     programPvd.editGroupSiteInjector(
                                       'applyMoisture',
@@ -1160,7 +1160,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                                             width: 100,
                                             height: 40,
                                             child: Center(
-                                              child: Text('Tank',style: TextStyle(fontSize: 16,color: Colors.white),),
+                                              child: Text('Tank Valve',style: TextStyle(fontSize: 16,color: Colors.white),),
                                             ),
                                           ),
                                         ],
@@ -1324,20 +1324,11 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                                                   final channelSNo = fertItem['sNo'];
 
                                                   double? currentTankSNo;
-                                                  if (fertItem['tank'] != null) {
-                                                    currentTankSNo = (fertItem['tank'] is num)
-                                                        ? (fertItem['tank'] as num).toDouble()
-                                                        : double.tryParse(fertItem['tank'].toString());
-                                                  } else if (fertItem['source'] != null) {
-                                                    if (fertItem['source'] is List && (fertItem['source'] as List).isNotEmpty) {
-                                                      var src = fertItem['source'][0];
-                                                      currentTankSNo = (src is num) ? src.toDouble() : double.tryParse(src.toString());
-                                                    } else if (fertItem['source'] is num) {
-                                                      currentTankSNo = (fertItem['source'] as num).toDouble();
-                                                    }
+                                                  if (fertItem['outletTankValve'] != null) {
+                                                    currentTankSNo = fertItem['outletTankValve'];
                                                   }
 
-                                                  final tankList = programPvd.getTanksForChannel(channelSNo);
+                                                  final tankList = programPvd.getOutletValveForChannel(channelSNo);
 
                                                   if (tankList.isEmpty) {
                                                     return const Text(
@@ -1358,7 +1349,7 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                                                     value: isValidValue ? currentTankSNo : null,
                                                     underline: Container(),
                                                     hint: const Text(
-                                                      'Select Tank',
+                                                      'Select Valve',
                                                       style: TextStyle(
                                                         fontSize: 12,
                                                         color: Colors.black,
@@ -1379,14 +1370,14 @@ class _WaterAndFertilizerScreenState extends State<WaterAndFertilizerScreen> {
                                                     }).toList(),
                                                     onChanged: (double? value) {
                                                       programPvd.editParticularChannelDetails(
-                                                        'tank',
+                                                        'outletTankValve',
                                                         programPvd.segmentedControlCentralLocal == 0
                                                             ? 'centralDosing'
                                                             : 'localDosing',
                                                         value,
                                                         index,
                                                       );
-                                                      print('value : $value');
+                                                      debugPrint('outlet tank valve value : $value  ${value.runtimeType}');
                                                     },
                                                   );
                                                 },

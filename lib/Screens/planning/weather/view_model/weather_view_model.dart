@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../StateManagement/mqtt_payload_provider.dart';
 import '../../../../repository/repository.dart';
 import '../model/weather_model.dart';
 import '../weather_report_model.dart';
@@ -10,6 +11,7 @@ import '../weather_report_sensor_modelGsm.dart';
 
 class WeatherViewModel extends ChangeNotifier {
   final Repository repository;
+  final MqttPayloadProvider? mqttPayloadProvider;
 
   WeatherModelNew? weatherModel;
 
@@ -28,7 +30,33 @@ class WeatherViewModel extends ChangeNotifier {
   /// Hourly temperature report (hour -> value)
   Map<int, String> hourlyTempReport = {};
 
-  WeatherViewModel(this.repository);
+  WeatherViewModel(this.repository, [this.mqttPayloadProvider]) {
+    if (mqttPayloadProvider != null) {
+      mqttPayloadProvider!.addListener(_onMqttPayloadChanged);
+    }
+  }
+
+  @override
+  void dispose() {
+    if (mqttPayloadProvider != null) {
+      mqttPayloadProvider!.removeListener(_onMqttPayloadChanged);
+    }
+    super.dispose();
+  }
+
+  void _onMqttPayloadChanged() {
+    if (mqttPayloadProvider == null) return;
+
+    // Normal Weather flow: MQTT 5100 -> MqttPayloadProvider.weatherModelinstance -> WeatherViewModel -> WeatherScreenNew
+    // Note: GSM Weather (7900 -> weatherGSMModelinstance) is handled separately in WeatherGsm.
+    final mqttModel = mqttPayloadProvider!.weatherModelinstance;
+    if (mqttModel.data != null && mqttModel.data!.isNotEmpty) {
+      if (weatherModel != null) {
+        liveCache = weatherModel?.parseLive5101() ?? liveCache;
+        notifyListeners();
+      }
+    }
+  }
 
   Future<void> fetchWeatherData(int userId, int controllerId) async {
     if (kDebugMode) {
