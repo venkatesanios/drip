@@ -75,7 +75,7 @@ class _WeatherGsmState extends State<WeatherGsm> {
 
   @override
   Widget build(BuildContext context) {
-    print('jsondata:${widget.jsondata}');
+    print('j,controllerId:${widget.controllerId},deviceID:${widget.deviceID},customerId:${widget.customerId}');
     final mqttPayloadProvider = Provider.of<MqttPayloadProvider>(context, listen: true);
     print("mqttPayloadProvider.weatherGSMModelinstance:${mqttPayloadProvider.weatherGSMModelinstance}");
     try {

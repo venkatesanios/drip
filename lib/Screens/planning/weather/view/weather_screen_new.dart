@@ -1,3 +1,4 @@
+
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -93,6 +94,7 @@ class _WeatherScreenNewState extends State<WeatherScreenNew>
 
   @override
   Widget build(BuildContext context) {
+    print('weather new Customer ID ${widget.customerId} Controller ID ${widget.controllerId}');
     return ChangeNotifierProvider(
       key: ValueKey(Provider.of<CustomerProvider>(context).controllerId),
       create: (context) => WeatherViewModel(
@@ -134,6 +136,11 @@ class _WeatherScreenNewState extends State<WeatherScreenNew>
           }
 
           final lines = vm.irrigationTree;
+          if (lines.isEmpty) {
+            return const Scaffold(
+              body: Center(child: Text('No irrigation lines available')),
+            );
+          }
 
           if (_tabController != null &&
               _tabController!.length != lines.length) {
@@ -147,12 +154,12 @@ class _WeatherScreenNewState extends State<WeatherScreenNew>
           );
 
           if(lines.length > 1){
-             return MediaQuery.sizeOf(context).width < 800 ? Scaffold(
+            return MediaQuery.sizeOf(context).width < 800 ? Scaffold(
               appBar: AppBar(
                 automaticallyImplyLeading: false,
                 toolbarHeight: 0,
-                 bottom: TabBar(
-                   labelColor: Colors.white,
+                bottom: TabBar(
+                  labelColor: Colors.white,
                   unselectedLabelColor: Colors.white54,
                   indicatorColor: Colors.white,
 
@@ -172,16 +179,16 @@ class _WeatherScreenNewState extends State<WeatherScreenNew>
                 ],
               ),
             ) : Scaffold(  body: TabBarView(
-               controller: _tabController,
-               children: [
-                 for (final line in lines)
-                   _LineTabView(line: line, vm: vm, isNarrow: widget.isNarrow,customerId: widget.customerId,userId: widget.controllerId,deviceId: widget.deviceID,),
-               ],
-             ),);
+              controller: _tabController,
+              children: [
+                for (final line in lines)
+                  _LineTabView(line: line, vm: vm, isNarrow: widget.isNarrow,customerId: widget.customerId,userId: widget.controllerId,deviceId: widget.deviceID,),
+              ],
+            ),);
 
           }else {
-             return Scaffold(
-               body: _LineTabView(line: lines[0], vm: vm, isNarrow: widget.isNarrow,customerId: widget.customerId,userId: widget.controllerId,deviceId: widget.deviceID,),
+            return Scaffold(
+              body: _LineTabView(line: lines[0], vm: vm, isNarrow: widget.isNarrow,customerId: widget.customerId,userId: widget.controllerId,deviceId: widget.deviceID,),
             );
           }
         },
@@ -361,65 +368,65 @@ class _LineTabViewState extends State<_LineTabView> {
             Text(formattedDT),
           ],
         ),
-              Expanded(
-    child: RefreshIndicator(
-    onRefresh: () async {
-    widget.vm.fetchWeatherData(widget.customerId, widget.userId,);
-    // Wait a little to show the indicator
-    await Future.delayed(const Duration(milliseconds: 500));
-    },
-    child: ListView(
-            children: [
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Wrap(
-                    spacing: 12,
-                    runSpacing: 12,
-                    children: station.sensors.map<Widget>((s) {
-                      print("station.sensors name check:${s.name}");
-                      return GestureDetector(
-                        onTap: (){
-                          // AppLog.log('deviceID ->${station.device[selectedStationIndex].deviceId}');
-                          AppLog.log('device ->${station.device.controllerId}');
-                          AppLog.log('deviceID ->${station}');
-                           // AppLog.log('userId ->${widget.userId} customerId ->${widget.customerId}');
-                          // Navigator.push(
-                          //   context,
-                          //   MaterialPageRoute(
-                          //     builder: (_) => SensorHourlyReportPage(
-                          //       deviceSrNo: '${station.device.serialNumber}',
-                          //       sensorSrNo: s.sNo.toString(), sensorName: s.name, userId: '${widget.customerId}', controllerId: "${widget.userId}" ,unit:unit(s.name),
-                          //     ),
-                          //   ),
-                          // );
+        Expanded(
+          child: RefreshIndicator(
+            onRefresh: () async {
+              widget.vm.fetchWeatherData(widget.customerId, widget.userId,);
+              // Wait a little to show the indicator
+              await Future.delayed(const Duration(milliseconds: 500));
+            },
+            child: ListView(
+              children: [
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Wrap(
+                      spacing: 12,
+                      runSpacing: 12,
+                      children: station.sensors.map<Widget>((s) {
+                        print("station.sensors name check:${s.name}");
+                        return GestureDetector(
+                          onTap: (){
+                            // AppLog.log('deviceID ->${station.device[selectedStationIndex].deviceId}');
+                            AppLog.log('device ->${station.device.controllerId}');
+                            AppLog.log('deviceID ->${station}');
+                            // AppLog.log('userId ->${widget.userId} customerId ->${widget.customerId}');
+                            // Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(
+                            //     builder: (_) => SensorHourlyReportPage(
+                            //       deviceSrNo: '${station.device.serialNumber}',
+                            //       sensorSrNo: s.sNo.toString(), sensorName: s.name, userId: '${widget.customerId}', controllerId: "${widget.userId}" ,unit:unit(s.name),
+                            //     ),
+                            //   ),
+                            // );
 
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => SensorHourlyReportPage(
-                                deviceSrNo: '${station.device.serialNumber}',
-                                sensorSrNo: s.sNo.toString(), sensorName: s.name, userId: '${widget.customerId}', controllerId: "${widget.userId}" ,unit:unit(s.name),
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => SensorHourlyReportPage(
+                                  deviceSrNo: '${station.device.serialNumber}',
+                                  sensorSrNo: s.sNo.toString(), sensorName: s.name, userId: '${widget.customerId}', controllerId: "${widget.userId}" ,unit:unit(s.name),
+                                ),
                               ),
-                            ),
-                          );
+                            );
 
 
-                        },
-                        child: SensorChip(
-                          sensor: s,
-                          vm: widget.vm,
-                          device: device,
-                          isNarrow:  widget.isNarrow,
-                        ),
-                      );
-                    }).toList(),
+                          },
+                          child: SensorChip(
+                            sensor: s,
+                            vm: widget.vm,
+                            device: device,
+                            isNarrow:  widget.isNarrow,
+                          ),
+                        );
+                      }).toList(),
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        ),)
+              ],
+            ),
+          ),)
       ],
     );
   }
@@ -446,62 +453,63 @@ class _LineTabViewState extends State<_LineTabView> {
       )
   {
     return   ListView(
-        padding: const EdgeInsets.all(8),
-        children: [
-          Row(
-            children: [
-              IconButton(
-                icon:  const Icon(Icons.refresh),
-                onPressed: () {
-                  Request();
-                  widget.vm.fetchWeatherData(widget.customerId, widget.userId);
-                },
-              ),
-              Text("Live : "),
-              Text(formattedDT),
-            ],
-          ),
-          // _weatherSummaryCard(
-          //   formattedDT,
-          //   tempText,
-          //   windText,
-          //   humidityText,
-          //   widget.vm.weatherModel!.weatherLive.cT,
-          // ),
-          // const SizedBox(height: 16),
-          // sunCard(),
-          const SizedBox(height: 16),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Wrap(
-                spacing: 12,
-                runSpacing: 12,
-                children: station.sensors.map<Widget>((s) {
-                  return GestureDetector(
-                    onTap: (){
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => SensorHourlyReportPage(
-                            deviceSrNo: '${station.device.serialNumber}',
-                            sensorSrNo: s.sNo.toString(), sensorName: s.name, userId: '${widget.customerId}', controllerId: "${widget.userId}" ,unit:unit(s.name),
-                          ),
+      padding: const EdgeInsets.all(8),
+      children: [
+        Row(
+          children: [
+            IconButton(
+              icon:  const Icon(Icons.refresh),
+              onPressed: () {
+                Request();
+                widget.vm.fetchWeatherData(widget.customerId, widget.userId);
+              },
+            ),
+            Text("Live : "),
+            Text(formattedDT),
+          ],
+        ),
+        // _weatherSummaryCard(
+        //   formattedDT,
+        //   tempText,
+        //   windText,
+        //   humidityText,
+        //   widget.vm.weatherModel!.weatherLive.cT,
+        // ),
+        // const SizedBox(height: 16),
+        // sunCard(),
+        const SizedBox(height: 16),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              children: station.sensors.map<Widget>((s) {
+                return GestureDetector(
+                  onTap: (){
+                    print('customer id :${widget.customerId},userId :${widget.userId}');
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => SensorHourlyReportPage(
+                          deviceSrNo: '${station.device.serialNumber}',
+                          sensorSrNo: s.sNo.toString(), sensorName: s.name, userId: '${widget.customerId}', controllerId: "${widget.userId}" ,unit:unit(s.name),
                         ),
-                      );
-                    },
-                    child: SensorChip(
-                      sensor: s,
-                      vm: widget.vm,
-                      device: device,
-                      isNarrow: widget.isNarrow,
-                    ),
-                  );
-                }).toList(),
-              ),
+                      ),
+                    );
+                  },
+                  child: SensorChip(
+                    sensor: s,
+                    vm: widget.vm,
+                    device: device,
+                    isNarrow: widget.isNarrow,
+                  ),
+                );
+              }).toList(),
             ),
           ),
-        ],
+        ),
+      ],
 
     );
   }
