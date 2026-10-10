@@ -1,3 +1,4 @@
+
 import 'dart:async';
 import 'dart:convert';
 
@@ -74,14 +75,43 @@ class _WeatherGsmState extends State<WeatherGsm> {
 
   @override
   Widget build(BuildContext context) {
+    print('jsondata:${widget.jsondata}');
     final mqttPayloadProvider = Provider.of<MqttPayloadProvider>(context, listen: true);
     print("mqttPayloadProvider.weatherGSMModelinstance:${mqttPayloadProvider.weatherGSMModelinstance}");
     try {
       // Accept either the full API response or the data object itself.
-      final responseData = widget.jsondata['data'];
+      final responseData = widget.jsondata['data'] ?? widget.jsondata;
       final Map<String, dynamic> json = responseData is Map
           ? Map<String, dynamic>.from(responseData)
           : widget.jsondata;
+
+      // Extract master list if present
+      List masterList = [];
+      if (json['master'] is List) {
+        masterList = json['master'];
+      } else if (json.containsKey('data') && json['data'] is Map && (json['data'] as Map)['master'] is List) {
+        masterList = (json['data'] as Map)['master'];
+      } else if (widget.jsondata['master'] is List) {
+        masterList = widget.jsondata['master'];
+      }
+
+      Map<String, dynamic> selectedMaster = {};
+      if (masterList.isNotEmpty) {
+        selectedMaster = Map<String, dynamic>.from(
+          masterList.firstWhere(
+                (m) => m is Map &&
+                (m['controllerId']?.toString() == widget.controllerId.toString() ||
+                    m['deviceName']?.toString() == widget.deviceID.toString() ||
+                    m['deviceId']?.toString() == widget.deviceID.toString()),
+            orElse: () => masterList.first,
+          ),
+        );
+      } else {
+        selectedMaster = json;
+      }
+
+      debugPrint("WeatherGsm selectedControllerId: ${widget.controllerId}");
+      debugPrint("WeatherGsm selectedMaster found: ${selectedMaster.isNotEmpty}");
 
       Map<String, dynamic> mqttData = {};
       if (mqttPayloadProvider.weatherGSMModelinstance.isNotEmpty) {
@@ -96,14 +126,20 @@ class _WeatherGsmState extends State<WeatherGsm> {
       final weatherLive = mqttData.containsKey('weatherLive')
           ? _asMap(mqttData['weatherLive'])
           : mqttData.containsKey('cM') && _asMap(mqttData['cM']).containsKey('weatherLive')
-              ? _asMap(_asMap(mqttData['cM'])['weatherLive'])
-              : _asMap(json['weatherLive']);
+          ? _asMap(_asMap(mqttData['cM'])['weatherLive'])
+          : _asMap(selectedMaster['weatherLive'] ?? json['weatherLive']);
 
       final cmMap = mqttData.containsKey('cM') ? _asMap(mqttData['cM']) : mqttData;
       final livePayload = cmMap['7901']?.toString() ?? mqttData['7901']?.toString() ?? '';
       final liveMap = mapBySNo(parseLive7901(livePayload));
 
-      final configList = (json['configObject'] as List? ?? [])
+      dynamic rawConfigObj = selectedMaster['configObject'];
+      if (rawConfigObj == null && selectedMaster['config'] is Map) {
+        rawConfigObj = selectedMaster['config']['configObject'];
+      }
+      rawConfigObj ??= json['configObject'];
+
+      final configList = (rawConfigObj as List? ?? [])
           .whereType<Map>()
           .map(
             (item) => ConfigObject.fromJson(
@@ -112,12 +148,26 @@ class _WeatherGsmState extends State<WeatherGsm> {
       )
           .toList();
 
-      final last7DaysMap = parsePeriodString(
-        json['last7Days']?.toString() ?? '',
+      // Historical values are API data; never override them with MQTT.
+      // Search the original response independently of the live controller logic.
+      final historicalController = _findHistoricalController(
+        widget.jsondata,
+        widget.controllerId,
+        widget.deviceID,
       );
-      final last30DaysMap = parsePeriodString(
-        json['last30Days']?.toString() ?? '',
-      );
+      final last7DaysStr = historicalController['last7Days']?.toString() ??
+          selectedMaster['last7Days']?.toString() ??
+          json['last7Days']?.toString() ?? '';
+      final last30DaysStr = historicalController['last30Days']?.toString() ??
+          selectedMaster['last30Days']?.toString() ??
+          json['last30Days']?.toString() ?? '';
+
+      debugPrint('WeatherGsm last7Days raw: $last7DaysStr');
+      debugPrint('WeatherGsm last30Days raw: $last30DaysStr');
+      final last7DaysMap = parsePeriodString(last7DaysStr);
+      final last30DaysMap = parsePeriodString(last30DaysStr);
+      debugPrint('WeatherGsm last7Days parsed: ${last7DaysMap.length}');
+      debugPrint('WeatherGsm last30Days parsed: ${last30DaysMap.length}');
 
       final sensors = buildSensorList(
         configs: configList,
@@ -140,11 +190,11 @@ class _WeatherGsmState extends State<WeatherGsm> {
       final humidity = sensorValue('Humidity Sensor');
 
       final time = mqttData['cT']?.toString() ??
-                   weatherLive['cT']?.toString() ??
-                   json['cT']?.toString() ?? '';
+          weatherLive['cT']?.toString() ??
+          json['cT']?.toString() ?? '';
       final date = mqttData['cD']?.toString() ??
-                   weatherLive['cD']?.toString() ??
-                   json['cD']?.toString() ?? '';
+          weatherLive['cD']?.toString() ??
+          json['cD']?.toString() ?? '';
       final dateTime = (date.isNotEmpty && time.isNotEmpty)
           ? '$date $time'
           : (date.isNotEmpty ? date : (time.isNotEmpty ? time : '--'));
@@ -309,7 +359,8 @@ class _WeatherGsmState extends State<WeatherGsm> {
       SensorDisplayModel sensor, {
         required bool isNarrow,
       }) {
-    return SizedBox(
+    print("${sensor.sNo},${sensor.value},${sensor.last7DaysMin},${sensor.last7DaysMax},${sensor.last7DaysAverage},${sensor.last30DaysMin},${sensor.last30DaysMax},${sensor.last30DaysAverage}");
+     return SizedBox(
       width: isNarrow ? double.infinity : 310,
       child: Card(
         margin: EdgeInsets.zero,
@@ -596,12 +647,57 @@ class SensorDisplayModel {
   });
 }
 
+
+// Find API historical readings without altering existing live/MQTT selection.
+Map<String, dynamic> _findHistoricalController(
+    dynamic source,
+    int controllerId,
+    String deviceId,
+    ) {
+  final candidates = <Map<String, dynamic>>[];
+
+  void visit(dynamic value) {
+    if (value is List) {
+      for (final item in value) {
+        visit(item);
+      }
+      return;
+    }
+    if (value is! Map) return;
+    final map = Map<String, dynamic>.from(value);
+    if (map.containsKey('last7Days') || map.containsKey('last30Days')) {
+      candidates.add(map);
+    }
+    if (map.containsKey('data')) visit(map['data']);
+    if (map.containsKey('master')) visit(map['master']);
+  }
+
+  visit(source);
+  for (final item in candidates) {
+    if (item['controllerId']?.toString() == controllerId.toString()) {
+      return item;
+    }
+  }
+  for (final item in candidates) {
+    if (item['deviceId']?.toString().trim().toLowerCase() ==
+        deviceId.trim().toLowerCase()) {
+      return item;
+    }
+  }
+  if (candidates.length == 1) return candidates.first;
+  debugPrint('WeatherGsm: no matching historical controller '
+      '(candidates: ${candidates.length})');
+  return <String, dynamic>{};
+}
+
 int _sensorKey(double sNo) => (sNo * 1000).round();
 
 Map<int, PeriodSensorValue> parsePeriodString(String raw) {
   final result = <int, PeriodSensorValue>{};
+  if (raw.isEmpty) return result;
 
   for (final record in raw.split('_')) {
+    if (record.trim().isEmpty) continue;
     final fields = record.split(',');
     if (fields.length < 4) continue;
 
