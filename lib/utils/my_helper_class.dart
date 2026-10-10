@@ -74,7 +74,6 @@ mixin ProgramRefreshMixin<T extends StatefulWidget> on State<T> {
   }
 }
 
-
 class MqttAckTracker {
   static final Map<String, Timer> _timeoutTimers = {};
   static final Map<String, String> _pendingButtons = {};

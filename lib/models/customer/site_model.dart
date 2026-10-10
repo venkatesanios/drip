@@ -76,6 +76,8 @@ class MasterControllerModel {
   final String digitalInput;
 
   final String? userManualLink;
+  final String last7Days;
+  final String last30Days;
 
   int? communicationMode;
   List<ConfigObject> configObjects;
@@ -119,6 +121,8 @@ class MasterControllerModel {
     required this.ioConnection,
     required this.isSubUser,
     required this.userManualLink,
+    required this.last7Days,
+    required this.last30Days,
 
     required this.ecSensors,
     required this.phSensors,
@@ -344,6 +348,8 @@ class MasterControllerModel {
       ecSensors: ecSensors,
       phSensors: phSensors,
       userManualLink: json['userManualLink'] as String?,
+      last7Days: json['last7Days']?.toString() ?? '',
+      last30Days: json['last30Days']?.toString() ?? '',
     );
   }
 }
@@ -2697,6 +2703,7 @@ class TankValveModel {
   final double sNo;
   final String name;
   int status;
+  bool selected = false;
   int completePercent;
   final List<double> assignObject;
 
@@ -2950,6 +2957,8 @@ class MasterControllerModel {
   final String digitalInput;
 
   final String? userManualLink;
+  final String last7Days;
+  final String last30Days;
 
   int? communicationMode;
   List<ConfigObject> configObjects;
@@ -2993,6 +3002,8 @@ class MasterControllerModel {
     required this.ioConnection,
     required this.isSubUser,
     required this.userManualLink,
+    required this.last7Days,
+    required this.last30Days,
 
     required this.ecSensors,
     required this.phSensors,
@@ -3204,6 +3215,8 @@ class MasterControllerModel {
       ecSensors: ecSensors,
       phSensors: phSensors,
       userManualLink: json['userManualLink'] as String?,
+      last7Days: json['last7Days']?.toString() ?? '',
+      last30Days: json['last30Days']?.toString() ?? '',
     );
   }
 }

@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../StateManagement/mqtt_payload_provider.dart';
 import '../../repository/repository.dart';
+import '../../services/communication_service.dart';
 import '../../services/mqtt_service.dart';
 import '../../services/http_service.dart';
 import '../../utils/environment.dart';
@@ -112,6 +113,34 @@ class _FrequencyPageState extends State<FrequencyPage> {
     };
     AppLog.log('payLoadFinal----$payLoadFinal');
 
+ //bluetooth
+  try {
+    String payLoadFinal = jsonEncode({
+      "6500": {
+        "6501": "${formatNumber(freq1)},$sf1,${formatNumber(freq2)},$sf2"
+      }
+    });
+    final result = await context.read<CommunicationService>().sendCommand(
+        payload: payLoadFinal,
+        serverMsg: 'LORA KEY UPDATE');
+    debugPrint("Payload sent to Server$payLoadFinal");
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Settings sent Ble")),
+    );
+    if (result['http'] == true) {
+      debugPrint("Payload sent to Server ");
+    }
+    if (result['mqtt'] == true) {
+      debugPrint("Payload sent to MQTT Box ");
+    }
+    if (result['bluetooth'] == true) {
+      debugPrint("Payload sent via Bluetooth ");
+    }
+  } finally {}
+
+
+
     Map<String, dynamic> body = {
       "userId": widget.userId,
       "controllerId": widget.controllerId,
@@ -131,7 +160,7 @@ class _FrequencyPageState extends State<FrequencyPage> {
 
    }
 
-  void _handleView(int loraIndex) {
+  Future<void> _handleView(int loraIndex) async {
     setState(() => _isLoading = true);
 
     String val = loraIndex == 1 ? "29" : "30";
@@ -139,6 +168,33 @@ class _FrequencyPageState extends State<FrequencyPage> {
     String topic = "${Environment.mqttPublishTopic}/${widget.deviceId}";
     AppLog.log('payLoadFinal----$payLoadFinal');
     AppLog.log('topic----$topic');
+
+    try {
+      String payLoadFinal = jsonEncode({
+        "5700": {
+          "5701": "$val"
+        }
+      });
+      final result = await context.read<CommunicationService>().sendCommand(
+          payload: payLoadFinal,
+          serverMsg: 'LORA KEY View');
+      debugPrint("Payload sent to Server$payLoadFinal");
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Settings sent Ble")),
+      );
+      if (result['http'] == true) {
+        debugPrint("Payload sent to Server ");
+      }
+      if (result['mqtt'] == true) {
+        debugPrint("Payload sent to MQTT Box ");
+      }
+      if (result['bluetooth'] == true) {
+        debugPrint("Payload sent via Bluetooth ");
+      }
+    } finally {}
+
+
     MqttService().topicToPublishAndItsMessage(jsonEncode(payLoadFinal), topic);
 
     Future.delayed(const Duration(seconds: 4), () {

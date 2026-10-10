@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:oro_drip_irrigation/Screens/planning/weather/widgets/periodicCard.dart';
+import 'package:oro_drip_irrigation/Screens/planning/weather/widgets/periodicCardCurrent.dart';
 
 class RainfallCard extends StatelessWidget {
   final String title;
@@ -43,59 +44,64 @@ class RainfallCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(icon, size: 20),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                title,
-                style: const TextStyle(fontWeight: FontWeight.w600),
+    return Container(
+      height: 400,
+      width: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 20),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  title,
+                  maxLines: 2,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
               ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 5),
-        Text(
-          '$rainfallValue mm',
-          style: const TextStyle(
-            color: Colors.black,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
+            ],
           ),
-        ),
-        const SizedBox(height: 6),
-        Text(forecastText, style: const TextStyle(color: Colors.black)),
-        const SizedBox(height: 5),
-        Text(description, style: const TextStyle(color: Colors.black)),
-        const SizedBox(height: 1),
+          const SizedBox(height: 5),
+          Text(
+            '$rainfallValue mm',
+            style: const TextStyle(
+              color: Colors.black,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(forecastText, style: const TextStyle(color: Colors.black)),
+          const SizedBox(height: 5),
+          Text(description, style: const TextStyle(color: Colors.black)),
+          const SizedBox(height: 1),
 
-        SensorPeriodCard(
-          title: 'Current Day',
-          minValue: min,
-          maxValue: max,
-          averageValue: other,
-        ),
-        const SizedBox(height: 10),
+          SensorPeriodCardCurrent(
+            title: 'Current Day',
+            minValue: min,
+            maxValue: max,
+            averageValue: other,
+          ),
+          const SizedBox(height: 10),
 
-        SensorPeriodCard(
-          title: 'Last 7 Days',
-          minValue: last7DaysMin.toString(),
-          maxValue: last7DaysMax.toString(),
-          averageValue: last7DaysAverage.toString(),
-        ),
-        const SizedBox(height: 10),
+          SensorPeriodCard(
+            title: 'Last 7 Days',
+            minValue: last7DaysMin.toString(),
+            maxValue: last7DaysMax.toString(),
+            averageValue: last7DaysAverage.toString(),
+          ),
+          const SizedBox(height: 10),
 
-        SensorPeriodCard(
-          title: 'Last Month',
-          minValue: last30DaysMin.toString(),
-          maxValue: last30DaysMax.toString(),
-          averageValue: last30DaysAverage.toString(),
-        ),
-      ],
+          SensorPeriodCard(
+            title: 'Last Month',
+            minValue: last30DaysMin.toString(),
+            maxValue: last30DaysMax.toString(),
+            averageValue: last30DaysAverage.toString(),
+          ),
+        ],
+      ),
     );
   }
 }
