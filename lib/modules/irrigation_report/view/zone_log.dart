@@ -146,7 +146,6 @@ class _ZoneLogState extends State<ZoneLog> with AutomaticKeepAliveClientMixin {
   String _graphChartType = 'Column'; // 'Column', 'Spline', 'Area'
   final Set<String> _expandedBreakdownKeys = {};
 
-
   @override
   void initState() {
     super.initState();
@@ -252,7 +251,8 @@ class _ZoneLogState extends State<ZoneLog> with AutomaticKeepAliveClientMixin {
         "ProgramName",
         "IrrigationMethod",
         "IrrigationDuration_Quantity",
-        "IrrigationQuantityCompleted"
+        "IrrigationQuantityCompleted",
+        "SequenceData"
       ]
     };
 
@@ -814,14 +814,12 @@ class _ZoneLogState extends State<ZoneLog> with AutomaticKeepAliveClientMixin {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            border: Border.all(
-                                color: const Color(0xFFCBD5E1)),
+                            border: Border.all(color: const Color(0xFFCBD5E1)),
                             borderRadius: BorderRadius.circular(6),
                             color: Colors.white,
                           ),
                           child: Row(
-                            mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Expanded(
                                 child: Text(
@@ -3116,7 +3114,6 @@ class _ZoneLogState extends State<ZoneLog> with AutomaticKeepAliveClientMixin {
                   ],
                 ),
               ],
-
 
               // Expanded Date-wise Duration, Quantity & Total breakdown
               if (isExpanded) ...[
